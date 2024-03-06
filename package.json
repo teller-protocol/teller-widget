@@ -1,0 +1,11 @@
+{
+  "name": "teller-widget",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:teller-protocol/teller-widget.git",
+  "dependencies": {
+    "@types/react": "^18.2.63",
+    "react": "^18.2.0",
+    "typescript": "^5.3.3"
+  }
+}
