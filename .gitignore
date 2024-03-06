@@ -4,3 +4,4 @@ dist/*
 storybook-static/*
 yarn-error.log
 .vscode/*
+build/*
