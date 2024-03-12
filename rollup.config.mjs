@@ -31,9 +31,9 @@ export default [
       peerDepsExternal(),
       resolve(),
       commonjs(),
-      typescript(),
+      typescript({ tsconfig: "./tsconfig.json" }),
       postcss({
-        extensions: [".css"],
+        extensions: [".scss"],
       }),
     ],
   },
@@ -41,6 +41,6 @@ export default [
     input: "lib/index.d.ts",
     output: [{ file: "lib/index.d.ts", format: "es" }],
     plugins: [dts()],
-    external: [/\.css$/],
+    external: [/\.scss$/],
   },
 ];
