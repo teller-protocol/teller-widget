@@ -1,24 +1,27 @@
-import { CHAIN_CONFIG } from "constants/chains";
-import { ALCHEMY_API_KEY } from "constants/global";
+import { useChainId } from "wagmi";
 
-import { Alchemy } from "@teller-protocol/alchemy-sdk";
+import { Alchemy, Network } from "@teller-protocol/alchemy-sdk";
 import { useMemo } from "react";
+import { arbitrum, base, mainnet, polygon } from "viem/chains";
+import { ALCHEMY_API_KEY } from "../constants/global";
 
-import { useChain } from "./useChain";
+const mapChainIdToAlchemyNetworkKey: { [key: number]: Network | undefined } = {
+  [mainnet.id]: Network.ETH_MAINNET,
+  [polygon.id]: Network.MATIC_MAINNET,
+  [arbitrum.id]: Network.ARB_MAINNET,
+  // [base.id]: Network.BASE_MAINNET,
+};
 
 export const useAlchemy = (): Alchemy | undefined => {
-  const { chain } = useChain();
-
-  const chainConfig = useMemo(() => {
-    if (!chain) return;
-    return CHAIN_CONFIG[chain.id];
-  }, [chain]);
+  const chainId = useChainId();
 
   return useMemo(() => {
-    if (!chainConfig?.alchemyNetworkKey) return;
+    if (!mapChainIdToAlchemyNetworkKey[chainId]) {
+      return;
+    }
     return new Alchemy({
       apiKey: ALCHEMY_API_KEY,
-      network: chainConfig.alchemyNetworkKey,
+      network: mapChainIdToAlchemyNetworkKey[chainId],
     });
-  }, [chainConfig?.alchemyNetworkKey]);
+  }, [chainId]);
 };
