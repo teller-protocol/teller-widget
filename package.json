@@ -12,16 +12,20 @@
   "dependencies": {
     "@iconify/react": "^4.1.1",
     "@tanstack/react-query": "^5.25.0",
+    "@teller-protocol/alchemy-sdk": "^2.8.5",
     "@types/react": "^18.2.63",
     "classnames": "^2.5.1",
     "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.3",
     "viem": "2.x",
     "wagmi": "^2.5.7"
   },
   "devDependencies": {
+    "@parcel/watcher": "^2.4.1",
     "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@storybook/addon-essentials": "^7.6.17",
@@ -33,7 +37,13 @@
     "@storybook/react": "^7.6.17",
     "@storybook/react-webpack5": "^7.6.17",
     "@storybook/test": "^7.6.17",
+    "@teller-protocol/v2-contracts": "^3.1.12",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
     "css-loader": "^6.10.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "postcss": "^8.4.35",
     "rollup": "^4.12.0",
     "rollup-plugin-dts": "^6.1.0",
@@ -42,7 +52,8 @@
     "sass": "^1.71.1",
     "sass-loader": "^14.1.1",
     "storybook": "^7.6.17",
-    "style-loader": "^3.3.4"
+    "style-loader": "^3.3.4",
+    "ts-node": "^10.9.2"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
