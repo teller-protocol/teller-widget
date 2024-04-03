@@ -1,0 +1,23 @@
+.collateral-token-row {
+  border: 0.5px solid $border-color-secondary;
+  border-radius: $border-radius;
+  display: flex;
+  padding: $s-small $s-normal;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+    background-color: $border-color-background;
+  }
+
+  .token-balance-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .token-logo {
+    margin-right: $s-small;
+  }
+}
