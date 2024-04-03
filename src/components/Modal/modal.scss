@@ -1,3 +1,5 @@
+@import "../../tokens.scss";
+
 .blur {
   backdrop-filter: blur(4px);
 }
@@ -16,11 +18,14 @@
   z-index: 100;
 
   &-inner {
-    inset : 0;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     display: inline-block;
+    min-width: 40%;
+    max-width: 800px;
+    min-height: 60%;
   }
 
   &-content {
@@ -30,11 +35,13 @@
     border-radius: 0.5rem;
     background-color: rgba(248, 248, 250, 1);
     border: 0.5px solid rgba(199, 199, 199, 1);
-    padding: 2em 2em .5em;
-    transform: translate(0,0) // trick to remove the blur from modal
+    padding: 2em 2em 0.5em;
+    transform: translate(0, 0); // trick to remove the blur from modal
+    width: 100%;
+    height: 100%;
   }
 
-  .blur-container > div{
+  .blur-container > div {
     position: absolute;
     inset: 0;
     backdrop-filter: blur(4px);
@@ -45,6 +52,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: $text-primary;
+    font-weight: 600;
+
+    margin-bottom: $s-large;
 
     .close-button {
       height: 100%;
@@ -56,4 +67,8 @@
     }
   }
 
+  .modal-footer-logo {
+    margin-top: $s-large;
+    text-align: center;
+  }
 }
