@@ -49,7 +49,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   const ref = useOutsideClick(() => setIsOpen(false));
 
   return (
-    <div className="token-dropdown">
+    <div className="token-dropdown" ref={ref}>
       <div
         className={cx("token-dropdown--row-container", isOpen && "opened")}
         onClick={() => setIsOpen(!isOpen)}
@@ -60,7 +60,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
         </div>
       </div>
       {isOpen && tokens.length > 0 && (
-        <div className="token-dropdown--tokens" ref={ref}>
+        <div className="token-dropdown--tokens">
           {tokens.map((token) => (
             <TokenDropdownRow
               token={token}

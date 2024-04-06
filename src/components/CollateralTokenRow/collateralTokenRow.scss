@@ -1,9 +1,12 @@
+@import "../../tokens.scss";
+
 .collateral-token-row {
   border: 0.5px solid $border-color-secondary;
   border-radius: $border-radius;
   display: flex;
   padding: $s-small $s-normal;
   align-items: center;
+  margin-bottom: $s-small;
 
   &:hover {
     cursor: pointer;
@@ -15,6 +18,11 @@
     flex-direction: column;
     justify-content: center;
     width: 100%;
+
+    .paragraph {
+      line-height: 18px;
+      margin-bottom: 4px;
+    }
   }
 
   .token-logo {
