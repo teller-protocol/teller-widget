@@ -31,15 +31,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 };
 
 const OpportunitiesList: React.FC = () => {
-  const {
-    selectedCollateralToken,
-    tokensWithCommitments,
-    setSelectedCollateralToken,
-  } = useGetBorrowSectionContext();
-  console.log(
-    "TCL ~ file: OpportunitiesList.tsx:34 ~ selectedCollateralToken:",
-    selectedCollateralToken
-  );
+  const { selectedCollateralToken, tokensWithCommitments } =
+    useGetBorrowSectionContext();
   const { data } = useGetCommitmentsForCollateralToken(
     selectedCollateralToken?.address
   );
@@ -52,7 +45,6 @@ const OpportunitiesList: React.FC = () => {
             <TokenDropdown
               tokens={tokensWithCommitments}
               selectedToken={selectedCollateralToken}
-              onSelectToken={setSelectedCollateralToken}
             />
           </>
         )}
@@ -60,7 +52,7 @@ const OpportunitiesList: React.FC = () => {
       {data && (
         <div className="opportunities-list-body">
           {data.commitments.map((commitment) => (
-            <OpportunityListItem opportunity={commitment} />
+            <OpportunityListItem opportunity={commitment} key={commitment.id} />
           ))}
         </div>
       )}

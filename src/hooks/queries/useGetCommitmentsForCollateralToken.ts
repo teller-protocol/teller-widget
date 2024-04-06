@@ -104,7 +104,7 @@ export const useGetCommitmentsForCollateralToken = (
   );
 
   const { data, isLoading } = useQuery({
-    queryKey: ["commitmentsForCollateralToken"],
+    queryKey: ["commitmentsForCollateralToken-", collateralTokenAddress],
     queryFn: async () => request(graphURL, collateralTokenCommitments),
     enabled: !!collateralTokenAddress,
   }) as { data: { commitments: CommitmentType[] }; isLoading: boolean };
