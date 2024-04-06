@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
+import { useEffect, useMemo, useState } from "react";
+
 import { UserToken, useGetUserTokens } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
-import { useEffect, useMemo, useState } from "react";
 
 interface Commitment {
   collateralToken: {
@@ -11,7 +12,7 @@ interface Commitment {
 }
 
 export const useGetCommitmentsForUserTokens = () => {
-  const [commitmentsData, setCommitmentsData] = useState<any[]>([]);
+  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
   const { userTokens } = useGetUserTokens();
@@ -49,6 +50,7 @@ export const useGetCommitmentsForUserTokens = () => {
   }) as { data: { commitments: Commitment[] }; isLoading: boolean };
 
   useEffect(() => {
+    if (!userTokens.length) setLoading(true);
     if (data?.commitments) {
       const userCommitments = data.commitments.reduce((acc, current) => {
         if (
@@ -58,21 +60,25 @@ export const useGetCommitmentsForUserTokens = () => {
           )
         ) {
           return acc;
-        } else
-          acc.push(
-            userTokens.find(
-              (token) => token?.address === current?.collateralToken?.address
-            )
+        } else {
+          const userTokenFromCommitment = userTokens.find(
+            (token) =>
+              token?.address.toLowerCase() ===
+              current?.collateralToken?.address.toLowerCase()
           );
+          if (userTokenFromCommitment) {
+            acc.push(userTokenFromCommitment);
+          }
+        }
         return acc;
       }, [] as UserToken[]);
-      setCommitmentsData(userCommitments);
+      setTokensWithCommitments(userCommitments);
       setLoading(false);
     }
-  }, [data]);
+  }, [data, userTokens, setTokensWithCommitments, setLoading]);
 
   return useMemo(
-    () => ({ commitmentsData, loading }),
-    [commitmentsData, loading]
+    () => ({ tokensWithCommitments, loading }),
+    [tokensWithCommitments, loading]
   );
 };

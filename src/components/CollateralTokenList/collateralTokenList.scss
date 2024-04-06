@@ -1,7 +1,8 @@
-@import "../../../tokens.scss";
+@import "../../tokens.scss";
 
 .collateral-token-list {
   margin-top: $s-normal;
+
   &-select {
     border: 0.5px solid $border-color-secondary;
     border-radius: $border-radius;
@@ -25,5 +26,9 @@
     .token-logo {
       margin-right: $s-small;
     }
+  }
+
+  .loader {
+    margin-top: $s-normal;
   }
 }

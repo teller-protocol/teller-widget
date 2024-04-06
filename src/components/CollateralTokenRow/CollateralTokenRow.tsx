@@ -18,7 +18,7 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
     <div className="token-balance-info">
       <span>{token?.symbol}</span>
       <span>
-        Balance: {token?.balance} {token?.symbol}
+        Balance: {Number(token?.balance).toFixed(3)} {token?.symbol}
       </span>
     </div>
   </div>

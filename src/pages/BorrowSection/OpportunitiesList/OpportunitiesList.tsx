@@ -3,12 +3,9 @@ import {
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { UserToken } from "../../../hooks/useGetUserTokens";
-import CollateralTokenRow from "../../CollateralTokenRow";
-
-interface OpportunitiesListProps {
-  selectedCollateral?: UserToken;
-  onOpportunityClick: (v: any) => void;
-}
+import CollateralTokenRow from "../../../components/CollateralTokenRow";
+import { useGetBorrowSectionContext } from "../BorrowSectionContext";
+import TokenDropdown from "../../../components/TokenDropdown";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -33,20 +30,30 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   );
 };
 
-const OpportunitiesList: React.FC<OpportunitiesListProps> = ({
-  selectedCollateral,
-  onOpportunityClick,
-}) => {
+const OpportunitiesList: React.FC = () => {
+  const {
+    selectedCollateralToken,
+    tokensWithCommitments,
+    setSelectedCollateralToken,
+  } = useGetBorrowSectionContext();
+  console.log(
+    "TCL ~ file: OpportunitiesList.tsx:34 ~ selectedCollateralToken:",
+    selectedCollateralToken
+  );
   const { data } = useGetCommitmentsForCollateralToken(
-    selectedCollateral?.address
+    selectedCollateralToken?.address
   );
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">
-        {selectedCollateral && (
+        {selectedCollateralToken && (
           <>
             <span>My token collateral</span>
-            <CollateralTokenRow token={selectedCollateral} />
+            <TokenDropdown
+              tokens={tokensWithCommitments}
+              selectedToken={selectedCollateralToken}
+              onSelectToken={setSelectedCollateralToken}
+            />
           </>
         )}
       </div>

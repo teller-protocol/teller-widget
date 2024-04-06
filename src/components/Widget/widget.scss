@@ -1,6 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Work+Sans:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap");
 
+@import "../../tokens.scss";
+
 .teller-widget {
   font-family: "Work Sans", sans-serif;
+}
+
+.section-title {
+  font-family: "Roboto", serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: $text-secondary;
+}
+
+.paragraph {
+
 }

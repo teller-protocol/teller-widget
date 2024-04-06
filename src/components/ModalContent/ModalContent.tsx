@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BorrowSection from "../BorrowSection";
+import BorrowSection from "../../pages/BorrowSection";
 import SelectButtons from "../SelectButtons";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 
