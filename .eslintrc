@@ -44,7 +44,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
-  "plugins": ["prettier", "react", "react-hooks", "node"],
+  "plugins": ["prettier", "react", "react-hooks", "node", "unused-imports"],
   "rules": {
     "eqeqeq": ["error", "smart"],
     "react/jsx-wrap-multilines": "warn",
@@ -129,8 +129,8 @@
       "error",
       {
         "devDependencies": true,
-        "optionalDependencies": false,
-        "peerDependencies": false
+        "optionalDependencies": true,
+        "peerDependencies": true
       }
     ],
     "no-underscore-dangle": [
