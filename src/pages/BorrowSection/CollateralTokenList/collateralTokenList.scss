@@ -1,7 +1,9 @@
-@import "../../tokens.scss";
+@import "../../../tokens.scss";
 
 .collateral-token-list {
-  margin-top: $s-normal;
+  .section-title {
+    margin-bottom: $s-normal;
+  }
 
   &-select {
     border: 0.5px solid $border-color-secondary;

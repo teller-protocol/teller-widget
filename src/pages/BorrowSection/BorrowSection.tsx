@@ -1,15 +1,14 @@
-import { useMemo, useState } from "react";
-import { useGetUserTokenContext } from "../../context/UserTokensContext";
-import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
-import CollateralTokenList from "../../components/CollateralTokenList";
+import { useMemo } from "react";
+
+import CollateralTokenList from "./CollateralTokenList";
+
 import "./borrowSection.scss";
-import { UserToken } from "../../hooks/useGetUserTokens";
-import OpportunitiesList from "./OpportunitiesList";
 import {
   BorrowSectionContextProvider,
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "./BorrowSectionContext";
+import OpportunitiesList from "./OpportunitiesList";
 
 const RenderComponent: React.FC = () => {
   const { currentStep } = useGetBorrowSectionContext();

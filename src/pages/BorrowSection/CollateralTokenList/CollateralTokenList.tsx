@@ -1,12 +1,10 @@
-import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
-import { UserToken } from "../../hooks/useGetUserTokens";
+import CollateralTokenRow from "../../../components/CollateralTokenRow";
+import Loader from "../../../components/Loader";
+import { UserToken } from "../../../hooks/useGetUserTokens";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
-} from "../../pages/BorrowSection/BorrowSectionContext";
-
-import CollateralTokenRow from "../CollateralTokenRow";
-import Loader from "../Loader";
+} from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 
 const CollateralTokenList: React.FC = () => {
@@ -24,7 +22,7 @@ const CollateralTokenList: React.FC = () => {
 
   return (
     <div className="collateral-token-list">
-      <span className="section-title">Select token collateral for deposit</span>
+      <div className="section-title">Select token collateral for deposit: </div>
       {loading ? (
         <Loader />
       ) : tokensWithCommitments.length > 0 ? (
