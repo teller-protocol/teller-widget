@@ -3,7 +3,7 @@ import cx from "classnames";
 
 import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
-import caret from "../../assets/caret.svg";
+import caret from "../../assets/down-caret.svg";
 
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
@@ -26,10 +26,10 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
     <TokenLogo logoUrl={token?.logo} size={32} />
     <div className="token-info">
-      <span>{token?.symbol}</span>
-      <span>
+      <div className="paragraph">{token?.symbol}</div>
+      <div className="section-sub-title">
         Balance: {Number(token?.balance).toFixed(3)} {token?.symbol}
-      </span>
+      </div>
     </div>
   </div>
 );

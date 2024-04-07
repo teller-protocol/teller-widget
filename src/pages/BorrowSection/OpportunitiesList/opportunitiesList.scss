@@ -1,0 +1,53 @@
+@import "../../../tokens.scss";
+
+.opportunities-list {
+  &-header {
+    .section-title {
+      margin-bottom: $s-normal;
+    }
+  }
+
+  &-body {
+    .paragraph.opportunities-sub-title {
+      margin-top: $s-normal;
+      margin-bottom: $s-normal;
+      margin-left: -$s-large;
+      margin-right: -$s-large;
+      border-bottom: 1px solid $border-color;
+      padding-left: $s-large;
+      padding-bottom: $s-small;
+    }
+  }
+
+  .opportunity-list-item {
+    margin-top: $s-normal;
+    margin-bottom: $s-normal;
+    margin-left: -$s-large;
+    margin-right: -$s-large;
+    padding-left: $s-large;
+    padding-right: $s-large;
+    padding-bottom: $s-small;
+    border-bottom: 1px solid $border-color;
+    cursor: pointer;
+
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &-header {
+      margin-bottom: $s-normal;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &-body {
+      background-color: $bg-light;
+      padding: $s-normal $s-large;
+      margin-bottom: $s-normal;
+
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
