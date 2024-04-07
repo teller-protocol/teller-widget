@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useContracts } from "./useContracts";
 import { useChainId, useReadContract } from "wagmi";
+import { erc20Abi } from "viem";
 
 export enum SupportedContractsEnum {
   "TellerV2" = "TellerV2",
@@ -13,22 +14,26 @@ export enum SupportedContractsEnum {
   "CollateralManager" = "CollateralManager",
 }
 
-enum ContractType {
+export enum ContractType {
   Teller = "Teller",
+  ERC20 = "ERC20",
 }
 
 export const useContractRead = <T = any>(
-  contractName: SupportedContractsEnum,
+  contractName: SupportedContractsEnum | string,
   functionName: string,
   args: any[],
+  skipRun = false,
   contractType = ContractType.Teller
 ) => {
+  const log = functionName === "allowance";
   const contracts = useContracts();
   const chainId = useChainId();
 
   const mapAbi = useMemo(
     () => ({
       [ContractType.Teller]: contracts[contractName]?.abi,
+      [ContractType.ERC20]: erc20Abi,
     }),
     [contractName, contracts]
   );
