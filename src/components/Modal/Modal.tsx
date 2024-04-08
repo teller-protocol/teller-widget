@@ -65,7 +65,7 @@ const Modal = ({ children, closeModal, showModal }: ModalProps) => {
               aria-modal="true"
               aria-labelledby="modal-headline"
             >
-              <div>
+              <div className="modal-container-content-inner">
                 <div className="modal-content-title">
                   <div className="modal-title">Cash Advance</div>
                   <div className="close-button">
