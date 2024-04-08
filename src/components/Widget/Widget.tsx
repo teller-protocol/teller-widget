@@ -6,8 +6,9 @@ import Button from "../Button";
 import ConnectWalletButton from "../ConnectWalletButton";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
+import { UserTokensContextProvider } from "../../contexts/UserTokensContext";
+
 import "./widget.scss";
-import { UserTokensContextProvider } from "../../context/UserTokensContext";
 
 const queryClient = new QueryClient();
 

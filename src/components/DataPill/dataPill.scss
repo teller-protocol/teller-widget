@@ -1,0 +1,17 @@
+@import "../../tokens.scss";
+
+.data-pill {
+  border-radius: 99999px;
+  background-color: rgba(247, 250, 249, 1);
+  border: 1px solid rgba(0, 154, 150, 0.1);
+  font-weight: 600;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  img {
+    height: 15px;
+    margin-left: $s-normal;
+  }
+}

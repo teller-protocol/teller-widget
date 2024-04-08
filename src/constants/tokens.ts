@@ -136,81 +136,20 @@ export const TOKEN_ADDRESSES: Record<
   },
 };
 
-export const getTokenId = (address: String | undefined) => {
-  for (const [chain, tokens] of Object.entries(TOKEN_ADDRESSES)) {
-    for (const [key, value] of Object.entries(tokens)) {
-      if (value.toLowerCase() === address?.toLowerCase())
-        return key as SupportedTokensEnum;
-    }
-  }
+export const SUPPORTED_TOKEN_LOGOS: Record<string, string> = {
+  [SupportedTokensEnum.WETH]:
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc778417E063141139Fce010982780140Aa0cD5Ab/logo.png",
+  [SupportedTokensEnum.USDC]:
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+  [SupportedTokensEnum.DAI]:
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735/logo.png",
+  [SupportedTokensEnum.USDT]:
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
+  [SupportedTokensEnum.WMATIC]:
+    "https://assets.coingecko.com/coins/images/4713/thumb/matic-token-icon.png?1624446912",
+  [SupportedTokensEnum.ARB]: "https://arbitrum.foundation/logo.png",
+  [SupportedTokensEnum["USDC.e"]]:
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+  [SupportedTokensEnum["USDbC"]]:
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
 };
-
-interface ITokenConfig {
-  decimals: number;
-  icon: string;
-  iconColor?: string;
-  exchangeRatePairId: string;
-}
-
-export const TOKEN_CONFIG: Record<SupportedTokensEnum, ITokenConfig> = {
-  [SupportedTokensEnum.WETH]: {
-    decimals: 18,
-    icon: "logos:ethereum",
-    exchangeRatePairId: "ETH-USD",
-  },
-  [SupportedTokensEnum.USDC]: {
-    decimals: 6,
-    icon: "cryptocurrency-color:usdc",
-    exchangeRatePairId: "USDC-USD",
-  },
-  [SupportedTokensEnum.DAI]: {
-    decimals: 18,
-    icon: "cryptocurrency:dai",
-    iconColor: "#EABA4F",
-    exchangeRatePairId: "DAI-USD",
-  },
-  [SupportedTokensEnum.USDT]: {
-    decimals: 6,
-    icon: "cryptocurrency:usdt",
-    iconColor: "#409192",
-    exchangeRatePairId: "USDT-USD",
-  },
-  [SupportedTokensEnum.WMATIC]: {
-    decimals: 18,
-    icon: "cryptocurrency:matic",
-    iconColor: "#7F55E0",
-    exchangeRatePairId: "MATIC-USD",
-  },
-  [SupportedTokensEnum.ARB]: {
-    decimals: 18,
-    icon: "cryptocurrency:arbitrum",
-    iconColor: "#7F55E0",
-    exchangeRatePairId: "ARB-USD",
-  },
-  [SupportedTokensEnum["USDC.e"]]: {
-    decimals: 6,
-    icon: "cryptocurrency:usdc",
-    iconColor: "#2775CA",
-    exchangeRatePairId: "USDC-USD",
-  },
-  [SupportedTokensEnum["USDbC"]]: {
-    decimals: 6,
-    icon: "cryptocurrency:usdc",
-    iconColor: "#2775CA",
-    exchangeRatePairId: "USDC-USD",
-  },
-  // [SupportedTokensEnum.WBTC]: {
-  //   decimals: 8,
-  //   icon: 'cryptocurrency:wbtc',
-  //   iconColor: '#F09242',
-  //   exchangeRatePairId: 'BTC-USD',
-  // },
-};
-
-export function isSupportedToken(
-  tokenId: string | null | undefined
-): tokenId is SupportedTokensEnum {
-  return !!tokenId && tokenId in SupportedTokensEnum;
-}
-
-export const DEFAULT_TOKEN_ID = SupportedTokensEnum.USDC;

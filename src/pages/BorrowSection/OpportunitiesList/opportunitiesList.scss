@@ -30,15 +30,11 @@
     border-bottom: 1px solid $border-color;
     cursor: pointer;
 
-
-    &:hover {
-      opacity: 0.8;
-    }
-
     &-header {
       margin-bottom: $s-normal;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
     &-body {
@@ -47,7 +43,24 @@
       margin-bottom: $s-normal;
 
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
+    }
+
+    &-data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $s-small;
+
+      &-label {
+        font-family: 'Work Sans'
+      }
+      &-value {
+        color: $text-primary;
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 500;
+      }
     }
   }
 }

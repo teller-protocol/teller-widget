@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TokenDropdown from "../../../components/TokenDropdown";
 import {
   CommitmentType,
@@ -8,7 +8,13 @@ import { useGetBorrowSectionContext } from "../BorrowSectionContext";
 
 import "./opportunitiesList.scss";
 
+import { formatUnits } from "viem";
 import caret from "../../../assets/right-caret.svg";
+import DataPill from "../../../components/DataPill";
+import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import { useGetUserTokens } from "../../../hooks/useGetUserTokens";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -34,12 +40,73 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
 }) => {
+  const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(0));
+  const { userTokens } = useGetUserTokens();
+
+  const commitmentMax = useCommitmentMax({
+    commitment: opportunity,
+    requestedCollateral: collateralAmount,
+    collateralTokenDecimals: opportunity.collateralToken?.decimals,
+  });
+
+  useEffect(() => {
+    commitmentMax.maxCollateral > 0 &&
+      setCollateralAmount(commitmentMax.maxCollateral);
+  }, [commitmentMax.maxCollateral]);
+
+  const displayCollateralAmountData = {
+    formattedAmount: numberWithCommasAndDecimals(
+      Number(
+        formatUnits(
+          commitmentMax.maxCollateral,
+          opportunity.collateralToken?.decimals
+        )
+      ).toFixed(2)
+    ),
+    token: userTokens.find(
+      (token) => token.address === opportunity.collateralToken?.address
+    )?.logo,
+  };
+
+  const displayLoanAmountData = {
+    formattedAmount: numberWithCommasAndDecimals(
+      Number(
+        formatUnits(
+          commitmentMax.maxLoanAmount,
+          opportunity.principalToken?.decimals
+        )
+      ).toFixed(2)
+    ),
+    token: SUPPORTED_TOKEN_LOGOS[opportunity.principalToken?.symbol],
+  };
+
+  const formatedCollateralAmount = Number(
+    formatUnits(
+      commitmentMax.maxCollateral,
+      opportunity.collateralToken?.decimals
+    )
+  ).toFixed(2);
+
+  const formatedLoanAmount = Number(
+    formatUnits(
+      commitmentMax.maxLoanAmount,
+      opportunity.principalToken?.decimals
+    )
+  ).toFixed(2);
+
   return (
     <div className="opportunity-list-item">
       <div className="paragraph opportunity-list-item-header">
-        <div>
-          Deposit <b>15 {opportunity.collateralToken?.symbol}</b> to borrow{" "}
-        </div>
+        Deposit{" "}
+        <DataPill
+          label={displayCollateralAmountData.formattedAmount}
+          logo={displayCollateralAmountData.token}
+        />{" "}
+        to borow{" "}
+        <DataPill
+          label={displayLoanAmountData.formattedAmount}
+          logo={displayLoanAmountData.token}
+        />
         <img src={caret} />
       </div>
       <div className="opportunity-list-item-body">
@@ -51,7 +118,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label="Duration"
           value={`${Number(opportunity.maxDuration) / 86400} days`}
         />
-        <OpportunityListDataItem label="Points" value="123 points" />
       </div>
     </div>
   );

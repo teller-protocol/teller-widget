@@ -14,7 +14,7 @@ export type UserToken = {
 };
 
 export const useGetUserTokens = () => {
-  const [userTokens, setUserTokens] = useState<any[]>([]);
+  const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const alchemy = useAlchemy();
