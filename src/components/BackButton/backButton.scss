@@ -1,0 +1,20 @@
+@import "../../tokens.scss";
+
+.back-button {
+  font-family: "Roboto";
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  color: $text-secondary;
+
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: inherit;
+
+  img {
+    transform: rotate(180deg);
+    margin-right: $s-small;
+  }
+}
