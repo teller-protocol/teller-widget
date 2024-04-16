@@ -1,1 +1,3 @@
-export { default } from "./Widget/Widget";
+import Widget from "./components/Widget";
+
+export { Widget };

@@ -1,0 +1,10 @@
+@import "../../tokens.scss";
+
+.borrow-section {
+  margin-top: $s-large;
+  padding: $s-large;
+  background-color: white;
+  border-radius: $border-radius;
+  height: 100%;
+  overflow: scroll;
+}

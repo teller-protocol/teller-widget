@@ -1,0 +1,16 @@
+.loader {
+  font-weight: bold;
+  font-family: sans-serif;
+  animation: flashing 1s linear infinite alternate;
+
+  img {
+    height: 50px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+@keyframes flashing {
+  to {
+    opacity: 0;
+  }
+}

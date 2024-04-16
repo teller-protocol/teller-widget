@@ -1,0 +1,36 @@
+@import "../../../tokens.scss";
+
+.collateral-token-list {
+  .section-title {
+    margin-bottom: $s-normal;
+  }
+
+  &-select {
+    border: 0.5px solid $border-color-secondary;
+    border-radius: $border-radius;
+    display: flex;
+    padding: $s-small $s-normal;
+    align-items: center;
+    margin: $s-small 0;
+
+    &:hover {
+      cursor: pointer;
+      background-color: $border-color-background;
+    }
+
+    .token-balance-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .token-logo {
+      margin-right: $s-small;
+    }
+  }
+
+  .loader {
+    margin-top: $s-normal;
+  }
+}

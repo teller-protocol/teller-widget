@@ -4,3 +4,6 @@ dist/*
 storybook-static/*
 yarn-error.log
 .vscode/*
+build/*
+lib/*
+yalc.lock
