@@ -1,7 +1,7 @@
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { AddressStringType } from "../../types/addressStringType";
-import { erc20Abi } from "viem";
+import { erc20Abi, parseUnits } from "viem";
 import { SubgraphTokenType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 
 import "./tokenInput.scss";
@@ -17,33 +17,74 @@ interface TokenInputProps {
   tokenValue: TokenInputType;
   imageUrl: string;
   label?: string;
-  showMaxButton?: boolean;
   sublabel?: string;
+  maxAmount?: number;
+  onChange?: (value: TokenInputType) => void;
+  readonly?: boolean;
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
   tokenValue,
   label,
-  showMaxButton,
+  maxAmount,
   imageUrl,
   sublabel,
+  onChange,
+  readonly,
 }) => {
-  const { address } = useAccount();
-  const { data } = useReadContract({
-    address: tokenValue.token?.address as AddressStringType,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: [address ?? "0x"],
-  });
+  const maxValueBigInt = parseUnits(
+    (maxAmount ?? 0)?.toString(),
+    tokenValue.token?.decimals ?? 0
+  );
 
-  console.log("TCL ~ file: TokenInput.tsx:30 ~ tokenBalance:", data);
+  const setMaxValue = () =>
+    onChange?.({
+      ...tokenValue,
+      value: maxAmount,
+      valueBI: maxValueBigInt,
+    });
+
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    if (!e.currentTarget.value) {
+      onChange?.({
+        ...tokenValue,
+        value: undefined,
+        valueBI: BigInt(0),
+      });
+      return;
+    }
+    if (maxAmount) {
+      if (Number(e.currentTarget.value) > maxAmount) {
+        setMaxValue();
+        return;
+      }
+    }
+    onChange?.({
+      ...tokenValue,
+      value: Number(e.currentTarget.value),
+      valueBI: parseUnits(
+        e.currentTarget.value,
+        tokenValue.token?.decimals ?? 0
+      ),
+    });
+  };
 
   return (
     <div className="token-input-container">
-      <label className="section-title">{label}</label>
+      {label && <label className="section-title">{label}</label>}
       <div className="token-input">
-        <input type="number" value={tokenValue?.value} /* max={} */ />
-        {showMaxButton && <div className="max-button">MAX</div>}
+        <input
+          type="number"
+          value={tokenValue?.value}
+          max={Number(tokenValue.value)}
+          onChange={handleChange}
+          readOnly={readonly}
+        />
+        {maxAmount && (
+          <div className="max-button" onClick={setMaxValue}>
+            MAX
+          </div>
+        )}
         <div className="token-info">
           <TokenLogo logoUrl={imageUrl} size={20} />
           <span className="token-info-symbol">{tokenValue.token?.symbol}</span>

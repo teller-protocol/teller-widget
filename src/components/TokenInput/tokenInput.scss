@@ -21,6 +21,10 @@
       font-family: "Roboto";
 
       flex-grow: 1;
+
+      &[readonly] {
+        cursor: default;
+      }
     }
 
     input[type="number"] {
