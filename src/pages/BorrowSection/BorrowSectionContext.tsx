@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
+import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -14,8 +15,8 @@ export type BorrowSectionContextType = {
   setCurrentStep: (step: BorrowSectionSteps) => void;
   selectedCollateralToken?: UserToken;
   setSelectedCollateralToken: (token: UserToken) => void;
-  selectedOpportunity: any;
-  setSelectedOpportunity: (opportunity: any) => void;
+  selectedOpportunity: CommitmentType;
+  setSelectedOpportunity: (commitmentType: CommitmentType) => void;
   onCollateralTokenSelected: (token: UserToken) => void;
   onOpportunitySelected: (opportunity: any) => void;
   tokensWithCommitments: UserToken[];
@@ -43,6 +44,9 @@ export const BorrowSectionContextProvider: React.FC<
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
 
+  const [selectedOpportunity, setSelectedOpportunity] =
+    useState<CommitmentType>({} as CommitmentType);
+
   return (
     <BorrowSectionContext.Provider
       value={{
@@ -52,8 +56,8 @@ export const BorrowSectionContextProvider: React.FC<
         setSelectedCollateralToken,
         tokensWithCommitments,
         tokensWithCommitmentsLoading,
-        // selectedOpportunity,
-        // setSelectedOpportunity,
+        selectedOpportunity,
+        setSelectedOpportunity,
         // onCollateralTokenSelected,
         // onOpportunitySelected,
         // mapStepToComponent,

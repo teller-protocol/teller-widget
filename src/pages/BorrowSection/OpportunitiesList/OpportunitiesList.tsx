@@ -4,7 +4,10 @@ import {
   CommitmentType,
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
-import { useGetBorrowSectionContext } from "../BorrowSectionContext";
+import {
+  BorrowSectionSteps,
+  useGetBorrowSectionContext,
+} from "../BorrowSectionContext";
 
 import "./opportunitiesList.scss";
 
@@ -41,6 +44,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
 }) => {
   const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(0));
+  const { setCurrentStep, setSelectedOpportunity } =
+    useGetBorrowSectionContext();
   const { userTokens } = useGetUserTokens();
 
   const commitmentMax = useCommitmentMax({
@@ -94,8 +99,13 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     )
   ).toFixed(2);
 
+  const handleOnOpportunityClick = () => {
+    setSelectedOpportunity(opportunity);
+    setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
+  };
+
   return (
-    <div className="opportunity-list-item">
+    <div className="opportunity-list-item" onClick={handleOnOpportunityClick}>
       <div className="paragraph opportunity-list-item-header">
         Deposit{" "}
         <DataPill

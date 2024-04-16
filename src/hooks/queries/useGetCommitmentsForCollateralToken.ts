@@ -35,6 +35,9 @@ export type CommitmentType = {
   status?: string;
   maxPrincipal?: string;
   acceptedPrincipal?: string;
+  marketplace?: {
+    marketplaceFeePercent: string;
+  };
 };
 
 export const useGetCommitmentsForCollateralToken = (

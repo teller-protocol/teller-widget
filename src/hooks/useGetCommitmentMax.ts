@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useAccount, useBalance, useReadContract } from "wagmi";
 
-import { erc20Abi } from "viem";
+import { erc20Abi, formatUnits } from "viem";
 import { bigIntMin } from "../helpers/bigIntMath";
 import { CommitmentCollateralType } from "../types/poolsApiTypes";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
@@ -19,6 +19,7 @@ interface Result {
   maxCollateral: bigint;
   displayedPrincipal: bigint;
   isLoading: boolean;
+  maxLoanAmountNumber: number;
 }
 
 interface Args {
@@ -56,16 +57,8 @@ export const useCommitmentMax = ({
     ContractType.ERC20
   );
 
-  console.log("const availableLenderAllowance", availableLenderAllowance);
-
   const { maxPrincipalPerCollateral, isCommitmentFromLCFAlpha } =
     useGetMaxPrincipalPerCollateralFromLCFAlpha(commitment);
-
-  console.log(
-    "TCL ~ file: useGetCommitmentMax.ts:60 ~ isCommitmentFromLCFAlpha:",
-    isCommitmentFromLCFAlpha
-  );
-
   const minAmount = useMemo(
     () =>
       bigIntMin(
@@ -79,17 +72,6 @@ export const useCommitmentMax = ({
       commitment?.committedAmount,
     ]
   );
-
-  console.log(
-    "asd lenderBalance: ",
-    BigInt(availableLenderBalance?.data?.value ?? 0),
-    " allowanceData: ",
-    BigInt(availableLenderAllowance?.data ?? 0),
-    " commitmentAmount: ",
-    BigInt(commitment?.committedAmount ?? 0)
-  );
-
-  console.log("TCL ~ file: useGetCommitmentMax.ts:82 ~ minAmount:", minAmount);
 
   const { data: principalTokenDecimals } = useReadContract({
     address: commitment?.principalTokenAddress,
@@ -182,6 +164,10 @@ export const useCommitmentMax = ({
     principalTokenDecimals,
   ]);
 
+  const maxLoanAmountNumber = Number(
+    formatUnits(maxLoanAmount, commitment?.principalToken?.decimals ?? 18)
+  );
+
   let displayedPrincipal = maxLoanAmount;
   if (minAmount < BigInt(commitment?.committedAmount ?? 0)) {
     displayedPrincipal =
@@ -191,10 +177,17 @@ export const useCommitmentMax = ({
   return useMemo(
     () => ({
       maxLoanAmount,
+      maxLoanAmountNumber,
       displayedPrincipal,
       maxCollateral,
       isLoading,
     }),
-    [maxLoanAmount, displayedPrincipal, maxCollateral, isLoading]
+    [
+      maxLoanAmount,
+      maxLoanAmountNumber,
+      displayedPrincipal,
+      maxCollateral,
+      isLoading,
+    ]
   );
 };
