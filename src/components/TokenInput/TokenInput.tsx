@@ -19,6 +19,7 @@ interface TokenInputProps {
   label?: string;
   sublabel?: string;
   maxAmount?: number;
+  showMaxButton?: boolean;
   onChange?: (value: TokenInputType) => void;
   readonly?: boolean;
 }
@@ -31,6 +32,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
   sublabel,
   onChange,
   readonly,
+  showMaxButton = true,
 }) => {
   const maxValueBigInt = parseUnits(
     (maxAmount ?? 0)?.toString(),
@@ -53,12 +55,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
       });
       return;
     }
-    if (maxAmount) {
+    /*     if (maxAmount) {
       if (Number(e.currentTarget.value) > maxAmount) {
         setMaxValue();
         return;
       }
-    }
+    } */
     onChange?.({
       ...tokenValue,
       value: Number(e.currentTarget.value),
@@ -80,7 +82,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           onChange={handleChange}
           readOnly={readonly}
         />
-        {maxAmount && (
+        {showMaxButton && !!maxAmount && (
           <div className="max-button" onClick={setMaxValue}>
             MAX
           </div>

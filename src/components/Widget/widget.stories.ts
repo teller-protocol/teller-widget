@@ -14,7 +14,15 @@ const meta = {
   tags: ["autodocs"],
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
-    backgroundColor: { control: "color" },
+    tokenList: {
+      description: "Array of addressed organized by chain id.",
+    },
+  },
+  args: {
+    tokenList: {
+      [137]: ["0x61299774020dA444Af134c82fa83E3810b309991"],
+      [1]: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+    },
   },
 } satisfies Meta<typeof Widget>;
 
