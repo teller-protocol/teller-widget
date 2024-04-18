@@ -2,8 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
 import { useEffect, useMemo, useState } from "react";
 
-import { UserToken, useGetUserTokens } from "../useGetUserTokens";
+import { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
+import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
 
 interface Commitment {
   collateralToken: {
@@ -15,7 +16,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
-  const { userTokens } = useGetUserTokens();
+  const { userTokens } = useGetUserTokenContext();
 
   const hasTokens = userTokens.length > 0;
 
@@ -31,7 +32,6 @@ export const useGetCommitmentsForUserTokens = () => {
               status: "Active"
               committedAmount_gt: "0"
             }
-            orderBy: maxPrincipalPerCollateralAmount
 
           ) {
             collateralToken {

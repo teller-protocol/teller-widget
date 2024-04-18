@@ -1,21 +1,24 @@
 import { createContext, useContext } from "react";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
+import { AppTokens } from "../components/Widget/Widget";
 
-export type UserTokensContextType = {
+export type TokensContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
 };
 
-interface UserTokensContextProps {
+interface TokensContextProps {
   children: React.ReactNode;
+  tokens?: AppTokens;
 }
 
-const UserTokensContext = createContext({} as UserTokensContextType);
+const UserTokensContext = createContext({} as TokensContextType);
 
-export const UserTokensContextProvider: React.FC<UserTokensContextProps> = ({
+export const TokensContextProvider: React.FC<TokensContextProps> = ({
   children,
+  tokens,
 }) => {
-  const { userTokens, isLoading } = useGetUserTokens();
+  const { userTokens, isLoading } = useGetUserTokens(tokens);
 
   return (
     <UserTokensContext.Provider value={{ userTokens, isLoading }}>

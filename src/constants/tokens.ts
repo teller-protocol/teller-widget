@@ -138,7 +138,7 @@ export const TOKEN_ADDRESSES: Record<
 
 export const SUPPORTED_TOKEN_LOGOS: Record<string, string> = {
   [SupportedTokensEnum.WETH]:
-    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc778417E063141139Fce010982780140Aa0cD5Ab/logo.png",
+    "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
   [SupportedTokensEnum.USDC]:
     "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
   [SupportedTokensEnum.DAI]:

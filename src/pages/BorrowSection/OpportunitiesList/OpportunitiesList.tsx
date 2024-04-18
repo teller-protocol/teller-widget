@@ -11,13 +11,14 @@ import {
 
 import "./opportunitiesList.scss";
 
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useGetUserTokens } from "../../../hooks/useGetUserTokens";
+import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -43,10 +44,12 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
 }) => {
-  const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(0));
+  const [collateralAmount, setCollateralAmount] = useState<bigint>(
+    BigInt(parseUnits("1", opportunity.collateralToken?.decimals))
+  );
   const { setCurrentStep, setSelectedOpportunity } =
     useGetBorrowSectionContext();
-  const { userTokens } = useGetUserTokens();
+  const { userTokens } = useGetUserTokenContext();
 
   const commitmentMax = useCommitmentMax({
     commitment: opportunity,

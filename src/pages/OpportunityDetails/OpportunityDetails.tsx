@@ -6,7 +6,6 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSection/BorrowSectionContext";
-import { useGetUserTokens } from "../../hooks/useGetUserTokens";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import DataField from "../../components/DataField";
 import { convertSecondsToDays } from "../../helpers/dateUtils";
@@ -21,13 +20,6 @@ import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 const OpportunityDetails = () => {
   const { setCurrentStep, selectedOpportunity, selectedCollateralToken } =
     useGetBorrowSectionContext();
-  const { userTokens } = useGetUserTokens();
-
-  console.log(
-    "TCL ~ file: OpportunityDetails.tsx:23 ~ OpportunityDetails ~ selectedOpportunity:",
-    selectedOpportunity
-  );
-
   const [collateralTokenValue, setCollataralTokenValue] =
     useState<TokenInputType>({
       token: selectedOpportunity.collateralToken,
@@ -45,6 +37,7 @@ const OpportunityDetails = () => {
     collateralTokenDecimals: selectedCollateralToken?.decimals,
     commitment: selectedOpportunity,
     requestedCollateral: collateralTokenValue.valueBI,
+    returnCalculatedLoanAmount: true,
   });
 
   let extensionCount = 0;
