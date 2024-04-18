@@ -55,7 +55,7 @@
     width: 100%;
     left: 0%;
     max-height: 500px;
-    overflow-y: scroll;
+    overflow-y: auto;
 
     .token-dropdown--row {
       padding: $s-small $s-small $s-small $s-normal;
