@@ -8,7 +8,7 @@ import {
 } from "./BorrowSectionContext";
 import CollateralTokenList from "./CollateralTokenList";
 import OpportunitiesList from "./OpportunitiesList";
-import OpportunityDetails from "../OpportunityDetails";
+import OpportunityDetails from "./OpportunityDetails";
 
 const RenderComponent: React.FC = () => {
   const { currentStep } = useGetBorrowSectionContext();
