@@ -2,7 +2,7 @@ import { useAccount, useChainId } from "wagmi";
 import { useAlchemy } from "./useAlchemy";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
-import { AppTokens } from "../components/Widget/Widget";
+import { WhitelistedTokens } from "../components/Widget/Widget";
 import { TokenBalance } from "@teller-protocol/alchemy-sdk";
 
 export type UserToken = {
@@ -15,15 +15,12 @@ export type UserToken = {
   decimals: number;
 };
 
-export const useGetUserTokens = (tokens?: AppTokens) => {
+export const useGetUserTokens = (tokens?: string[]) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const alchemy = useAlchemy();
   const chainId = useChainId();
-
-  let appChainTokens = tokens?.[chainId] ?? [];
-  appChainTokens = appChainTokens.map((token) => token.toLowerCase());
 
   useEffect(() => {
     if (!alchemy || !address) return;
@@ -36,7 +33,7 @@ export const useGetUserTokens = (tokens?: AppTokens) => {
         (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
       );
 
-      const appTokensWithBalances = appChainTokens.map((appToken) => {
+      const appTokensWithBalances = tokens?.map((appToken) => {
         const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
           (balance) => balance.contractAddress.toLowerCase() === appToken
         );

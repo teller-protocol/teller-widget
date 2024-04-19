@@ -12,24 +12,24 @@ import "./widget.scss";
 
 const queryClient = new QueryClient();
 
-export type AppTokens = {
+export type WhitelistedTokens = {
   [chainId: string]: string[];
 };
 
 interface WidgetProps {
   buttonLabel?: string;
-  tokenList?: AppTokens;
+  whitelistedTokens?: WhitelistedTokens;
 }
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
-  tokenList,
+  whitelistedTokens,
 }) => {
   const [showModal, setShowModal] = useState(false);
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <TokensContextProvider tokens={tokenList}>
+        <TokensContextProvider whitelistedTokens={whitelistedTokens}>
           <div className="teller-widget">
             <Modal closeModal={() => setShowModal(false)} showModal={showModal}>
               <ModalContent />

@@ -13,18 +13,35 @@ import separatorWithCaret from "../../assets/separator_with_caret.svg";
 
 import "./opportunityDetails.scss";
 import { useCommitmentMax } from "../../hooks/useGetCommitmentMax";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { SUPPORTED_TOKEN_LOGOS } from "../../constants/tokens";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
+import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
 
 const OpportunityDetails = () => {
   const { setCurrentStep, selectedOpportunity, selectedCollateralToken } =
     useGetBorrowSectionContext();
+  const { isWhitelistedToken } = useGetUserTokenContext();
+  const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
+
   const [collateralTokenValue, setCollataralTokenValue] =
     useState<TokenInputType>({
       token: selectedOpportunity.collateralToken,
-      value: Number(selectedCollateralToken?.balance ?? 0),
-      valueBI: selectedCollateralToken?.balanceBigInt ?? BigInt(0),
+      value: Number(
+        selectedCollateralToken?.balance > 0
+          ? selectedCollateralToken?.balance
+          : whitelistedToken
+          ? 1
+          : 0
+      ),
+      valueBI:
+        selectedCollateralToken?.balanceBigInt > BigInt(0)
+          ? selectedCollateralToken?.balanceBigInt
+          : BigInt(
+              whitelistedToken
+                ? parseUnits("1", selectedCollateralToken?.decimals)
+                : 0
+            ),
     });
 
   const {

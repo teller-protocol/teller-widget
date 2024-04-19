@@ -14,13 +14,16 @@ const meta = {
   tags: ["autodocs"],
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
-    tokenList: {
+    whitelistedTokens: {
       description: "Array of addressed organized by chain id.",
     },
   },
   args: {
-    tokenList: {
-      [137]: ["0x61299774020dA444Af134c82fa83E3810b309991"],
+    whitelistedTokens: {
+      [137]: [
+        "0x61299774020dA444Af134c82fa83E3810b309991",
+        "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+      ],
       [1]: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
     },
   },

@@ -44,12 +44,17 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
 }) => {
-  const [collateralAmount, setCollateralAmount] = useState<bigint>(
-    BigInt(parseUnits("1", opportunity.collateralToken?.decimals))
-  );
-  const { setCurrentStep, setSelectedOpportunity } =
+  const { setCurrentStep, setSelectedOpportunity, selectedCollateralToken } =
     useGetBorrowSectionContext();
-  const { userTokens } = useGetUserTokenContext();
+  const { userTokens, isWhitelistedToken } = useGetUserTokenContext();
+
+  const [collateralAmount, setCollateralAmount] = useState<BigInt | undefined>(
+    +(selectedCollateralToken?.balanceBigInt ?? 0) > 0
+      ? selectedCollateralToken?.balanceBigInt
+      : isWhitelistedToken(opportunity.collateralToken?.address)
+      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals))
+      : BigInt(0)
+  );
 
   const commitmentMax = useCommitmentMax({
     commitment: opportunity,

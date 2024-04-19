@@ -10,7 +10,7 @@ import TokenLogo from "../TokenLogo";
 export type TokenInputType = {
   value?: number;
   token?: SubgraphTokenType;
-  valueBI?: bigint;
+  valueBI?: BigInt;
 };
 
 interface TokenInputProps {
