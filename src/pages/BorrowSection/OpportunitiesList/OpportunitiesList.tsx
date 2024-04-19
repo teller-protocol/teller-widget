@@ -49,7 +49,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const { userTokens, isWhitelistedToken } = useGetUserTokenContext();
 
   const [collateralAmount, setCollateralAmount] = useState<BigInt | undefined>(
-    +(selectedCollateralToken?.balanceBigInt ?? 0) > 0
+    selectedCollateralToken?.balanceBigInt > 0
       ? selectedCollateralToken?.balanceBigInt
       : isWhitelistedToken(opportunity.collateralToken?.address)
       ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals))
