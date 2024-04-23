@@ -1,18 +1,19 @@
 import { useMemo } from "react";
-import { useAccount, useBalance, useReadContract } from "wagmi";
-
 import { erc20Abi, formatUnits } from "viem";
+import { useAccount, useBalance } from "wagmi";
+
 import { bigIntMin } from "../helpers/bigIntMath";
 import { CommitmentCollateralType } from "../types/poolsApiTypes";
+
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
-import {
-  ContractType,
-  SupportedContractsEnum,
-  useContractRead,
-} from "./useContractRead";
 import { useContracts } from "./useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import { useGetProtocolFee } from "./useGetProtocolFee";
+import {
+  ContractType,
+  SupportedContractsEnum,
+  useReadContract,
+} from "./useReadContract";
 
 interface Result {
   maxLoanAmount: bigint;
@@ -51,7 +52,7 @@ export const useCommitmentMax = ({
 
   const totalFeePercent = 10000 - ((protocolFeePercent ?? 0) + marketplaceFee);
 
-  const availableLenderAllowance = useContractRead(
+  const availableLenderAllowance = useReadContract(
     commitment?.principalTokenAddress,
     "allowance",
     [commitment?.lenderAddress, contracts?.TellerV2?.address],
@@ -113,7 +114,7 @@ export const useCommitmentMax = ({
         ]),
   ];
   const { data: requiredCollateral = BigInt(0), isLoading } =
-    useContractRead<bigint>(
+    useReadContract<bigint>(
       isCommitmentFromLCFAlpha
         ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
         : isRollover
@@ -125,7 +126,7 @@ export const useCommitmentMax = ({
     );
 
   const maxCollateral = useMemo(() => {
-    let amount =
+    const amount =
       (requiredCollateral ?? BigInt(0)) > collateralBalance
         ? BigInt(collateralBalance)
         : requiredCollateral;

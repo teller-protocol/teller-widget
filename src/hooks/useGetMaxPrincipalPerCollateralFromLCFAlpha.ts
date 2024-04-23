@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { lcfAlphaAddressMap } from "../constants/lcfAlphaAddresses";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
 import { useChainId } from "wagmi";
-import { SupportedContractsEnum, useContractRead } from "./useContractRead";
+import { SupportedContractsEnum, useReadContract } from "./useReadContract";
 import { bigIntMin } from "../helpers/bigIntMath";
 
 export const useGetMaxPrincipalPerCollateralFromLCFAlpha = (
@@ -18,14 +18,14 @@ export const useGetMaxPrincipalPerCollateralFromLCFAlpha = (
   const isCommitmentFromLCFAlpha =
     lcfAlphaAddress === commitment?.forwarderAddress;
 
-  const commitmentRoutes = useContractRead(
+  const commitmentRoutes = useReadContract(
     SupportedContractsEnum.LenderCommitmentForwarderAlpha,
     "getAllCommitmentUniswapPoolRoutes",
     [commitment?.id],
     !commitment?.id && !isCommitmentFromLCFAlpha
   );
 
-  const priceRatio = useContractRead(
+  const priceRatio = useReadContract(
     SupportedContractsEnum.LenderCommitmentForwarderAlpha,
     "getUniswapPriceRatioForPoolRoutes",
     [commitmentRoutes.data],
@@ -33,7 +33,7 @@ export const useGetMaxPrincipalPerCollateralFromLCFAlpha = (
       !isCommitmentFromLCFAlpha &&
       commitmentRoutes.data?.[0].length > 0
   );
-  const ltvRatio = useContractRead(
+  const ltvRatio = useReadContract(
     SupportedContractsEnum.LenderCommitmentForwarderAlpha,
     "getCommitmentPoolOracleLtvRatio",
     [commitment?.id],
