@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 import { erc20Abi, formatUnits } from "viem";
-import { useAccount, useBalance } from "wagmi";
+import {
+  useAccount,
+  useBalance,
+  useReadContract as useReadContractWagmi,
+} from "wagmi";
 
 import { bigIntMin } from "../helpers/bigIntMath";
 import { CommitmentCollateralType } from "../types/poolsApiTypes";
@@ -76,11 +80,13 @@ export const useCommitmentMax = ({
     ]
   );
 
-  const { data: principalTokenDecimals } = useReadContract({
-    address: commitment?.principalTokenAddress,
-    abi: erc20Abi,
-    functionName: "decimals",
-  });
+  const { data: principalTokenDecimals } = useReadContract(
+    commitment?.principalTokenAddress,
+    "decimals",
+    [],
+    false,
+    ContractType.ERC20
+  );
 
   const collateralType: string | undefined = commitment?.collateralToken?.type;
 
