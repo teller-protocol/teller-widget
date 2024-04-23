@@ -1,0 +1,13 @@
+@import "../../tokens.scss";
+
+.transaction-button {
+  &-row {
+    display: flex;
+    gap: $s-normal;
+    margin: $s-normal 0;
+
+    .teller-widget-button {
+      flex: 1;
+    }
+  }
+}

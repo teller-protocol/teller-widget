@@ -20,4 +20,13 @@
     text-align: center;
     margin-top: $s-normal;
   }
+
+  .loading-container {
+    width: 100%;
+    margin-top: $s-normal;
+    height: 1em;
+    padding: 0.5rem 1rem;
+    line-height: 24px;
+    font-size: 16px;
+  }
 }

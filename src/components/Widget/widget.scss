@@ -33,3 +33,14 @@
   font-size: 15px;
   color: $text-primary;
 }
+
+.loading {
+    animation: flashing 1s linear infinite alternate;
+
+}
+
+@keyframes flashing {
+  to {
+    opacity: 0;
+  }
+}

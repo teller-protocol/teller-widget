@@ -1,22 +1,26 @@
 import { memo, useEffect, useMemo, useState } from "react";
+
+import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
+import DataField from "../../../components/DataField";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
+import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
+import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
+import { convertSecondsToDays } from "../../../helpers/dateUtils";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../../BorrowSection/BorrowSectionContext";
-import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
-import DataField from "../../../components/DataField";
-import { convertSecondsToDays } from "../../../helpers/dateUtils";
-import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 
 import "./opportunityDetails.scss";
 import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+
 import { formatUnits, parseUnits } from "viem";
-import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
+
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
-import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
+import { AcceptCommitmentButton } from "./AcceptCommitmentButtont";
 
 const OpportunityDetails = () => {
   const { setCurrentStep, selectedOpportunity, selectedCollateralToken } =
@@ -143,6 +147,11 @@ const OpportunityDetails = () => {
         {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
+      <AcceptCommitmentButton
+        collateralToken={collateralTokenValue}
+        commitment={selectedOpportunity}
+        principalToken={maxLoanAmount}
+      />
     </div>
   );
 };
