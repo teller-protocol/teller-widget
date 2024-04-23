@@ -3774,10 +3774,10 @@
     sturdy-websocket "^0.2.1"
     websocket "^1.0.34"
 
-"@teller-protocol/v2-contracts@^3.1.12":
-  version "3.1.12"
-  resolved "https://registry.yarnpkg.com/@teller-protocol/v2-contracts/-/v2-contracts-3.1.12.tgz#d6a53dc972d4d33e711092f9b15f20df995877af"
-  integrity sha512-XladeYf69717hk2y7arTl5g2jCG8ITHT/1eD4AhG7064s5m8CCx+kowuMrL3/TSNfPhA+29RlLjhXGmdM+kExQ==
+"@teller-protocol/v2-contracts@^3.1.13":
+  version "3.1.13"
+  resolved "https://registry.yarnpkg.com/@teller-protocol/v2-contracts/-/v2-contracts-3.1.13.tgz#7dd2e6870d26f57e8a9751598c8cfd6899bec1b4"
+  integrity sha512-XH4IQqIgwgeTWJzekNinZbNhYlnEGZK/P/ZAO4miiMmzntuC1gPrE1PIJICFc4exazzLXObJXOM5H1MoArMuqg==
 
 "@testing-library/dom@^9.3.1":
   version "9.3.4"
