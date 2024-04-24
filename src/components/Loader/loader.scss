@@ -9,6 +9,13 @@
     transform: translateX(-50%);
   }
 }
+
+.skeleton-loader {
+  animation: flashing 1s linear infinite alternate;
+  background-color: #DCDCDD;
+  width: 100%;
+}
+
 @keyframes flashing {
   to {
     opacity: 0;
