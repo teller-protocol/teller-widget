@@ -19,17 +19,22 @@ export type WhitelistedTokens = {
 interface WidgetProps {
   buttonLabel?: string;
   whitelistedTokens?: WhitelistedTokens;
+  showOnlyWhiteListedTokens?: boolean;
 }
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
   whitelistedTokens,
+  showOnlyWhiteListedTokens,
 }) => {
   const [showModal, setShowModal] = useState(false);
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <TokensContextProvider whitelistedTokens={whitelistedTokens}>
+        <TokensContextProvider
+          whitelistedTokens={whitelistedTokens}
+          showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
+        >
           <div className="teller-widget">
             <Modal closeModal={() => setShowModal(false)} showModal={showModal}>
               <ModalContent />

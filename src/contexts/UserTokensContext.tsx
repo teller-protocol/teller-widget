@@ -13,6 +13,7 @@ export type TokensContextType = {
 interface TokensContextProps {
   children: React.ReactNode;
   whitelistedTokens?: WhitelistedTokens;
+  showOnlyWhiteListedTokens?: boolean;
 }
 
 const UserTokensContext = createContext({} as TokensContextType);
@@ -20,6 +21,7 @@ const UserTokensContext = createContext({} as TokensContextType);
 export const TokensContextProvider: React.FC<TokensContextProps> = ({
   children,
   whitelistedTokens,
+  showOnlyWhiteListedTokens,
 }) => {
   const chainId = useChainId();
 
@@ -28,7 +30,10 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
     token.toLowerCase()
   );
 
-  const { userTokens, isLoading } = useGetUserTokens(whitelistedChainTokens);
+  const { userTokens, isLoading } = useGetUserTokens(
+    whitelistedChainTokens,
+    showOnlyWhiteListedTokens
+  );
 
   const isWhitelistedToken = (token: string) =>
     whitelistedChainTokens.includes(token);
