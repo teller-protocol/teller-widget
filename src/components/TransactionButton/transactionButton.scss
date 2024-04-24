@@ -1,6 +1,10 @@
 @import "../../tokens.scss";
 
 .transaction-button {
+  .skeleton-loader {
+    margin-top: $s-normal;
+  }
+
   &-row {
     display: flex;
     gap: $s-normal;

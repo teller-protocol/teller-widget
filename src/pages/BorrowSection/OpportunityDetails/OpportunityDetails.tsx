@@ -151,6 +151,7 @@ const OpportunityDetails = () => {
         collateralToken={collateralTokenValue}
         commitment={selectedOpportunity}
         principalToken={maxLoanAmount}
+        onSuccess={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
       />
     </div>
   );

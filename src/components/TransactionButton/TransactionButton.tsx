@@ -6,6 +6,7 @@ import Button from "../Button";
 import { ContractType } from "../../hooks/useReadContract";
 
 import "./transactionButton.scss";
+import Loader from "../Loader";
 
 export type TransactionStepConfig = {
   contractName?: string;
@@ -51,6 +52,7 @@ const TransactionButton = ({
     [autoStep]
   );
   const steps = useMemo(() => transactions.flat(), [transactions]);
+  console.log("TCL ~ file: TransactionButton.tsx:55 ~ steps:", steps);
 
   const isLastStep = useMemo(
     () => currentStepID >= steps.length - 1,
@@ -73,10 +75,10 @@ const TransactionButton = ({
         return currentStepID + 1;
       });
       // setReceipt(receipt);
-      // currentStep?.onSuccess?.(receipt);
-      // onSuccess?.();
+      currentStep?.onSuccess?.(receipt);
+      onSuccess?.();
     },
-    [setCurrentStepID]
+    [currentStep, onSuccess, setCurrentStepID]
   );
 
   const {
@@ -141,7 +143,12 @@ const TransactionButton = ({
                   onSuccess: onSuccessTransaction,
                 });
             }}
-            disabled={stepId !== currentStepID}
+            disabled={
+              stepId !== currentStepID ||
+              isSimulationLoading ||
+              isLoading ||
+              isButtonDisabled
+            }
           >
             {(isPending || customTxLoading) &&
             step.buttonLabel === currentStep?.buttonLabel
@@ -154,8 +161,11 @@ const TransactionButton = ({
       currentStep?.buttonLabel,
       currentStepID,
       customTxLoading,
+      isButtonDisabled,
       isLastStep,
+      isLoading,
       isPending,
+      isSimulationLoading,
       onSuccessTransaction,
       simulatedData?.request,
       writeContract,
@@ -163,44 +173,45 @@ const TransactionButton = ({
   );
 
   return (
-    <div
-      className={cx(
-        "transaction-button",
-        (isSimulationLoading || isLoading) && "loading"
-      )}
-    >
+    <div className="transaction-button">
       <>
-        {
-          [...transactions]
-            .filter((tx) => (Array.isArray(tx) ? tx.length > 0 : tx))
-            .reduce<{
-              count: number;
-              rows: Array<ReactNode>;
-            }>(
-              (acc1, step, i) => ({
-                count: acc1.count + (Array.isArray(step) ? step.length : 1),
-                rows: acc1.rows.concat([
-                  <Fragment key={i}>
-                    <div className="transaction-button-row">
-                      {(Array.isArray(step) ? step : [step]).reduce<
-                        Array<ReactNode>
-                      >(
-                        (acc2, s, j) =>
-                          acc2.concat(renderButton(s, acc1.count + j)),
-                        []
-                      )}
-                    </div>
-                  </Fragment>,
-                ]),
-              }),
-              { count: 0, rows: [] }
-            ).rows
-        }
+        {isSimulationLoading || isLoading ? (
+          <Loader isSkeleton height={40} />
+        ) : (
+          <>
+            {
+              [...transactions]
+                .filter((tx) => (Array.isArray(tx) ? tx.length > 0 : tx))
+                .reduce<{
+                  count: number;
+                  rows: Array<ReactNode>;
+                }>(
+                  (acc1, step, i) => ({
+                    count: acc1.count + (Array.isArray(step) ? step.length : 1),
+                    rows: acc1.rows.concat([
+                      <Fragment key={i}>
+                        <div className="transaction-button-row">
+                          {(Array.isArray(step) ? step : [step]).reduce<
+                            Array<ReactNode>
+                          >(
+                            (acc2, s, j) =>
+                              acc2.concat(renderButton(s, acc1.count + j)),
+                            []
+                          )}
+                        </div>
+                      </Fragment>,
+                    ]),
+                  }),
+                  { count: 0, rows: [] }
+                ).rows
+            }
+          </>
+        )}
       </>
 
       {((isButtonDisabled && buttonDisabledMessage) ||
         (currentStep?.isStepDisabled && currentStep?.disabledMessage)) && (
-        <div className="italic text-center text-red text-tellerLight-secondary">
+        <div className="disabled-text-message">
           {buttonDisabledMessage ?? currentStep?.disabledMessage}
         </div>
       )}

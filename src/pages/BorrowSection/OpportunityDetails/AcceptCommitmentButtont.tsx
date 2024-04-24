@@ -1,18 +1,19 @@
+import { useMemo } from "react";
 import { useAccount, useChainId } from "wagmi";
+
+import { TokenInputType } from "../../../components/TokenInput/TokenInput";
+import TransactionButton, {
+  TransactionStepConfig,
+} from "../../../components/TransactionButton";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useContracts } from "../../../hooks/useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "../../../hooks/useGetMaxPrincipalPerCollateralFromLCFAlpha";
-import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
-import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import {
   ContractType,
   SupportedContractsEnum,
   useReadContract,
 } from "../../../hooks/useReadContract";
-import TransactionButton, {
-  TransactionStepConfig,
-} from "../../../components/TransactionButton";
-import { useMemo } from "react";
-import Button from "../../../components/Button";
 
 interface Props {
   commitment?: CommitmentType;
@@ -138,7 +139,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
         buttonLabel: <span>Approve {collateralToken.token.symbol}</span>,
         loadingButtonLabel: (
           <span>
-            Approving {collateralToken.value} {collateralToken.token.symbol}...
+            Approving {numberWithCommasAndDecimals(collateralToken.value * 10)}{" "}
+            {collateralToken.token.symbol}...
           </span>
         ),
         contractName: collateralToken.token.address,
@@ -178,7 +180,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
           : SupportedContractsEnum.LenderCommitmentForwarder,
         functionName: step3FunctionName,
         args: step3Args,
-        enabled: true,
+        onSuccess: onSuccess,
       });
 
     return steps;
@@ -191,6 +193,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     principalToken,
     isLoadingTransactionInfo,
     isCommitmentFromLCFAlpha,
+    onSuccess,
     commitmentForwarderAddress,
     collateralManagerAddress,
   ]);
