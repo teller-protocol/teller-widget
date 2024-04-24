@@ -52,7 +52,6 @@ const TransactionButton = ({
     [autoStep]
   );
   const steps = useMemo(() => transactions.flat(), [transactions]);
-  console.log("TCL ~ file: TransactionButton.tsx:55 ~ steps:", steps);
 
   const isLastStep = useMemo(
     () => currentStepID >= steps.length - 1,
@@ -96,6 +95,7 @@ const TransactionButton = ({
     functionName: currentStep?.functionName,
     args: currentStep?.args,
     contractType: currentStep?.contractType,
+    skip: isButtonDisabled,
   });
 
   if (isError) {
@@ -211,7 +211,7 @@ const TransactionButton = ({
 
       {((isButtonDisabled && buttonDisabledMessage) ||
         (currentStep?.isStepDisabled && currentStep?.disabledMessage)) && (
-        <div className="disabled-text-message">
+        <div className="disabled-text-message section-title">
           {buttonDisabledMessage ?? currentStep?.disabledMessage}
         </div>
       )}

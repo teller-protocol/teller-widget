@@ -18,6 +18,7 @@ interface UseWriteContractArgs {
   functionName: string;
   args?: any[];
   contractName?: string;
+  skip?: boolean;
 }
 
 export const useWriteContract = ({
@@ -25,6 +26,7 @@ export const useWriteContract = ({
   functionName,
   args,
   contractName,
+  skip,
 }: UseWriteContractArgs) => {
   const contracts = useContracts();
   const mapContractTypeToAbi = {
@@ -48,6 +50,9 @@ export const useWriteContract = ({
     address: contractAddress,
     functionName,
     args,
+    query: {
+      enabled: !skip,
+    },
   });
 
   const {

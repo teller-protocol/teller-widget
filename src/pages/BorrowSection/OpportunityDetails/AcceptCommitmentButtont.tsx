@@ -14,6 +14,7 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "../../../hooks/useReadContract";
+import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
 
 interface Props {
   commitment?: CommitmentType;
@@ -31,6 +32,14 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   onSuccess,
 }) => {
   const { address } = useAccount();
+
+  const { userTokens } = useGetUserTokenContext();
+  const collateralTokenBalance = userTokens.find(
+    (token) => token.address === collateralToken?.token?.address
+  )?.balance;
+
+  const hasInsufficientCollateral =
+    +collateralTokenBalance < collateralToken?.value;
 
   const contracts = useContracts();
 
@@ -86,11 +95,6 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     hasApprovedForwarder.isLoading ||
     collateralManagerAddress?.isLoading ||
     collateralAllowance.isLoading;
-
-  console.log(
-    "TCL ~ file: AcceptCommitmentButtont.tsx:84 ~ isLoadingTransactionInfo:",
-    isLoadingTransactionInfo
-  );
 
   const steps = useMemo<TransactionStepConfig[][]>(() => {
     const steps: TransactionStepConfig[][] = [];
@@ -198,5 +202,11 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     collateralManagerAddress,
   ]);
 
-  return <TransactionButton transactions={steps} />;
+  return (
+    <TransactionButton
+      transactions={steps}
+      isButtonDisabled={hasInsufficientCollateral}
+      buttonDisabledMessage="Insufficient collateral"
+    />
+  );
 };
