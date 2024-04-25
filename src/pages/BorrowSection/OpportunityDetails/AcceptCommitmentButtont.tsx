@@ -28,7 +28,6 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   commitment,
   principalToken,
   collateralToken,
-
   onSuccess,
 }) => {
   const { address } = useAccount();

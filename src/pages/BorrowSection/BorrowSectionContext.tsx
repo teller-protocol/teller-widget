@@ -7,7 +7,9 @@ export enum BorrowSectionSteps {
   SELECT_TOKEN,
   SELECT_OPPORTUNITY,
   OPPORTUNITY_DETAILS,
+  ACCEPT_TERMS,
   SUCCESS,
+  ADD_TO_CALENDAR,
 }
 
 export type BorrowSectionContextType = {

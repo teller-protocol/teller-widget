@@ -107,7 +107,7 @@ export const useGetCommitmentsForCollateralToken = (
       }
     }
   `,
-    [collateralTokenAddress]
+    [collateralTokenAddress, lcfAddress, lcfAlphaAddress]
   );
 
   const { data, isLoading } = useQuery({

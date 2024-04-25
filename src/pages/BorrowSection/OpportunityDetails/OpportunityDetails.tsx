@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
@@ -14,13 +14,15 @@ import {
   useGetBorrowSectionContext,
 } from "../../BorrowSection/BorrowSectionContext";
 
-import "./opportunityDetails.scss";
 import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import "./opportunityDetails.scss";
 
 import { formatUnits, parseUnits } from "viem";
 
+import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButtont";
+import Button from "../../../components/Button";
 
 const OpportunityDetails = () => {
   const { setCurrentStep, selectedOpportunity, selectedCollateralToken } =
@@ -60,6 +62,8 @@ const OpportunityDetails = () => {
     requestedCollateral: collateralTokenValue.valueBI,
     returnCalculatedLoanAmount: true,
   });
+
+  const { isNewBorrower } = useIsNewBorrower();
 
   let extensionCount = 0;
   let maxExtensionInDays = 0;
@@ -147,12 +151,21 @@ const OpportunityDetails = () => {
         {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
-      <AcceptCommitmentButton
-        collateralToken={collateralTokenValue}
-        commitment={selectedOpportunity}
-        principalToken={maxLoanAmount}
-        onSuccess={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
-      />
+
+      {isNewBorrower ? (
+        <Button
+          label="Accept terms"
+          onClick={() => setCurrentStep(BorrowSectionSteps.ACCEPT_TERMS)}
+          isFullWidth
+        />
+      ) : (
+        <AcceptCommitmentButton
+          collateralToken={collateralTokenValue}
+          commitment={selectedOpportunity}
+          principalToken={maxLoanAmount}
+          onSuccess={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
+        />
+      )}
     </div>
   );
 };
