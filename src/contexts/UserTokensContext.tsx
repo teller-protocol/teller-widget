@@ -1,24 +1,47 @@
 import { createContext, useContext } from "react";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
+import { WhitelistedTokens } from "../components/Widget/Widget";
+import { useChainId } from "wagmi";
 
-export type UserTokensContextType = {
+export type TokensContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
+  whitelistedChainTokens: string[];
+  isWhitelistedToken: (token: string) => boolean;
 };
 
-interface UserTokensContextProps {
+interface TokensContextProps {
   children: React.ReactNode;
+  whitelistedTokens?: WhitelistedTokens;
 }
 
-const UserTokensContext = createContext({} as UserTokensContextType);
+const UserTokensContext = createContext({} as TokensContextType);
 
-export const UserTokensContextProvider: React.FC<UserTokensContextProps> = ({
+export const TokensContextProvider: React.FC<TokensContextProps> = ({
   children,
+  whitelistedTokens,
 }) => {
-  const { userTokens, isLoading } = useGetUserTokens();
+  const chainId = useChainId();
+
+  let whitelistedChainTokens = whitelistedTokens?.[chainId] ?? [];
+  whitelistedChainTokens = whitelistedChainTokens.map((token) =>
+    token.toLowerCase()
+  );
+
+  const { userTokens, isLoading } = useGetUserTokens(whitelistedChainTokens);
+
+  const isWhitelistedToken = (token: string) =>
+    whitelistedChainTokens.includes(token);
 
   return (
-    <UserTokensContext.Provider value={{ userTokens, isLoading }}>
+    <UserTokensContext.Provider
+      value={{
+        userTokens,
+        isLoading,
+        isWhitelistedToken,
+        whitelistedChainTokens,
+      }}
+    >
       {children}
     </UserTokensContext.Provider>
   );

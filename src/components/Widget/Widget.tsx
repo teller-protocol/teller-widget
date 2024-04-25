@@ -6,22 +6,30 @@ import Button from "../Button";
 import ConnectWalletButton from "../ConnectWalletButton";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
-import { UserTokensContextProvider } from "../../contexts/UserTokensContext";
+import { TokensContextProvider } from "../../contexts/UserTokensContext";
 
 import "./widget.scss";
 
 const queryClient = new QueryClient();
 
+export type WhitelistedTokens = {
+  [chainId: string]: string[];
+};
+
 interface WidgetProps {
   buttonLabel?: string;
+  whitelistedTokens?: WhitelistedTokens;
 }
 
-const Widget: React.FC<WidgetProps> = ({ buttonLabel = "Cash advance" }) => {
+const Widget: React.FC<WidgetProps> = ({
+  buttonLabel = "Cash advance",
+  whitelistedTokens,
+}) => {
   const [showModal, setShowModal] = useState(false);
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <UserTokensContextProvider>
+        <TokensContextProvider whitelistedTokens={whitelistedTokens}>
           <div className="teller-widget">
             <Modal closeModal={() => setShowModal(false)} showModal={showModal}>
               <ModalContent />
@@ -29,7 +37,7 @@ const Widget: React.FC<WidgetProps> = ({ buttonLabel = "Cash advance" }) => {
             <ConnectWalletButton />
             <Button label={buttonLabel} onClick={() => setShowModal(true)} />
           </div>
-        </UserTokensContextProvider>
+        </TokensContextProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

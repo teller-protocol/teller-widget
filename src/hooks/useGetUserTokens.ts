@@ -1,7 +1,9 @@
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useAlchemy } from "./useAlchemy";
 import { useEffect, useState } from "react";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
+import { WhitelistedTokens } from "../components/Widget/Widget";
+import { TokenBalance } from "@teller-protocol/alchemy-sdk";
 
 export type UserToken = {
   address: string;
@@ -13,28 +15,51 @@ export type UserToken = {
   decimals: number;
 };
 
-export const useGetUserTokens = () => {
+export const useGetUserTokens = (tokens?: string[]) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const alchemy = useAlchemy();
+  const chainId = useChainId();
+
   useEffect(() => {
     if (!alchemy || !address) return;
 
     void (async () => {
       const userTokensData: UserToken[] = [];
+
       const balances = await alchemy.core.getTokenBalances(address);
       const nonZeroBalances = balances.tokenBalances.filter(
         (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
       );
 
+      const appTokensWithBalances = tokens?.map((appToken) => {
+        const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
+          (balance) => balance.contractAddress.toLowerCase() === appToken
+        );
+        if (tokenBalanceFromUserIndex > 0) {
+          const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
+          nonZeroBalances.splice(tokenBalanceFromUserIndex, 1);
+          return {
+            ...userBalance,
+            contractAddress: appToken,
+          };
+        } else {
+          return {
+            contractAddress: appToken,
+            tokenBalance: BigInt(0),
+          };
+        }
+      });
+
+      const newArray = [...appTokensWithBalances, ...nonZeroBalances];
       await Promise.all(
-        nonZeroBalances.map(async (token) => {
+        newArray.map(async (token) => {
           await alchemy.core
             .getTokenMetadata(token.contractAddress)
             .then((metadata) => {
               if (metadata.decimals === 0 || !metadata.logo) return;
-              const balanceBigInt = BigInt(token.tokenBalance ?? 0);
+              const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
               const decimals = metadata.decimals ?? 0;
 
               userTokensData.push({

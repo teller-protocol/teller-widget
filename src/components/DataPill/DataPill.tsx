@@ -8,7 +8,7 @@ interface DataPillProps {
 const DataPill: React.FC<DataPillProps> = ({ logo, label }) => (
   <div className="data-pill">
     <div className="label">{label}</div>
-    {logo && <img src={logo} alt={label} />}
+    {!!logo && <img src={logo} alt={label} />}
   </div>
 );
 
