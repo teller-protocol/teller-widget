@@ -47,6 +47,10 @@
       flex-direction: column;
       overflow: hidden;
     }
+
+    &.is-welcome-screen {
+      background-color: white;
+    }
   }
 
   .blur-container > div {
@@ -68,6 +72,7 @@
     .close-button {
       height: 100%;
       display: flex;
+      margin-left: auto;
 
       :hover {
         cursor: pointer;
