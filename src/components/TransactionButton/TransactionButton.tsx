@@ -144,8 +144,7 @@ const TransactionButton = ({
               isSimulationLoading ||
               isLoading ||
               isButtonDisabled ||
-              isPending ||
-              !!isError
+              isPending
             }
           >
             {(isPending || customTxLoading) &&
@@ -160,7 +159,6 @@ const TransactionButton = ({
       currentStepID,
       customTxLoading,
       isButtonDisabled,
-      isError,
       isLastStep,
       isLoading,
       isPending,

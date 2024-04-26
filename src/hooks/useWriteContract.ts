@@ -53,6 +53,7 @@ export const useWriteContract = ({
     args,
     query: {
       enabled: !skip,
+      retry: true,
     },
   });
 
