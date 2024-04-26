@@ -88,11 +88,13 @@ const TransactionButton = ({
 
   const onSuccessTransaction = useCallback(
     (data: any, params: any) => {
-      // setReceipt(receipt);
+      setCurrentStepID((currentStepID: number) => {
+        return currentStepID + 1;
+      });
       currentStep?.onSuccess?.(data, params);
       onSuccess?.();
     },
-    [currentStep, onSuccess]
+    [currentStep, onSuccess, setCurrentStepID]
   );
 
   if (isError) {
@@ -141,7 +143,9 @@ const TransactionButton = ({
               stepId !== currentStepID ||
               isSimulationLoading ||
               isLoading ||
-              isButtonDisabled
+              isButtonDisabled ||
+              isPending ||
+              !!isError
             }
           >
             {(isPending || customTxLoading) &&
@@ -156,6 +160,7 @@ const TransactionButton = ({
       currentStepID,
       customTxLoading,
       isButtonDisabled,
+      isError,
       isLastStep,
       isLoading,
       isPending,
