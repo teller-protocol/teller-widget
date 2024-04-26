@@ -8,7 +8,7 @@ import {
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 
-import { decodeEventLog } from "viem";
+import { decodeEventLog, formatUnits } from "viem";
 import Loader from "../../../components/Loader";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useContracts } from "../../../hooks/useContracts";
@@ -28,6 +28,7 @@ const BorrowConfirmation = () => {
     setBidId,
     bidId,
     setCurrentStep,
+    successfulLoanParams,
   } = useGetBorrowSectionContext();
   const contracts = useContracts();
 
