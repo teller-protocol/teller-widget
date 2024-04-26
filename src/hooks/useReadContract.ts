@@ -49,6 +49,9 @@ export const useReadContract = <T = any>(
       functionName,
       args,
       chainId: chainId,
+      query: {
+        enabled: !skipRun,
+      },
     });
 
   return useMemo(() => {

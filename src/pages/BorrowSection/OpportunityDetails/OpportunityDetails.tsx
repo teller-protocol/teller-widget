@@ -21,7 +21,7 @@ import { formatUnits, parseUnits } from "viem";
 
 import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
-import { AcceptCommitmentButton } from "./AcceptCommitmentButtont";
+import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import Button from "../../../components/Button";
 
 const OpportunityDetails = () => {
@@ -163,7 +163,6 @@ const OpportunityDetails = () => {
           collateralToken={collateralTokenValue}
           commitment={selectedOpportunity}
           principalToken={maxLoanAmount}
-          onSuccess={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
         />
       )}
     </div>

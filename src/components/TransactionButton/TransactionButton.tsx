@@ -1,12 +1,11 @@
-import cx from "classnames";
 import { Fragment, ReactNode, useCallback, useMemo, useState } from "react";
-import { useWriteContract } from "../../hooks/useWriteContract";
-import { TransactionReceipt } from "viem";
-import Button from "../Button";
 import { ContractType } from "../../hooks/useReadContract";
+import { useWriteContract } from "../../hooks/useWriteContract";
+import Button from "../Button";
 
-import "./transactionButton.scss";
+import { useContracts } from "../../hooks/useContracts";
 import Loader from "../Loader";
+import "./transactionButton.scss";
 
 export type TransactionStepConfig = {
   contractName?: string;
@@ -19,7 +18,7 @@ export type TransactionStepConfig = {
   // tooltip?: string;
   tx?: any;
   onClick?: () => void;
-  onSuccess?: (receipt: TransactionReceipt) => void;
+  onSuccess?: (data: any, params: any) => void;
   onError?: (error: Error) => void;
   isLastStep?: boolean;
   isStepDisabled?: boolean;
@@ -34,6 +33,7 @@ export type TransactionButtonProps = {
   isButtonDisabled?: boolean;
   buttonDisabledMessage?: string;
   isLoading?: boolean;
+  onTransactionConfirmed?: (data: any) => void;
 };
 const TransactionButton = ({
   transactions,
@@ -68,18 +68,6 @@ const TransactionButton = ({
       );
   }, [currentStepID, steps]);
 
-  const onSuccessTransaction = useCallback(
-    (receipt: TransactionReceipt) => {
-      setCurrentStepID((currentStepID: number) => {
-        return currentStepID + 1;
-      });
-      // setReceipt(receipt);
-      currentStep?.onSuccess?.(receipt);
-      onSuccess?.();
-    },
-    [currentStep, onSuccess, setCurrentStepID]
-  );
-
   const {
     data,
     error,
@@ -98,12 +86,18 @@ const TransactionButton = ({
     skip: isButtonDisabled,
   });
 
+  const onSuccessTransaction = useCallback(
+    (data: any, params: any) => {
+      // setReceipt(receipt);
+      currentStep?.onSuccess?.(data, params);
+      onSuccess?.();
+    },
+    [currentStep, onSuccess]
+  );
+
   if (isError) {
     console.error("Error writing contract", error);
   }
-
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [receipt, setReceipt] = useState<TransactionReceipt>();
 
   const [customTxLoading, setCustomTxLoading] = useState(false);
   const [customTxError, setCustomTxError] = useState(false);
@@ -125,19 +119,19 @@ const TransactionButton = ({
             key={stepId}
             onClick={async () => {
               isLastStep && step.onClick?.();
-              if (step.tx) {
-                try {
-                  setCustomTxLoading(true);
-                  const tx = await step.tx();
-                  const receipt = await tx?.wait();
-                  onSuccessTransaction(receipt);
-                  setCustomTxLoading(false);
-                } catch (e) {
-                  console.error("Error sending custom tx", e);
-                  setCustomTxLoading(false);
-                  setCustomTxError(true);
-                }
-              }
+              // if (step.tx) {
+              //   try {
+              //     setCustomTxLoading(true);
+              //     const tx = await step.tx();
+              //     const receipt = await tx?.wait();
+              //     onSuccessTransaction(receipt);
+              //     setCustomTxLoading(false);
+              //   } catch (e) {
+              //     console.error("Error sending custom tx", e);
+              //     setCustomTxLoading(false);
+              //     setCustomTxError(true);
+              //   }
+              // }
               if (writeContract && simulatedData?.request)
                 writeContract(simulatedData?.request, {
                   onSuccess: onSuccessTransaction,

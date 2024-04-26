@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { erc20Abi } from "viem";
 import {
   useSimulateContract,
@@ -19,6 +19,7 @@ interface UseWriteContractArgs {
   args?: any[];
   contractName?: string;
   skip?: boolean;
+  onTransactionReceipt?: (data: any) => void;
 }
 
 export const useWriteContract = ({

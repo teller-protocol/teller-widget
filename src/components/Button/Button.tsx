@@ -2,12 +2,13 @@ import cx from "classnames";
 import "./button.scss";
 
 export interface ButtonProps {
-  label?: string;
+  label?: React.ReactNode;
   onClick?: (e?: any) => any;
   disabled?: boolean;
   isFullWidth?: boolean;
   children?: React.ReactNode;
   className?: string;
+  variant?: "primary" | "secondary";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -17,6 +18,7 @@ const Button: React.FC<ButtonProps> = ({
   label,
   children,
   className,
+  variant = "primary",
 }) => {
   return (
     <button
@@ -24,7 +26,8 @@ const Button: React.FC<ButtonProps> = ({
         "teller-widget-button",
         isFullWidth && "full-width",
         disabled && "disabled",
-        className
+        className,
+        variant
       )}
       onClick={onClick}
       disabled={disabled}
