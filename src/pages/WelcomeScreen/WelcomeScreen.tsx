@@ -11,6 +11,11 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
   const { address } = useAccount();
+
+  const handleOnClick = () => {
+    localStorage.setItem("showTellerWidgetWelcomeScreen", "false");
+    onClick();
+  };
   return (
     <div className="welcome-screen">
       <img src={tellerLogoFull} alt="Teller logo" />
@@ -19,7 +24,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
         Time-based loans, up to thirty days, with no margin-call liquidations.
       </div>
       <Button
-        onClick={onClick}
+        onClick={handleOnClick}
         label="Borrow now"
         isFullWidth
         disabled={!address}

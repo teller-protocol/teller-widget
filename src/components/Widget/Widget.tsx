@@ -29,7 +29,11 @@ const Widget: React.FC<WidgetProps> = ({
   showOnlyWhiteListedTokens,
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const [showWelcomeScreen, setShowWelcomeScreen] = useState(true);
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(
+    JSON.parse(
+      localStorage.getItem("showTellerWidgetWelcomeScreen") ?? "true"
+    ) as boolean
+  );
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
