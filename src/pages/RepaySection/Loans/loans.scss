@@ -1,0 +1,10 @@
+@import "../../../tokens.scss";
+
+.loans {
+
+  &-table {
+    border: 1px solid $border-color;
+    background: white;
+
+  }
+}

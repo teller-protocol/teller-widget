@@ -17,7 +17,6 @@ import DataPill from "../../../components/DataPill";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
-import { useGetUserTokens } from "../../../hooks/useGetUserTokens";
 import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
 
 interface OpportunityListItemProps {

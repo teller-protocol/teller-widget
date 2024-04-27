@@ -28,7 +28,7 @@ export const useIsNewBorrower = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["isNewBorrower", address],
     queryFn: () => request(graphURL, isNewBorrower),
-    enabled: !!address,
+    enabled: !!address || !!borrowTermsAccepted,
   }) as { data: { borrowers: { id: string }[] }; isLoading: boolean };
 
   return {

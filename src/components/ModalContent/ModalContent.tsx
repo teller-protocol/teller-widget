@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import BorrowSection from "../../pages/BorrowSection";
 import SelectButtons from "../SelectButtons";
+import RepaySection from "../../pages/RepaySection";
 
 enum WIDGET_ACTION_ENUM {
   BORROW = "BORROW",
@@ -18,7 +19,7 @@ const ModalContent: React.FC = () => {
 
   const mapOptionToComponent = {
     [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection />,
-    [WIDGET_ACTION_ENUM.REPAY]: <div>Repay</div>,
+    [WIDGET_ACTION_ENUM.REPAY]: <RepaySection />,
   };
 
   useGetProtocolFee();
