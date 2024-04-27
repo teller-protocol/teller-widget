@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { useChainId } from "wagmi";
@@ -26,15 +26,14 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
   const [_userTokens, setUserTokens] = useState<any[]>();
   const chainId = useChainId();
 
-  let whitelistedChainTokens = whitelistedTokens?.[chainId] ?? [];
-  whitelistedChainTokens = whitelistedChainTokens.map((token) =>
-    token.toLowerCase()
+  const whitelistedChainTokens = useMemo(
+    () => whitelistedTokens?.[chainId] ?? [],
+    [whitelistedTokens, chainId]
   );
 
   const { userTokens, isLoading } = useGetUserTokens(
     whitelistedChainTokens,
-    showOnlyWhiteListedTokens,
-    _userTokens?.length > 0
+    showOnlyWhiteListedTokens
   );
 
   useEffect(() => {

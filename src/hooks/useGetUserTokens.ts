@@ -86,7 +86,7 @@ export const useGetUserTokens = (
       setIsLoading(false);
       setUserTokens(userTokensData);
     })();
-  }, [address, whiteListedTokens, showOnlyWhiteListedTokens, alchemy, skip]);
+  }, [address, alchemy, showOnlyWhiteListedTokens, skip, whiteListedTokens]);
 
   return { userTokens, isLoading };
 };
