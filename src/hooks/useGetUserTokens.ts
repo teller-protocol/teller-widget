@@ -17,7 +17,8 @@ export type UserToken = {
 
 export const useGetUserTokens = (
   whiteListedTokens?: string[],
-  showOnlyWhiteListedTokens?: boolean
+  showOnlyWhiteListedTokens?: boolean,
+  skip?: boolean
 ) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +27,7 @@ export const useGetUserTokens = (
   const chainId = useChainId();
 
   useEffect(() => {
-    if (!alchemy || !address) return;
+    if (!alchemy || !address || skip) return;
 
     void (async () => {
       const userTokensData: UserToken[] = [];
@@ -85,7 +86,7 @@ export const useGetUserTokens = (
       setIsLoading(false);
       setUserTokens(userTokensData);
     })();
-  }, [alchemy, address, whiteListedTokens, showOnlyWhiteListedTokens]);
+  }, [address, whiteListedTokens, showOnlyWhiteListedTokens, alchemy, skip]);
 
   return { userTokens, isLoading };
 };
