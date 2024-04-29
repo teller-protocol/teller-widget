@@ -69,7 +69,6 @@ const BorrowConfirmation = () => {
       strict: false,
     });
     _bidId = decodedLog?.args?.bidId;
-    console.log("_bidId", _bidId);
     setBidId(_bidId);
   }
 

@@ -1,3 +1,4 @@
+import Button from "../../../components/Button";
 import Loader from "../../../components/Loader";
 import {
   Loan,
@@ -9,7 +10,7 @@ import "./loans.scss";
 const Loans = () => {
   const { allActiveLoans, isLoading } = useGetActiveLoansForUser();
   console.log(
-    "TCL ~ file: Loans.tsx:10 ~ Loans ~ allActiveLoans:",
+    "TCL ~ file: Loans.tsx:11 ~ Loans ~ allActiveLoans:",
     allActiveLoans
   );
   return (
@@ -17,17 +18,27 @@ const Loans = () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="loans-table">
-          <div className="loans-table-header">
-            <div className="loans-table-header-item">Owed</div>
-            <div className="loans-table-header-item">Due</div>
-          </div>
-          <div className="loans-table-body">
-            {allActiveLoans?.map((loan: Loan) => (
-              <LoanRow loan={loan} key={loan.bidId} />
-            ))}
-          </div>
-        </div>
+        <>
+          {allActiveLoans?.length ? (
+            <>
+              <div className="loans-table">
+                <div className="loans-table-header">
+                  <div className="loans-table-header-item">Owed</div>
+                  <div className="loans-table-header-item">Due</div>
+                </div>
+                <div className="loans-table-body">
+                  {allActiveLoans?.map((loan: Loan) => (
+                    <LoanRow loan={loan} key={loan.bidId} />
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="paragraph no-loans">
+              You currently do not have any active loans
+            </div>
+          )}
+        </>
       )}
     </div>
   );

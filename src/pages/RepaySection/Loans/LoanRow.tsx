@@ -27,7 +27,7 @@ interface LoanRowProps {
 const mapStatusToAsset = {
   [LoanStatus.DEFAULTED]: defaulted,
   [LoanStatus.ACCEPTED]: healthy,
-  [LoanStatus.DUE_SOON]: danger,
+  ["due soon"]: danger,
   [LoanStatus.LATE]: defaulted,
 };
 
