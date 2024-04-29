@@ -26,8 +26,7 @@ export enum CollateralTokensEnum {
   STMATIC = "STMATIC",
 }
 
-export const SupportedTokens = Object.values(SupportedTokensEnum);
-export const SupportedCollateralTokens = Object.values(SupportedTokensEnum);
+export const supportedPrincipalTokens = Object.values(SupportedTokensEnum);
 
 export const WETH_MAINNET_ADDRESS =
   "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";

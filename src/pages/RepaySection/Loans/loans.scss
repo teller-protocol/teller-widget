@@ -1,10 +1,57 @@
 @import "../../../tokens.scss";
 
-.loans {
+@mixin tableProperties {
+  grid-template-columns: 0.5fr 1fr 1fr 1.5fr;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
 
+.loans {
   &-table {
     border: 1px solid $border-color;
     background: white;
+    font-family: "Roboto", sans-serif;
 
+    &-header {
+      @include tableProperties;
+      padding: $s-large $s-normal;
+      border-bottom: solid 0.5px $border-color;
+      font-family: "Work Sans", sans-serif;
+      font-weight: 600;
+      color: $text-secondary;
+
+      &-item:nth-child(1) {
+        grid-column-start: 2;
+      }
+    }
+
+    &-row {
+      @include tableProperties;
+      padding: $s-normal;
+
+      &:not(:last-child) {
+        border-bottom: solid 0.5px $border-color;
+      }
+
+      .loan-amount {
+        display: flex;
+      }
+
+      .token-pair {
+        display: flex;
+        align-items: center;
+        margin-left: 6px;
+        img {
+          width: 17px;
+          height: 17px;
+          border-radius: 50%;
+
+          &:nth-child(2) {
+            margin-left: -5px;
+          }
+        }
+      }
+    }
   }
 }

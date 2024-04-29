@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { useConfig } from "wagmi";
+import { Loan } from "../../hooks/queries/useGetActiveLoansForUser";
 
 export enum RepaySectionSteps {
   LOANS,
@@ -12,6 +13,8 @@ interface RepaySectionContextType {
   paidAmount: string;
   currentStep: RepaySectionSteps;
   setCurrentStep: (step: RepaySectionSteps) => void;
+  loan: Loan;
+  setLoan: (loan: Loan) => void;
 }
 
 const RepaySectionContext = createContext<RepaySectionContextType>(
@@ -28,6 +31,7 @@ export const RepaySectionContextProvider: React.FC<
   const [currentStep, setCurrentStep] = useState<RepaySectionSteps>(
     RepaySectionSteps.LOANS
   );
+  const [selectedLoan, setSelectedLoan] = useState<Loan>({} as Loan);
   const [paidAmount, setPaidAmount] = useState<string>("");
 
   return (
@@ -36,6 +40,8 @@ export const RepaySectionContextProvider: React.FC<
         paidAmount,
         currentStep,
         setCurrentStep,
+        loan: selectedLoan,
+        setLoan: setSelectedLoan,
       }}
     >
       {children}

@@ -1,9 +1,10 @@
-import { useGetActiveLoansForUser } from "../../../hooks/queries/useGetActiveLoansForUser";
+import Loader from "../../../components/Loader";
+import {
+  Loan,
+  useGetActiveLoansForUser,
+} from "../../../hooks/queries/useGetActiveLoansForUser";
+import { LoanRow } from "./LoanRow";
 import "./loans.scss";
-
-const LoanRow = () => {
-  return <div>LoanRow</div>;
-};
 
 const Loans = () => {
   const { allActiveLoans, isLoading } = useGetActiveLoansForUser();
@@ -13,7 +14,21 @@ const Loans = () => {
   );
   return (
     <div className="loans">
-      <div className="loans-table">div</div>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="loans-table">
+          <div className="loans-table-header">
+            <div className="loans-table-header-item">Owed</div>
+            <div className="loans-table-header-item">Due</div>
+          </div>
+          <div className="loans-table-body">
+            {allActiveLoans?.map((loan: Loan) => (
+              <LoanRow loan={loan} key={loan.bidId} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

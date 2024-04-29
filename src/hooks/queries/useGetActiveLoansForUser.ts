@@ -22,9 +22,13 @@ type Marketplace = {
   paymentType: string;
 };
 
-type Loan = {
+export type Loan = {
   totalRepaidPrincipal: number;
   principal: number;
+  lendingToken: {
+    symbol: string;
+    decimals: number;
+  };
   borrowerAddress: string;
   lenderAddress: string;
   apr: number;
@@ -41,11 +45,23 @@ type Loan = {
   paymentDefaultDuration: number;
   status: string;
   expiresAt: string;
-  collateral: Collateral;
+  collateral: Collateral[];
   marketplace: Marketplace;
 };
 
-const activeStatuses = ["defaulted", "accepted", "dueSoon", "late"];
+export enum LoanStatus {
+  DEFAULTED = "defaulted",
+  ACCEPTED = "accepted",
+  DUE_SOON = "dueSoon",
+  LATE = "late",
+}
+
+export const activeStatuses = [
+  LoanStatus.DEFAULTED,
+  LoanStatus.ACCEPTED,
+  LoanStatus.DUE_SOON,
+  LoanStatus.LATE,
+];
 
 export const useGetActiveLoansForUser = () => {
   const graphURL = useGraphURL();
@@ -61,6 +77,10 @@ export const useGetActiveLoansForUser = () => {
             defaulted {
               totalRepaidPrincipal
               principal
+              lendingToken {
+                symbol
+                decimals
+              }
               borrowerAddress
               lenderAddress
               apr
@@ -96,6 +116,10 @@ export const useGetActiveLoansForUser = () => {
             late {
               totalRepaidPrincipal
               principal
+              lendingToken {
+                symbol
+                decimals
+              }
               borrowerAddress
               lenderAddress
               apr
@@ -131,6 +155,10 @@ export const useGetActiveLoansForUser = () => {
             dueSoon {
               totalRepaidPrincipal
               principal
+              lendingToken {
+                symbol
+                decimals
+              }
               borrowerAddress
               lenderAddress
               apr
@@ -166,6 +194,10 @@ export const useGetActiveLoansForUser = () => {
             accepted {
               totalRepaidPrincipal
               principal
+              lendingToken {
+                symbol
+                decimals
+              }
               borrowerAddress
               lenderAddress
               apr
@@ -223,8 +255,6 @@ export const useGetActiveLoansForUser = () => {
     };
     isLoading: boolean;
   };
-
-  console.log("borrowers", data?.user?.borrowers);
 
   const allActiveLoans = data?.user?.borrowers?.reduce((acc, current) => {
     const currentLoans: Loan[] = [];
