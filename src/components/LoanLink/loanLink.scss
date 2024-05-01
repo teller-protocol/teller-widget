@@ -1,0 +1,10 @@
+@import "../../tokens.scss";
+
+.loan-link {
+  color: $text-primary;
+  font-family: 'Space Grotesk';
+  display: flex;
+  align-items: center;
+  gap: $s-small;
+  font-size: 13px;
+}
