@@ -8,6 +8,7 @@ import {
 
 import "./repaySection.scss";
 import PayLoan from "./PayLoan";
+import { PaymentConfirmation } from "./PaymentConfirmation/PaymentConfirmation";
 
 const RenderComponent: React.FC = () => {
   const { currentStep } = useGetRepaySectionContext();
@@ -16,7 +17,7 @@ const RenderComponent: React.FC = () => {
       [RepaySectionSteps.LOANS]: <Loans />,
       [RepaySectionSteps.REPAY_LOAN]: <PayLoan />,
       [RepaySectionSteps.ROLLOVER_LOAN]: "<RolloverLoan />",
-      [RepaySectionSteps.CONFIRMATION]: "<Confirmation />",
+      [RepaySectionSteps.CONFIRMATION]: <PaymentConfirmation />,
     }),
     []
   );

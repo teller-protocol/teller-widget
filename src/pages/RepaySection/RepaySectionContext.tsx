@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { useConfig } from "wagmi";
 import { Loan } from "../../hooks/queries/useGetActiveLoansForUser";
+import { TokenInputType } from "../../components/TokenInput/TokenInput";
 
 export enum RepaySectionSteps {
   LOANS,
@@ -17,6 +18,10 @@ interface RepaySectionContextType {
   setLoan: (loan: Loan) => void;
   collateralImageURL: string;
   setCollateralImageURL: (url: string) => void;
+  paidTokenInput?: TokenInputType;
+  setPaidTokenInput: (tokenInput: TokenInputType) => void;
+  succesfulTxHash?: string;
+  setSuccesfulTxHash: (txHash: string) => void;
 }
 
 const RepaySectionContext = createContext<RepaySectionContextType>(
@@ -36,6 +41,8 @@ export const RepaySectionContextProvider: React.FC<
   const [selectedLoan, setSelectedLoan] = useState<Loan>({} as Loan);
   const [paidAmount, setPaidAmount] = useState<string>("");
   const [collateralImageURL, setCollateralImageURL] = useState<string>("");
+  const [paidTokenInput, setPaidTokenInput] = useState<TokenInputType>();
+  const [succesfulTxHash, setSuccesfulTxHash] = useState<string>("");
 
   return (
     <RepaySectionContext.Provider
@@ -47,6 +54,10 @@ export const RepaySectionContextProvider: React.FC<
         setLoan: setSelectedLoan,
         collateralImageURL,
         setCollateralImageURL,
+        paidTokenInput,
+        setPaidTokenInput,
+        succesfulTxHash,
+        setSuccesfulTxHash,
       }}
     >
       {children}

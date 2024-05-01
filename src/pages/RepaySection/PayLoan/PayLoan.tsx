@@ -11,7 +11,6 @@ import TransactionButton from "../../../components/TransactionButton";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { formatTimestampToShortDate } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
-import { useChainData } from "../../../hooks/useChainData";
 import { usePayLoan } from "../../../hooks/usePayLoan";
 import {
   RepaySectionSteps,
@@ -20,25 +19,34 @@ import {
 import "./payLoan.scss";
 
 const PayLoan: React.FC = () => {
-  const { setCurrentStep, loan, collateralImageURL } =
-    useGetRepaySectionContext();
-  const { chainName } = useChainData();
+  const {
+    setCurrentStep,
+    loan,
+    collateralImageURL,
+    setPaidTokenInput,
+    setSuccesfulTxHash,
+  } = useGetRepaySectionContext();
 
-  const [collateralTokenValue, setCollataralTokenValue] =
-    useState<TokenInputType>({
-      token: loan.lendingToken,
-      value: 0,
-      valueBI: BigInt(0),
-    });
+  const [tokenValue, setTokenValue] = useState<TokenInputType>({
+    token: loan.lendingToken,
+    value: 0,
+    valueBI: BigInt(0),
+  });
 
   const { transactions, formattedWalletBalance, totalOwedNum } = usePayLoan(
     loan,
-    collateralTokenValue.value
+    tokenValue.value,
+    setSuccesfulTxHash
   );
 
   const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
 
   const collateral = loan.collateral[0];
+
+  const onTokenInputChange = (value: TokenInputType) => {
+    setTokenValue(value);
+    setPaidTokenInput(value);
+  };
 
   return (
     <div className="pay-loan">
@@ -56,8 +64,8 @@ const PayLoan: React.FC = () => {
           </div>
         }
         maxAmount={Number(totalOwedNum)}
-        tokenValue={collateralTokenValue}
-        onChange={setCollataralTokenValue}
+        tokenValue={tokenValue}
+        onChange={onTokenInputChange}
         limitToMax
       />
       <DataField>
@@ -89,7 +97,10 @@ const PayLoan: React.FC = () => {
           </div>
         </div>
       </DataField>
-      <TransactionButton transactions={transactions} />
+      <TransactionButton
+        transactions={transactions}
+        onSuccess={() => setCurrentStep(RepaySectionSteps.CONFIRMATION)}
+      />
     </div>
   );
 };

@@ -6,12 +6,16 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { parse } from "graphql";
 import { numberWithCommasAndDecimals } from "../helpers/numberUtils";
 
-export const usePayLoan = (loan: Loan, amount: number) => {
+export const usePayLoan = (
+  loan: Loan,
+  amount: number,
+  onSuccessTx?: (data: any) => void
+) => {
   {
     const { address: walletConnectedAddress } = useAccount();
 
@@ -113,6 +117,13 @@ export const usePayLoan = (loan: Loan, amount: number) => {
       );
     }, [amountBI, currentAmountDueBI]);
 
+    const onSuccess = useCallback(
+      (data: any) => {
+        onSuccessTx(data);
+      },
+      [onSuccessTx]
+    );
+
     const transactions = useMemo(() => {
       let id = 0;
       const steps: any[] = [];
@@ -154,6 +165,7 @@ export const usePayLoan = (loan: Loan, amount: number) => {
           loadingButtonLabel: "Paying...",
           errorMessage,
           id,
+          onSuccess,
         });
         id++;
       } else if (repayLoanMinimum) {
@@ -164,6 +176,7 @@ export const usePayLoan = (loan: Loan, amount: number) => {
           buttonLabel: `Pay`,
           loadingButtonLabel: "Paying...",
           errorMessage,
+          onSuccess,
           id,
         });
         id++;
@@ -176,14 +189,15 @@ export const usePayLoan = (loan: Loan, amount: number) => {
           loadingButtonLabel: "Paying...",
           errorMessage,
           id,
+          onSuccess,
         });
         id++;
       }
       return steps;
     }, [
       amount,
-      walletBalance?.data,
       amountBI,
+      walletBalance?.data,
       currentAmountDueBI,
       tellerV2Allowance,
       repayLoanFull,
@@ -193,6 +207,7 @@ export const usePayLoan = (loan: Loan, amount: number) => {
       loan.lendingToken.symbol,
       loan.bidId,
       tellerV2ContractAddress,
+      onSuccess,
     ]);
 
     return useMemo(() => {
