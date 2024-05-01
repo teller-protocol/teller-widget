@@ -1,4 +1,7 @@
+import { useCallback, useMemo, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
 import { useAccount } from "wagmi";
+import { numberWithCommasAndDecimals } from "../helpers/numberUtils";
 import { Loan } from "./queries/useGetActiveLoansForUser";
 import { useContracts } from "./useContracts";
 import {
@@ -6,10 +9,6 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
-import { useCallback, useMemo, useState } from "react";
-import { formatUnits, parseUnits } from "viem";
-import { parse } from "graphql";
-import { numberWithCommasAndDecimals } from "../helpers/numberUtils";
 
 export const usePayLoan = (
   loan: Loan,
@@ -68,10 +67,9 @@ export const usePayLoan = (
         loan.bidId,
         nextDueDate,
       ]);
-    const futureAmountDueBI =
-      futureDueData?.interest && futureDueData?.principal
-        ? BigInt(futureDueData.interest) + BigInt(futureDueData.principal)
-        : BigInt(0);
+    const futureAmountDueBI = !!futureDueData
+      ? BigInt(futureDueData.interest) + BigInt(futureDueData.principal)
+      : BigInt(0);
 
     const futureAmountDueNum = formatUnits(
       futureAmountDueBI,
@@ -85,10 +83,10 @@ export const usePayLoan = (
         [loan.bidId, loan.nextDueDate],
         !loan.nextDueDate
       );
-    const totalOwedBI =
-      totalOwedData?.interest && totalOwedData?.principal
-        ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
-        : BigInt(0);
+
+    const totalOwedBI = !!totalOwedData
+      ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
+      : BigInt(0);
 
     const totalOwedNum = formatUnits(totalOwedBI, loan.lendingToken.decimals);
 
@@ -119,7 +117,7 @@ export const usePayLoan = (
 
     const onSuccess = useCallback(
       (data: any) => {
-        onSuccessTx(data);
+        onSuccessTx?.(data);
       },
       [onSuccessTx]
     );
