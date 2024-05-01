@@ -14,6 +14,7 @@ import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useContracts } from "../../../hooks/useContracts";
 import { SupportedContractsEnum } from "../../../hooks/useReadContract";
 import "./borrowConfirmation.scss";
+import { useChainData } from "../../../hooks/useChainData";
 
 const LabelWithIcon = ({ label }: { label: string }) => (
   <div className="label-with-icon">
@@ -32,12 +33,7 @@ const BorrowConfirmation = () => {
   } = useGetBorrowSectionContext();
   const contracts = useContracts();
 
-  const chainId = useChainId();
-  const chains = useChains();
-
-  const chain = chains.find((c) => c.id === chainId);
-  const chainExplorerURL = chain?.blockExplorers?.default.url;
-  const chainName = chain?.name;
+  const { chainExplorerURL, chainName } = useChainData();
 
   const principalToken = selectedOpportunity?.principalToken;
   const collateralToken = selectedOpportunity?.collateralToken;

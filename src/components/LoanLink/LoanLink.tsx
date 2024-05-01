@@ -1,7 +1,7 @@
 import { Loan } from "../../hooks/queries/useGetActiveLoansForUser";
 import external from "../../assets/external.svg";
 
-import { useChainData } from "../../hooks/useChainName";
+import { useChainData } from "../../hooks/useChainData";
 
 import "./loanLink.scss";
 
