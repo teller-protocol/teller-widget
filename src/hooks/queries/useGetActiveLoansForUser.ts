@@ -68,8 +68,6 @@ export const useGetActiveLoansForUser = () => {
   const graphURL = useGraphURL();
   const { address } = useAccount();
 
-  // const address = "0xa3042faf15fb80227791ab41550bb5ee68daf417";
-
   const activeLoanForUser = gql`
     query getLoansForUserByStatus_${address} {
       user(id: "${address?.toLowerCase()}") {
