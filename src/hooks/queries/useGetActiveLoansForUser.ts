@@ -28,6 +28,7 @@ export type Loan = {
   lendingToken: {
     symbol: string;
     decimals: number;
+    address: string;
   };
   borrowerAddress: string;
   lenderAddress: string;
@@ -80,6 +81,7 @@ export const useGetActiveLoansForUser = () => {
               lendingToken {
                 symbol
                 decimals
+                address
               }
               borrowerAddress
               lenderAddress
@@ -119,6 +121,7 @@ export const useGetActiveLoansForUser = () => {
               lendingToken {
                 symbol
                 decimals
+                address
               }
               borrowerAddress
               lenderAddress
@@ -158,6 +161,7 @@ export const useGetActiveLoansForUser = () => {
               lendingToken {
                 symbol
                 decimals
+                address
               }
               borrowerAddress
               lenderAddress
@@ -197,6 +201,7 @@ export const useGetActiveLoansForUser = () => {
               lendingToken {
                 symbol
                 decimals
+                address
               }
               borrowerAddress
               lenderAddress

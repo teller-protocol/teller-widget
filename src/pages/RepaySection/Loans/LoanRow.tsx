@@ -40,8 +40,9 @@ const TokenPair: React.FC<TokenPairProps> = ({
   principalTokenSymbol,
   collateralTokenAdress,
 }) => {
+  const { setCollateralImageURL } = useGetRepaySectionContext();
   const { tokenMetadata: collateralTokenMetadata, isLoading } =
-    useGetTokenMetadata(collateralTokenAdress);
+    useGetTokenMetadata(collateralTokenAdress, setCollateralImageURL);
 
   const collateralTokenLogo = useMemo(() => {
     return collateralTokenMetadata?.logo;

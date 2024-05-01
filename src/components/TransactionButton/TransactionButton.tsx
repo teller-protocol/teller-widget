@@ -144,7 +144,9 @@ const TransactionButton = ({
               isSimulationLoading ||
               isLoading ||
               isButtonDisabled ||
-              isPending
+              isPending ||
+              currentStep?.isStepDisabled ||
+              !!currentStep?.errorMessage
             }
           >
             {(isPending || customTxLoading) &&
@@ -156,6 +158,8 @@ const TransactionButton = ({
       ),
     [
       currentStep?.buttonLabel,
+      currentStep?.errorMessage,
+      currentStep?.isStepDisabled,
       currentStepID,
       customTxLoading,
       isButtonDisabled,
@@ -206,12 +210,13 @@ const TransactionButton = ({
         )}
       </>
 
-      {((isButtonDisabled && buttonDisabledMessage) ||
-        (currentStep?.isStepDisabled && currentStep?.disabledMessage)) && (
-        <div className="disabled-text-message section-title">
-          {buttonDisabledMessage ?? currentStep?.disabledMessage}
-        </div>
-      )}
+      {(isButtonDisabled && buttonDisabledMessage) ||
+        (currentStep?.isStepDisabled && currentStep?.disabledMessage) ||
+        (currentStep?.errorMessage && (
+          <div className="disabled-text-message section-title">
+            {buttonDisabledMessage ?? currentStep?.errorMessage}
+          </div>
+        ))}
     </div>
   );
 };

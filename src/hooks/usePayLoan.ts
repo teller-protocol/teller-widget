@@ -1,0 +1,206 @@
+import { useAccount } from "wagmi";
+import { Loan } from "./queries/useGetActiveLoansForUser";
+import { useContracts } from "./useContracts";
+import {
+  ContractType,
+  SupportedContractsEnum,
+  useReadContract,
+} from "./useReadContract";
+import { useMemo, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
+import { parse } from "graphql";
+import { numberWithCommasAndDecimals } from "../helpers/numberUtils";
+
+export const usePayLoan = (loan: Loan, amount: number) => {
+  {
+    const { address: walletConnectedAddress } = useAccount();
+
+    const contracts = useContracts();
+
+    const tellerV2Contract = contracts?.[SupportedContractsEnum.TellerV2];
+    const tellerV2ContractAddress = tellerV2Contract?.address;
+
+    const tokenContractName = loan.lendingToken.address;
+
+    const { data: tellerV2Allowance, error: allowanceError } = useReadContract(
+      tokenContractName,
+      "allowance",
+      [walletConnectedAddress, tellerV2ContractAddress],
+      false,
+      ContractType.ERC20
+    );
+    const [cachedNow] = useState(+(Date.now() / 1000).toFixed());
+    const future1Hour = useMemo(
+      () => (3600 + cachedNow).toFixed(),
+      [cachedNow]
+    );
+
+    const { data: nextDueDateData = loan.nextDueDate }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateNextDueDate(uint256)`,
+      [loan.bidId],
+      false
+    );
+    const nextDueDate =
+      nextDueDateData < cachedNow ? cachedNow : nextDueDateData;
+
+    const { data: currentDueData, error: currentDueDataError }: any =
+      useReadContract(SupportedContractsEnum.TellerV2, `calculateAmountDue`, [
+        loan.bidId,
+        future1Hour,
+      ]);
+    const currentAmountDueBI =
+      currentDueData?.interest && currentDueData?.principal
+        ? BigInt(currentDueData.interest) + BigInt(currentDueData.principal)
+        : BigInt(0);
+
+    const currentAmountDueNum = formatUnits(
+      currentAmountDueBI,
+      loan.lendingToken.decimals
+    );
+
+    const { data: futureDueData, error: futureDueDataError }: any =
+      useReadContract(SupportedContractsEnum.TellerV2, `calculateAmountDue`, [
+        loan.bidId,
+        nextDueDate,
+      ]);
+    const futureAmountDueBI =
+      futureDueData?.interest && futureDueData?.principal
+        ? BigInt(futureDueData.interest) + BigInt(futureDueData.principal)
+        : BigInt(0);
+
+    const futureAmountDueNum = formatUnits(
+      futureAmountDueBI,
+      loan.lendingToken.decimals
+    );
+
+    const { data: totalOwedData, error: totalOwedDataError }: any =
+      useReadContract(
+        SupportedContractsEnum.TellerV2,
+        `calculateAmountOwed`,
+        [loan.bidId, loan.nextDueDate],
+        !loan.nextDueDate
+      );
+    const totalOwedBI =
+      totalOwedData?.interest && totalOwedData?.principal
+        ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
+        : BigInt(0);
+
+    const totalOwedNum = formatUnits(totalOwedBI, loan.lendingToken.decimals);
+
+    const walletBalance = useReadContract(
+      loan.lendingTokenAddress,
+      "balanceOf",
+      [walletConnectedAddress],
+      false,
+      ContractType.ERC20
+    );
+    const formattedWalletBalance = numberWithCommasAndDecimals(
+      formatUnits(BigInt(walletBalance.data ?? 0), loan.lendingToken.decimals)
+    );
+
+    const amountBI = amount
+      ? parseUnits(amount.toString(), loan.lendingToken.decimals)
+      : 0;
+
+    const repayLoanFull = useMemo(() => {
+      return amountBI && amountBI >= (totalOwedBI * BigInt(100)) / BigInt(98);
+    }, [amountBI, totalOwedBI]);
+
+    const repayLoanMinimum = useMemo(() => {
+      return (
+        amountBI && amountBI <= (currentAmountDueBI / BigInt(100)) * BigInt(101)
+      );
+    }, [amountBI, currentAmountDueBI]);
+
+    const transactions = useMemo(() => {
+      let id = 0;
+      const steps: any[] = [];
+      if (!amount || !amountBI)
+        return [
+          {
+            buttonLabel: "Pay",
+            isStepDisabled: true,
+          },
+        ];
+
+      let errorMessage =
+        amountBI > BigInt(walletBalance?.data) ? "Insufficient funds." : "";
+
+      if (currentAmountDueBI > amountBI) {
+        errorMessage = `Please select amount bigger than ${currentAmountDueNum}`;
+      }
+
+      if (amountBI > BigInt(tellerV2Allowance)) {
+        steps.push({
+          contractName: loan?.lendingTokenAddress,
+          args: [tellerV2ContractAddress, amountBI * BigInt(10)],
+          functionName: "approve",
+          buttonLabel: `Approve ${loan.lendingToken.symbol}`,
+          loadingButtonLabel: `Approving ${loan.lendingToken.symbol}...`,
+          errorMessage,
+          tooltip: `Permission is required for Teller to pay loan`,
+          id,
+          contractType: ContractType.ERC20,
+        });
+        id++;
+      }
+      if (repayLoanFull) {
+        steps.push({
+          contractName: SupportedContractsEnum.TellerV2,
+          functionName: "repayLoanFull",
+          args: [loan.bidId],
+          buttonLabel: `Repay loan`,
+          loadingButtonLabel: "Paying...",
+          errorMessage,
+          id,
+        });
+        id++;
+      } else if (repayLoanMinimum) {
+        steps.push({
+          contractName: SupportedContractsEnum.TellerV2,
+          functionName: "repayLoanMinimum",
+          args: [loan.bidId],
+          buttonLabel: `Pay`,
+          loadingButtonLabel: "Paying...",
+          errorMessage,
+          id,
+        });
+        id++;
+      } else {
+        steps.push({
+          contractName: SupportedContractsEnum.TellerV2,
+          functionName: "repayLoan",
+          args: [loan.bidId, amountBI],
+          buttonLabel: `Pay ${amount} ${loan.lendingToken.symbol}`,
+          loadingButtonLabel: "Paying...",
+          errorMessage,
+          id,
+        });
+        id++;
+      }
+      return steps;
+    }, [
+      amount,
+      walletBalance?.data,
+      amountBI,
+      currentAmountDueBI,
+      tellerV2Allowance,
+      repayLoanFull,
+      repayLoanMinimum,
+      currentAmountDueNum,
+      loan?.lendingTokenAddress,
+      loan.lendingToken.symbol,
+      loan.bidId,
+      tellerV2ContractAddress,
+    ]);
+
+    return useMemo(() => {
+      return {
+        formattedWalletBalance,
+        transactions,
+        totalOwedNum,
+      };
+    }, [formattedWalletBalance, transactions, totalOwedNum]);
+  }
+};

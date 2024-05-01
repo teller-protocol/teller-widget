@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useAlchemy } from "./useAlchemy";
 import { TokenMetadataResponse } from "@teller-protocol/alchemy-sdk";
 
-export const useGetTokenMetadata = (tokenAddress: string) => {
+export const useGetTokenMetadata = (
+  tokenAddress: string,
+  onSuccess?: (url: string) => void
+) => {
   const alchemy = useAlchemy();
   const [isLoading, setIsLoading] = useState(true);
   const [tokenMetadata, setTokenMetadata] = useState<TokenMetadataResponse>();
@@ -13,10 +16,11 @@ export const useGetTokenMetadata = (tokenAddress: string) => {
     void (async () => {
       await alchemy.core.getTokenMetadata(tokenAddress).then((metadata) => {
         setTokenMetadata(metadata);
+        onSuccess && metadata && onSuccess?.(metadata.logo);
         setIsLoading(false);
       });
     })();
-  }, [alchemy, tokenAddress]);
+  }, [alchemy, onSuccess, tokenAddress]);
 
   return { tokenMetadata, isLoading };
 };

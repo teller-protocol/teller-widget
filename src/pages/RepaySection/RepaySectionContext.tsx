@@ -15,6 +15,8 @@ interface RepaySectionContextType {
   setCurrentStep: (step: RepaySectionSteps) => void;
   loan: Loan;
   setLoan: (loan: Loan) => void;
+  collateralImageURL: string;
+  setCollateralImageURL: (url: string) => void;
 }
 
 const RepaySectionContext = createContext<RepaySectionContextType>(
@@ -33,6 +35,7 @@ export const RepaySectionContextProvider: React.FC<
   );
   const [selectedLoan, setSelectedLoan] = useState<Loan>({} as Loan);
   const [paidAmount, setPaidAmount] = useState<string>("");
+  const [collateralImageURL, setCollateralImageURL] = useState<string>("");
 
   return (
     <RepaySectionContext.Provider
@@ -42,6 +45,8 @@ export const RepaySectionContextProvider: React.FC<
         setCurrentStep,
         loan: selectedLoan,
         setLoan: setSelectedLoan,
+        collateralImageURL,
+        setCollateralImageURL,
       }}
     >
       {children}

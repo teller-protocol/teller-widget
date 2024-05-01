@@ -12,6 +12,7 @@
     border: 1px solid $border-color;
     background: white;
     font-family: "Roboto", sans-serif;
+    border-radius: $border-radius;
 
     &-header {
       @include tableProperties;
@@ -54,7 +55,6 @@
       }
     }
   }
-
 
   .no-loans {
     text-align: center;

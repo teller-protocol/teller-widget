@@ -115,12 +115,9 @@ const OpportunityDetails = () => {
         onChange={setCollataralTokenValue}
       />
       <div className="duration-info">
-        <DataField
-          label="Duration"
-          value={`${convertSecondsToDays(
-            Number(selectedOpportunity?.maxDuration)
-          )} days`}
-        />
+        <DataField label="Duration">
+          {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))} days
+        </DataField>
         {extensionCount > 0 && (
           <div className="section-sub-title">
             Max extension: {maxExtensionInDays} days

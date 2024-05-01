@@ -7,13 +7,14 @@ import {
 } from "./RepaySectionContext";
 
 import "./repaySection.scss";
+import PayLoan from "./PayLoan";
 
 const RenderComponent: React.FC = () => {
   const { currentStep } = useGetRepaySectionContext();
   const mapStepToComponent = useMemo(
     () => ({
       [RepaySectionSteps.LOANS]: <Loans />,
-      [RepaySectionSteps.REPAY_LOAN]: "<RepayLoan />",
+      [RepaySectionSteps.REPAY_LOAN]: <PayLoan />,
       [RepaySectionSteps.ROLLOVER_LOAN]: "<RolloverLoan />",
       [RepaySectionSteps.CONFIRMATION]: "<Confirmation />",
     }),

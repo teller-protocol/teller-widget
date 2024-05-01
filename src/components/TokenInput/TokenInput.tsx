@@ -10,18 +10,19 @@ import TokenLogo from "../TokenLogo";
 export type TokenInputType = {
   value?: number;
   token?: SubgraphTokenType;
-  valueBI?: BigInt;
+  valueBI?: bigint;
 };
 
 interface TokenInputProps {
   tokenValue: TokenInputType;
   imageUrl: string;
-  label?: string;
+  label?: React.ReactNode;
   sublabel?: string;
   maxAmount?: number;
   showMaxButton?: boolean;
   onChange?: (value: TokenInputType) => void;
   readonly?: boolean;
+  limitToMax?: boolean;
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
@@ -33,6 +34,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
   onChange,
   readonly,
   showMaxButton = true,
+  limitToMax = false,
 }) => {
   const maxValueBigInt = parseUnits(
     (maxAmount ?? 0)?.toString(),
@@ -55,12 +57,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
       });
       return;
     }
-    /*     if (maxAmount) {
+    if (limitToMax && maxAmount) {
       if (Number(e.currentTarget.value) > maxAmount) {
         setMaxValue();
         return;
       }
-    } */
+    }
     onChange?.({
       ...tokenValue,
       value: Number(e.currentTarget.value),

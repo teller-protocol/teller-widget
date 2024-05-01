@@ -9,10 +9,6 @@ import "./loans.scss";
 
 const Loans = () => {
   const { allActiveLoans, isLoading } = useGetActiveLoansForUser();
-  console.log(
-    "TCL ~ file: Loans.tsx:11 ~ Loans ~ allActiveLoans:",
-    allActiveLoans
-  );
   return (
     <div className="loans">
       {isLoading ? (
