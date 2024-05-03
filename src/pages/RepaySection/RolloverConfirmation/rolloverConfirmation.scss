@@ -1,0 +1,58 @@
+@import "../../../tokens.scss";
+
+.rollover-confirmation {
+  background-color: rgba(9, 85, 70, 1);
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 58px 52px;
+  border-radius: $border-radius;
+
+  &-background {
+    right: 0;
+    position: absolute;
+  }
+
+  &-title {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 26px;
+    text-align: center;
+    color: white;
+    margin-top: $s-normal;
+  }
+
+  &-buttons {
+    margin-top: $s-normal;
+    z-index: 10;
+    .teller-widget-button {
+      margin-bottom: $s-normal;
+    }
+
+    .loader-container {
+      width: 100%;
+
+      .skeleton-loader {
+        width: 300px;
+        margin-bottom: $s-normal;
+      }
+    }
+  }
+
+  .label-with-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $s-small;
+  }
+
+  a {
+    text-decoration: none;
+    color: $text-primary;
+  }
+}

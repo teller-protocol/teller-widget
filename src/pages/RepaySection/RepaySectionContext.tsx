@@ -2,12 +2,15 @@ import React, { createContext, useContext, useState } from "react";
 import { useConfig } from "wagmi";
 import { Loan } from "../../hooks/queries/useGetActiveLoansForUser";
 import { TokenInputType } from "../../components/TokenInput/TokenInput";
+import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 
 export enum RepaySectionSteps {
   LOANS,
   REPAY_LOAN,
   ROLLOVER_LOAN,
   CONFIRMATION,
+  ROLLOVER_CONFIRMATION,
+  ADD_ROLLOVER_TO_CALENDAR,
 }
 
 interface RepaySectionContextType {
@@ -20,8 +23,14 @@ interface RepaySectionContextType {
   setCollateralImageURL: (url: string) => void;
   paidTokenInput?: TokenInputType;
   setPaidTokenInput: (tokenInput: TokenInputType) => void;
-  succesfulTxHash?: string;
-  setSuccesfulTxHash: (txHash: string) => void;
+  successRolloverLoanHash: string;
+  setSuccessRolloverLoanHash: (txHash: string) => void;
+  rolloverCommitment: CommitmentType;
+  setRolloverCommitment: (commitment: CommitmentType) => void;
+  bidId: string;
+  setBidId: (bidId: string) => void;
+  successfulLoanParams: any;
+  setSuccessfulRolloverParams: (params: any) => void;
 }
 
 const RepaySectionContext = createContext<RepaySectionContextType>(
@@ -42,7 +51,14 @@ export const RepaySectionContextProvider: React.FC<
   const [paidAmount, setPaidAmount] = useState<string>("");
   const [collateralImageURL, setCollateralImageURL] = useState<string>("");
   const [paidTokenInput, setPaidTokenInput] = useState<TokenInputType>();
-  const [succesfulTxHash, setSuccesfulTxHash] = useState<string>("");
+  const [successRolloverLoanHash, setSuccessRolloverLoanHash] =
+    useState<string>("");
+  const [rolloverCommitment, setRolloverCommitment] =
+    useState<CommitmentType>();
+  const [bidId, setBidId] = useState<string>("");
+  const [successfulLoanParams, setSuccessfulRolloverParams] = useState<{
+    args: any[];
+  }>();
 
   return (
     <RepaySectionContext.Provider
@@ -56,8 +72,14 @@ export const RepaySectionContextProvider: React.FC<
         setCollateralImageURL,
         paidTokenInput,
         setPaidTokenInput,
-        succesfulTxHash,
-        setSuccesfulTxHash,
+        successRolloverLoanHash,
+        setSuccessRolloverLoanHash,
+        rolloverCommitment,
+        setRolloverCommitment,
+        bidId,
+        setBidId,
+        successfulLoanParams,
+        setSuccessfulRolloverParams,
       }}
     >
       {children}

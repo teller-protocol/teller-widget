@@ -11,10 +11,10 @@ import OpportunitiesList from "./OpportunitiesList";
 import OpportunityDetails from "./OpportunityDetails";
 import "./borrowSection.scss";
 import BorrowConfirmation from "./BorrowConfirmation";
-import AddToCalendar from "./AddToCalendar";
+import AddToCalendar from "../../components/AddToCalendar";
 
 const RenderComponent: React.FC = () => {
-  const { currentStep } = useGetBorrowSectionContext();
+  const { currentStep, setCurrentStep, bidId } = useGetBorrowSectionContext();
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,
@@ -22,9 +22,14 @@ const RenderComponent: React.FC = () => {
       [BorrowSectionSteps.OPPORTUNITY_DETAILS]: <OpportunityDetails />,
       [BorrowSectionSteps.ACCEPT_TERMS]: <BorrowerTerms />,
       [BorrowSectionSteps.SUCCESS]: <BorrowConfirmation />,
-      [BorrowSectionSteps.ADD_TO_CALENDAR]: <AddToCalendar />,
+      [BorrowSectionSteps.ADD_TO_CALENDAR]: (
+        <AddToCalendar
+          bidId={bidId}
+          onBack={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
+        />
+      ),
     }),
-    []
+    [bidId, setCurrentStep]
   );
 
   return (

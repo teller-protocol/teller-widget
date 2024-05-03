@@ -1,24 +1,27 @@
-import apple from "../../../assets/apple.svg";
-import googleCalendar from "../../../assets/googleCalendar.svg";
-import outlook from "../../../assets/outlook.svg";
-import yahoo from "../../../assets/yahoo.svg";
+import apple from "../../assets/apple.svg";
+import googleCalendar from "../../assets/googleCalendar.svg";
+import outlook from "../../assets/outlook.svg";
+import yahoo from "../../assets/yahoo.svg";
 
 import "./addToCalendar.scss";
 
 import { useCallback, useMemo } from "react";
-import Button from "../../../components/Button";
+import Button from "../Button";
 import {
   SupportedContractsEnum,
   useReadContract,
-} from "../../../hooks/useReadContract";
+} from "../../hooks/useReadContract";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
-} from "../BorrowSectionContext";
+} from "../../pages/BorrowSection/BorrowSectionContext";
 
-const AddToCalendar = () => {
-  const { bidId, setCurrentStep } = useGetBorrowSectionContext();
+interface AddToCalendarProps {
+  bidId: string;
+  onBack: () => void;
+}
 
+const AddToCalendar: React.FC<AddToCalendarProps> = ({ bidId, onBack }) => {
   const { data: bidData } = useReadContract(
     SupportedContractsEnum.TellerV2,
     "bids",

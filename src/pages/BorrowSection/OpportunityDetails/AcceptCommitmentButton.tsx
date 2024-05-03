@@ -224,7 +224,6 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       transactions={steps}
       isButtonDisabled={hasInsufficientCollateral}
       buttonDisabledMessage="Insufficient collateral"
-      onTransactionConfirmed={setBidId}
     />
   );
 };

@@ -9,8 +9,12 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { abs, bigIntMin } from "../helpers/bigIntMath";
+import {
+  RepaySectionSteps,
+  useGetRepaySectionContext,
+} from "../pages/RepaySection/RepaySectionContext";
 
 export const calculateCollateralRequiredForPrincipal = (
   loanPrincipal: bigint, // base units of the principal token
@@ -84,6 +88,12 @@ const useRolloverLoan = (
   const { address: walletConnectedAddress } = useAccount();
 
   const {
+    setSuccessRolloverLoanHash,
+    setCurrentStep,
+    setSuccessfulRolloverParams,
+  } = useGetRepaySectionContext();
+
+  const {
     maxPrincipalPerCollateral,
     isCommitmentFromLCFAlpha,
     lcfAlphaAddress,
@@ -119,9 +129,9 @@ const useRolloverLoan = (
 
   const collateral = bid.collateral[0];
 
-  const tokenContractName = bid.lendingToken.symbol;
+  const tokenContractName = bid.lendingToken.address;
 
-  const { data: flashRolloverAllowance = 0n } = useReadContract(
+  const { data: flashRolloverAllowance } = useReadContract(
     tokenContractName,
     "allowance",
     [walletConnectedAddress, flashRolloverLoanAddress],
@@ -258,6 +268,15 @@ const useRolloverLoan = (
       ? abs(BigInt(rolloverLoanEstimation[1] ?? 0))
       : 0n;
 
+  const onSuccess = useCallback(
+    (data: any, params: any) => {
+      setSuccessRolloverLoanHash(data);
+      setCurrentStep(RepaySectionSteps.ROLLOVER_CONFIRMATION);
+      setSuccessfulRolloverParams(params);
+    },
+    [setCurrentStep, setSuccessRolloverLoanHash, setSuccessfulRolloverParams]
+  );
+
   const transactions = useMemo(() => {
     let id = 0;
     const steps: any[] = [];
@@ -326,8 +345,6 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         id++;
       }
 
-      // make sure the borrower has enough borrower amount and that it is approved
-
       if (borrowerAmount > BigInt(flashRolloverAllowance)) {
         steps.push({
           contractName: bid?.lendingTokenAddress,
@@ -373,6 +390,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         loadingButtonLabel: "Rolling over...",
         errorMessage,
         id,
+        onSuccess,
       });
       id++;
     } else {
@@ -403,6 +421,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
     rolloverCommitment?.marketplaceId,
     rolloverCommitment?.collateralToken?.address,
     acceptCommitmentArgs,
+    onSuccess,
     commitmentForwarderAddress,
     lcfContractName,
     flashRolloverLoanAddress,

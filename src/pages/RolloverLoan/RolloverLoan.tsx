@@ -108,7 +108,7 @@ const RolloverLoan: React.FC = () => {
     setCurrentStep,
     loan,
     collateralImageURL,
-    setPaidTokenInput,
+    setSuccessfulRolloverParams,
     setSuccesfulTxHash,
   } = useGetRepaySectionContext();
 
