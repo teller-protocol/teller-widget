@@ -1,9 +1,17 @@
+@import "../../tokens.scss";
 @import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Work+Sans:wght@300;400;500;600;700&display=swap");
 
-
 .teller-widget-button {
-  background: linear-gradient(130.85deg, #ffdfa6 0%, #ffc75f 100%);
-  color: rgba(69, 51, 19, 1);
+  &.primary {
+    background: linear-gradient(130.85deg, #ffdfa6 0%, #ffc75f 100%);
+    color: rgba(69, 51, 19, 1);
+  }
+
+  &.secondary {
+    background: linear-gradient(130.85deg, #ffffff 0%, #f9f9fb 100%);
+    color: $text-primary;
+  }
+
   border-radius: 4px;
   border: none;
   padding: 0.5rem 1rem;

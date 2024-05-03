@@ -1,0 +1,26 @@
+@import "../../../tokens.scss";
+
+.borrower-terms {
+  .checkbox {
+    margin-bottom: $s-normal;
+    &-label {
+      font-family: "Roboto";
+      font-size: 13px;
+      line-height: 25px;
+      color: rgba(56, 56, 56, 1);
+    }
+  }
+
+  .teller-widget-button {
+    margin-top: $s-large;
+  }
+
+  .paragraph {
+    text-align: center;
+    margin-top: $s-small;
+
+    a {
+      color: $text-primary;
+    }
+  }
+}

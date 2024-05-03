@@ -7,7 +7,9 @@ export enum BorrowSectionSteps {
   SELECT_TOKEN,
   SELECT_OPPORTUNITY,
   OPPORTUNITY_DETAILS,
+  ACCEPT_TERMS,
   SUCCESS,
+  ADD_TO_CALENDAR,
 }
 
 export type BorrowSectionContextType = {
@@ -21,6 +23,12 @@ export type BorrowSectionContextType = {
   onOpportunitySelected: (opportunity: any) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
+  successLoanHash?: string;
+  setSuccessLoanHash: (hash: string) => void;
+  successfulLoanParams: any;
+  setSuccessfulLoanParams: (data: any) => void;
+  bidId: string;
+  setBidId: (bidId: string) => void;
 };
 
 interface BorrowSectionContextProps {
@@ -47,6 +55,12 @@ export const BorrowSectionContextProvider: React.FC<
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
 
+  const [successLoanHash, setSuccessLoanHash] = useState<string>("");
+
+  const [successfulLoanParams, setSuccessfulLoanParams] = useState<any>({});
+
+  const [bidId, setBidId] = useState<string>("");
+
   return (
     <BorrowSectionContext.Provider
       value={{
@@ -58,6 +72,12 @@ export const BorrowSectionContextProvider: React.FC<
         tokensWithCommitmentsLoading,
         selectedOpportunity,
         setSelectedOpportunity,
+        successfulLoanParams,
+        setSuccessfulLoanParams,
+        successLoanHash,
+        setSuccessLoanHash,
+        bidId,
+        setBidId,
         // onCollateralTokenSelected,
         // onOpportunitySelected,
         // mapStepToComponent,

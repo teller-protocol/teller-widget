@@ -1,3 +1,5 @@
+import cx from "classnames";
+
 import "./modal.scss";
 
 import tellerLogo from "../../assets/TellerLink.svg";
@@ -17,9 +19,15 @@ type ModalProps = {
   children: ReactNode;
   closeModal?: () => void;
   showModal: boolean;
+  isWelcomeScreen?: boolean;
 };
 
-const Modal = ({ children, closeModal, showModal }: ModalProps) => {
+const Modal = ({
+  children,
+  closeModal,
+  showModal,
+  isWelcomeScreen,
+}: ModalProps) => {
   const portal = createWrapperAndAppendToBody("teller-widget");
 
   const handleKeyDown = useCallback(
@@ -60,14 +68,19 @@ const Modal = ({ children, closeModal, showModal }: ModalProps) => {
               ></div>
             </div>
             <div
-              className="modal-container-content"
+              className={cx(
+                "modal-container-content",
+                isWelcomeScreen && "is-welcome-screen"
+              )}
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-headline"
             >
               <div className="modal-container-content-inner">
                 <div className="modal-content-title">
-                  <div className="modal-title">Cash Advance</div>
+                  {!isWelcomeScreen && (
+                    <div className="modal-title">Cash Advance</div>
+                  )}
                   <div className="close-button">
                     <Icon
                       icon="ci:close-big"
@@ -79,20 +92,22 @@ const Modal = ({ children, closeModal, showModal }: ModalProps) => {
                 </div>
                 {children}
               </div>
-              <div className="modal-footer-logo">
-                <a
-                  href="https://www.teller.org"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img src={tellerLogo} />
-                </a>
-              </div>
+              {!isWelcomeScreen && (
+                <div className="modal-footer-logo">
+                  <a
+                    href="https://www.teller.org"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <img src={tellerLogo} />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
       ),
-    [showModal]
+    [children, handleClose, isWelcomeScreen, showModal]
   );
 
   return ReactDOM.createPortal(node, portal);

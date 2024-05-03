@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Work+Sans:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Space+Mono&display=swap");
 
 @import "../../tokens.scss";
 
@@ -32,4 +33,22 @@
   font-weight: 400;
   font-size: 15px;
   color: $text-primary;
+}
+
+.loading {
+  animation: flashing 1s linear infinite alternate;
+}
+
+h1 {
+  font-size: 24px;
+  line-height: 20px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 40px;
+}
+
+@keyframes flashing {
+  to {
+    opacity: 0;
+  }
 }

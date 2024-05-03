@@ -11,11 +11,14 @@ export type UserToken = {
   symbol: string;
   logo: string;
   balance: string;
-  balanceBigInt: BigInt;
+  balanceBigInt: bigint;
   decimals: number;
 };
 
-export const useGetUserTokens = (tokens?: string[]) => {
+export const useGetUserTokens = (
+  whiteListedTokens?: string[],
+  showOnlyWhiteListedTokens?: boolean
+) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
@@ -33,26 +36,31 @@ export const useGetUserTokens = (tokens?: string[]) => {
         (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
       );
 
-      const appTokensWithBalances = tokens?.map((appToken) => {
-        const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
-          (balance) => balance.contractAddress.toLowerCase() === appToken
-        );
-        if (tokenBalanceFromUserIndex > 0) {
-          const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
-          nonZeroBalances.splice(tokenBalanceFromUserIndex, 1);
-          return {
-            ...userBalance,
-            contractAddress: appToken,
-          };
-        } else {
-          return {
-            contractAddress: appToken,
-            tokenBalance: BigInt(0),
-          };
+      const whiteListedTokensWithBalances = whiteListedTokens?.map(
+        (appToken) => {
+          const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
+            (balance) => balance.contractAddress.toLowerCase() === appToken
+          );
+          if (tokenBalanceFromUserIndex > 0) {
+            const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
+            nonZeroBalances.splice(tokenBalanceFromUserIndex, 1);
+            return {
+              ...userBalance,
+              contractAddress: appToken,
+            };
+          } else {
+            return {
+              contractAddress: appToken,
+              tokenBalance: BigInt(0),
+            };
+          }
         }
-      });
+      );
 
-      const newArray = [...appTokensWithBalances, ...nonZeroBalances];
+      const newArray = [
+        ...whiteListedTokensWithBalances,
+        ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
+      ];
       await Promise.all(
         newArray.map(async (token) => {
           await alchemy.core
@@ -77,7 +85,7 @@ export const useGetUserTokens = (tokens?: string[]) => {
       setIsLoading(false);
       setUserTokens(userTokensData);
     })();
-  }, [alchemy, address]);
+  }, [alchemy, address, whiteListedTokens, showOnlyWhiteListedTokens]);
 
   return { userTokens, isLoading };
 };

@@ -3,14 +3,26 @@ import "./loader.scss";
 
 interface LoaderProps {
   loading?: boolean;
+  isSkeleton?: boolean;
+  height?: number;
 }
 
-const Loader: React.FC<LoaderProps> = ({ loading = true }) => {
+const Loader: React.FC<LoaderProps> = ({
+  loading = true,
+  isSkeleton,
+  height,
+}) => {
   return (
     loading && (
-      <div className="loader">
-        <img src={tellerLogo} />
-      </div>
+      <>
+        {isSkeleton ? (
+          <div className="skeleton-loader" style={{ height: `${height}px` }} />
+        ) : (
+          <div className="loader">
+            <img src={tellerLogo} />
+          </div>
+        )}
+      </>
     )
   );
 };

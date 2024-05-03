@@ -2,6 +2,7 @@ import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { useGraphURL } from "../useGraphURL";
 import { useQuery } from "@tanstack/react-query";
+import { useForwarderAddresses } from "../useForwarderAddresses";
 
 export type SubgraphTokenType = {
   imageUri?: string | undefined;
@@ -45,9 +46,11 @@ export const useGetCommitmentsForCollateralToken = (
 ) => {
   const graphURL = useGraphURL();
 
+  const { lcfAlphaAddress, lcfAddress } = useForwarderAddresses();
+
   const collateralTokenCommitments = useMemo(
     () => gql`
-    query commitmentsForCollateralTokens {
+    query commitmentsForCollateralToken_${collateralTokenAddress} {
       commitments(
         where: {
           collateralToken_: {
@@ -56,6 +59,7 @@ export const useGetCommitmentsForCollateralToken = (
           status: "Active",
           expirationTimestamp_gt: "${Math.floor(Date.now() / 1000)}",
           committedAmount_gt: "0"
+          forwarderAddress_in: ["${lcfAlphaAddress}", "${lcfAddress}"]
         },
         orderBy: maxPrincipalPerCollateralAmount,
         orderDirection: desc
@@ -103,7 +107,7 @@ export const useGetCommitmentsForCollateralToken = (
       }
     }
   `,
-    [collateralTokenAddress]
+    [collateralTokenAddress, lcfAddress, lcfAlphaAddress]
   );
 
   const { data, isLoading } = useQuery({
