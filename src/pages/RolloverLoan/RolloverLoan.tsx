@@ -109,7 +109,6 @@ const RolloverLoan: React.FC = () => {
     loan,
     collateralImageURL,
     setSuccessfulRolloverParams,
-    setSuccesfulTxHash,
   } = useGetRepaySectionContext();
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
@@ -387,12 +386,9 @@ const RolloverLoan: React.FC = () => {
           onChange={(token) => setCollateralValue(token)}
           imageUrl={collateralImageURL}
           tokenValue={collateralValue}
-          // maxValueBN={maxCollateralWithWalletBalance}
-          // checkUserBalance={false}
-          // min
-          // minAmount={defaultCollateralValue.valueBN}
+          min
+          minAmount={defaultCollateralValue.valueBI}
           key={commitment?.id}
-          // displayedDecimals={3}
           maxAmount={Number(formattedMaxCollateral)}
         />
       ),
@@ -402,6 +398,7 @@ const RolloverLoan: React.FC = () => {
       collateralValue,
       commitment?.id,
       commitment?.minAPY,
+      defaultCollateralValue.valueBI,
       formattedMaxCollateral,
       loan.lendingToken.decimals,
       maxLoanAmount,
