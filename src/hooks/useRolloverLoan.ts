@@ -91,6 +91,7 @@ const useRolloverLoan = (
     setSuccessRolloverLoanHash,
     setCurrentStep,
     setSuccessfulRolloverParams,
+    setRolloverCommitment,
   } = useGetRepaySectionContext();
 
   const {
@@ -273,8 +274,15 @@ const useRolloverLoan = (
       setSuccessRolloverLoanHash(data);
       setCurrentStep(RepaySectionSteps.ROLLOVER_CONFIRMATION);
       setSuccessfulRolloverParams(params);
+      setRolloverCommitment(rolloverCommitment);
     },
-    [setCurrentStep, setSuccessRolloverLoanHash, setSuccessfulRolloverParams]
+    [
+      rolloverCommitment,
+      setCurrentStep,
+      setRolloverCommitment,
+      setSuccessRolloverLoanHash,
+      setSuccessfulRolloverParams,
+    ]
   );
 
   const transactions = useMemo(() => {

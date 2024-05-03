@@ -40,11 +40,17 @@ const RolloverConfirmation = () => {
   const collateralToken = rolloverCommitment?.collateralToken;
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
-    formatUnits(successfulLoanParams.args[1], principalToken?.decimals ?? 0)
+    formatUnits(
+      successfulLoanParams.args[4].principalAmount,
+      principalToken?.decimals ?? 0
+    )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
-    formatUnits(successfulLoanParams.args[2], collateralToken?.decimals ?? 0)
+    formatUnits(
+      successfulLoanParams.args[4].collateralAmount,
+      collateralToken?.decimals ?? 0
+    )
   );
 
   /*   const { data: successData } = useWaitForTransactionReceipt({
