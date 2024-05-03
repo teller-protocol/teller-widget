@@ -31,6 +31,8 @@ interface RepaySectionContextType {
   setBidId: (bidId: string) => void;
   successfulLoanParams: any;
   setSuccessfulRolloverParams: (params: any) => void;
+  succesfulTxHash?: string;
+  setSuccesfulTxHash: (txHash: string) => void;
 }
 
 const RepaySectionContext = createContext<RepaySectionContextType>(
@@ -55,6 +57,7 @@ export const RepaySectionContextProvider: React.FC<
     useState<string>("");
   const [rolloverCommitment, setRolloverCommitment] =
     useState<CommitmentType>();
+  const [succesfulTxHash, setSuccesfulTxHash] = useState<string>("");
   const [bidId, setBidId] = useState<string>("");
   const [successfulLoanParams, setSuccessfulRolloverParams] = useState<{
     args: any[];
@@ -80,6 +83,8 @@ export const RepaySectionContextProvider: React.FC<
         setBidId,
         successfulLoanParams,
         setSuccessfulRolloverParams,
+        succesfulTxHash,
+        setSuccesfulTxHash,
       }}
     >
       {children}
