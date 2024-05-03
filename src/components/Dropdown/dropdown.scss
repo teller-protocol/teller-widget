@@ -1,13 +1,13 @@
 @import "../../tokens.scss";
 
-.token-dropdown {
+.dropdown {
   position: relative;
 
   &--row-container {
     display: flex;
     border-radius: $border-radius;
     position: relative;
-    padding: 12px $s-small 12px $s-normal;
+    padding: $s-small $s-small $s-small $s-normal;
     border: 0.5px solid $border-color-secondary;
 
     &.opened {
