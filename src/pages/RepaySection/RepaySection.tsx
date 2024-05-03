@@ -1,14 +1,16 @@
 import { useMemo } from "react";
+
+import RolloverLoan from "../RolloverLoan";
+
 import Loans from "./Loans";
+import PayLoan from "./PayLoan";
+import { PaymentConfirmation } from "./PaymentConfirmation/PaymentConfirmation";
 import {
   RepaySectionContextProvider,
   RepaySectionSteps,
   useGetRepaySectionContext,
 } from "./RepaySectionContext";
-
 import "./repaySection.scss";
-import PayLoan from "./PayLoan";
-import { PaymentConfirmation } from "./PaymentConfirmation/PaymentConfirmation";
 
 const RenderComponent: React.FC = () => {
   const { currentStep } = useGetRepaySectionContext();
@@ -16,7 +18,7 @@ const RenderComponent: React.FC = () => {
     () => ({
       [RepaySectionSteps.LOANS]: <Loans />,
       [RepaySectionSteps.REPAY_LOAN]: <PayLoan />,
-      [RepaySectionSteps.ROLLOVER_LOAN]: "<RolloverLoan />",
+      [RepaySectionSteps.ROLLOVER_LOAN]: <RolloverLoan />,
       [RepaySectionSteps.CONFIRMATION]: <PaymentConfirmation />,
     }),
     []

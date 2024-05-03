@@ -53,6 +53,10 @@
           }
         }
       }
+      .payment-buttons {
+        display: flex;
+        gap: $s-small;
+      }
     }
   }
 

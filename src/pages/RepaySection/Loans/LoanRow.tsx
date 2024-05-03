@@ -19,6 +19,7 @@ import {
   RepaySectionSteps,
   useGetRepaySectionContext,
 } from "../RepaySectionContext";
+import { useGetRolloverableCommitments } from "../../../hooks/queries/useGetRolloverableCommitments";
 
 interface LoanRowProps {
   loan: Loan;
@@ -68,9 +69,20 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
   const { setCurrentStep, setLoan } = useGetRepaySectionContext();
 
+  const { hasRolloverableCommitments, isLoading } =
+    useGetRolloverableCommitments(
+      collateralTokenAddress,
+      loan.lendingToken.address
+    );
+
   const handleOnPayClick = () => {
     setLoan(loan);
     setCurrentStep(RepaySectionSteps.REPAY_LOAN);
+  };
+
+  const handleOnExtendClick = () => {
+    setLoan(loan);
+    setCurrentStep(RepaySectionSteps.ROLLOVER_LOAN);
   };
 
   return (
@@ -91,7 +103,16 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
         />
       </div>
       <div>{formatTimestampToShortDate(loan.nextDueDate)}</div>
-      <Button label="Pay" onClick={handleOnPayClick} />
+      {isLoading ? (
+        <Loader height={40} isSkeleton />
+      ) : (
+        <div className="payment-buttons">
+          {hasRolloverableCommitments && (
+            <Button label="Extend" onClick={handleOnExtendClick} />
+          )}
+          <Button label="Pay" onClick={handleOnPayClick} />
+        </div>
+      )}
     </div>
   );
 };
