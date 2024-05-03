@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import cx from "classnames";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -456,47 +455,53 @@ const RolloverLoan: React.FC = () => {
         />
       )}
       <DataField>
-        <RolloverDataRow
-          label="Next due"
-          prevValue={currentValues.dueDate}
-          newValue={nextValues.dueDate}
-        />
-        <RolloverDataRow
-          label="Loan"
-          prevValue={currentValues.loanAmount}
-          newValue={nextValues.loanAmount}
-        />
-        <RolloverDataRow
-          label="APR"
-          prevValue={currentValues.apr}
-          newValue={nextValues.apr}
-        />
-        <CollateralDataRow
-          label="Collateral"
-          prevValue={currentValues.collateral}
-          newValue={nextValues.collateral}
-          classNames="collateral-row"
-          collateralBalance={numberWithCommasAndDecimals(
-            formattedMaxCollateral
-          )}
-          tokenSymbol={loanCollateral?.token.symbol}
-        />
-        {!(amountToPay === 0n) && (
-          <RolloverDataRow
-            label={amountToPay < 0n ? "Pay now" : "Receive"}
-            newValue={
-              <div className="next-value">
-                {numberWithCommasAndDecimals(
-                  formatUnits(
-                    abs(displayedAmountToPay),
-                    commitment?.principalToken?.decimals
-                  ),
-                  3
-                )}
-                <TokenLogo logoUrl={principalTokenIcon} />
-              </div>
-            }
-          />
+        {isLoading ? (
+          <Loader isSkeleton height={216} />
+        ) : (
+          <>
+            <RolloverDataRow
+              label="Next due"
+              prevValue={currentValues.dueDate}
+              newValue={nextValues.dueDate}
+            />
+            <RolloverDataRow
+              label="Loan"
+              prevValue={currentValues.loanAmount}
+              newValue={nextValues.loanAmount}
+            />
+            <RolloverDataRow
+              label="APR"
+              prevValue={currentValues.apr}
+              newValue={nextValues.apr}
+            />
+            <CollateralDataRow
+              label="Collateral"
+              prevValue={currentValues.collateral}
+              newValue={nextValues.collateral}
+              classNames="collateral-row"
+              collateralBalance={numberWithCommasAndDecimals(
+                formattedMaxCollateral
+              )}
+              tokenSymbol={loanCollateral?.token.symbol}
+            />
+            {!(amountToPay === 0n) && (
+              <RolloverDataRow
+                label={amountToPay < 0n ? "Pay now" : "Receive"}
+                newValue={
+                  <div className="next-value">
+                    {numberWithCommasAndDecimals(
+                      formatUnits(
+                        abs(displayedAmountToPay),
+                        commitment?.principalToken?.decimals
+                      ),
+                      3
+                    )}
+                    <TokenLogo logoUrl={principalTokenIcon} />
+                  </div>
+                }
+              />
+            )}
+          </>
         )}
       </DataField>
       <TransactionButton transactions={transactions} />
