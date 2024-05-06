@@ -89,7 +89,7 @@ const TransactionButton = ({
       setIsConfirming(true);
       await waitForTransactionReceipt(config, {
         hash: data,
-        confirmations: 1,
+        confirmations: 2,
       })
         .then((res: any) => {
           setCurrentStepID((currentStepID: number) => {
@@ -155,7 +155,8 @@ const TransactionButton = ({
               isButtonDisabled ||
               isPending ||
               currentStep?.isStepDisabled ||
-              !!currentStep?.errorMessage
+              !!currentStep?.errorMessage ||
+              isConfirming
             }
           >
             {(isPending || customTxLoading || isConfirming) &&
