@@ -63,12 +63,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const { isCommitmentFromLCFAlpha, lcfAlphaAddress } =
     useGetMaxPrincipalPerCollateralFromLCFAlpha(commitment);
 
-  const commitmentForwarderAddress =
-    contracts?.[
-      lcfAlphaAddress
-        ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-        : SupportedContractsEnum.LenderCommitmentForwarder
-    ]?.address;
+  const commitmentForwarderAddress = commitment?.forwarderAddress;
 
   // const { isNativeToken } = useIsNativeToken(collateralToken?.token?.symbol);
 
@@ -201,7 +196,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
           : SupportedContractsEnum.LenderCommitmentForwarder,
         functionName: step3FunctionName,
         args: step3Args,
-        onSuccess: onSuccess,
+        onSuccess,
       });
 
     return steps;

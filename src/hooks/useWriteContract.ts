@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { erc20Abi } from "viem";
 import {
   useSimulateContract,
@@ -53,7 +53,6 @@ export const useWriteContract = ({
     args,
     query: {
       enabled: !skip,
-      retry: true,
     },
   });
 

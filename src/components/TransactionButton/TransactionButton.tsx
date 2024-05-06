@@ -1,9 +1,11 @@
 import { Fragment, ReactNode, useCallback, useMemo, useState } from "react";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import { ContractType } from "../../hooks/useReadContract";
 import { useWriteContract } from "../../hooks/useWriteContract";
 import Button from "../Button";
 
-import { useContracts } from "../../hooks/useContracts";
+import { config } from "../../helpers/createWagmiConfig";
+
 import Loader from "../Loader";
 import "./transactionButton.scss";
 
@@ -43,14 +45,10 @@ const TransactionButton = ({
   buttonDisabledMessage,
   isLoading,
 }: TransactionButtonProps) => {
-  const [currentStepID, _setCurrentStepID] = useState(0);
+  const [currentStepID, setCurrentStepID] = useState(0);
 
-  const setCurrentStepID = useCallback<typeof _setCurrentStepID>(
-    (id) => {
-      if (autoStep) _setCurrentStepID(id);
-    },
-    [autoStep]
-  );
+  const [isConfirming, setIsConfirming] = useState(false);
+
   const steps = useMemo(() => transactions.flat(), [transactions]);
 
   const isLastStep = useMemo(
@@ -87,12 +85,23 @@ const TransactionButton = ({
   });
 
   const onSuccessTransaction = useCallback(
-    (data: any, params: any) => {
-      setCurrentStepID((currentStepID: number) => {
-        return currentStepID + 1;
-      });
-      currentStep?.onSuccess?.(data, params);
-      onSuccess?.();
+    async (data: any, params: any) => {
+      setIsConfirming(true);
+      await waitForTransactionReceipt(config, {
+        hash: data,
+        confirmations: 1,
+      })
+        .then((res: any) => {
+          setCurrentStepID((currentStepID: number) => {
+            return currentStepID + 1;
+          });
+          currentStep?.onSuccess?.(data, params);
+          onSuccess?.();
+        })
+        .catch((e) => {
+          console.error("Error waiting for transaction receipt", e);
+        })
+        .finally(() => setIsConfirming(false));
     },
     [currentStep, onSuccess, setCurrentStepID]
   );
@@ -119,7 +128,7 @@ const TransactionButton = ({
         <>
           <Button
             key={stepId}
-            onClick={async () => {
+            onClick={() => {
               isLastStep && step.onClick?.();
               // if (step.tx) {
               //   try {
@@ -176,7 +185,7 @@ const TransactionButton = ({
   return (
     <div className="transaction-button">
       <>
-        {isSimulationLoading || isLoading ? (
+        {isSimulationLoading || isLoading || isConfirming ? (
           <Loader isSkeleton height={40} />
         ) : (
           <>
