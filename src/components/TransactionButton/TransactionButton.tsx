@@ -89,7 +89,7 @@ const TransactionButton = ({
       setIsConfirming(true);
       await waitForTransactionReceipt(config, {
         hash: data,
-        confirmations: 2,
+        confirmations: 1,
       })
         .then((res: any) => {
           setCurrentStepID((currentStepID: number) => {
