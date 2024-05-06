@@ -158,7 +158,7 @@ const TransactionButton = ({
               !!currentStep?.errorMessage
             }
           >
-            {(isPending || customTxLoading) &&
+            {(isPending || customTxLoading || isConfirming) &&
             step.buttonLabel === currentStep?.buttonLabel
               ? step.loadingButtonLabel
               : step?.buttonLabel}
@@ -172,6 +172,7 @@ const TransactionButton = ({
       currentStepID,
       customTxLoading,
       isButtonDisabled,
+      isConfirming,
       isLastStep,
       isLoading,
       isPending,
@@ -185,7 +186,7 @@ const TransactionButton = ({
   return (
     <div className="transaction-button">
       <>
-        {isSimulationLoading || isLoading || isConfirming ? (
+        {isSimulationLoading || isLoading ? (
           <Loader isSkeleton height={40} />
         ) : (
           <>
