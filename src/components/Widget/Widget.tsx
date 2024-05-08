@@ -17,11 +17,23 @@ export type WhitelistedTokens = {
   [chainId: string]: string[];
 };
 
-interface WidgetProps {
+interface BaseWidgetProps {
   buttonLabel?: string;
   whitelistedTokens?: WhitelistedTokens;
-  showOnlyWhiteListedTokens?: boolean;
 }
+
+interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
+  showOnlyWhiteListedTokens: true;
+  whitelistedTokens: WhitelistedTokens;
+}
+
+interface WhiteListedTokensOptionalProps extends BaseWidgetProps {
+  showOnlyWhiteListedTokens?: false;
+}
+
+export type WidgetProps =
+  | WhiteListedTokensRequiredProps
+  | WhiteListedTokensOptionalProps;
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
