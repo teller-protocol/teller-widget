@@ -220,13 +220,11 @@ const TransactionButton = ({
         )}
       </>
 
-      {(isButtonDisabled && buttonDisabledMessage) ||
-        (currentStep?.isStepDisabled && currentStep?.disabledMessage) ||
-        (currentStep?.errorMessage && (
-          <div className="disabled-text-message section-title">
-            {buttonDisabledMessage ?? currentStep?.errorMessage}
-          </div>
-        ))}
+      {(buttonDisabledMessage || currentStep?.errorMessage) && (
+        <div className="disabled-text-message section-title">
+          {buttonDisabledMessage ?? currentStep?.errorMessage}
+        </div>
+      )}
     </div>
   );
 };

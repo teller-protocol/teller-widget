@@ -24,15 +24,16 @@ export const useGetUserTokens = (
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const alchemy = useAlchemy();
-  const chainId = useChainId();
 
   useEffect(() => {
-    if (!alchemy || !address || skip) return;
+    if (!alchemy || skip) return;
 
     void (async () => {
       const userTokensData: UserToken[] = [];
 
-      const balances = await alchemy.core.getTokenBalances(address);
+      const balances = address
+        ? await alchemy.core.getTokenBalances(address)
+        : { tokenBalances: [] };
       const nonZeroBalances = balances.tokenBalances.filter(
         (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
       );
@@ -58,12 +59,12 @@ export const useGetUserTokens = (
         }
       );
 
-      const newArray = [
-        ...whiteListedTokensWithBalances,
+      const userTokensWithWhitelistedTokens = [
+        ...(whiteListedTokensWithBalances as any[]),
         ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
       ];
       await Promise.all(
-        newArray.map(async (token) => {
+        userTokensWithWhitelistedTokens.map(async (token) => {
           await alchemy.core
             .getTokenMetadata(token.contractAddress)
             .then((metadata) => {

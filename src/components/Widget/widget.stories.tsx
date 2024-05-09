@@ -5,6 +5,7 @@ import { WagmiProvider } from "wagmi";
 import ConnectWalletButton from "../../../.storybook/components/ConnectWalletButton";
 import { config } from "../../helpers/createWagmiConfig";
 
+import "./widgetStories.scss";
 import Widget from ".";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -28,6 +29,7 @@ const meta = {
       [137]: [
         "0x61299774020da444af134c82fa83e3810b309991",
         "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
+        "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
       ],
       [1]: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
     },
@@ -45,8 +47,8 @@ export const Main: Story = {
     return (
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <ConnectWalletButton />
           <Widget {...args} />
+          <ConnectWalletButton />
         </QueryClientProvider>
       </WagmiProvider>
     );

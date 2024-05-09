@@ -49,6 +49,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const hasInsufficientCollateral =
     +collateralTokenBalance < collateralToken?.value;
 
+  const isNotConnected = !address;
+
   const contracts = useContracts();
 
   const chainId = useChainId();
@@ -121,6 +123,13 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
     const row2: TransactionStepConfig[] = [];
     steps.push(row2);
+    if (isNotConnected) {
+      row2.push({
+        buttonLabel: <span>Please connect wallet to continue</span>,
+        isStepDisabled: true,
+      });
+      return steps;
+    }
     if (!hasApprovedForwarder.isLoading && !hasApprovedForwarder.data) {
       row2.push({
         buttonLabel: <span>Approve Teller</span>,
@@ -202,6 +211,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     return steps;
   }, [
     commitment,
+    isNotConnected,
     hasApprovedForwarder.isLoading,
     hasApprovedForwarder.data,
     collateralAllowance.data,
@@ -218,7 +228,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     <TransactionButton
       transactions={steps}
       isButtonDisabled={hasInsufficientCollateral}
-      buttonDisabledMessage="Insufficient collateral"
+      buttonDisabledMessage={isNotConnected ? "" : "Insufficient collateral"}
     />
   );
 };
