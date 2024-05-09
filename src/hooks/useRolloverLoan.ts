@@ -397,6 +397,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         buttonLabel: `Rollover loan`,
         loadingButtonLabel: "Rolling over...",
         errorMessage,
+        isStepDisabled: !!errorMessage,
         id,
         onSuccess,
       });

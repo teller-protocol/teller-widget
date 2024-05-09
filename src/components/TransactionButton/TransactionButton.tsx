@@ -113,14 +113,11 @@ const TransactionButton = ({
   const [customTxLoading, setCustomTxLoading] = useState(false);
   const [customTxError, setCustomTxError] = useState(false);
 
-  // const isDisabled =
-  //   isButtonDisabled ||
-  //   currentStep?.isStepDisabled ||
-  //   (!ModalBody &&
-  //     (!!transactionLoading ||
-  //       (!writeTransaction && !currentStep?.tx) ||
-  //       !!currentStep?.errorMessage)) ||
-  //   !!customTxLoading;
+  const isDisabled =
+    isButtonDisabled ||
+    currentStep?.isStepDisabled ||
+    !!currentStep?.errorMessage;
+  // || !!customTxLoading;
 
   const renderButton = useCallback(
     (step: TransactionStepConfig, stepId: number) =>
@@ -149,6 +146,7 @@ const TransactionButton = ({
                 });
             }}
             disabled={
+              isDisabled ||
               stepId !== currentStepID ||
               isSimulationLoading ||
               isLoading ||

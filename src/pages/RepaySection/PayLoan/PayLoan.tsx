@@ -33,10 +33,15 @@ const PayLoan: React.FC = () => {
     valueBI: BigInt(0),
   });
 
+  const onSuccessfulTx = (txHash: string) => {
+    setSuccesfulTxHash(txHash);
+    setCurrentStep(RepaySectionSteps.CONFIRMATION);
+  };
+
   const { transactions, formattedWalletBalance, totalOwedNum } = usePayLoan(
     loan,
     tokenValue.value,
-    setSuccesfulTxHash
+    onSuccessfulTx
   );
 
   const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
@@ -97,10 +102,7 @@ const PayLoan: React.FC = () => {
           </div>
         </div>
       </DataField>
-      <TransactionButton
-        transactions={transactions}
-        onSuccess={() => setCurrentStep(RepaySectionSteps.CONFIRMATION)}
-      />
+      <TransactionButton transactions={transactions} />
     </div>
   );
 };
