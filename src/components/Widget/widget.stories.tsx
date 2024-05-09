@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider } from "wagmi";
 
-import Widget from "./Widget";
+import ConnectWalletButton from "../../../.storybook/components/ConnectWalletButton";
+import { config } from "../../helpers/createWagmiConfig";
+
+import Widget from ".";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -33,4 +38,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Main: Story = {};
+export const Main: Story = {
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <ConnectWalletButton />
+          <Widget {...args} />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+};

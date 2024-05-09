@@ -8,7 +8,7 @@ export interface ButtonProps {
   isFullWidth?: boolean;
   children?: React.ReactNode;
   className?: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "bare";
 }
 
 const Button: React.FC<ButtonProps> = ({
