@@ -66,6 +66,12 @@ const TransactionButton = ({
       );
   }, [currentStepID, steps]);
 
+  const isDisabled =
+    isButtonDisabled ||
+    currentStep?.isStepDisabled ||
+    !!currentStep?.errorMessage;
+  // || !!customTxLoading;
+
   const {
     data,
     error,
@@ -81,7 +87,7 @@ const TransactionButton = ({
     functionName: currentStep?.functionName,
     args: currentStep?.args,
     contractType: currentStep?.contractType,
-    skip: isButtonDisabled,
+    skip: isDisabled,
   });
 
   const onSuccessTransaction = useCallback(
@@ -112,12 +118,6 @@ const TransactionButton = ({
 
   const [customTxLoading, setCustomTxLoading] = useState(false);
   const [customTxError, setCustomTxError] = useState(false);
-
-  const isDisabled =
-    isButtonDisabled ||
-    currentStep?.isStepDisabled ||
-    !!currentStep?.errorMessage;
-  // || !!customTxLoading;
 
   const renderButton = useCallback(
     (step: TransactionStepConfig, stepId: number) =>
@@ -172,6 +172,7 @@ const TransactionButton = ({
       customTxLoading,
       isButtonDisabled,
       isConfirming,
+      isDisabled,
       isLastStep,
       isLoading,
       isPending,

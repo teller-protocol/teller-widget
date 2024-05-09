@@ -326,9 +326,8 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       const errorMessage =
         borrowerAmount &&
         walletBalance &&
-        walletBalance?.data &&
         borrowerAmount > BigInt(walletBalance?.data)
-          ? "Insufficient funds."
+          ? `Insufficient ${bid.lendingToken.symbol} balance.`
           : "";
 
       if (!hasApprovedForwarder.isLoading && !hasApprovedForwarder.data) {

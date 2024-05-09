@@ -115,10 +115,7 @@ const AddToCalendar: React.FC<AddToCalendarProps> = ({ bidId, onBack }) => {
           <img src={yahoo} alt="Yahoo Calendar" />
         </a>
       </div>
-      <Button
-        onClick={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
-        label="Go back"
-      />
+      <Button onClick={onBack} label="Go back" />
     </div>
   );
 };
