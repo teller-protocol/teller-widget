@@ -8,12 +8,13 @@ import {
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 
-import { decodeEventLog, formatUnits } from "viem";
+import { Address, decodeEventLog, formatUnits } from "viem";
 import Loader from "../../../components/Loader";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useContracts } from "../../../hooks/useContracts";
 import { SupportedContractsEnum } from "../../../hooks/useReadContract";
 import "./borrowConfirmation.scss";
+import { useChainData } from "../../../hooks/useChainData";
 
 const LabelWithIcon = ({ label }: { label: string }) => (
   <div className="label-with-icon">
@@ -32,12 +33,7 @@ const BorrowConfirmation = () => {
   } = useGetBorrowSectionContext();
   const contracts = useContracts();
 
-  const chainId = useChainId();
-  const chains = useChains();
-
-  const chain = chains.find((c) => c.id === chainId);
-  const chainExplorerURL = chain?.blockExplorers?.default.url;
-  const chainName = chain?.name;
+  const { chainExplorerURL, chainName } = useChainData();
 
   const principalToken = selectedOpportunity?.principalToken;
   const collateralToken = selectedOpportunity?.collateralToken;
@@ -51,7 +47,7 @@ const BorrowConfirmation = () => {
   );
 
   const { data: successData } = useWaitForTransactionReceipt({
-    hash: (successLoanHash as AddressStringType) ?? "0x",
+    hash: (successLoanHash as Address) ?? "0x",
     query: {
       enabled: !!successLoanHash,
     },
@@ -59,7 +55,7 @@ const BorrowConfirmation = () => {
 
   const config = contracts?.[SupportedContractsEnum.TellerV2].abi;
 
-  let decodedLog;
+  let decodedLog: any;
   let _bidId;
   if (successData) {
     decodedLog = decodeEventLog({
@@ -69,7 +65,6 @@ const BorrowConfirmation = () => {
       strict: false,
     });
     _bidId = decodedLog?.args?.bidId;
-    console.log("_bidId", _bidId);
     setBidId(_bidId);
   }
 

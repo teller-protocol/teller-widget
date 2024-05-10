@@ -1,12 +1,12 @@
 import { useAccount, useChainId } from "wagmi";
 import { useAlchemy } from "./useAlchemy";
 import { useEffect, useState } from "react";
-import { formatUnits, parseUnits } from "viem";
+import { Address, formatUnits, parseUnits } from "viem";
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { TokenBalance } from "@teller-protocol/alchemy-sdk";
 
 export type UserToken = {
-  address: string;
+  address: Address;
   name: string;
   symbol: string;
   logo: string;
@@ -17,21 +17,23 @@ export type UserToken = {
 
 export const useGetUserTokens = (
   whiteListedTokens?: string[],
-  showOnlyWhiteListedTokens?: boolean
+  showOnlyWhiteListedTokens?: boolean,
+  skip?: boolean
 ) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const alchemy = useAlchemy();
-  const chainId = useChainId();
 
   useEffect(() => {
-    if (!alchemy || !address) return;
+    if (!alchemy || skip) return;
 
     void (async () => {
       const userTokensData: UserToken[] = [];
 
-      const balances = await alchemy.core.getTokenBalances(address);
+      const balances = address
+        ? await alchemy.core.getTokenBalances(address)
+        : { tokenBalances: [] };
       const nonZeroBalances = balances.tokenBalances.filter(
         (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
       );
@@ -57,12 +59,12 @@ export const useGetUserTokens = (
         }
       );
 
-      const newArray = [
-        ...whiteListedTokensWithBalances,
+      const userTokensWithWhitelistedTokens = [
+        ...(whiteListedTokensWithBalances as any[]),
         ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
       ];
       await Promise.all(
-        newArray.map(async (token) => {
+        userTokensWithWhitelistedTokens.map(async (token) => {
           await alchemy.core
             .getTokenMetadata(token.contractAddress)
             .then((metadata) => {
@@ -85,7 +87,7 @@ export const useGetUserTokens = (
       setIsLoading(false);
       setUserTokens(userTokensData);
     })();
-  }, [alchemy, address, whiteListedTokens, showOnlyWhiteListedTokens]);
+  }, [address, alchemy, showOnlyWhiteListedTokens, skip, whiteListedTokens]);
 
   return { userTokens, isLoading };
 };

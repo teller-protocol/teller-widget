@@ -4,7 +4,7 @@
 .teller-widget-button {
   &.primary {
     background: linear-gradient(130.85deg, #ffdfa6 0%, #ffc75f 100%);
-    color: rgba(69, 51, 19, 1);
+  color: rgba(69, 51, 19, 1);
   }
 
   &.secondary {
@@ -12,13 +12,15 @@
     color: $text-primary;
   }
 
-  border-radius: 4px;
-  border: none;
-  padding: 0.5rem 1rem;
-  line-height: 24px;
-  font-size: 16px;
-  font-family: "Work Sans", sans-serif;
-  transition: cubic-bezier(1, 0, 0, 1);
+  &:not(.bare) {
+    border-radius: 4px;
+    border: none;
+    padding: 0.5rem 1rem;
+    line-height: 24px;
+    font-size: 16px;
+    font-family: "Work Sans", sans-serif;
+    transition: cubic-bezier(1, 0, 0, 1);
+  }
 
   &:hover {
     cursor: pointer;

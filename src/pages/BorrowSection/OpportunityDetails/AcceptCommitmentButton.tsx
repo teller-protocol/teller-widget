@@ -47,9 +47,9 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   )?.balance;
 
   const hasInsufficientCollateral =
-    +collateralTokenBalance < collateralToken?.value;
+    Number(collateralTokenBalance ?? 0) < Number(collateralToken?.value ?? 0);
 
-  const contracts = useContracts();
+  const isNotConnected = !address;
 
   const chainId = useChainId();
 
@@ -63,12 +63,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const { isCommitmentFromLCFAlpha, lcfAlphaAddress } =
     useGetMaxPrincipalPerCollateralFromLCFAlpha(commitment);
 
-  const commitmentForwarderAddress =
-    contracts?.[
-      lcfAlphaAddress
-        ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-        : SupportedContractsEnum.LenderCommitmentForwarder
-    ]?.address;
+  const commitmentForwarderAddress = commitment?.forwarderAddress;
 
   // const { isNativeToken } = useIsNativeToken(collateralToken?.token?.symbol);
 
@@ -100,9 +95,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   );
 
   const isLoadingTransactionInfo =
-    hasApprovedForwarder.isLoading ||
-    collateralManagerAddress?.isLoading ||
-    collateralAllowance.isLoading;
+    hasApprovedForwarder.isLoading || collateralAllowance.isLoading;
 
   const onSuccess = useCallback(
     (data: any, params: any) => {
@@ -126,6 +119,13 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
     const row2: TransactionStepConfig[] = [];
     steps.push(row2);
+    if (isNotConnected) {
+      row2.push({
+        buttonLabel: <span>Please connect wallet to continue</span>,
+        isStepDisabled: true,
+      });
+      return steps;
+    }
     if (!hasApprovedForwarder.isLoading && !hasApprovedForwarder.data) {
       row2.push({
         buttonLabel: <span>Approve Teller</span>,
@@ -155,20 +155,21 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     //   });
     // }
 
-    if (collateralAllowance.data < collateralToken?.valueBI) {
+    if ((collateralAllowance.data ?? 0) < (collateralToken?.valueBI ?? 0)) {
       row2.push({
-        buttonLabel: <span>Approve {collateralToken.token.symbol}</span>,
+        buttonLabel: <span>Approve {collateralToken?.token?.symbol}</span>,
         loadingButtonLabel: (
           <span>
-            Approving {numberWithCommasAndDecimals(collateralToken.value * 10)}{" "}
-            {collateralToken.token.symbol}...
+            Approving{" "}
+            {numberWithCommasAndDecimals((collateralToken?.value ?? 0) * 10)}{" "}
+            {collateralToken?.token?.symbol}...
           </span>
         ),
-        contractName: collateralToken.token.address,
+        contractName: collateralToken?.token?.address,
         functionName: "approve",
         args: [
           collateralManagerAddress,
-          BigInt(collateralToken?.valueBI) * BigInt(10),
+          BigInt(collateralToken?.valueBI ?? 0) * BigInt(10),
         ],
         contractType: ContractType.ERC20,
       });
@@ -182,7 +183,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     const step3Args = [
       commitment.id,
       principalToken,
-      collateralToken.valueBI,
+      collateralToken?.valueBI,
       0, // collateral token ID (only used for NFTs)
       // isNativeToken
       //   ? wrappedTokenContractAddress
@@ -201,12 +202,13 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
           : SupportedContractsEnum.LenderCommitmentForwarder,
         functionName: step3FunctionName,
         args: step3Args,
-        onSuccess: onSuccess,
+        onSuccess,
       });
 
     return steps;
   }, [
     commitment,
+    isNotConnected,
     hasApprovedForwarder.isLoading,
     hasApprovedForwarder.data,
     collateralAllowance.data,
@@ -223,8 +225,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     <TransactionButton
       transactions={steps}
       isButtonDisabled={hasInsufficientCollateral}
-      buttonDisabledMessage="Insufficient collateral"
-      onTransactionConfirmed={setBidId}
+      buttonDisabledMessage={isNotConnected ? "" : "Insufficient collateral"}
     />
   );
 };

@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Work+Sans:wght@300;400;500;600;700&display=swap");
+
+.connect-wallet-button {
+  font-family: "Work Sans", sans-serif;
+
+  button {
+    background: linear-gradient(130.85deg, #ffdfa6 0%, #ffc75f 100%);
+    border: none;
+    padding: 5px 0;
+    color: rgba(69, 51, 19, 1);
+    border-radius: 4px;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.9;
+    }
+  }
+
+  .wallet-options {
+    margin-top: 1em;
+
+    &-connectors {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+
+  .connected-wallet {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1em;
+    align-items: center;
+
+    .address {
+      font-size: 0.8em;
+      &:nth-child(2) {
+        font-style: italic;
+      }
+    }
+    button {
+      margin-top: 2px;
+      width: 100%;
+      flex-grow: 1;
+    }
+  }
+}

@@ -1,0 +1,76 @@
+@import "../../tokens.scss";
+
+.dropdown {
+  position: relative;
+
+  &--row-container {
+    display: flex;
+    border-radius: $border-radius;
+    position: relative;
+    padding: $s-small $s-small $s-small $s-normal;
+    border: 0.5px solid $border-color-secondary;
+
+    &.opened {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+  align-items: center;
+  background-color: rgba(252, 252, 252, 1);
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  .token-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .token-logo {
+    margin-right: $s-small;
+  }
+
+  .caret {
+    align-self: stretch;
+    padding-left: $s-small;
+    border-left: 0.5px solid $border-color-secondary;
+    margin: -$s-small 0; // extend the border passed parents padding
+    display: flex;
+    transition: transform 0.3s ease;
+
+    &.opened {
+      img {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  &--tokens {
+    position: absolute;
+    background-color: rgba(252, 252, 252, 1);
+    z-index: 100;
+    width: 100%;
+    left: 0%;
+    max-height: 500px;
+    overflow-y: auto;
+
+    .token-dropdown--row {
+      padding: $s-small $s-small $s-small $s-normal;
+      border: 0.5px solid $border-color-secondary;
+      border-top: 0;
+
+      &:last-child {
+        border-bottom-left-radius: $border-radius;
+        border-bottom-right-radius: $border-radius;
+      }
+    }
+  }
+
+  &--row {
+    display: flex;
+    flex: 1;
+  }
+}

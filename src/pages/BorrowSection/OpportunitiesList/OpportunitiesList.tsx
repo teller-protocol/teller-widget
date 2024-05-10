@@ -17,7 +17,6 @@ import DataPill from "../../../components/DataPill";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
-import { useGetUserTokens } from "../../../hooks/useGetUserTokens";
 import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
 
 interface OpportunityListItemProps {
@@ -48,11 +47,11 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetUserTokenContext();
 
-  const [collateralAmount, setCollateralAmount] = useState<BigInt | undefined>(
-    selectedCollateralToken?.balanceBigInt > 0
+  const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
+    (selectedCollateralToken?.balanceBigInt ?? 0) > 0
       ? selectedCollateralToken?.balanceBigInt
       : isWhitelistedToken(opportunity.collateralToken?.address)
-      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals))
+      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
       : BigInt(0)
   );
 
@@ -72,7 +71,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       Number(
         formatUnits(
           commitmentMax.maxCollateral,
-          opportunity.collateralToken?.decimals
+          opportunity.collateralToken?.decimals ?? 0
         )
       ).toFixed(2)
     ),
@@ -86,24 +85,24 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       Number(
         formatUnits(
           commitmentMax.maxLoanAmount,
-          opportunity.principalToken?.decimals
+          opportunity.principalToken?.decimals ?? 0
         )
       ).toFixed(2)
     ),
-    token: SUPPORTED_TOKEN_LOGOS[opportunity.principalToken?.symbol],
+    token: SUPPORTED_TOKEN_LOGOS[opportunity.principalToken?.symbol as string],
   };
 
   const formatedCollateralAmount = Number(
     formatUnits(
       commitmentMax.maxCollateral,
-      opportunity.collateralToken?.decimals
+      opportunity.collateralToken?.decimals ?? 0
     )
   ).toFixed(2);
 
   const formatedLoanAmount = Number(
     formatUnits(
       commitmentMax.maxLoanAmount,
-      opportunity.principalToken?.decimals
+      opportunity.principalToken?.decimals ?? 0
     )
   ).toFixed(2);
 

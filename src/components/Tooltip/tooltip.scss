@@ -1,0 +1,7 @@
+.tooltip {
+  filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.1)) !important;
+  max-width: 196px !important;
+  @media (min-width: 640px) {
+    max-width: 270px !important;
+  }
+}

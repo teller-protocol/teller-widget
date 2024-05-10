@@ -1,27 +1,31 @@
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { AddressStringType } from "../../types/addressStringType";
-import { erc20Abi, parseUnits } from "viem";
+import { erc20Abi, formatUnits, parseUnits } from "viem";
 import { SubgraphTokenType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 
 import "./tokenInput.scss";
 import TokenLogo from "../TokenLogo";
+import { useState } from "react";
 
 export type TokenInputType = {
   value?: number;
   token?: SubgraphTokenType;
-  valueBI?: BigInt;
+  valueBI?: bigint;
 };
 
 interface TokenInputProps {
   tokenValue: TokenInputType;
-  imageUrl: string;
-  label?: string;
+  imageUrl: string | null;
+  label?: React.ReactNode;
   sublabel?: string;
   maxAmount?: number;
   showMaxButton?: boolean;
   onChange?: (value: TokenInputType) => void;
   readonly?: boolean;
+  limitToMax?: boolean;
+  min?: boolean;
+  minAmount?: bigint;
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
@@ -33,18 +37,35 @@ const TokenInput: React.FC<TokenInputProps> = ({
   onChange,
   readonly,
   showMaxButton = true,
+  limitToMax = false,
+  min = false,
+  minAmount,
 }) => {
+  const [isMin, setIsMin] = useState(false);
+
   const maxValueBigInt = parseUnits(
     (maxAmount ?? 0)?.toString(),
     tokenValue.token?.decimals ?? 0
   );
 
-  const setMaxValue = () =>
-    onChange?.({
-      ...tokenValue,
-      value: maxAmount,
-      valueBI: maxValueBigInt,
-    });
+  const setMaxValue = () => {
+    if (isMin) {
+      onChange?.({
+        ...tokenValue,
+        value: Number(
+          formatUnits(minAmount ?? 0n, tokenValue.token?.decimals ?? 0)
+        ),
+        valueBI: minAmount,
+      });
+    } else {
+      onChange?.({
+        ...tokenValue,
+        value: maxAmount,
+        valueBI: maxValueBigInt,
+      });
+    }
+    min && setIsMin(!isMin);
+  };
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (!e.currentTarget.value) {
@@ -55,12 +76,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
       });
       return;
     }
-    /*     if (maxAmount) {
+    if (limitToMax && maxAmount) {
       if (Number(e.currentTarget.value) > maxAmount) {
         setMaxValue();
         return;
       }
-    } */
+    }
     onChange?.({
       ...tokenValue,
       value: Number(e.currentTarget.value),
@@ -84,7 +105,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         />
         {showMaxButton && !!maxAmount && (
           <div className="max-button" onClick={setMaxValue}>
-            MAX
+            {isMin ? "MIN" : "MAX"}
           </div>
         )}
         <div className="token-info">

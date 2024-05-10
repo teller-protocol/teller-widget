@@ -10,8 +10,6 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
-  const { address } = useAccount();
-
   const handleOnClick = () => {
     localStorage.setItem("showTellerWidgetWelcomeScreen", "false");
     onClick();
@@ -23,15 +21,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
       <div className="welcome-screen-text">
         Time-based loans, up to thirty days, with no margin-call liquidations.
       </div>
-      <Button
-        onClick={handleOnClick}
-        label="Borrow now"
-        isFullWidth
-        disabled={!address}
-      />
-      {!address && (
-        <div className="connect-wallet-error">Please connect your wallet</div>
-      )}
+      <Button onClick={handleOnClick} label="Borrow now" isFullWidth />
     </div>
   );
 };

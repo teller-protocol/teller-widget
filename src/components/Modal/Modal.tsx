@@ -22,7 +22,7 @@ type ModalProps = {
   isWelcomeScreen?: boolean;
 };
 
-const Modal = ({
+const Modal: React.FC<ModalProps> = ({
   children,
   closeModal,
   showModal,

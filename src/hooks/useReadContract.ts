@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { erc20Abi } from "viem";
+import { Address, erc20Abi } from "viem";
 import { useChainId, useReadContract as useWagmiReadContract } from "wagmi";
 
 import { useContracts } from "./useContracts";
@@ -21,7 +21,7 @@ export enum ContractType {
 }
 
 export const useReadContract = <T = any>(
-  contractName: SupportedContractsEnum | string,
+  contractName: SupportedContractsEnum | Address | undefined,
   functionName: string,
   args: any[],
   skipRun = false,
@@ -32,7 +32,7 @@ export const useReadContract = <T = any>(
 
   const mapAbi = useMemo(
     () => ({
-      [ContractType.Teller]: contracts[contractName]?.abi,
+      [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
     }),
     [contractName, contracts]
@@ -40,7 +40,7 @@ export const useReadContract = <T = any>(
 
   const address =
     contractType === ContractType.Teller
-      ? contracts[contractName]?.address
+      ? contracts[contractName ?? ""]?.address
       : contractName;
   const { data, error, isLoading, refetch, isRefetching } =
     useWagmiReadContract({

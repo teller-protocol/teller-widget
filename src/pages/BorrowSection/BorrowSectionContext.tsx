@@ -19,8 +19,6 @@ export type BorrowSectionContextType = {
   setSelectedCollateralToken: (token: UserToken) => void;
   selectedOpportunity: CommitmentType;
   setSelectedOpportunity: (commitmentType: CommitmentType) => void;
-  onCollateralTokenSelected: (token: UserToken) => void;
-  onOpportunitySelected: (opportunity: any) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
   successLoanHash?: string;

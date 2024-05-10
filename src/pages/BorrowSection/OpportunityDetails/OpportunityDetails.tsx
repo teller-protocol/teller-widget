@@ -34,18 +34,18 @@ const OpportunityDetails = () => {
     useState<TokenInputType>({
       token: selectedOpportunity.collateralToken,
       value: Number(
-        selectedCollateralToken?.balance > 0
+        Number(selectedCollateralToken?.balance) > 0
           ? selectedCollateralToken?.balance
           : whitelistedToken
           ? 1
           : 0
       ),
       valueBI:
-        selectedCollateralToken?.balanceBigInt > BigInt(0)
+        selectedCollateralToken?.balanceBigInt ?? 0n > BigInt(0)
           ? selectedCollateralToken?.balanceBigInt
           : BigInt(
               whitelistedToken
-                ? parseUnits("1", selectedCollateralToken?.decimals)
+                ? parseUnits("1", selectedCollateralToken?.decimals ?? 0)
                 : 0
             ),
     });
@@ -83,7 +83,7 @@ const OpportunityDetails = () => {
 
   const totalFeePercent =
     protocolFeePercent +
-    +selectedOpportunity?.marketplace.marketplaceFeePercent;
+    +(selectedOpportunity?.marketplace?.marketplaceFeePercent ?? 0);
 
   const totalFees = (maxLoanAmountNumber * totalFeePercent) / 10000;
 
@@ -115,12 +115,9 @@ const OpportunityDetails = () => {
         onChange={setCollataralTokenValue}
       />
       <div className="duration-info">
-        <DataField
-          label="Duration"
-          value={`${convertSecondsToDays(
-            Number(selectedOpportunity?.maxDuration)
-          )} days`}
-        />
+        <DataField label="Duration">
+          {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))} days
+        </DataField>
         {extensionCount > 0 && (
           <div className="section-sub-title">
             Max extension: {maxExtensionInDays} days
@@ -134,14 +131,16 @@ const OpportunityDetails = () => {
           value: Number(
             formatUnits(
               displayedPrincipal,
-              selectedOpportunity?.principalToken?.decimals
+              selectedOpportunity?.principalToken?.decimals ?? 0
             )
           ),
           valueBI: displayedPrincipal,
         }}
         label="Borrow"
         imageUrl={
-          SUPPORTED_TOKEN_LOGOS[selectedOpportunity.principalToken?.symbol]
+          SUPPORTED_TOKEN_LOGOS[
+            selectedOpportunity.principalToken?.symbol ?? ""
+          ]
         }
         readonly
       />

@@ -1,24 +1,27 @@
-import apple from "../../../assets/apple.svg";
-import googleCalendar from "../../../assets/googleCalendar.svg";
-import outlook from "../../../assets/outlook.svg";
-import yahoo from "../../../assets/yahoo.svg";
+import apple from "../../assets/apple.svg";
+import googleCalendar from "../../assets/googleCalendar.svg";
+import outlook from "../../assets/outlook.svg";
+import yahoo from "../../assets/yahoo.svg";
 
 import "./addToCalendar.scss";
 
 import { useCallback, useMemo } from "react";
-import Button from "../../../components/Button";
+import Button from "../Button";
 import {
   SupportedContractsEnum,
   useReadContract,
-} from "../../../hooks/useReadContract";
+} from "../../hooks/useReadContract";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
-} from "../BorrowSectionContext";
+} from "../../pages/BorrowSection/BorrowSectionContext";
 
-const AddToCalendar = () => {
-  const { bidId, setCurrentStep } = useGetBorrowSectionContext();
+interface AddToCalendarProps {
+  bidId: string;
+  onBack: () => void;
+}
 
+const AddToCalendar: React.FC<AddToCalendarProps> = ({ bidId, onBack }) => {
   const { data: bidData } = useReadContract(
     SupportedContractsEnum.TellerV2,
     "bids",
@@ -45,8 +48,8 @@ const AddToCalendar = () => {
     }
   }, [bid]);
 
-  const handleClick = useCallback((calendarLinks: string[]) => {
-    calendarLinks.forEach((link) => window.open(link, "_blank"));
+  const handleClick = useCallback((calendarLinks: string[] | undefined) => {
+    calendarLinks?.forEach((link) => window.open(link, "_blank"));
   }, []);
 
   const handleCreateEvents = useCallback(
@@ -112,10 +115,7 @@ const AddToCalendar = () => {
           <img src={yahoo} alt="Yahoo Calendar" />
         </a>
       </div>
-      <Button
-        onClick={() => setCurrentStep(BorrowSectionSteps.SUCCESS)}
-        label="Go back"
-      />
+      <Button onClick={onBack} label="Go back" />
     </div>
   );
 };

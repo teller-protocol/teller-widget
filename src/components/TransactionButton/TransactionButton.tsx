@@ -1,9 +1,11 @@
 import { Fragment, ReactNode, useCallback, useMemo, useState } from "react";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import { ContractType } from "../../hooks/useReadContract";
 import { useWriteContract } from "../../hooks/useWriteContract";
 import Button from "../Button";
 
-import { useContracts } from "../../hooks/useContracts";
+import { config } from "../../helpers/createWagmiConfig";
+
 import Loader from "../Loader";
 import "./transactionButton.scss";
 
@@ -43,14 +45,10 @@ const TransactionButton = ({
   buttonDisabledMessage,
   isLoading,
 }: TransactionButtonProps) => {
-  const [currentStepID, _setCurrentStepID] = useState(0);
+  const [currentStepID, setCurrentStepID] = useState(0);
 
-  const setCurrentStepID = useCallback<typeof _setCurrentStepID>(
-    (id) => {
-      if (autoStep) _setCurrentStepID(id);
-    },
-    [autoStep]
-  );
+  const [isConfirming, setIsConfirming] = useState(false);
+
   const steps = useMemo(() => transactions.flat(), [transactions]);
 
   const isLastStep = useMemo(
@@ -68,6 +66,12 @@ const TransactionButton = ({
       );
   }, [currentStepID, steps]);
 
+  const isDisabled =
+    isButtonDisabled ||
+    currentStep?.isStepDisabled ||
+    !!currentStep?.errorMessage;
+  // || !!customTxLoading;
+
   const {
     data,
     error,
@@ -83,16 +87,27 @@ const TransactionButton = ({
     functionName: currentStep?.functionName,
     args: currentStep?.args,
     contractType: currentStep?.contractType,
-    skip: isButtonDisabled,
+    skip: isDisabled,
   });
 
   const onSuccessTransaction = useCallback(
-    (data: any, params: any) => {
-      setCurrentStepID((currentStepID: number) => {
-        return currentStepID + 1;
-      });
-      currentStep?.onSuccess?.(data, params);
-      onSuccess?.();
+    async (data: any, params: any) => {
+      setIsConfirming(true);
+      await waitForTransactionReceipt(config, {
+        hash: data,
+        confirmations: 1,
+      })
+        .then((res: any) => {
+          setCurrentStepID((currentStepID: number) => {
+            return currentStepID + 1;
+          });
+          currentStep?.onSuccess?.(data, params);
+          onSuccess?.();
+        })
+        .catch((e) => {
+          console.error("Error waiting for transaction receipt", e);
+        })
+        .finally(() => setIsConfirming(false));
     },
     [currentStep, onSuccess, setCurrentStepID]
   );
@@ -104,22 +119,13 @@ const TransactionButton = ({
   const [customTxLoading, setCustomTxLoading] = useState(false);
   const [customTxError, setCustomTxError] = useState(false);
 
-  // const isDisabled =
-  //   isButtonDisabled ||
-  //   currentStep?.isStepDisabled ||
-  //   (!ModalBody &&
-  //     (!!transactionLoading ||
-  //       (!writeTransaction && !currentStep?.tx) ||
-  //       !!currentStep?.errorMessage)) ||
-  //   !!customTxLoading;
-
   const renderButton = useCallback(
     (step: TransactionStepConfig, stepId: number) =>
       currentStepID <= stepId && (
         <>
           <Button
             key={stepId}
-            onClick={async () => {
+            onClick={() => {
               isLastStep && step.onClick?.();
               // if (step.tx) {
               //   try {
@@ -136,18 +142,23 @@ const TransactionButton = ({
               // }
               if (writeContract && simulatedData?.request)
                 writeContract(simulatedData?.request, {
-                  onSuccess: onSuccessTransaction,
+                  onSuccess: (data: any, params: any) =>
+                    void (async () => onSuccessTransaction(data, params))(),
                 });
             }}
             disabled={
+              isDisabled ||
               stepId !== currentStepID ||
               isSimulationLoading ||
               isLoading ||
               isButtonDisabled ||
-              isPending
+              isPending ||
+              currentStep?.isStepDisabled ||
+              !!currentStep?.errorMessage ||
+              isConfirming
             }
           >
-            {(isPending || customTxLoading) &&
+            {(isPending || customTxLoading || isConfirming) &&
             step.buttonLabel === currentStep?.buttonLabel
               ? step.loadingButtonLabel
               : step?.buttonLabel}
@@ -156,9 +167,13 @@ const TransactionButton = ({
       ),
     [
       currentStep?.buttonLabel,
+      currentStep?.errorMessage,
+      currentStep?.isStepDisabled,
       currentStepID,
       customTxLoading,
       isButtonDisabled,
+      isConfirming,
+      isDisabled,
       isLastStep,
       isLoading,
       isPending,
@@ -207,9 +222,9 @@ const TransactionButton = ({
       </>
 
       {((isButtonDisabled && buttonDisabledMessage) ||
-        (currentStep?.isStepDisabled && currentStep?.disabledMessage)) && (
+        currentStep?.errorMessage) && (
         <div className="disabled-text-message section-title">
-          {buttonDisabledMessage ?? currentStep?.disabledMessage}
+          {buttonDisabledMessage ?? currentStep?.errorMessage}
         </div>
       )}
     </div>

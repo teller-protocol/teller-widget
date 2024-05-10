@@ -1,0 +1,50 @@
+@import "../../../tokens.scss";
+
+.pay-loan {
+  background-color: white;
+  height: 100%;
+  padding: $s-large;
+
+  &-token-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+
+    .wallet-amount {
+      font-size: 12px;
+    }
+  }
+
+  h2 {
+    margin-bottom: $s-normal;
+  }
+
+  .loan-link {
+    margin-bottom: $s-large;
+  }
+
+  .data-field {
+    margin-bottom: $s-large;
+    .loan-information {
+      width: 100%;
+      font-size: 14px;
+      color: $text-primary;
+
+      &-row {
+        display: flex;
+        justify-content: space-between;
+        line-height: 24px;
+        &:not(:last-child) {
+          margin-bottom: $s-small;
+        }
+
+        .token-data {
+          display: flex;
+          align-items: center;
+          gap: $s-small;
+        }
+      }
+    }
+  }
+}

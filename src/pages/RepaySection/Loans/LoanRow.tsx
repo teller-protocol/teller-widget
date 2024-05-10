@@ -1,0 +1,125 @@
+import React, { useMemo } from "react";
+
+import danger from "../../../assets/danger.svg";
+import defaulted from "../../../assets/default.svg";
+import healthy from "../../../assets/healthy.svg";
+
+import { formatUnits } from "viem";
+import Button from "../../../components/Button";
+import Loader from "../../../components/Loader";
+import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import {
+  Loan,
+  LoanStatus,
+} from "../../../hooks/queries/useGetActiveLoansForUser";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
+import { formatTimestampToShortDate } from "../../../helpers/dateUtils";
+import {
+  RepaySectionSteps,
+  useGetRepaySectionContext,
+} from "../RepaySectionContext";
+import { useGetRolloverableCommitments } from "../../../hooks/queries/useGetRolloverableCommitments";
+import Tooltip from "../../../components/Tooltip";
+
+interface LoanRowProps {
+  loan: Loan;
+}
+
+const mapStatusToDisplay: { [key: string]: { image: string; label: string } } =
+  {
+    [LoanStatus.DEFAULTED]: { image: defaulted, label: "Defaulted" },
+    [LoanStatus.ACCEPTED]: { image: healthy, label: "On Time" },
+    ["due soon"]: { image: danger, label: "Due Soon" },
+    [LoanStatus.LATE]: { image: defaulted, label: "Late" },
+  };
+
+interface TokenPairProps {
+  principalTokenSymbol: string;
+  collateralTokenAdress: string;
+}
+
+const TokenPair: React.FC<TokenPairProps> = ({
+  principalTokenSymbol,
+  collateralTokenAdress,
+}) => {
+  const { setCollateralImageURL } = useGetRepaySectionContext();
+  const { tokenMetadata: collateralTokenMetadata, isLoading } =
+    useGetTokenMetadata(collateralTokenAdress, setCollateralImageURL);
+
+  const collateralTokenLogo = useMemo(() => {
+    return collateralTokenMetadata?.logo;
+  }, [collateralTokenMetadata]);
+
+  const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[principalTokenSymbol];
+
+  return (
+    <>
+      {isLoading ? (
+        <Loader height={20} isSkeleton />
+      ) : (
+        <div className="token-pair">
+          <img src={principalTokenLogo} alt={principalTokenSymbol} />
+          <img src={collateralTokenLogo ?? ""} alt={collateralTokenAdress} />
+        </div>
+      )}
+    </>
+  );
+};
+
+export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
+  const collateralTokenAddress = loan.collateral[0].collateralAddress;
+  const { setCurrentStep, setLoan } = useGetRepaySectionContext();
+
+  const { hasRolloverableCommitments, isLoading } =
+    useGetRolloverableCommitments(
+      collateralTokenAddress,
+      loan.lendingToken.address
+    );
+
+  const handleOnPayClick = () => {
+    setLoan(loan);
+    setCurrentStep(RepaySectionSteps.REPAY_LOAN);
+  };
+
+  const handleOnExtendClick = () => {
+    setLoan(loan);
+    setCurrentStep(RepaySectionSteps.ROLLOVER_LOAN);
+  };
+
+  return (
+    <div className="loans-table-row">
+      <Tooltip
+        description={mapStatusToDisplay[loan.status.toLowerCase()].label}
+        icon={
+          <img
+            src={mapStatusToDisplay[loan.status.toLowerCase()].image}
+            alt={loan.status}
+          />
+        }
+      />
+      <div className="loan-amount">
+        <div>
+          {numberWithCommasAndDecimals(
+            formatUnits(BigInt(loan.principal), loan.lendingToken.decimals)
+          )}
+        </div>
+        <TokenPair
+          principalTokenSymbol={loan.lendingToken.symbol}
+          collateralTokenAdress={collateralTokenAddress}
+        />
+      </div>
+      <div>{formatTimestampToShortDate(loan.nextDueDate)}</div>
+      {isLoading ? (
+        <Loader height={40} isSkeleton />
+      ) : (
+        <div className="payment-buttons">
+          {hasRolloverableCommitments && (
+            <Button label="Extend" onClick={handleOnExtendClick} />
+          )}
+          <Button label="Pay" onClick={handleOnPayClick} />
+        </div>
+      )}
+    </div>
+  );
+};

@@ -1,13 +1,14 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { useChainId } from "wagmi";
+import { Address } from "viem";
 
 export type TokensContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
   whitelistedChainTokens: string[];
-  isWhitelistedToken: (token: string) => boolean;
+  isWhitelistedToken: (token: Address | undefined) => boolean;
 };
 
 interface TokensContextProps {
@@ -23,11 +24,12 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
   whitelistedTokens,
   showOnlyWhiteListedTokens,
 }) => {
+  const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
 
-  let whitelistedChainTokens = whitelistedTokens?.[chainId] ?? [];
-  whitelistedChainTokens = whitelistedChainTokens.map((token) =>
-    token.toLowerCase()
+  const whitelistedChainTokens = useMemo(
+    () => whitelistedTokens?.[chainId] ?? [],
+    [whitelistedTokens, chainId]
   );
 
   const { userTokens, isLoading } = useGetUserTokens(
@@ -35,8 +37,17 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
     showOnlyWhiteListedTokens
   );
 
-  const isWhitelistedToken = (token: string) =>
-    whitelistedChainTokens.includes(token);
+  useEffect(() => {
+    if (_userTokens?.length > 0) return;
+    setUserTokens(userTokens);
+  }, [_userTokens?.length, userTokens]);
+
+  useEffect(() => {
+    setUserTokens([]);
+  }, [chainId]);
+
+  const isWhitelistedToken = (token?: Address | undefined) =>
+    token ? whitelistedChainTokens.includes(token) : false;
 
   return (
     <UserTokensContext.Provider

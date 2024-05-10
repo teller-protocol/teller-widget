@@ -4,7 +4,6 @@ import { WagmiProvider } from "wagmi";
 import { TokensContextProvider } from "../../contexts/UserTokensContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
-import ConnectWalletButton from "../ConnectWalletButton";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
 
@@ -17,16 +16,32 @@ export type WhitelistedTokens = {
   [chainId: string]: string[];
 };
 
-interface WidgetProps {
+interface BaseWidgetProps {
   buttonLabel?: string;
   whitelistedTokens?: WhitelistedTokens;
-  showOnlyWhiteListedTokens?: boolean;
+  buttonClassName?: string;
+  isBareButton?: boolean;
 }
+
+interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
+  showOnlyWhiteListedTokens: true;
+  whitelistedTokens: WhitelistedTokens;
+}
+
+interface WhiteListedTokensOptionalProps extends BaseWidgetProps {
+  showOnlyWhiteListedTokens?: false;
+}
+
+export type WidgetProps =
+  | WhiteListedTokensRequiredProps
+  | WhiteListedTokensOptionalProps;
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
   whitelistedTokens,
   showOnlyWhiteListedTokens,
+  buttonClassName,
+  isBareButton,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
@@ -53,8 +68,12 @@ const Widget: React.FC<WidgetProps> = ({
                 <ModalContent />
               )}
             </Modal>
-            <ConnectWalletButton />
-            <Button label={buttonLabel} onClick={() => setShowModal(true)} />
+            <Button
+              label={buttonLabel}
+              onClick={() => setShowModal(true)}
+              className={buttonClassName}
+              variant={isBareButton ? "bare" : "primary"}
+            />
           </div>
         </TokensContextProvider>
       </QueryClientProvider>

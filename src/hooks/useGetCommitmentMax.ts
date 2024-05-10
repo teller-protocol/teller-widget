@@ -33,6 +33,7 @@ interface Args {
   isRollover?: boolean;
   collateralTokenDecimals?: number;
   returnCalculatedLoanAmount?: boolean;
+  loanAmount?: bigint;
 }
 
 export const useCommitmentMax = ({
@@ -41,6 +42,7 @@ export const useCommitmentMax = ({
   collateralTokenDecimals,
   isRollover,
   returnCalculatedLoanAmount,
+  loanAmount,
 }: Args): Result => {
   const availableLenderBalance = useBalance({
     token: commitment?.principalTokenAddress,
@@ -69,14 +71,16 @@ export const useCommitmentMax = ({
   const minAmount = useMemo(
     () =>
       bigIntMin(
-        BigInt(availableLenderBalance?.data?.value ?? 0),
+        BigInt(availableLenderBalance?.data?.value ?? 0) +
+          BigInt(loanAmount ?? 0),
         BigInt(availableLenderAllowance?.data ?? 0),
-        BigInt(commitment?.committedAmount ?? 0)
+        BigInt(commitment?.committedAmount ?? 0) + BigInt(loanAmount ?? 0)
       ),
     [
       availableLenderAllowance?.data,
       availableLenderBalance?.data?.value,
       commitment?.committedAmount,
+      loanAmount,
     ]
   );
 
@@ -93,7 +97,6 @@ export const useCommitmentMax = ({
   const { data: colBal } = useBalance({
     address,
     token: /* isNative ? undefined :  */ commitment?.collateralToken?.address,
-    enabled: !isRollover,
   });
 
   // TODO: Improve this conditional so isRollover and requestedCollateral are not coupled
