@@ -8,20 +8,34 @@ import { config } from "../../helpers/createWagmiConfig";
 import "./widgetStories.scss";
 import Widget from ".";
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: "Widget",
   component: Widget,
   parameters: {
-    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: "centered",
   },
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ["autodocs"],
-  // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
     whitelistedTokens: {
       description: "Array of addressed organized by chain id.",
+      defaultValue: {},
+    },
+    buttonClassName: {
+      description: "Class name for the button.",
+      defaultValue: "",
+    },
+    buttonLabel: {
+      description: "Label for the button.",
+      defaultValue: "Cash advance",
+    },
+    isBareButton: {
+      description:
+        "Flag to remove all styling for the button for easier overwriting.",
+      defaultValue: false,
+    },
+    showOnlyWhiteListedTokens: {
+      defaultValue: false,
+      description: "Flag to show only whitelisted tokens.",
     },
   },
   args: {
