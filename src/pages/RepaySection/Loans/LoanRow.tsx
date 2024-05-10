@@ -20,17 +20,19 @@ import {
   useGetRepaySectionContext,
 } from "../RepaySectionContext";
 import { useGetRolloverableCommitments } from "../../../hooks/queries/useGetRolloverableCommitments";
+import Tooltip from "../../../components/Tooltip";
 
 interface LoanRowProps {
   loan: Loan;
 }
 
-const mapStatusToAsset: { [key: string]: string } = {
-  [LoanStatus.DEFAULTED]: defaulted,
-  [LoanStatus.ACCEPTED]: healthy,
-  ["due soon"]: danger,
-  [LoanStatus.LATE]: defaulted,
-};
+const mapStatusToDisplay: { [key: string]: { image: string; label: string } } =
+  {
+    [LoanStatus.DEFAULTED]: { image: defaulted, label: "Defaulted" },
+    [LoanStatus.ACCEPTED]: { image: healthy, label: "On Time" },
+    ["due soon"]: { image: danger, label: "Due Soon" },
+    [LoanStatus.LATE]: { image: defaulted, label: "Late" },
+  };
 
 interface TokenPairProps {
   principalTokenSymbol: string;
@@ -87,9 +89,14 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
 
   return (
     <div className="loans-table-row">
-      <img
-        src={mapStatusToAsset[loan.status.toLowerCase()]}
-        alt={loan.status}
+      <Tooltip
+        description={mapStatusToDisplay[loan.status.toLowerCase()].label}
+        icon={
+          <img
+            src={mapStatusToDisplay[loan.status.toLowerCase()].image}
+            alt={loan.status}
+          />
+        }
       />
       <div className="loan-amount">
         <div>
