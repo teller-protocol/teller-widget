@@ -19,14 +19,14 @@ interface RepaySectionContextType {
   setCurrentStep: (step: RepaySectionSteps) => void;
   loan: Loan;
   setLoan: (loan: Loan) => void;
-  collateralImageURL: string;
-  setCollateralImageURL: (url: string) => void;
+  collateralImageURL: string | null;
+  setCollateralImageURL: (url: string | null) => void;
   paidTokenInput?: TokenInputType;
   setPaidTokenInput: (tokenInput: TokenInputType) => void;
   successRolloverLoanHash: string;
   setSuccessRolloverLoanHash: (txHash: string) => void;
-  rolloverCommitment: CommitmentType;
-  setRolloverCommitment: (commitment: CommitmentType) => void;
+  rolloverCommitment: CommitmentType | undefined;
+  setRolloverCommitment: (commitment: CommitmentType | undefined) => void;
   bidId: string;
   setBidId: (bidId: string) => void;
   successfulLoanParams: any;
@@ -51,12 +51,15 @@ export const RepaySectionContextProvider: React.FC<
   );
   const [selectedLoan, setSelectedLoan] = useState<Loan>({} as Loan);
   const [paidAmount, setPaidAmount] = useState<string>("");
-  const [collateralImageURL, setCollateralImageURL] = useState<string>("");
+  const [collateralImageURL, setCollateralImageURL] = useState<string | null>(
+    null
+  );
   const [paidTokenInput, setPaidTokenInput] = useState<TokenInputType>();
   const [successRolloverLoanHash, setSuccessRolloverLoanHash] =
     useState<string>("");
-  const [rolloverCommitment, setRolloverCommitment] =
-    useState<CommitmentType>();
+  const [rolloverCommitment, setRolloverCommitment] = useState<
+    CommitmentType | undefined
+  >();
   const [succesfulTxHash, setSuccesfulTxHash] = useState<string>("");
   const [bidId, setBidId] = useState<string>("");
   const [successfulLoanParams, setSuccessfulRolloverParams] = useState<{

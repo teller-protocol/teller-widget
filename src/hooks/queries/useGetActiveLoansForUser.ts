@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
 import { useAccount } from "wagmi";
 import { useGraphURL } from "../useGraphURL";
+import { Address } from "viem";
 
 type CollateralToken = {
   name: string;
@@ -11,7 +12,7 @@ type CollateralToken = {
 
 type Collateral = {
   type: string;
-  collateralAddress: string;
+  collateralAddress: Address;
   token: CollateralToken;
   amount: number;
   tokenId: string;
@@ -28,13 +29,13 @@ export type Loan = {
   lendingToken: {
     symbol: string;
     decimals: number;
-    address: string;
+    address: Address;
   };
   borrowerAddress: string;
   lenderAddress: string;
   apr: number;
   marketplaceId: string;
-  lendingTokenAddress: string;
+  lendingTokenAddress: Address;
   loanDuration: number;
   paymentCycle: string;
   paymentCycleAmount: number;

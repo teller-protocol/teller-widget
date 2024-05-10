@@ -142,7 +142,7 @@ const TransactionButton = ({
               // }
               if (writeContract && simulatedData?.request)
                 writeContract(simulatedData?.request, {
-                  onSuccess: onSuccessTransaction,
+                  onSuccess: void onSuccessTransaction,
                 });
             }}
             disabled={

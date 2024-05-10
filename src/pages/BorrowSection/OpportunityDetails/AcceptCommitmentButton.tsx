@@ -47,11 +47,9 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   )?.balance;
 
   const hasInsufficientCollateral =
-    +collateralTokenBalance < collateralToken?.value;
+    +(collateralTokenBalance ?? 0) < (collateralToken?.value ?? 0);
 
   const isNotConnected = !address;
-
-  const contracts = useContracts();
 
   const chainId = useChainId();
 
@@ -98,7 +96,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
   const isLoadingTransactionInfo =
     hasApprovedForwarder.isLoading ||
-    collateralManagerAddress?.isLoading ||
+    !!collateralManagerAddress ||
     collateralAllowance.isLoading;
 
   const onSuccess = useCallback(
@@ -159,20 +157,21 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     //   });
     // }
 
-    if (collateralAllowance.data < collateralToken?.valueBI) {
+    if ((collateralAllowance.data ?? 0) < (collateralToken?.valueBI ?? 0)) {
       row2.push({
-        buttonLabel: <span>Approve {collateralToken.token.symbol}</span>,
+        buttonLabel: <span>Approve {collateralToken?.token?.symbol}</span>,
         loadingButtonLabel: (
           <span>
-            Approving {numberWithCommasAndDecimals(collateralToken.value * 10)}{" "}
-            {collateralToken.token.symbol}...
+            Approving{" "}
+            {numberWithCommasAndDecimals((collateralToken?.value ?? 0) * 10)}{" "}
+            {collateralToken?.token?.symbol}...
           </span>
         ),
-        contractName: collateralToken.token.address,
+        contractName: collateralToken?.token?.address,
         functionName: "approve",
         args: [
           collateralManagerAddress,
-          BigInt(collateralToken?.valueBI) * BigInt(10),
+          BigInt(collateralToken?.valueBI ?? 0) * BigInt(10),
         ],
         contractType: ContractType.ERC20,
       });
@@ -186,7 +185,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     const step3Args = [
       commitment.id,
       principalToken,
-      collateralToken.valueBI,
+      collateralToken?.valueBI,
       0, // collateral token ID (only used for NFTs)
       // isNativeToken
       //   ? wrappedTokenContractAddress

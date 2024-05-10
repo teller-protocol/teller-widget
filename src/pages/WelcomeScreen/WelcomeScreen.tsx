@@ -7,12 +7,9 @@ import "./welcomeScreen.scss";
 
 interface WelcomeScreenProps {
   onClick: () => void;
-  W;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
-  const { address } = useAccount();
-
   const handleOnClick = () => {
     localStorage.setItem("showTellerWidgetWelcomeScreen", "false");
     onClick();

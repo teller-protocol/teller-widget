@@ -7,7 +7,10 @@ export const PaymentConfirmation = () => {
   const { paidTokenInput, succesfulTxHash, loan } = useGetRepaySectionContext();
 
   const title = `Repaid ${numberWithCommasAndDecimals(
-    formatUnits(paidTokenInput?.valueBI, paidTokenInput?.token?.decimals)
+    formatUnits(
+      paidTokenInput?.valueBI ?? 0n,
+      paidTokenInput?.token?.decimals ?? 0
+    )
   )} ${paidTokenInput?.token?.symbol}`;
 
   return (

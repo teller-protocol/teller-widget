@@ -16,7 +16,7 @@ export type TokenInputType = {
 
 interface TokenInputProps {
   tokenValue: TokenInputType;
-  imageUrl: string;
+  imageUrl: string | null;
   label?: React.ReactNode;
   sublabel?: string;
   maxAmount?: number;

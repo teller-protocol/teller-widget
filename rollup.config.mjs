@@ -4,6 +4,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
+import image from "@rollup/plugin-image";
 import json from "@rollup/plugin-json";
 
 // This is required to read package.json file when
@@ -36,6 +37,7 @@ export default [
       postcss({
         extensions: [".scss"],
       }),
+      image(),
     ],
   },
   {

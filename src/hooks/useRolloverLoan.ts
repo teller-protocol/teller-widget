@@ -15,6 +15,7 @@ import {
   RepaySectionSteps,
   useGetRepaySectionContext,
 } from "../pages/RepaySection/RepaySectionContext";
+import { Address } from "viem";
 
 export const calculateCollateralRequiredForPrincipal = (
   loanPrincipal: bigint, // base units of the principal token
@@ -149,7 +150,7 @@ const useRolloverLoan = (
   );
 
   const walletBalance = useReadContract(
-    bid?.lendingTokenAddress as Address,
+    bid?.lendingTokenAddress,
     "balanceOf",
     [walletConnectedAddress],
     false,
@@ -218,7 +219,7 @@ const useRolloverLoan = (
 
   // alternatively could just use the collateral that was in the original loan since it should match anyways
   const collateralAmount = calculateCollateralRequiredForPrincipal(
-    BigInt(maxLoanAmount),
+    BigInt(maxLoanAmount ?? 0),
     BigInt(maxPrincipalPerCollateral ?? 0),
     principalTokenDecimals,
     collateralTokenDecimals,

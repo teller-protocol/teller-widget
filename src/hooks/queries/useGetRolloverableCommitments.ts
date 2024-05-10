@@ -4,6 +4,7 @@ import { useGraphURL } from "../useGraphURL";
 import { useQuery } from "@tanstack/react-query";
 import { useForwarderAddresses } from "../useForwarderAddresses";
 import { useGetMinimumBetweenLenderAndCommitment } from "../useGetMinimumBetweenLenderAndCommitment";
+import { Address } from "viem";
 
 export type SubgraphTokenType = {
   imageUri?: string | undefined;
@@ -11,21 +12,21 @@ export type SubgraphTokenType = {
   nftId?: string;
   name?: string;
   symbol?: string;
-  address: string;
+  address: Address;
   decimals?: number;
 };
 
 export type CommitmentType = {
   id: string;
   commitmentId?: string;
-  forwarderAddress?: string;
+  forwarderAddress?: Address;
   rolloverable?: boolean;
   minAPY?: string;
-  principalTokenAddress?: string;
+  principalTokenAddress?: Address;
   maxDuration?: string;
   marketplaceId?: string;
   maxPrincipalPerCollateralAmount?: string;
-  lenderAddress?: string;
+  lenderAddress?: Address;
   expirationTimestamp?: string;
   createdAt?: string;
   committedAmount: string;

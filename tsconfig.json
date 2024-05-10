@@ -18,6 +18,10 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", ".storybook/components/ConnectWalletButton"],
-  "exclude": ["node_modules", "lib"]
+  "include": [
+    "src",
+    ".storybook/components/ConnectWalletButton",
+    "src/declaration.d.ts"
+  ],
+  "exclude": ["node_modules/", "lib"]
 }

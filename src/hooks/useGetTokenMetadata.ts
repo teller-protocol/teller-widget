@@ -4,7 +4,7 @@ import { TokenMetadataResponse } from "@teller-protocol/alchemy-sdk";
 
 export const useGetTokenMetadata = (
   tokenAddress: string,
-  onSuccess?: (url: string) => void
+  onSuccess?: (url: string | null) => void
 ) => {
   const alchemy = useAlchemy();
   const [isLoading, setIsLoading] = useState(true);

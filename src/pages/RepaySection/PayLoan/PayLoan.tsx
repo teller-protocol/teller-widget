@@ -40,7 +40,7 @@ const PayLoan: React.FC = () => {
 
   const { transactions, formattedWalletBalance, totalOwedNum } = usePayLoan(
     loan,
-    tokenValue.value,
+    tokenValue.value ?? 0,
     onSuccessfulTx
   );
 

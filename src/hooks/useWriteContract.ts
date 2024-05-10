@@ -15,7 +15,7 @@ export enum ContractType {
 
 interface UseWriteContractArgs {
   contractType?: ContractType;
-  functionName: string;
+  functionName?: string;
   args?: any[];
   contractName?: string;
   skip?: boolean;
@@ -31,7 +31,7 @@ export const useWriteContract = ({
 }: UseWriteContractArgs) => {
   const contracts = useContracts();
   const mapContractTypeToAbi = {
-    [ContractType.Teller]: contracts[contractName]?.abi,
+    [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
     [ContractType.ERC20]: erc20Abi,
   };
 
@@ -39,7 +39,7 @@ export const useWriteContract = ({
   const isTellerContract = contractType === ContractType.Teller;
 
   const contractAddress = isTellerContract
-    ? contracts[contractName]?.address
+    ? contracts[contractName ?? ""]?.address
     : contractName;
 
   const {

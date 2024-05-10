@@ -8,7 +8,7 @@ import {
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 
-import { decodeEventLog, formatUnits } from "viem";
+import { Address, decodeEventLog, formatUnits } from "viem";
 import Loader from "../../../components/Loader";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useContracts } from "../../../hooks/useContracts";
@@ -47,7 +47,7 @@ const BorrowConfirmation = () => {
   );
 
   const { data: successData } = useWaitForTransactionReceipt({
-    hash: (successLoanHash as AddressStringType) ?? "0x",
+    hash: (successLoanHash as Address) ?? "0x",
     query: {
       enabled: !!successLoanHash,
     },
@@ -55,7 +55,7 @@ const BorrowConfirmation = () => {
 
   const config = contracts?.[SupportedContractsEnum.TellerV2].abi;
 
-  let decodedLog;
+  let decodedLog: any;
   let _bidId;
   if (successData) {
     decodedLog = decodeEventLog({

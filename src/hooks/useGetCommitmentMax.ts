@@ -97,7 +97,6 @@ export const useCommitmentMax = ({
   const { data: colBal } = useBalance({
     address,
     token: /* isNative ? undefined :  */ commitment?.collateralToken?.address,
-    enabled: !isRollover,
   });
 
   // TODO: Improve this conditional so isRollover and requestedCollateral are not coupled

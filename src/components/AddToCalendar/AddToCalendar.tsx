@@ -48,8 +48,8 @@ const AddToCalendar: React.FC<AddToCalendarProps> = ({ bidId, onBack }) => {
     }
   }, [bid]);
 
-  const handleClick = useCallback((calendarLinks: string[]) => {
-    calendarLinks.forEach((link) => window.open(link, "_blank"));
+  const handleClick = useCallback((calendarLinks: string[] | undefined) => {
+    calendarLinks?.forEach((link) => window.open(link, "_blank"));
   }, []);
 
   const handleCreateEvents = useCallback(

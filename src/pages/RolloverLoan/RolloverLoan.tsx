@@ -269,9 +269,11 @@ const RolloverLoan: React.FC = () => {
         symbol: loanCollateral?.token.symbol,
       },
       valueBI: defaultCollateralValueAmount,
-      value: formatUnits(
-        defaultCollateralValueAmount,
-        loanCollateral?.token.decimals
+      value: Number(
+        formatUnits(
+          defaultCollateralValueAmount,
+          loanCollateral?.token.decimals
+        )
       ),
     }),
     [
@@ -297,7 +299,7 @@ const RolloverLoan: React.FC = () => {
 
     if (
       (isSameLender &&
-        requiredCollateralDefaultLoan > BigInt(0) &&
+        (requiredCollateralDefaultLoan ?? 0) > BigInt(0) &&
         collateralValue.valueBI === BigInt(0)) ||
       (maxCollateralWithWalletBalance > BigInt(0) &&
         collateralValue.valueBI === BigInt(0))
@@ -492,7 +494,7 @@ const RolloverLoan: React.FC = () => {
                     {numberWithCommasAndDecimals(
                       formatUnits(
                         abs(displayedAmountToPay),
-                        commitment?.principalToken?.decimals
+                        commitment?.principalToken?.decimals ?? 0
                       ),
                       3
                     )}
