@@ -319,7 +319,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
     if (isInputMoreThanMaxCollateral) {
       steps.push({
         buttonLabel: "Insufficient collateral",
-        disabled: true,
+        isStepDisabled: true,
       });
     } else if (rolloverLoanEstimation) {
       const flashLoanAmount = rolloverLoanEstimation[0];

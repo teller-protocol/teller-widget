@@ -142,7 +142,8 @@ const TransactionButton = ({
               // }
               if (writeContract && simulatedData?.request)
                 writeContract(simulatedData?.request, {
-                  onSuccess: void onSuccessTransaction,
+                  onSuccess: (data: any, params: any) =>
+                    void (async () => onSuccessTransaction(data, params))(),
                 });
             }}
             disabled={
@@ -220,7 +221,8 @@ const TransactionButton = ({
         )}
       </>
 
-      {(buttonDisabledMessage || currentStep?.errorMessage) && (
+      {((isButtonDisabled && buttonDisabledMessage) ||
+        currentStep?.errorMessage) && (
         <div className="disabled-text-message section-title">
           {buttonDisabledMessage ?? currentStep?.errorMessage}
         </div>

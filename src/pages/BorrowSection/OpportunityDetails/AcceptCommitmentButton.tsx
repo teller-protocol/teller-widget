@@ -47,7 +47,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   )?.balance;
 
   const hasInsufficientCollateral =
-    +(collateralTokenBalance ?? 0) < (collateralToken?.value ?? 0);
+    Number(collateralTokenBalance ?? 0) < Number(collateralToken?.value ?? 0);
 
   const isNotConnected = !address;
 
@@ -95,9 +95,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   );
 
   const isLoadingTransactionInfo =
-    hasApprovedForwarder.isLoading ||
-    !!collateralManagerAddress ||
-    collateralAllowance.isLoading;
+    hasApprovedForwarder.isLoading || collateralAllowance.isLoading;
 
   const onSuccess = useCallback(
     (data: any, params: any) => {
