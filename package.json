@@ -1,5 +1,5 @@
 {
-  "name": "teller-widget",
+  "name": "@teller-protocol/teller-widget",
   "version": "1.0.0",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
