@@ -442,9 +442,11 @@ const RolloverLoan: React.FC = () => {
 
   return (
     <div className="rollover-loan">
-      <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
+      <div className="header-info">
+        <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
+        <LoanLink loan={loan} />
+      </div>
       <h2>Extend cash advance</h2>
-      <LoanLink loan={loan} />
       {rolloverableCommitmentsLoading || !commitment ? (
         <Loader height={55} isSkeleton />
       ) : (

@@ -7,7 +7,7 @@
     display: flex;
     border-radius: $border-radius;
     position: relative;
-    padding: 12px $s-small 12px $s-normal;
+    padding: 10px 12px 10px $s-normal;
     border: 0.5px solid $border-color-secondary;
 
     &.opened {

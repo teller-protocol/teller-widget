@@ -55,9 +55,11 @@ const PayLoan: React.FC = () => {
 
   return (
     <div className="pay-loan">
-      <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
+      <div className="header-info">
+        <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
+        <LoanLink loan={loan} />
+      </div>
       <h2>Repay cash advance</h2>
-      <LoanLink loan={loan} />
       <TokenInput
         imageUrl={principalTokenLogo}
         label={

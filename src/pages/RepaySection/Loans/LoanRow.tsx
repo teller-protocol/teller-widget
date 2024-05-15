@@ -21,18 +21,11 @@ import {
 } from "../RepaySectionContext";
 import { useGetRolloverableCommitments } from "../../../hooks/queries/useGetRolloverableCommitments";
 import Tooltip from "../../../components/Tooltip";
+import StatusBadge from "../../../components/StatusBadge";
 
 interface LoanRowProps {
   loan: Loan;
 }
-
-const mapStatusToDisplay: { [key: string]: { image: string; label: string } } =
-  {
-    [LoanStatus.DEFAULTED]: { image: defaulted, label: "Defaulted" },
-    [LoanStatus.ACCEPTED]: { image: healthy, label: "On Time" },
-    ["due soon"]: { image: danger, label: "Due Soon" },
-    [LoanStatus.LATE]: { image: defaulted, label: "Late" },
-  };
 
 interface TokenPairProps {
   principalTokenSymbol: string;
@@ -87,39 +80,41 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
     setCurrentStep(RepaySectionSteps.ROLLOVER_LOAN);
   };
 
+  const { setCollateralImageURL } = useGetRepaySectionContext();
+
+  useGetTokenMetadata(collateralTokenAddress, setCollateralImageURL);
+
   return (
     <div className="loans-table-row">
-      <Tooltip
-        description={mapStatusToDisplay[loan.status.toLowerCase()].label}
-        icon={
-          <img
-            src={mapStatusToDisplay[loan.status.toLowerCase()].image}
-            alt={loan.status}
-          />
-        }
-      />
-      <div className="loan-amount">
+      <div className="loans-table-row-data">
+        <StatusBadge status={loan.status.toLowerCase()} />
+        <div className="loan-amount">
+          <div>
+            {numberWithCommasAndDecimals(
+              formatUnits(BigInt(loan.principal), loan.lendingToken.decimals)
+            )}{" "}
+            {loan.lendingToken.symbol}
+          </div>
+        </div>
         <div>
-          {numberWithCommasAndDecimals(
-            formatUnits(BigInt(loan.principal), loan.lendingToken.decimals)
-          )}
+          <Tooltip
+            description="mm/dd/yyyy"
+            icon={formatTimestampToShortDate(loan.nextDueDate)}
+          />
         </div>
-        <TokenPair
-          principalTokenSymbol={loan.lendingToken.symbol}
-          collateralTokenAdress={collateralTokenAddress}
-        />
       </div>
-      <div>{formatTimestampToShortDate(loan.nextDueDate)}</div>
-      {isLoading ? (
-        <Loader height={40} isSkeleton />
-      ) : (
-        <div className="payment-buttons">
-          {hasRolloverableCommitments && (
-            <Button label="Extend" onClick={handleOnExtendClick} />
-          )}
-          <Button label="Pay" onClick={handleOnPayClick} />
-        </div>
-      )}
+      <div className="loans-table-row-buttons">
+        {isLoading ? (
+          <Loader height={40} isSkeleton />
+        ) : (
+          <>
+            {hasRolloverableCommitments && (
+              <Button label="Extend" onClick={handleOnExtendClick} />
+            )}
+            <Button label="Pay" onClick={handleOnPayClick} />
+          </>
+        )}
+      </div>
     </div>
   );
 };

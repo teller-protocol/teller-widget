@@ -4,6 +4,7 @@ import {
   Loan,
   useGetActiveLoansForUser,
 } from "../../../hooks/queries/useGetActiveLoansForUser";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { LoanRow } from "./LoanRow";
 import "./loans.scss";
 
@@ -19,6 +20,7 @@ const Loans = () => {
             <>
               <div className="loans-table">
                 <div className="loans-table-header">
+                  <div className="loans-table-header-item">Status</div>
                   <div className="loans-table-header-item">Owed</div>
                   <div className="loans-table-header-item">Due</div>
                 </div>

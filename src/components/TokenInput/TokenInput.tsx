@@ -109,7 +109,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           </div>
         )}
         <div className="token-info">
-          <TokenLogo logoUrl={imageUrl} size={20} />
+          <TokenLogo logoUrl={imageUrl} size={16} />
           <span className="token-info-symbol">{tokenValue.token?.symbol}</span>
         </div>
       </div>

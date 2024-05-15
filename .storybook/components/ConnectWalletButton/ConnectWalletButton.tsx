@@ -12,8 +12,8 @@ const ConnectWalletButton: React.FC = ({}) => {
     <details className="wallet-options">
       <summary>
         <span>
-          Please connect your wallet <br />
-          to transact
+          A connected wallet is required to transact. <br />
+          Click here to connect your wallet.
         </span>
       </summary>
       <div className="wallet-options-connectors">
