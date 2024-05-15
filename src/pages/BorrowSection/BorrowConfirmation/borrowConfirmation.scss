@@ -9,29 +9,36 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 58px 52px;
+  padding: 0px 13px;
   border-radius: $border-radius;
 
   &-background {
-    right: 0;
+    right: -40px;
     position: absolute;
+    transform: scale(80%);
+  }
+
+  &-main-image {
+    transform: scale(80%);
+    margin-top: -20px;
   }
 
   &-title {
     font-family: "Space Grotesk", sans-serif;
     font-weight: 600;
-    font-size: 20px;
+    font-size: 18px;
+    text-wrap: balance;
     line-height: 26px;
     text-align: center;
     color: white;
-    margin-top: $s-normal;
+    margin-top: -10px;
   }
 
   &-buttons {
     margin-top: $s-normal;
     z-index: 10;
     .teller-widget-button {
-      margin-bottom: $s-normal;
+      margin-bottom: .7rem;
     }
 
     .loader-container {

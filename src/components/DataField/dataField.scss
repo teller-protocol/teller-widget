@@ -2,10 +2,11 @@
 
 .data-field {
     margin-top: $s-small;
-    padding: 14px 16px;
+    padding: 10px 12px;
     border: 0.5px solid $border-color-secondary;
     border-radius: $border-radius;
     background-color: $bg-light;
+    font-size: 13px;
 
     display: flex;
 }

@@ -7,6 +7,10 @@
   border-radius: 4px;
   display: flex;
 
+  button {
+    font-size: 13px;
+  }
+
   &__item {
     background-color: white;
     flex: 1;
