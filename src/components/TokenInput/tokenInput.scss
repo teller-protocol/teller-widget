@@ -3,7 +3,7 @@
 .token-input-container {
   .token-input {
     margin-top: $s-small;
-    padding: 14px 16px;
+    padding: 10px 12px;
     border: 0.5px solid $border-color-secondary;
     border-radius: $border-radius;
     background-color: $bg-light;
@@ -17,7 +17,7 @@
       cursor: text;
       outline: inherit;
 
-      font-size: 15px;
+      font-size: 13px;
       font-family: "Roboto";
 
       flex-grow: 1;
@@ -44,27 +44,27 @@
       background-color: rgba(228, 249, 248, 1);
       padding: 2px 9px;
       border-radius: $border-radius;
-      margin-right: $s-large;
+      margin-right: $s-small;
 
       cursor: pointer;
     }
 
     .token-info {
       border-left: 0.5px solid $border-color-secondary;
-      margin-top: -14px;
-      margin-bottom: -14px;
+      margin-top: -10px;
+      margin-bottom: -10px;
       display: flex;
       align-items: center;
 
-      padding-left: $s-normal;
+      padding-left: .3rem;
 
       .token-logo {
-        margin-right: $s-small;
+        margin-right: .3rem;
       }
 
       &-symbol {
         font-family: "Roboto";
-        font-size: 15px;
+        font-size: 11px;
       }
     }
   }

@@ -118,6 +118,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     }
 
     const row2: TransactionStepConfig[] = [];
+    const row3: TransactionStepConfig[] = [];
     steps.push(row2);
     if (isNotConnected) {
       row2.push({
@@ -126,8 +127,9 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       });
       return steps;
     }
+    steps.push(row3);
     if (!hasApprovedForwarder.isLoading && !hasApprovedForwarder.data) {
-      row2.push({
+      row3.push({
         buttonLabel: <span>Approve Teller</span>,
         loadingButtonLabel: <span>Approving Teller...</span>,
         contractName: SupportedContractsEnum.TellerV2,
@@ -175,8 +177,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       });
     }
 
-    const row3: TransactionStepConfig[] = [];
-    steps.push(row3);
+    const row4: TransactionStepConfig[] = [];
+    steps.push(row4);
 
     const step3FunctionName = "acceptCommitment";
 
@@ -194,7 +196,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     ];
 
     if (!isLoadingTransactionInfo)
-      row3.push({
+      row4.push({
         buttonLabel: <span>Deposit & Borrow</span>,
         loadingButtonLabel: <span>Executing Loan...</span>,
         contractName: isCommitmentFromLCFAlpha

@@ -39,7 +39,7 @@
 
     &-body {
       background-color: $bg-light;
-      padding: $s-normal $s-large;
+      padding: .7rem $s-large;
       margin-bottom: $s-normal;
 
       display: flex;
@@ -57,7 +57,7 @@
       }
       &-value {
         color: $text-primary;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 16px;
         font-weight: 500;
       }

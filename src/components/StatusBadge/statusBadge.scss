@@ -1,0 +1,22 @@
+.status-badge {
+  padding: 4px 0px 4px 0px;
+  border-radius: 4px;
+  font-size: 15px;
+
+  &.defaulted {
+    background-color: rgba(255, 227, 227, 1);
+    color: rgba(128, 32, 32, 1);
+  }
+
+  &.accepted {
+    background-color: rgba(228, 249, 248, 1);
+    color: rgba(0, 70, 68, 1);
+  }
+
+
+  &.late,
+  &.dueSoon {
+    background-color: rgba(255, 251, 217, 1);
+    color: rgba(96, 86, 0, 1);
+  }
+}

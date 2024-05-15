@@ -5,6 +5,12 @@
   height: 100%;
   padding: $s-large;
 
+  .header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   &-token-input {
     display: flex;
     justify-content: space-between;
@@ -20,15 +26,11 @@
     margin-bottom: $s-normal;
   }
 
-  .loan-link {
-    margin-bottom: $s-large;
-  }
-
   .data-field {
     margin-bottom: $s-large;
     .loan-information {
       width: 100%;
-      font-size: 14px;
+      font-size: 13px;
       color: $text-primary;
 
       &-row {
@@ -42,7 +44,7 @@
         .token-data {
           display: flex;
           align-items: center;
-          gap: $s-small;
+          gap: .3rem;
         }
       }
     }
