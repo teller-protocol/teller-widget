@@ -3,8 +3,10 @@ import { LoanStatus } from "../../hooks/queries/useGetActiveLoansForUser";
 
 import "./statusBadge.scss";
 
+export type LoanStatusType = LoanStatus | "due soon";
+
 interface StatusBadgeProps {
-  status: LoanStatus | "due soon";
+  status: LoanStatusType;
 }
 
 const mapStatusToDisplay: { [key: string]: string } = {

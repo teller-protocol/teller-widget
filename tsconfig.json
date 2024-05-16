@@ -1,24 +1,22 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "baseUrl": "src",
+    "declaration": true,
+    "declarationDir": "dts",
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext"
   },
-  "include": [
-    "src",
-    "src/declaration.d.ts",
-    ".storybook/components/ConnectWalletButton"
-  ],
-  "exclude": ["node_modules/", "lib"]
+  "include": ["src", "src/**/*.d.ts"],
+  "exclude": ["node_modules/", "lib", ".storybook/*"]
 }

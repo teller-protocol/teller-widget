@@ -83,6 +83,7 @@
   .modal-footer-logo {
     margin-top: $s-normal;
     margin-bottom: 0.3rem;
-    text-align: center;
+    display: flex;
+    justify-content: center;
   }
 }

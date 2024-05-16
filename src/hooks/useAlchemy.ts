@@ -1,6 +1,7 @@
+import { Alchemy, Network } from "alchemy-sdk";
 import { useChainId } from "wagmi";
 
-import { Alchemy, Network } from "@teller-protocol/alchemy-sdk";
+// import { Alchemy, Network } from "alchemy-sdk";
 import { useMemo } from "react";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 import { ALCHEMY_API_KEY } from "../constants/global";

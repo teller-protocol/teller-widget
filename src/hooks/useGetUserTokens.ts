@@ -3,7 +3,6 @@ import { useAlchemy } from "./useAlchemy";
 import { useEffect, useState } from "react";
 import { Address, formatUnits, parseUnits } from "viem";
 import { WhitelistedTokens } from "../components/Widget/Widget";
-import { TokenBalance } from "@teller-protocol/alchemy-sdk";
 
 export type UserToken = {
   address: Address;

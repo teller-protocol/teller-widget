@@ -1,16 +1,17 @@
 {
   "name": "@teller-protocol/teller-widget",
-  "version": "1.0.2",
-  "main": "lib/cjs/index.js",
-  "module": "lib/esm/index.esm.js",
-  "types": "lib/types.d.ts",
+  "version": "1.0.9",
+  "main": "lib/cjs/index.cjs",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "repository": "git@github.com:teller-protocol/teller-widget.git",
   "dependencies": {
     "@iconify/react": "^4.1.1",
     "@tanstack/react-query": "^5.25.0",
-    "@teller-protocol/alchemy-sdk": "^2.8.5",
-    "@teller-protocol/teller-ui-components": "file:.yalc/@teller-protocol/teller-ui-components",
-    "@teller-protocol/teller-widget": "file:.yalc/@teller-protocol/teller-widget",
+    "alchemy-sdk": "^3.3.1",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.9",
     "graphql": "^16.8.1",
@@ -26,6 +27,7 @@
     "@parcel/watcher": "^2.4.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
@@ -52,8 +54,10 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "node-sass": "^9.0.0",
     "rollup": "^4.9.1",
     "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-node-externals": "3.1.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-sass": "^1.12.22",
@@ -66,10 +70,16 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "prebuild": "rm -rf dts lib && tsc -p tsconfig.json",
     "build": "rollup --config --failAfterWarnings"
   },
   "peerDependencies": {
-    "react": "^18.2.0"
+    "@tanstack/react-query": "^5.25.0",
+    "alchemy-sdk": "^3.3.1",
+    "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "resolutions": {
     "jackspeak": "2.1.1"

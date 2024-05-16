@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAccount, useConnect } from "wagmi";
+import { injected } from "wagmi/connectors";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import BorrowSection from "../../pages/BorrowSection";
-import SelectButtons from "../SelectButtons";
 import RepaySection from "../../pages/RepaySection";
+import SelectButtons from "../SelectButtons";
 
 enum WIDGET_ACTION_ENUM {
   BORROW = "BORROW",
@@ -23,6 +25,13 @@ const ModalContent: React.FC = () => {
   };
 
   useGetProtocolFee();
+
+  const { connect } = useConnect();
+  const { isConnected } = useAccount();
+
+  useEffect(() => {
+    if (!isConnected) connect({ connector: injected() });
+  }, [connect, isConnected]);
 
   return (
     <>

@@ -8,11 +8,15 @@ const peerDepsExternal = require("rollup-plugin-peer-deps-external");
 const resolve = require("@rollup/plugin-node-resolve");
 const commonjs = require("@rollup/plugin-commonjs");
 const typescript = require("@rollup/plugin-typescript");
+const inject = require("@rollup/plugin-inject");
 const { default: dts } = require("rollup-plugin-dts");
 const image = require("@rollup/plugin-image");
 const json = require("@rollup/plugin-json");
 const terser = require("@rollup/plugin-terser");
 const sass = require("rollup-plugin-sass");
+const postcss = require("rollup-plugin-postcss");
+
+const externals = require("rollup-plugin-node-externals");
 
 const EXTENSIONS = [".js", ".jsx", ".ts", ".tsx"];
 
@@ -34,24 +38,20 @@ const EXTENSIONS = [".js", ".jsx", ".ts", ".tsx"];
 const transpile = {
   input: "src/index.ts",
   plugins: [
-    // Dependency resolution
-    // externals({
-    //   exclude: [
-    //     "constants",
-    //     /@lingui\/(core|react)/, // @lingui incorrectly exports esm, so it must be bundled in
-    //     /\.json$/, // esm does not support JSON loading, so it must be bundled in
-    //   ], // marks dependencies as external so they are not bundled inline
-    //   deps: true,
-    //   peerDeps: true,
-    // }),
+    externals({
+      deps: false,
+      peerDeps: true,
+    }),
     resolve({ extensions: EXTENSIONS }), // resolves third-party modules within node_modules/
 
     // Source code transformation
     json(), // imports json as ES6; doing so enables module resolution
-    sass(), // generates fonts.css
+    postcss(),
     commonjs(), // transforms cjs dependencies into tree-shakeable ES modules
-    typescript({ tsconfig: "./tsconfig.json" }), // transpiles TypeScript into JavaScript
+    // typescript({ tsconfig: "./tsconfig.json" }), // transpiles TypeScript into JavaScript
     image(), // imports images as ES6; doing so enables module resolution
+    // peerDepsExternal(),
+    inject({ React: "react" }), // imports React (on the top-level, un-renamed), for the classic runtime
   ],
 };
 
@@ -77,7 +77,7 @@ const cjs = {
 };
 
 const types = {
-  input: "src/index.ts",
+  input: "dts/src/index.d.ts",
   output: { file: "lib/index.d.ts" },
   external: (source) =>
     source.endsWith(".scss") || source.endsWith("/external.d.ts"),

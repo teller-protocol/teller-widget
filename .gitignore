@@ -8,3 +8,5 @@ build/*
 lib/*
 yalc.lock
 .yalc/*
+dts/*
+src/**/*.js
