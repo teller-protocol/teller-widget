@@ -16,7 +16,11 @@ const selectOptions = [
   { value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" },
 ];
 
-const ModalContent: React.FC = () => {
+interface ModalContentProps {
+  showModalByDefault?: boolean;
+}
+
+const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
 
   const mapOptionToComponent = {
@@ -30,8 +34,8 @@ const ModalContent: React.FC = () => {
   const { isConnected } = useAccount();
 
   useEffect(() => {
-    if (!isConnected) connect({ connector: injected() });
-  }, [connect, isConnected]);
+    if (!isConnected && !showModalByDefault) connect({ connector: injected() });
+  }, [connect, isConnected, showModalByDefault]);
 
   return (
     <>
