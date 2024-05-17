@@ -52,7 +52,7 @@
   .next-value {
     display: flex;
     align-items: center;
-    gap: $s-small;
+    gap: .3rem;
   }
 }
 
@@ -85,6 +85,7 @@
   .collateral-balance {
     margin-left: auto;
     margin-bottom: $s-small;
+    margin-top: 5px;
     font-size: 11px;
   }
 }

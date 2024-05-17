@@ -3,8 +3,10 @@ import { LoanStatus } from "../../hooks/queries/useGetActiveLoansForUser";
 
 import "./statusBadge.scss";
 
+export type LoanStatusType = LoanStatus | "due soon";
+
 interface StatusBadgeProps {
-  status: LoanStatus | "due soon";
+  status: LoanStatusType;
 }
 
 const mapStatusToDisplay: { [key: string]: string } = {
@@ -16,7 +18,6 @@ const mapStatusToDisplay: { [key: string]: string } = {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const statusClass = status === "due soon" ? "dueSoon" : status;
-  console.log("TCL ~ file: StatusBadge.tsx:19 ~ statusClass:", statusClass);
   return (
     <div className={cx("status-badge", statusClass)}>
       {mapStatusToDisplay[status]}

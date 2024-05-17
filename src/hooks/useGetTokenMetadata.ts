@@ -16,10 +16,6 @@ export const useGetTokenMetadata = (
     void (async () => {
       await alchemy.core.getTokenMetadata(tokenAddress).then((metadata) => {
         setTokenMetadata(metadata);
-        console.log(
-          "TCL ~ file: useGetTokenMetadata.ts:22 ~ awaitalchemy.core.getTokenMetadata ~ metadata:",
-          metadata
-        );
         onSuccess && metadata && onSuccess?.(metadata.logo);
         setIsLoading(false);
       });

@@ -22,6 +22,7 @@ import {
 import { useGetRolloverableCommitments } from "../../../hooks/queries/useGetRolloverableCommitments";
 import Tooltip from "../../../components/Tooltip";
 import StatusBadge from "../../../components/StatusBadge";
+import { LoanStatusType } from "../../../components/StatusBadge/StatusBadge";
 
 interface LoanRowProps {
   loan: Loan;
@@ -87,7 +88,7 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
   return (
     <div className="loans-table-row">
       <div className="loans-table-row-data">
-        <StatusBadge status={loan.status.toLowerCase()} />
+        <StatusBadge status={loan.status.toLowerCase() as LoanStatusType} />
         <div className="loan-amount">
           <div>
             {numberWithCommasAndDecimals(
