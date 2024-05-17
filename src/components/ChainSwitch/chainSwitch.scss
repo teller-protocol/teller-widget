@@ -1,0 +1,11 @@
+.chain-image {
+  img {
+    width: 25px;
+    height: 25px;
+    display: flex;
+
+    &.faded {
+      opacity: 0.3;
+    }
+  }
+}

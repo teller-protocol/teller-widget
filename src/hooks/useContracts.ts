@@ -14,7 +14,7 @@ export const useContracts = () => {
 
   const tellerContracts = (<Record<SupportedChainId, any>>teller_contracts)[
     chainId
-  ].contracts;
+  ]?.contracts;
 
   return tellerContracts;
 };

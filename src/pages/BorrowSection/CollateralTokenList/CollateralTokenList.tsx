@@ -1,6 +1,7 @@
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import { UserToken } from "../../../hooks/useGetUserTokens";
+import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -15,6 +16,8 @@ const CollateralTokenList: React.FC = () => {
     tokensWithCommitments,
   } = useGetBorrowSectionContext();
 
+  const isSupportedChain = useIsSupportedChain();
+
   const onCollateralTokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedCollateralToken(token);
@@ -22,19 +25,27 @@ const CollateralTokenList: React.FC = () => {
 
   return (
     <div className="collateral-token-list">
-      <div className="section-title">Select token collateral for deposit: </div>
-      {loading ? (
-        <Loader />
-      ) : tokensWithCommitments.length > 0 ? (
-        tokensWithCommitments.map((token) => (
-          <CollateralTokenRow
-            token={token}
-            onClick={onCollateralTokenSelected}
-            key={token.address.toString()}
-          />
-        ))
+      {isSupportedChain ? (
+        <div>
+          <div className="section-title">
+            Select token collateral for deposit:{" "}
+          </div>
+          {loading ? (
+            <Loader />
+          ) : tokensWithCommitments.length > 0 ? (
+            tokensWithCommitments.map((token) => (
+              <CollateralTokenRow
+                token={token}
+                onClick={onCollateralTokenSelected}
+                key={token.address.toString()}
+              />
+            ))
+          ) : (
+            <div className="section-title">No tokens available</div>
+          )}
+        </div>
       ) : (
-        <div className="section-title">No tokens available</div>
+        <div className="unsupported-chain">This chain is not supported</div>
       )}
     </div>
   );

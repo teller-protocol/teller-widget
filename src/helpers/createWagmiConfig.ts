@@ -1,10 +1,37 @@
-import { http, createConfig } from "wagmi";
-import { mainnet, sepolia, polygon, arbitrum, base } from "wagmi/chains";
+import { TransportConfig, EIP1193RequestFn } from "viem";
+import { http, createConfig, Connector } from "wagmi";
+import {
+  mainnet,
+  sepolia,
+  polygon,
+  arbitrum,
+  base,
+  linea,
+  optimism,
+  blast,
+  mantle,
+  manta,
+  mode,
+  Chain,
+} from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
+
 import { ALCHEMY_API_KEY } from "../constants/global";
 
 export const config = createConfig({
-  chains: [mainnet, sepolia, polygon, arbitrum, base],
+  chains: [
+    arbitrum,
+    optimism,
+    base,
+    blast,
+    mantle,
+    linea,
+    manta,
+    mode,
+    polygon,
+    mainnet,
+    sepolia,
+  ],
   transports: {
     [mainnet.id]: http(
       `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
@@ -17,6 +44,12 @@ export const config = createConfig({
       `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
     ),
     [base.id]: http(`https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`),
+    [linea.id]: http(),
+    10: http(),
+    81457: http(),
+    5000: http(),
+    169: http(),
+    34443: http(),
   },
   connectors: [
     walletConnect({
