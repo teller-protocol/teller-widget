@@ -32,9 +32,11 @@ const mapChainToImage: { [key: number]: string } = {
 const ChainSwitch: React.FC = () => {
   const { chain } = useAccount();
   const hasImage = !!chain?.id;
-  const img = hasImage
-    ? mapChainToImage[chain.id]
-    : mapChainToImage[mainnet.id];
+  const img = hasImage ? mapChainToImage[chain.id] : undefined;
+
+  if (img === undefined) {
+    return <></>;
+  }
 
   return (
     <div className="chain-image">

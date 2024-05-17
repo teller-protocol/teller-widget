@@ -106,12 +106,9 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
       </div>
       <div className="loans-table-row-buttons">
         {isLoading ? (
-          <Loader height={40} isSkeleton />
+          <Loader height={33} isSkeleton />
         ) : (
           <>
-            {hasRolloverableCommitments && (
-              <Button label="Extend" onClick={handleOnExtendClick} />
-            )}
             <Button label="Pay" onClick={handleOnPayClick} />
           </>
         )}

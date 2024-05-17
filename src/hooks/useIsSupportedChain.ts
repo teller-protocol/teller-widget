@@ -9,7 +9,7 @@ const supportedChains: number[] = [
 ];
 
 export const useIsSupportedChain = () => {
-  const { chain } = useAccount();
+  const { chain, address } = useAccount();
 
-  return chain?.id && supportedChains.includes(chain.id);
+  return !address || (chain?.id && supportedChains.includes(chain.id));
 };
