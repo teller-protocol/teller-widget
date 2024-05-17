@@ -36,9 +36,8 @@
       &-row {
         display: flex;
         justify-content: space-between;
-        line-height: 24px;
         &:not(:last-child) {
-          margin-bottom: $s-small;
+          margin-bottom: .65rem;
         }
 
         .token-data {

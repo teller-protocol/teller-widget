@@ -18,7 +18,6 @@ const mapStatusToDisplay: { [key: string]: string } = {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const statusClass = status === "due soon" ? "dueSoon" : status;
-  console.log("TCL ~ file: StatusBadge.tsx:19 ~ statusClass:", statusClass);
   return (
     <div className={cx("status-badge", statusClass)}>
       {mapStatusToDisplay[status]}

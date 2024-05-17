@@ -22,7 +22,7 @@ import {
 import { useGetRolloverableCommitments } from "../../../hooks/queries/useGetRolloverableCommitments";
 import Tooltip from "../../../components/Tooltip";
 import StatusBadge from "../../../components/StatusBadge";
-import { LoanStatusType } from "components/StatusBadge/StatusBadge";
+import { LoanStatusType } from "../../../components/StatusBadge/StatusBadge";
 
 interface LoanRowProps {
   loan: Loan;

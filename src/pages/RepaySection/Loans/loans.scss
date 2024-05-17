@@ -17,12 +17,23 @@
 
     &-header {
       @include tableProperties;
-      padding: $s-large $s-normal;
+      padding: .8rem $s-normal;
       border-bottom: solid 0.5px $border-color;
       font-family: "Work Sans", sans-serif;
       font-weight: 600;
       color: $text-secondary;
       font-size: 13px;
+
+      &-item {
+        &:first-child {
+          margin-left: 0;
+        }
+        &:last-child {
+          margin-right: 0;
+        }
+        margin-left: 6px;
+        margin-right: 6px;
+      }
     }
 
     &-row {
@@ -34,6 +45,17 @@
         text-align: center;
         display: grid;
         align-items: center;
+
+        > div {
+          &:first-child {
+            margin-left: 0;
+          }
+          &:last-child {
+            margin-right: 0;
+          }
+          margin-left: 6px;
+          margin-right: 6px;
+        }
       }
 
       &-buttons {
@@ -48,12 +70,6 @@
 
       &:not(:last-child) {
         border-bottom: solid 0.5px $border-color;
-      }
-
-      .loan-amount {
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
 
       .token-pair {
