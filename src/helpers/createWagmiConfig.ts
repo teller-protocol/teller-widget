@@ -20,6 +20,7 @@ import { ALCHEMY_API_KEY } from "../constants/global";
 
 export const config = createConfig({
   chains: [
+    mainnet,
     arbitrum,
     optimism,
     base,
@@ -29,7 +30,6 @@ export const config = createConfig({
     manta,
     mode,
     polygon,
-    mainnet,
     sepolia,
   ],
   transports: {

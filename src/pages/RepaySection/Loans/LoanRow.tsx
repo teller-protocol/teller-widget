@@ -90,11 +90,14 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
       <div className="loans-table-row-data">
         <StatusBadge status={loan.status.toLowerCase() as LoanStatusType} />
         <div className="loan-amount">
-          <div>
+          <div className="token-info">
             {numberWithCommasAndDecimals(
               formatUnits(BigInt(loan.principal), loan.lendingToken.decimals)
             )}{" "}
-            {loan.lendingToken.symbol}
+            <TokenPair
+              principalTokenSymbol={loan.lendingToken.symbol}
+              collateralTokenAdress={collateralTokenAddress}
+            />
           </div>
         </div>
         <div>
@@ -109,7 +112,14 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
           <Loader height={33} isSkeleton />
         ) : (
           <>
-            <Button label="Pay" onClick={handleOnPayClick} />
+            <Button
+              label="Pay"
+              onClick={handleOnPayClick}
+              variant={hasRolloverableCommitments ? "secondary" : "primary"}
+            />
+            {hasRolloverableCommitments && (
+              <Button label="Extend" onClick={handleOnExtendClick} />
+            )}
           </>
         )}
       </div>
