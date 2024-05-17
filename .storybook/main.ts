@@ -1,5 +1,4 @@
 import type { StorybookConfig } from "@storybook/react-webpack5";
-import { addons } from "@storybook/manager-api";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -49,9 +48,5 @@ const config: StorybookConfig = {
     autodocs: "tag",
   },
 };
-
-addons.setConfig({
-  panelPosition: "right",
-});
 
 export default config;

@@ -39,6 +39,7 @@ const meta = {
     },
     showModalByDefault: {
       table: {
+        defaultValue: false,
         disable: true,
       },
     },
