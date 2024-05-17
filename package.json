@@ -1,22 +1,22 @@
 {
   "name": "@teller-protocol/teller-widget",
-  "version": "1.0.1",
-  "main": "lib/index.js",
-  "module": "lib/index.esm.js",
-  "source": "src/index.ts",
+  "version": "1.0.9",
+  "main": "lib/cjs/index.cjs",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
-  "types": "lib/index.d.ts",
   "repository": "git@github.com:teller-protocol/teller-widget.git",
   "dependencies": {
     "@iconify/react": "^4.1.1",
     "@tanstack/react-query": "^5.25.0",
-    "@teller-protocol/alchemy-sdk": "^2.8.5",
+    "alchemy-sdk": "^3.3.1",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.9",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
+    "punycode": "^2.3.1",
     "react-dom": "^18.2.0",
     "react-tooltip": "4.4.3",
     "typescript": "^5.4.3",
@@ -27,14 +27,17 @@
     "@parcel/watcher": "^2.4.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "11.1.5",
     "@storybook/addon-essentials": "^7.6.17",
     "@storybook/addon-interactions": "^7.6.17",
     "@storybook/addon-links": "^7.6.17",
     "@storybook/addon-styling-webpack": "^0.0.6",
     "@storybook/blocks": "^7.6.17",
+    "@storybook/manager-api": "^8.1.1",
     "@storybook/react": "^7.6.17",
     "@storybook/react-webpack5": "^7.6.17",
     "@storybook/test": "^7.6.17",
@@ -52,11 +55,13 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "postcss": "^8.4.35",
-    "rollup": "^4.12.0",
+    "node-sass": "^9.0.0",
+    "rollup": "^4.9.1",
     "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-node-externals": "3.1.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-sass": "^1.12.22",
     "sass": "^1.71.1",
     "sass-loader": "^14.1.1",
     "storybook": "^7.6.17",
@@ -66,10 +71,16 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "build": "rollup -c"
+    "prebuild": "rm -rf dts lib && tsc -p tsconfig.json",
+    "build": "rollup --config --failAfterWarnings"
   },
   "peerDependencies": {
-    "react": "^18.2.0"
+    "@tanstack/react-query": "^5.25.0",
+    "alchemy-sdk": "^3.3.1",
+    "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "resolutions": {
     "jackspeak": "2.1.1"

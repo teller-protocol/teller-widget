@@ -1,4 +1,3 @@
-import { Network } from "@teller-protocol/alchemy-sdk";
 import { arbitrum, base, goerli, mainnet, polygon, sepolia } from "viem/chains";
 
 export enum SupportedChainId {

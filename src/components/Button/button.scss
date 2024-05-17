@@ -4,17 +4,18 @@
 .teller-widget-button {
   &.primary {
     background: linear-gradient(130.85deg, #ffdfa6 0%, #ffc75f 100%);
-  color: rgba(69, 51, 19, 1);
+    color: rgba(69, 51, 19, 1);
+    border: none;
   }
 
   &.secondary {
     background: linear-gradient(130.85deg, #ffffff 0%, #f9f9fb 100%);
     color: $text-primary;
+    border: 1px solid $border-color;
   }
 
   &:not(.bare) {
     border-radius: 4px;
-    border: none;
     padding: 0.4rem 1rem;
     line-height: 24px;
     font-size: 13px;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAlchemy } from "./useAlchemy";
-import { TokenMetadataResponse } from "@teller-protocol/alchemy-sdk";
+import { TokenMetadataResponse } from "alchemy-sdk";
 
 export const useGetTokenMetadata = (
   tokenAddress: string,

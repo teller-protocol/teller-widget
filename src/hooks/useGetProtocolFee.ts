@@ -7,7 +7,7 @@ export const useGetProtocolFee = () => {
   const contracts = useContracts();
 
   const protocolFeeData = useReadContract({
-    ...contracts.TellerV2,
+    ...contracts?.TellerV2,
     functionName: "protocolFee",
     staleTime: Infinity,
   });

@@ -111,11 +111,17 @@ export const useGetCommitmentsForCollateralToken = (
     [collateralTokenAddress, lcfAddress, lcfAlphaAddress]
   );
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["commitmentsForCollateralToken-", collateralTokenAddress],
     queryFn: async () => request(graphURL, collateralTokenCommitments),
     enabled: !!collateralTokenAddress,
-  }) as { data: { commitments: CommitmentType[] }; isLoading: boolean };
+  }) as {
+    data: { commitments: CommitmentType[] };
+    isLoading: boolean;
+    error: string;
+  };
+
+  if (error) console.error("commitmentsForCollateralToken Query error", error);
 
   return { data, isLoading };
 };

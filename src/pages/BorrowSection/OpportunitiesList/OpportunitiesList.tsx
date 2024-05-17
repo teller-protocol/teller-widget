@@ -146,6 +146,7 @@ const OpportunitiesList: React.FC = () => {
   const { data } = useGetCommitmentsForCollateralToken(
     selectedCollateralToken?.address
   );
+
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">

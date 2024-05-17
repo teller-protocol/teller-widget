@@ -5,20 +5,27 @@ Welcome to the Teller Widget! This widget allows any dapp to integrate Teller's 
 # Documentation
 - [API Reference](#requirements)
 
-# Requirements
+# Required packaages
 
-- React 18.2.0 or higher
+```bash
+ @tanstack/react-query
+ alchemy-sdk
+ graphql
+ graphql-request
+ react
+ react-dom
+```
 
 # Installation
 
-Install the widget by using npm or yarn
+Install the widget (and required packages) by using npm or yarn
 
 ```bash
-yarn add @teller-protocol/teller-widget
+yarn add @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom
 ```
 
 ```bash
-npm i --save @teller-protocol/teller-widget
+npm i --save @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom
 ```
 
 # Usage

@@ -60,19 +60,33 @@
   }
 
   .modal-content-title {
-    font-size: 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: $text-primary;
-    font-weight: 600;
 
     margin-bottom: $s-large;
+
+    .title-chain-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+
+      .chain-image {
+        margin-left: auto;
+        margin-right: 1rem;
+      }
+    }
+
+    .modal-title {
+      font-size: 22px;
+      font-weight: 600;
+    }
 
     .close-button {
       height: 100%;
       display: flex;
-      margin-left: auto;
+      align-items: center;
 
       :hover {
         cursor: pointer;
@@ -83,6 +97,7 @@
   .modal-footer-logo {
     margin-top: $s-normal;
     margin-bottom: 0.3rem;
-    text-align: center;
+    display: flex;
+    justify-content: center;
   }
 }

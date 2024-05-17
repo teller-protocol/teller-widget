@@ -5,8 +5,9 @@ import "./modal.scss";
 import tellerLogo from "../../assets/TellerLink.svg";
 
 import { Icon } from "@iconify/react";
-import { ReactNode, memo, useCallback, useEffect, useMemo } from "react";
+import { ReactNode, useCallback, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom";
+import ChainSwitch from "../ChainSwitch";
 
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
@@ -79,7 +80,10 @@ const Modal: React.FC<ModalProps> = ({
               <div className="modal-container-content-inner">
                 <div className="modal-content-title">
                   {!isWelcomeScreen && (
-                    <div className="modal-title">Cash Advance</div>
+                    <div className="title-chain-container">
+                      <div className="modal-title">Cash Advance</div>
+                      <ChainSwitch />
+                    </div>
                   )}
                   <div className="close-button">
                     <Icon

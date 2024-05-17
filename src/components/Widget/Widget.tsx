@@ -21,6 +21,7 @@ interface BaseWidgetProps {
   whitelistedTokens?: WhitelistedTokens;
   buttonClassName?: string;
   isBareButton?: boolean;
+  showModalByDefault?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -42,8 +43,9 @@ const Widget: React.FC<WidgetProps> = ({
   showOnlyWhiteListedTokens,
   buttonClassName,
   isBareButton,
+  showModalByDefault,
 }) => {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(showModalByDefault || false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
       localStorage.getItem("showTellerWidgetWelcomeScreen") ?? "true"
@@ -65,7 +67,7 @@ const Widget: React.FC<WidgetProps> = ({
               {showWelcomeScreen ? (
                 <WelcomeScreen onClick={() => setShowWelcomeScreen(false)} />
               ) : (
-                <ModalContent />
+                <ModalContent showModalByDefault={showModalByDefault} />
               )}
             </Modal>
             <Button

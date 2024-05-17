@@ -22,7 +22,7 @@ const Tooltip: React.FC<TooltipProps> = ({ description, className, icon }) => {
       >
         {icon}
       </div>
-      <ReactTooltip clickable={true} id={description} />
+      <ReactTooltip clickable={true} id={description} uuid="tool-tip" />
     </>
   );
 };

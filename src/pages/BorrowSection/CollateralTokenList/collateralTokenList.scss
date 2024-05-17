@@ -33,4 +33,9 @@
   .loader {
     margin-top: $s-normal;
   }
+
+  .unsupported-chain {
+    font-style: italic;
+    text-align: center;
+  }
 }

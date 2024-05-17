@@ -37,6 +37,12 @@ const meta = {
       defaultValue: false,
       description: "Flag to show only whitelisted tokens.",
     },
+    showModalByDefault: {
+      table: {
+        defaultValue: false,
+        disable: true,
+      },
+    },
   },
   args: {
     whitelistedTokens: {
@@ -62,6 +68,21 @@ export const Main: Story = {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <Widget {...args} />
+          <ConnectWalletButton />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+};
+
+export const AutoOpen: Story = {
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Widget {...args} showModalByDefault />
           <ConnectWalletButton />
         </QueryClientProvider>
       </WagmiProvider>
