@@ -46,11 +46,6 @@ const meta = {
   },
   args: {
     whitelistedTokens: {
-      [137]: [
-        "0x61299774020da444af134c82fa83e3810b309991",
-        "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
-        "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
-      ],
       [1]: [
         "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         "0xb23d80f5fefcddaa212212f028021b41ded428cf",
