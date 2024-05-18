@@ -51,7 +51,11 @@ const meta = {
         "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
         "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
       ],
-      [1]: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+      [1]: [
+        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "0xb23d80f5fefcddaa212212f028021b41ded428cf",
+        "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+      ],
     },
   },
 } satisfies Meta<typeof Widget>;
@@ -73,6 +77,7 @@ export const Main: Story = {
       </WagmiProvider>
     );
   },
+  tags: ["!autodocs"],
 };
 
 export const AutoOpen: Story = {
@@ -88,4 +93,5 @@ export const AutoOpen: Story = {
       </WagmiProvider>
     );
   },
+  tags: ["!autodocs"],
 };
