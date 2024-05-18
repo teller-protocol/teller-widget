@@ -3,7 +3,7 @@
 Welcome to the Teller Widget! This widget allows any dapp to integrate Teller's front end into their app and allow users to do cash advances with either the tokens in their wallets or a specified token list.
 
 # Documentation
-- [Getting Started] (https://docs.teller.org/teller-widget/getting-started)
+- [Getting Started](https://docs.teller.org/teller-widget/getting-started)
 - [API Reference](https://docs.teller.org/teller-widget/api-reference)
 
 # Required packaages
