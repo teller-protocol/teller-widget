@@ -24,11 +24,11 @@ Welcome to the Teller Widget! This widget allows any dapp to integrate Teller's 
 Install the widget (and required packages) by using npm or yarn
 
 ```bash
-yarn add @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom
+yarn add @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom @teller-protocol/v2-contracts
 ```
 
 ```bash
-npm i --save @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom
+npm i --save @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom @teller-protocol/v2-contracts
 ```
 
 # Usage
