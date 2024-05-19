@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAlchemy } from "./useAlchemy";
 import { TokenMetadataResponse } from "alchemy-sdk";
+import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
 
 export const useGetTokenMetadata = (
   tokenAddress: string,
@@ -10,17 +11,21 @@ export const useGetTokenMetadata = (
   const [isLoading, setIsLoading] = useState(true);
   const [tokenMetadata, setTokenMetadata] = useState<TokenMetadataResponse>();
 
+  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+
   useEffect(() => {
     if (!alchemy || !tokenAddress) return;
 
     void (async () => {
       await alchemy.core.getTokenMetadata(tokenAddress).then((metadata) => {
-        setTokenMetadata(metadata);
+        const logo =
+          metadata?.logo ?? getTokenImageFromTokenList(tokenAddress) ?? "";
+        setTokenMetadata({ ...metadata, logo });
         onSuccess && metadata && onSuccess?.(metadata.logo);
         setIsLoading(false);
       });
     })();
-  }, [alchemy, onSuccess, tokenAddress]);
+  }, [alchemy, getTokenImageFromTokenList, onSuccess, tokenAddress]);
 
   return { tokenMetadata, isLoading };
 };

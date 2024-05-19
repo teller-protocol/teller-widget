@@ -3,6 +3,8 @@ import { useAlchemy } from "./useAlchemy";
 import { useEffect, useState } from "react";
 import { Address, formatUnits, parseUnits } from "viem";
 import { WhitelistedTokens } from "../components/Widget/Widget";
+import { useGetTokenList } from "./queries/useGetTokenList";
+import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
 
 export type UserToken = {
   address: Address;
@@ -23,6 +25,8 @@ export const useGetUserTokens = (
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const alchemy = useAlchemy();
+
+  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
 
   useEffect(() => {
     if (!alchemy || skip) return;
@@ -67,7 +71,11 @@ export const useGetUserTokens = (
           await alchemy.core
             .getTokenMetadata(token.contractAddress)
             .then((metadata) => {
-              if (metadata.decimals === 0 || !metadata.logo) return;
+              if (metadata.decimals === 0) return;
+              const logo =
+                metadata.logo ??
+                getTokenImageFromTokenList(token.contractAddress) ??
+                "";
               const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
               const decimals = metadata.decimals ?? 0;
 
@@ -75,7 +83,7 @@ export const useGetUserTokens = (
                 address: token.contractAddress,
                 name: metadata.name ?? "",
                 symbol: metadata.symbol ?? "",
-                logo: metadata.logo,
+                logo,
                 balance: formatUnits(balanceBigInt, decimals),
                 balanceBigInt,
                 decimals,
@@ -86,7 +94,14 @@ export const useGetUserTokens = (
       setIsLoading(false);
       setUserTokens(userTokensData);
     })();
-  }, [address, alchemy, showOnlyWhiteListedTokens, skip, whiteListedTokens]);
+  }, [
+    address,
+    alchemy,
+    getTokenImageFromTokenList,
+    showOnlyWhiteListedTokens,
+    skip,
+    whiteListedTokens,
+  ]);
 
   return { userTokens, isLoading };
 };
