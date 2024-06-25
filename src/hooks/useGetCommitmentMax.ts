@@ -172,9 +172,12 @@ export const useCommitmentMax = ({
 
     const maxPrincipal = BigInt(minAmount ?? 0);
 
-    return !returnCalculatedLoanAmount && calculatedAmount > maxPrincipal
-      ? maxPrincipal
-      : calculatedAmount;
+    const loanAmount =
+      !returnCalculatedLoanAmount && calculatedAmount > maxPrincipal
+        ? maxPrincipal
+        : calculatedAmount;
+
+    return (loanAmount * BigInt(99_90)) / BigInt(10_000);
   }, [
     collateralAmount,
     collateralTokenDecimals,
@@ -182,6 +185,7 @@ export const useCommitmentMax = ({
     maxPrincipalPerCollateral,
     minAmount,
     principalTokenDecimals,
+    returnCalculatedLoanAmount,
   ]);
 
   const maxLoanAmountNumber = Number(
