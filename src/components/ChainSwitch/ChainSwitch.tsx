@@ -1,4 +1,5 @@
 import {
+  Chain,
   arbitrum,
   base,
   blast,
@@ -9,7 +10,6 @@ import {
   mode,
   optimism,
   polygon,
-  Chain,
 } from "viem/chains";
 import { useAccount, useSwitchChain } from "wagmi";
 
@@ -18,6 +18,7 @@ import caret from "../../assets/down-caret.svg";
 import cx from "classnames";
 
 import { useState } from "react";
+import useOutsideClick from "../../hooks/useOutsideClick";
 import "./chainSwitch.scss";
 
 interface ChainDropdownRowProps {
@@ -59,6 +60,8 @@ const ChainSwitch: React.FC = () => {
   const hasImage = !!chain?.id;
   const img = hasImage ? mapChainToImage[chain.id] : undefined;
 
+  const ref = useOutsideClick(() => setIsOpen(false));
+
   if (img === undefined) {
     return <></>;
   }
@@ -70,6 +73,7 @@ const ChainSwitch: React.FC = () => {
       <div
         className={cx("chain-dropdown", isOpen && "opened")}
         onClick={() => setIsOpen(!isOpen)}
+        ref={ref}
       >
         <img src={img} className={cx(!hasImage && "faded")} />
         <div className={cx("caret", isOpen && "opened")}>

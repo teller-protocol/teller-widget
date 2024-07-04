@@ -1,10 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { UseQueryResult, useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
 import { useEffect, useMemo, useState } from "react";
 
 import { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { useChainId } from "wagmi";
 
 interface Commitment {
   collateralToken: {
@@ -14,6 +15,7 @@ interface Commitment {
 
 export const useGetCommitmentsForUserTokens = () => {
   const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
+  const chainId = useChainId();
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
   const { userTokens } = useGetUserTokenContext();
@@ -43,11 +45,22 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens]
   );
 
-  const { data } = useQuery({
-    queryKey: ["commitmentsForUserTokens"],
+  const { data, refetch } = useQuery({
+    queryKey: [`commitmentsForUserTokens-${chainId}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
     enabled: !!hasTokens,
-  }) as { data: { commitments: Commitment[] }; isLoading: boolean };
+  }) as {
+    data: { commitments: Commitment[] };
+    isLoading: boolean;
+    refetch: any;
+  };
+
+  useEffect(() => {
+    void (async () => {
+      setLoading(true);
+      await refetch();
+    })();
+  }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
     if (!userTokens.length) setLoading(true);
