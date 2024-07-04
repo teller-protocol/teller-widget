@@ -12,6 +12,10 @@ import {
   polygon,
 } from "viem/chains";
 import { useAccount, useSwitchChain } from "wagmi";
+import arbitrumIcon from "../../assets/arbitrum.png";
+import baseIcon from "../../assets/base.png";
+import mainnetIcon from "../../assets/mainnet.png";
+import polygonIcon from "../../assets/polygon.png";
 
 import caret from "../../assets/down-caret.svg";
 
@@ -26,16 +30,16 @@ interface ChainDropdownRowProps {
 }
 
 const mapChainToImage: { [key: number]: string } = {
-  [arbitrum.id]: "https://l2beat.com/icons/arbitrum.png",
+  [arbitrum.id]: arbitrumIcon,
   [optimism.id]: "https://l2beat.com/icons/optimism.png",
-  [base.id]: "https://l2beat.com/icons/base.png",
+  [base.id]: baseIcon,
   [blast.id]: "https://l2beat.com/icons/blast.png",
   [mantle.id]: "https://l2beat.com/icons/mantle.png",
   [linea.id]: "https://l2beat.com/icons/linea.png",
   [manta.id]: "https://l2beat.com/icons/mantapacific.png",
   [mode.id]: "https://l2beat.com/icons/mode.png",
-  [polygon.id]: "https://s2.coinmarketcap.com/static/img/coins/64x64/3890.png",
-  [mainnet.id]: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
+  [polygon.id]: polygonIcon,
+  [mainnet.id]: mainnetIcon,
 };
 
 const supportedChains = [arbitrum, base, polygon, mainnet];
