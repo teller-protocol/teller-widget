@@ -51,6 +51,7 @@ const meta = {
         "0xb23d80f5fefcddaa212212f028021b41ded428cf",
         "0x6982508145454ce325ddbe47a25d4ec3d2311933",
       ],
+      [42161]: ["0x221a0f68770658c15b525d0f89f5da2baab5f321"],
     },
   },
 } satisfies Meta<typeof Widget>;

@@ -9,12 +9,20 @@ import {
   mode,
   optimism,
   polygon,
+  Chain,
 } from "viem/chains";
-import { useAccount } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
+
+import caret from "../../assets/down-caret.svg";
 
 import cx from "classnames";
 
+import { useState } from "react";
 import "./chainSwitch.scss";
+
+interface ChainDropdownRowProps {
+  chain: Chain;
+}
 
 const mapChainToImage: { [key: number]: string } = {
   [arbitrum.id]: "https://l2beat.com/icons/arbitrum.png",
@@ -29,8 +37,25 @@ const mapChainToImage: { [key: number]: string } = {
   [mainnet.id]: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
 };
 
+const supportedChains = [arbitrum, base, polygon, mainnet];
+
+const ChainDropdownRow: React.FC<ChainDropdownRowProps> = ({ chain }) => {
+  const { switchChain } = useSwitchChain();
+  const img = mapChainToImage[chain.id];
+
+  return (
+    <div
+      className="chain-dropdown-row"
+      onClick={() => switchChain({ chainId: chain.id })}
+    >
+      <img src={img} />
+    </div>
+  );
+};
+
 const ChainSwitch: React.FC = () => {
   const { chain } = useAccount();
+  const [isOpen, setIsOpen] = useState(false);
   const hasImage = !!chain?.id;
   const img = hasImage ? mapChainToImage[chain.id] : undefined;
 
@@ -38,9 +63,26 @@ const ChainSwitch: React.FC = () => {
     return <></>;
   }
 
+  const visibleChains = supportedChains.filter((c) => c.id !== chain?.id);
+
   return (
     <div className="chain-image">
-      <img src={img} className={cx(!hasImage && "faded")} />
+      <div
+        className={cx("chain-dropdown", isOpen && "opened")}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <img src={img} className={cx(!hasImage && "faded")} />
+        <div className={cx("caret", isOpen && "opened")}>
+          <img src={caret} />
+        </div>
+        {isOpen && (
+          <div className="chain-dropdown-row-container">
+            {visibleChains.map((chain) => (
+              <ChainDropdownRow chain={chain} key={chain.id} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

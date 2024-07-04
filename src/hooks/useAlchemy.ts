@@ -1,7 +1,6 @@
 import { Alchemy, Network } from "alchemy-sdk";
 import { useChainId } from "wagmi";
 
-// import { Alchemy, Network } from "alchemy-sdk";
 import { useMemo } from "react";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 import { ALCHEMY_API_KEY } from "../constants/global";
@@ -10,7 +9,7 @@ const mapChainIdToAlchemyNetworkKey: { [key: number]: Network | undefined } = {
   [mainnet.id]: Network.ETH_MAINNET,
   [polygon.id]: Network.MATIC_MAINNET,
   [arbitrum.id]: Network.ARB_MAINNET,
-  // [base.id]: Network.BASE_MAINNET,
+  [base.id]: Network.BASE_MAINNET,
 };
 
 export const useAlchemy = (): Alchemy | undefined => {
