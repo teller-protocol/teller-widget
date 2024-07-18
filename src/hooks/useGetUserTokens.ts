@@ -44,7 +44,8 @@ export const useGetUserTokens = (
       const whiteListedTokensWithBalances = whiteListedTokens?.map(
         (appToken) => {
           const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
-            (balance) => balance.contractAddress.toLowerCase() === appToken
+            (balance) =>
+              balance.contractAddress.toLowerCase() === appToken.toLowerCase()
           );
           if (tokenBalanceFromUserIndex > 0) {
             const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
