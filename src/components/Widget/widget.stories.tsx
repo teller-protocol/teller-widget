@@ -52,6 +52,7 @@ const meta = {
       ],
       [42161]: ["0x221a0f68770658c15b525d0f89f5da2baab5f321"],
     },
+    whitelistedChains: [1, 137, 42161, 8453],
   },
 } satisfies Meta<typeof Widget>;
 
