@@ -124,6 +124,24 @@ const App = () => {
 };
 ```
 
+### `whitelistedChains`
+
+An optional `array` to show desired chains. By default, the widget shows all chains.
+Available chains:
+* 1 (Ethereum),
+* 137 (Polygon)
+* 42161 (Arbitrum)
+* 8453 (Base)
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget whitelistedChains={[1,137]} />;
+};
+
+```
+
 # Development
 
 ## Testing

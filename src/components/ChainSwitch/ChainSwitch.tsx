@@ -24,6 +24,7 @@ import cx from "classnames";
 import { useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import "./chainSwitch.scss";
+import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
 
 interface ChainDropdownRowProps {
   chain: Chain;
@@ -63,6 +64,7 @@ const ChainSwitch: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const hasImage = !!chain?.id;
   const img = hasImage ? mapChainToImage[chain.id] : undefined;
+  const { whitelistedChains } = useGetUserTokenContext();
 
   const ref = useOutsideClick(() => setIsOpen(false));
 
@@ -70,7 +72,13 @@ const ChainSwitch: React.FC = () => {
     return <></>;
   }
 
-  const visibleChains = supportedChains.filter((c) => c.id !== chain?.id);
+  const filteredChains = whitelistedChains
+    ? supportedChains.filter((c) => whitelistedChains?.includes(c.id))
+    : supportedChains;
+
+  const visibleChains = filteredChains.filter((c) => c.id !== chain?.id);
+
+  const isSingleChain = visibleChains.length === 0;
 
   return (
     <div className="chain-image">
@@ -80,10 +88,12 @@ const ChainSwitch: React.FC = () => {
         ref={ref}
       >
         <img src={img} className={cx(!hasImage && "faded")} />
-        <div className={cx("caret", isOpen && "opened")}>
-          <img src={caret} />
-        </div>
-        {isOpen && (
+        {!isSingleChain && (
+          <div className={cx("caret", isOpen && "opened")}>
+            <img src={caret} />
+          </div>
+        )}
+        {isOpen && !isSingleChain && (
           <div className="chain-dropdown-row-container">
             {visibleChains.map((chain) => (
               <ChainDropdownRow chain={chain} key={chain.id} />

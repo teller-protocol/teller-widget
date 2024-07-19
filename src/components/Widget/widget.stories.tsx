@@ -49,7 +49,6 @@ const meta = {
       [1]: [
         "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         "0xb23d80f5fefcddaa212212f028021b41ded428cf",
-        "0x6982508145454ce325ddbe47a25d4ec3d2311933",
       ],
       [42161]: ["0x221a0f68770658c15b525d0f89f5da2baab5f321"],
     },

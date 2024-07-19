@@ -1,3 +1,4 @@
+import { useGetUserTokenContext } from "../contexts/UserTokensContext";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 import { useAccount } from "wagmi";
 
@@ -10,6 +11,10 @@ const supportedChains: number[] = [
 
 export const useIsSupportedChain = () => {
   const { chain, address } = useAccount();
+  const { whitelistedChains } = useGetUserTokenContext();
 
-  return !address || (chain?.id && supportedChains.includes(chain.id));
+  return (
+    !address ||
+    (chain?.id && (whitelistedChains ?? supportedChains)?.includes(chain.id))
+  );
 };

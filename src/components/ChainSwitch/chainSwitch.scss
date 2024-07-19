@@ -2,8 +2,8 @@
 
 .chain-image {
   img {
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
     display: flex;
 
     &.faded {
@@ -36,8 +36,8 @@
       top: 100%;
       padding: 10px 12px 10px $s-normal;
       z-index: 100;
-      width: 70px;
-      left: -1px;
+      width: 64px;
+      left: -.5px;
       border: 0.5px solid $border-color-secondary;
       display: flex;
       flex-direction: column;

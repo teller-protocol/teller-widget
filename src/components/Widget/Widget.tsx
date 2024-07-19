@@ -22,6 +22,7 @@ interface BaseWidgetProps {
   buttonClassName?: string;
   isBareButton?: boolean;
   showModalByDefault?: boolean;
+  whitelistedChains?: number[];
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -44,6 +45,7 @@ const Widget: React.FC<WidgetProps> = ({
   buttonClassName,
   isBareButton,
   showModalByDefault,
+  whitelistedChains,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
@@ -57,6 +59,7 @@ const Widget: React.FC<WidgetProps> = ({
         <TokensContextProvider
           whitelistedTokens={whitelistedTokens}
           showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
+          whitelistedChains={whitelistedChains}
         >
           <div className="teller-widget">
             <Modal
