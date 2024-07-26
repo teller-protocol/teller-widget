@@ -95,9 +95,18 @@
   }
 
   .modal-footer-logo {
+    a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
     margin-top: $s-normal;
     margin-bottom: 0.3rem;
-    display: flex;
-    justify-content: center;
+
+    .logo {
+      width: 69px;
+      height: 100%;
+    }
   }
 }

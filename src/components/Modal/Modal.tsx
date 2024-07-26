@@ -2,7 +2,9 @@ import cx from "classnames";
 
 import "./modal.scss";
 
-import tellerLogo from "../../assets/TellerLink.svg";
+import tellerLight from "../../assets/TellerLight.svg";
+import tellerDark from "../../assets/TellerDark.svg";
+import link from "../../assets/link.svg";
 
 import { Icon } from "@iconify/react";
 import { ReactNode, useCallback, useEffect, useMemo } from "react";
@@ -21,6 +23,7 @@ type ModalProps = {
   closeModal?: () => void;
   showModal: boolean;
   isWelcomeScreen?: boolean;
+  useLightLogo?: boolean;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -28,6 +31,7 @@ const Modal: React.FC<ModalProps> = ({
   closeModal,
   showModal,
   isWelcomeScreen,
+  useLightLogo,
 }: ModalProps) => {
   const portal = createWrapperAndAppendToBody("teller-widget");
 
@@ -50,6 +54,8 @@ const Modal: React.FC<ModalProps> = ({
   const handleClose = useCallback(() => {
     closeModal?.();
   }, [closeModal]);
+
+  const tellerLogo = useLightLogo ? tellerLight : tellerDark;
 
   const node = useMemo(
     () =>
@@ -103,7 +109,8 @@ const Modal: React.FC<ModalProps> = ({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <img src={tellerLogo} />
+                    <img src={tellerLogo} className="logo" />
+                    <img src={link} />
                   </a>
                 </div>
               )}
@@ -111,7 +118,7 @@ const Modal: React.FC<ModalProps> = ({
           </div>
         </div>
       ),
-    [children, handleClose, isWelcomeScreen, showModal]
+    [children, handleClose, isWelcomeScreen, showModal, tellerLogo]
   );
 
   return ReactDOM.createPortal(node, portal);

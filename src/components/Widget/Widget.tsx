@@ -23,6 +23,7 @@ interface BaseWidgetProps {
   isBareButton?: boolean;
   showModalByDefault?: boolean;
   whitelistedChains?: number[];
+  useLightLogo?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -46,6 +47,7 @@ const Widget: React.FC<WidgetProps> = ({
   isBareButton,
   showModalByDefault,
   whitelistedChains,
+  useLightLogo,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
@@ -66,6 +68,7 @@ const Widget: React.FC<WidgetProps> = ({
               closeModal={() => setShowModal(false)}
               showModal={showModal}
               isWelcomeScreen={showWelcomeScreen}
+              useLightLogo={useLightLogo}
             >
               {showWelcomeScreen ? (
                 <WelcomeScreen onClick={() => setShowWelcomeScreen(false)} />
