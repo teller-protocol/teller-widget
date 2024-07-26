@@ -7,7 +7,6 @@ import TokenLogo from "../TokenLogo";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
-import DownCaret from "../DownCaret";
 import { Icon } from "@iconify/react";
 
 interface TokenDropdownProps {
