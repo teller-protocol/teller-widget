@@ -33,8 +33,6 @@ const Modal: React.FC<ModalProps> = ({
   isWelcomeScreen,
   useLightLogo,
 }: ModalProps) => {
-  const portal = createWrapperAndAppendToBody("teller-widget");
-
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -121,8 +119,10 @@ const Modal: React.FC<ModalProps> = ({
     [children, handleClose, isWelcomeScreen, showModal, tellerLogo]
   );
 
-  if (typeof document !== "undefined")
+  if (typeof document !== "undefined") {
+    const portal = createWrapperAndAppendToBody("teller-widget");
     return ReactDOM.createPortal(node, portal);
+  }
 };
 
 export default Modal;
