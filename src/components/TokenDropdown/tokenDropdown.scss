@@ -34,20 +34,24 @@
   }
 
   .caret {
-    align-self: stretch;
+    align-items: center;
     padding-left: $s-small;
     border-left: 0.5px solid $border-color-secondary;
-    margin: -.6rem 0 -.7rem; // extend the border passed parents padding
+    margin: -0.6rem 0 -0.7rem; // extend the border passed parents padding
     display: flex;
     transition: transform 0.3s ease;
+
+    svg {
+      transform: rotate(180deg);
+    }
 
     img {
       width: 100%;
     }
 
     &.opened {
-      img {
-        transform: rotate(180deg);
+      svg {
+        transform: rotate(0deg);
       }
     }
   }

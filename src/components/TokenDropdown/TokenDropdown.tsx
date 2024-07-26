@@ -3,11 +3,12 @@ import cx from "classnames";
 
 import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
-import caret from "../../assets/down-caret.svg";
 
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
+import DownCaret from "../DownCaret";
+import { Icon } from "@iconify/react";
 
 interface TokenDropdownProps {
   tokens: UserToken[];
@@ -56,7 +57,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
       >
         <TokenDropdownRow token={token} />
         <div className={cx("caret", isOpen && "opened")}>
-          <img src={caret} />
+          <Icon icon="clarity:caret-line" />
         </div>
       </div>
       {isOpen && tokens.length > 0 && (

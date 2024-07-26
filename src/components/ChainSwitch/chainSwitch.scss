@@ -37,7 +37,7 @@
       padding: 10px 12px 10px $s-normal;
       z-index: 100;
       width: 64px;
-      left: -.5px;
+      left: -0.5px;
       border: 0.5px solid $border-color-secondary;
       display: flex;
       flex-direction: column;
@@ -57,14 +57,15 @@
     display: flex;
     transition: transform 0.3s ease;
 
-    img {
+    svg {
       width: 15px;
       height: 15px;
+      transform: rotate(180deg);
     }
 
     &.opened {
-      img {
-        transform: rotate(180deg);
+      svg {
+        transform: rotate(0deg);
       }
     }
   }

@@ -40,10 +40,13 @@
     margin: -$s-small 0; // extend the border passed parents padding
     display: flex;
     transition: transform 0.3s ease;
+    svg {
+      transform: rotate(180deg);
+    }
 
     &.opened {
-      img {
-        transform: rotate(180deg);
+      svg {
+        transform: rotate(0deg);
       }
     }
   }

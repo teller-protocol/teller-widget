@@ -17,14 +17,13 @@ import baseIcon from "../../assets/base.png";
 import mainnetIcon from "../../assets/mainnet.png";
 import polygonIcon from "../../assets/polygon.png";
 
-import caret from "../../assets/down-caret.svg";
-
 import cx from "classnames";
 
 import { useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import "./chainSwitch.scss";
 import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { Icon } from "@iconify/react";
 
 interface ChainDropdownRowProps {
   chain: Chain;
@@ -90,7 +89,7 @@ const ChainSwitch: React.FC = () => {
         <img src={img} className={cx(!hasImage && "faded")} />
         {!isSingleChain && (
           <div className={cx("caret", isOpen && "opened")}>
-            <img src={caret} />
+            <Icon icon="clarity:caret-line" />
           </div>
         )}
         {isOpen && !isSingleChain && (

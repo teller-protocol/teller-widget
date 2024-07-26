@@ -1,10 +1,9 @@
 import cx from "classnames";
 import { useState } from "react";
 
-import caret from "../../assets/down-caret.svg";
-
 import useOutsideClick from "../../hooks/useOutsideClick";
 import "./dropdown.scss";
+import { Icon } from "@iconify/react";
 
 export interface DropdownOption<L = React.ReactNode> {
   label: string;
@@ -58,7 +57,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           <DropdownRow option={selectedOption} />
           {!readonly && (
             <div className={cx("caret", isOpen && "opened")}>
-              <img src={caret} />
+              <Icon icon="clarity:caret-line" />
             </div>
           )}
         </div>
