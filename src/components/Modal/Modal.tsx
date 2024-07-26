@@ -121,7 +121,7 @@ const Modal: React.FC<ModalProps> = ({
     [children, handleClose, isWelcomeScreen, showModal, tellerLogo]
   );
 
-  return ReactDOM.createPortal(node, portal);
+  if (typeof window !== "undefined") return ReactDOM.createPortal(node, portal);
 };
 
 export default Modal;
