@@ -62,7 +62,7 @@ const BorrowerTerms: React.FC = () => {
   );
 
   const handleOnClick = () => {
-    localStorage.setItem("borrowTermsAccepted", "true");
+    localStorage?.setItem("borrowTermsAccepted", "true");
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
   };
 

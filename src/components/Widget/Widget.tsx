@@ -52,7 +52,7 @@ const Widget: React.FC<WidgetProps> = ({
   const [showModal, setShowModal] = useState(showModalByDefault || false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
-      localStorage.getItem("showTellerWidgetWelcomeScreen") ?? "true"
+      localStorage?.getItem("showTellerWidgetWelcomeScreen") ?? "true"
     ) as boolean
   );
   return (

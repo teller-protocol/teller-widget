@@ -7,7 +7,7 @@ import { useGraphURL } from "../useGraphURL";
 
 export const useIsNewBorrower = () => {
   const graphURL = useGraphURL();
-  const borrowTermsAccepted = localStorage.getItem("borrowTermsAccepted");
+  const borrowTermsAccepted = localStorage?.getItem("borrowTermsAccepted");
 
   const { address } = useAccount();
 

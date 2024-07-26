@@ -11,7 +11,7 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
   const handleOnClick = () => {
-    localStorage.setItem("showTellerWidgetWelcomeScreen", "false");
+    localStorage?.setItem("showTellerWidgetWelcomeScreen", "false");
     onClick();
   };
   return (
