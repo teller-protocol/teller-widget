@@ -9,6 +9,7 @@ import ModalContent from "../ModalContent";
 
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 const queryClient = new QueryClient();
 
@@ -50,11 +51,13 @@ const Widget: React.FC<WidgetProps> = ({
   useLightLogo,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
+
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
-      localStorage?.getItem("showTellerWidgetWelcomeScreen") ?? "true"
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
     ) as boolean
   );
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

@@ -4,10 +4,11 @@ import { useMemo } from "react";
 import { useAccount } from "wagmi";
 
 import { useGraphURL } from "../useGraphURL";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 export const useIsNewBorrower = () => {
   const graphURL = useGraphURL();
-  const borrowTermsAccepted = localStorage?.getItem("borrowTermsAccepted");
+  const borrowTermsAccepted = getItemFromLocalStorage("borrowTermsAccepted");
 
   const { address } = useAccount();
 

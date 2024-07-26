@@ -4,6 +4,7 @@ import tellerLogoFull from "../../assets/tellerLogoFull.svg";
 import Button from "../../components/Button";
 
 import "./welcomeScreen.scss";
+import { setItemInLocalStorage } from "../../helpers/localStorageUtils";
 
 interface WelcomeScreenProps {
   onClick: () => void;
@@ -11,7 +12,7 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onClick }) => {
   const handleOnClick = () => {
-    localStorage?.setItem("showTellerWidgetWelcomeScreen", "false");
+    setItemInLocalStorage("showTellerWidgetWelcomeScreen", "false");
     onClick();
   };
   return (

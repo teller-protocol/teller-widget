@@ -8,6 +8,7 @@ import {
 } from "../BorrowSectionContext";
 
 import "./borrowerTerms.scss";
+import { setItemInLocalStorage } from "../../../helpers/localStorageUtils";
 
 const BorrowerTerms: React.FC = () => {
   const { setCurrentStep } = useGetBorrowSectionContext();
@@ -62,7 +63,7 @@ const BorrowerTerms: React.FC = () => {
   );
 
   const handleOnClick = () => {
-    localStorage?.setItem("borrowTermsAccepted", "true");
+    setItemInLocalStorage("borrowTermsAccepted", "true");
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
   };
 
