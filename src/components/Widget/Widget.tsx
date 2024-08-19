@@ -25,6 +25,8 @@ interface BaseWidgetProps {
   showModalByDefault?: boolean;
   whitelistedChains?: number[];
   useLightLogo?: boolean;
+  referralFee?: number;
+  referralAddress?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -49,13 +51,15 @@ const Widget: React.FC<WidgetProps> = ({
   showModalByDefault,
   whitelistedChains,
   useLightLogo,
+  referralFee = 0,
+  referralAddress = "0x0000000000000000000000000000000000000000",
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
-    ) as boolean
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true",
+    ) as boolean,
   );
 
   return (
@@ -65,6 +69,8 @@ const Widget: React.FC<WidgetProps> = ({
           whitelistedTokens={whitelistedTokens}
           showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
           whitelistedChains={whitelistedChains}
+          referralFee={referralFee}
+          referralAddress={referralAddress}
         >
           <div className="teller-widget">
             <Modal

@@ -80,10 +80,11 @@ const OpportunityDetails = () => {
   }
 
   const { protocolFeePercent } = useGetProtocolFee();
+  const { referralFee } = useGetUserTokenContext();
 
   const totalFeePercent =
     protocolFeePercent +
-    +(selectedOpportunity?.marketplace?.marketplaceFeePercent ?? 0);
+    +(selectedOpportunity?.marketplace?.marketplaceFeePercent ?? 0) + (referralFee ?? 0);
 
   const totalFees = (maxLoanAmountNumber * totalFeePercent) / 10000;
 

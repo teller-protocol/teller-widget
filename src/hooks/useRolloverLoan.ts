@@ -2,8 +2,10 @@
 import { useAccount, useChainId } from "wagmi";
 import { Loan } from "./queries/useGetActiveLoansForUser";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
+import { useGetUserTokenContext } from "../contexts/UserTokensContext";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import { useContracts } from "./useContracts";
+import { rfwAddressMap } from "../constants/rfwAddress";
 import {
   ContractType,
   SupportedContractsEnum,
@@ -22,7 +24,7 @@ export const calculateCollateralRequiredForPrincipal = (
   maxPrincipalPerCollateralRatio: bigint, // ratio of max principal to collateral
   principalTokenDecimals: number,
   collateralTokenDecimals: number,
-  isCommitmentFromLCFAlpha: boolean
+  isCommitmentFromLCFAlpha: boolean,
 ): bigint => {
   if (isNaN(principalTokenDecimals))
     throw new Error("principalTokenDecimals must be a number");
@@ -56,7 +58,7 @@ export const calculatePrincipalReceivedPerCollateral = (
   maxPrincipalPerCollateralRatio: bigint,
   principalTokenDecimals: number,
   collateralTokenDecimals: number,
-  isCommitmentFromLCFAlpha: boolean = false
+  isCommitmentFromLCFAlpha: boolean = false,
 ) => {
   if (isNaN(principalTokenDecimals))
     throw new Error("principalTokenDecimals must be a number");
@@ -84,7 +86,7 @@ const useRolloverLoan = (
   rolloverCommitment: CommitmentType, // selected from the 'best' fitting commitment by Z Score
   maxCollateral: bigint,
   isInputMoreThanMaxCollateral?: boolean,
-  maxLoanAmount?: bigint
+  maxLoanAmount?: bigint,
 ) => {
   const { address: walletConnectedAddress } = useAccount();
 
@@ -114,6 +116,10 @@ const useRolloverLoan = (
 
   const chainId = useChainId();
 
+  const rfwAddress = rfwAddressMap[chainId];
+
+  const { referralFee, referralAddress } = useGetUserTokenContext();
+
   const { flashRolloverLoanContractData, flashRolloverLoanAddress } =
     useMemo(() => {
       const flashRolloverLoanContractData =
@@ -126,19 +132,18 @@ const useRolloverLoan = (
   const { data: collateralManagerAddress } = useReadContract<string>(
     SupportedContractsEnum.TellerV2,
     "collateralManager",
-    []
+    [],
   );
 
   const collateral = bid.collateral[0];
 
   const tokenContractName = bid.lendingToken.address;
-
   const { data: flashRolloverAllowance } = useReadContract(
     tokenContractName,
     "allowance",
-    [walletConnectedAddress, flashRolloverLoanAddress],
+    [walletConnectedAddress, rfwAddress],
     false,
-    ContractType.ERC20
+    ContractType.ERC20,
   );
 
   const { data: collateralAllowance = 0n } = useReadContract(
@@ -146,7 +151,7 @@ const useRolloverLoan = (
     "allowance",
     [walletConnectedAddress, collateralManagerAddress],
     !collateral?.collateralAddress,
-    ContractType.ERC20
+    ContractType.ERC20,
   );
 
   const walletBalance = useReadContract(
@@ -154,7 +159,7 @@ const useRolloverLoan = (
     "balanceOf",
     [walletConnectedAddress],
     false,
-    ContractType.ERC20
+    ContractType.ERC20,
   );
 
   const hasApprovedForwarder = useReadContract<boolean>(
@@ -165,14 +170,14 @@ const useRolloverLoan = (
       commitmentForwarderAddress,
       walletConnectedAddress,
     ],
-    !rolloverCommitment?.marketplaceId
+    !rolloverCommitment?.marketplaceId,
   );
 
   const hasAddedExtension = useReadContract<boolean>(
     lcfContractName,
     "hasExtension",
-    [walletConnectedAddress, flashRolloverLoanAddress],
-    !rolloverCommitment?.marketplaceId
+    [walletConnectedAddress, rfwAddress],
+    !rolloverCommitment?.marketplaceId,
   );
 
   const [cachedNow] = useState(+(Date.now() / 1000).toFixed());
@@ -196,12 +201,12 @@ const useRolloverLoan = (
         BigInt(maxPrincipalPerCollateral ?? 0),
         principalTokenDecimals,
         collateralTokenDecimals,
-        isCommitmentFromLCFAlpha
+        isCommitmentFromLCFAlpha,
       );
 
     return bigIntMin(
       maximumRolloverLoanPrincipalAmount,
-      BigInt(rolloverCommitment?.committedAmount ?? 0)
+      BigInt(rolloverCommitment?.committedAmount ?? 0),
     );
   }, [
     maxCollateral,
@@ -214,7 +219,7 @@ const useRolloverLoan = (
   ]); // use memo
 
   const rolloverLoanPrincipalAmount = BigInt(
-    maximumRolloverLoanPrincipalAmount
+    maximumRolloverLoanPrincipalAmount,
   ).toString();
 
   // alternatively could just use the collateral that was in the original loan since it should match anyways
@@ -223,12 +228,13 @@ const useRolloverLoan = (
     BigInt(maxPrincipalPerCollateral ?? 0),
     principalTokenDecimals,
     collateralTokenDecimals,
-    isCommitmentFromLCFAlpha
+    isCommitmentFromLCFAlpha,
   );
 
   const acceptCommitmentArgs: any = useMemo(
     () => ({
       commitmentId: rolloverCommitment?.id,
+      smartCommitmentAddress: "0x0000000000000000000000000000000000000000",
       principalAmount: maxLoanAmount,
       collateralAmount: collateralAmount,
       collateralTokenId: 0,
@@ -244,7 +250,7 @@ const useRolloverLoan = (
       rolloverCommitment?.maxDuration,
       maxLoanAmount,
       collateralAmount,
-    ]
+    ],
   );
 
   const flashloanPremiumPct = 9; // for aave
@@ -262,7 +268,7 @@ const useRolloverLoan = (
       acceptCommitmentArgs,
       flashloanPremiumPct,
       future15Mins,
-    ]
+    ],
   );
 
   const borrowerAmount =
@@ -283,7 +289,7 @@ const useRolloverLoan = (
       setRolloverCommitment,
       setSuccessRolloverLoanHash,
       setSuccessfulRolloverParams,
-    ]
+    ],
   );
 
   const transactions = useMemo(() => {
@@ -348,7 +354,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
           loadingButtonLabel: "Enabling rollover...",
           contractName: lcfContractName,
           functionName: "addExtension",
-          args: [flashRolloverLoanAddress],
+          args: [rfwAddress],
         });
         id++;
       }
@@ -356,7 +362,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       if (borrowerAmount > BigInt(flashRolloverAllowance)) {
         steps.push({
           contractName: bid?.lendingTokenAddress,
-          args: [flashRolloverLoanAddress, borrowerAmount * 10n],
+          args: [rfwAddress, borrowerAmount * 10n],
           functionName: "approve",
           buttonLabel: `Approve ${bid.lendingToken.symbol}`,
           loadingButtonLabel: `Approving ${bid.lendingToken.symbol}...`,
@@ -385,13 +391,15 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       // -----
 
       steps.push({
-        contractName: SupportedContractsEnum.FlashRolloverLoan,
+        contractName: SupportedContractsEnum.RolloverForWidget,
         functionName: "rolloverLoanWithFlash",
         args: [
           rolloverCommitment?.forwarderAddress,
           loanId,
           flashLoanAmount,
           borrowerAmount,
+          referralFee, //_rewardAmount ie fee
+          referralAddress, //_rewardRecipient
           acceptCommitmentArgs,
         ],
         buttonLabel: `Rollover loan`,
@@ -399,6 +407,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         errorMessage,
         isStepDisabled: !!errorMessage,
         id,
+        contractType: ContractType.External,
         onSuccess,
       });
       id++;

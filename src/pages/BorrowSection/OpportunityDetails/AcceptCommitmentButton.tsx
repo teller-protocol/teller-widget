@@ -8,6 +8,7 @@ import TransactionButton, {
 import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { lrfAddressMap } from "../../../constants/lrfAddresses";
 import { useContracts } from "../../../hooks/useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "../../../hooks/useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import {
@@ -43,7 +44,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     setBidId,
   } = useGetBorrowSectionContext();
   const collateralTokenBalance = userTokens.find(
-    (token) => token.address === collateralToken?.token?.address
+    (token) => token.address === collateralToken?.token?.address,
   )?.balance;
 
   const hasInsufficientCollateral =
@@ -52,6 +53,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const isNotConnected = !address;
 
   const chainId = useChainId();
+  const { referralFee, referralAddress } = useGetUserTokenContext();
+  const lrfAddress = lrfAddressMap[chainId];
 
   // const signer: any = useSigner({
   //   chainId: chain?.id,
@@ -65,6 +68,10 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
   const commitmentForwarderAddress = commitment?.forwarderAddress;
 
+  const lcfContractName = isCommitmentFromLCFAlpha
+    ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
+    : SupportedContractsEnum.LenderCommitmentForwarderStaging;
+
   // const { isNativeToken } = useIsNativeToken(collateralToken?.token?.symbol);
 
   // const WMatic = contracts[SupportedContractsEnum.WMatic];
@@ -77,13 +84,20 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     SupportedContractsEnum.TellerV2,
     "hasApprovedMarketForwarder",
     [commitment?.marketplaceId, commitmentForwarderAddress, address],
-    !commitment?.marketplaceId
+    !commitment?.marketplaceId,
+  );
+
+  const hasAddedExtension = useReadContract<boolean>(
+    lcfContractName,
+    "hasExtension",
+    [address, lrfAddress],
+    !commitment?.marketplaceId,
   );
 
   const { data: collateralManagerAddress } = useReadContract<string>(
     SupportedContractsEnum.TellerV2,
     "collateralManager",
-    []
+    [],
   );
 
   const collateralAllowance = useReadContract<bigint>(
@@ -91,7 +105,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     "allowance",
     [address, collateralManagerAddress],
     false,
-    ContractType.ERC20
+    ContractType.ERC20,
   );
 
   const isLoadingTransactionInfo =
@@ -103,7 +117,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       setSuccessLoanHash(data);
       setSuccessfulLoanParams(params);
     },
-    [setCurrentStep, setSuccessLoanHash, setSuccessfulLoanParams]
+    [setCurrentStep, setSuccessLoanHash, setSuccessfulLoanParams],
   );
 
   const steps = useMemo<TransactionStepConfig[][]>(() => {
@@ -119,6 +133,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
     const row2: TransactionStepConfig[] = [];
     const row3: TransactionStepConfig[] = [];
+    const row301: TransactionStepConfig[] = [];
     steps.push(row2);
     if (isNotConnected) {
       row2.push({
@@ -135,6 +150,17 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
         contractName: SupportedContractsEnum.TellerV2,
         functionName: "approveMarketForwarder",
         args: [commitment.marketplaceId, commitmentForwarderAddress],
+      });
+    }
+
+    steps.push(row301);
+    if (!hasAddedExtension.isLoading && !hasAddedExtension.data) {
+      row301.push({
+        buttonLabel: "Enable Widget",
+        loadingButtonLabel: "Enabling widget...",
+        contractName: lcfContractName,
+        functionName: "addExtension",
+        args: [lrfAddress],
       });
     }
 
@@ -180,30 +206,31 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     const row4: TransactionStepConfig[] = [];
     steps.push(row4);
 
-    const step3FunctionName = "acceptCommitment";
+    const step3FunctionName = "acceptCommitmentWithReferral";
 
     const step3Args = [
+      commitmentForwarderAddress,
       commitment.id,
+      "0x0000000000000000000000000000000000000000", // _smartCommitmentAddress
       principalToken,
       collateralToken?.valueBI,
-      0, // collateral token ID (only used for NFTs)
-      // isNativeToken
-      //   ? wrappedTokenContractAddress
-      //   : collateralToken.token.address,
+      0,
       commitment.collateralToken?.address,
       commitment.minAPY,
       commitment.maxDuration,
+      address, // recipient, this wallet address
+      referralFee, // _reward
+      referralAddress, // _rewardRecipient
     ];
 
     if (!isLoadingTransactionInfo)
       row4.push({
-        buttonLabel: <span>Deposit & Borrow</span>,
+        buttonLabel: <span>Deposit & Borrow Referral</span>,
         loadingButtonLabel: <span>Executing Loan...</span>,
-        contractName: isCommitmentFromLCFAlpha
-          ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-          : SupportedContractsEnum.LenderCommitmentForwarder,
+        contractName: SupportedContractsEnum.LoanReferralForwarder,
         functionName: step3FunctionName,
         args: step3Args,
+        contractType: ContractType.External,
         onSuccess,
       });
 
@@ -213,6 +240,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     isNotConnected,
     hasApprovedForwarder.isLoading,
     hasApprovedForwarder.data,
+    hasAddedExtension.isLoading,
+    hasAddedExtension.data,
     collateralAllowance.data,
     collateralToken,
     principalToken,

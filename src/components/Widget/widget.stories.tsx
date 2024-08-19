@@ -43,6 +43,14 @@ const meta = {
         disable: true,
       },
     },
+    referralFee: {
+      description: "Referral fee %, in basis points. For example, 100 = 1%.",
+      defaultValue: "0",
+    },
+    referralAddress: {
+      description: "Recipient wallet address to recevie referral fee.",
+      defaultValue: "0x0000000000000000000000000000000000000000",
+    },
   },
   args: {
     whitelistedTokens: {

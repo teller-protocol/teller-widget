@@ -10,6 +10,7 @@ import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";
 import LoanLink from "../../components/LoanLink";
 import { useGetRolloverableCommitments } from "../../hooks/queries/useGetRolloverableCommitments";
+import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
 import { useChainTerms } from "../../hooks/useChainTerms";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "../../hooks/useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import {
@@ -147,6 +148,7 @@ const RolloverLoan: React.FC = () => {
   const chainId = useChainId();
 
   const { protocolFeePercent } = useGetProtocolFee();
+  const { referralFee } = useGetUserTokenContext();
 
   const { address: userAddress } = useAccount();
 
@@ -422,7 +424,7 @@ const RolloverLoan: React.FC = () => {
     );
 
   const marketplaceFee = +(commitment?.marketplace?.marketplaceFeePercent ?? 0);
-  const totalFeePercent = 10000 - ((protocolFeePercent ?? 0) + marketplaceFee);
+  const totalFeePercent = 10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
 
   const amountToPay =
     (maxLoanAmount * BigInt(totalFeePercent)) / BigInt(10000) -

@@ -11,6 +11,8 @@ export enum SupportedContractsEnum {
   "LenderCommitmentForwarder" = "LenderCommitmentForwarder",
   "LenderCommitmentForwarderStaging" = "LenderCommitmentForwarderStaging",
   "LenderCommitmentForwarderAlpha" = "LenderCommitmentForwarderAlpha",
+  "LoanReferralForwarder" = "LoanReferralForwarder",
+  "RolloverForWidget" = "RolloverForWidget",
   "MarketLiquidityRewards" = "MarketLiquidityRewards",
   "CollateralManager" = "CollateralManager",
 }
@@ -18,6 +20,7 @@ export enum SupportedContractsEnum {
 export enum ContractType {
   Teller = "Teller",
   ERC20 = "ERC20",
+  External = "External",
 }
 
 export const useReadContract = <T = any>(
@@ -25,7 +28,7 @@ export const useReadContract = <T = any>(
   functionName: string,
   args: any[],
   skipRun = false,
-  contractType = ContractType.Teller
+  contractType = ContractType.Teller,
 ) => {
   const contracts = useContracts();
   const chainId = useChainId();
@@ -35,7 +38,7 @@ export const useReadContract = <T = any>(
       [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
     }),
-    [contractName, contracts]
+    [contractName, contracts],
   );
 
   const address =

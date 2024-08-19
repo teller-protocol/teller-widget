@@ -41,14 +41,14 @@ const RolloverConfirmation = () => {
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[4].principalAmount,
+      successfulLoanParams.args[6].principalAmount,
       principalToken?.decimals ?? 0
     )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[4].collateralAmount,
+      successfulLoanParams.args[6].collateralAmount,
       collateralToken?.decimals ?? 0
     )
   );

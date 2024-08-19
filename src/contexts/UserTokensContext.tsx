@@ -10,6 +10,8 @@ export type TokensContextType = {
   whitelistedChainTokens: string[];
   isWhitelistedToken: (token: Address | undefined) => boolean;
   whitelistedChains?: number[];
+  referralFee?: number;
+  referralAddress?: string;
 };
 
 interface TokensContextProps {
@@ -17,6 +19,8 @@ interface TokensContextProps {
   whitelistedTokens?: WhitelistedTokens;
   showOnlyWhiteListedTokens?: boolean;
   whitelistedChains?: number[];
+  referralFee?: number;
+  referralAddress?: string;
 }
 
 const UserTokensContext = createContext({} as TokensContextType);
@@ -26,6 +30,8 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
   whitelistedTokens,
   showOnlyWhiteListedTokens,
   whitelistedChains,
+  referralFee,
+  referralAddress,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -60,6 +66,8 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
         isWhitelistedToken,
         whitelistedChainTokens,
         whitelistedChains,
+        referralFee,
+        referralAddress,
       }}
     >
       {children}
