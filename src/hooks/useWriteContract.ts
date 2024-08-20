@@ -5,7 +5,7 @@ import {
   useWriteContract as useWagmiWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import externalContracts from "../constants/externalContracts.ts";
+import externalContracts from "../constants/externalContracts";
 import { useChainId } from "wagmi";
 
 import { useContracts } from "./useContracts";
@@ -36,8 +36,7 @@ export const useWriteContract = ({
   const chainId = useChainId();
   const mapContractTypeToAbi = {
     [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
-    [ContractType.External]:
-      externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
+    [ContractType.External]:externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
     [ContractType.ERC20]: erc20Abi,
   };
 
@@ -46,9 +45,8 @@ export const useWriteContract = ({
 
   const contractAddress = isTellerContract
     ? contracts[contractName ?? ""]?.address
-    : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
-      contractName;
-  
+    : externalContracts[chainId]["contracts"][contractName ?? ""]?.address || contractName;
+
   const {
     data: simulatedData,
     error: simulatedError,
@@ -80,6 +78,10 @@ export const useWriteContract = ({
 
   const isError = simulatedError || writeError;
   const error = simulatedError || writeError;
+
+  if (isError) {
+    console.log("error: " + error);
+  }
 
   return useMemo(
     () => ({

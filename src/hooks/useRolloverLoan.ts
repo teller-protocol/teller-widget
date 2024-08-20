@@ -260,15 +260,18 @@ const useRolloverLoan = (
     isLoading: calcRolloverIsLoading,
     error,
   } = useReadContract(
-    SupportedContractsEnum.FlashRolloverLoan,
+    SupportedContractsEnum.RolloverForWidget,
     `calculateRolloverAmount`,
     [
       rolloverCommitment?.forwarderAddress,
       bid.bidId,
       acceptCommitmentArgs,
+      referralFee,
       flashloanPremiumPct,
       future15Mins,
     ],
+    false,
+    ContractType.External,
   );
 
   const borrowerAmount =
