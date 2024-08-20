@@ -56,6 +56,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const { referralFee, referralAddress } = useGetUserTokenContext();
   const lrfAddress = lrfAddressMap[chainId];
 
+  const referralFeeAmount = (BigInt(referralFee) * principalToken)/BigInt(10000);
+
   // const signer: any = useSigner({
   //   chainId: chain?.id,
   // });
@@ -79,6 +81,27 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
   // const { wrappedTokenContractAddress, wrappedTokenContractABI } =
   //   useWrappedData();
+
+  const acceptCommitmentArgs: any = useMemo(
+    () => ({
+      commitmentId: commitment?.id,
+      smartCommitmentAddress: "0x0000000000000000000000000000000000000000",
+      principalAmount: principalToken,
+      collateralAmount: collateralToken?.valueBI,
+      collateralTokenId: 0,
+      collateralTokenAddress: commitment?.collateralToken?.address,
+      interestRate: commitment?.minAPY,
+      loanDuration: commitment?.maxDuration,
+      merkleProof: [],
+    }),
+    [
+      commitment?.id,
+      commitment?.collateralToken?.address,
+      commitment?.minAPY,
+      commitment?.maxDuration,
+      collateralToken?.valueBI,
+    ],
+  );
 
   const hasApprovedForwarder = useReadContract<boolean>(
     SupportedContractsEnum.TellerV2,
@@ -210,16 +233,9 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
     const step3Args = [
       commitmentForwarderAddress,
-      commitment.id,
-      "0x0000000000000000000000000000000000000000", // _smartCommitmentAddress
-      principalToken,
-      collateralToken?.valueBI,
-      0,
-      commitment.collateralToken?.address,
-      commitment.minAPY,
-      commitment.maxDuration,
+      acceptCommitmentArgs,
       address, // recipient, this wallet address
-      referralFee, // _reward
+      referralFeeAmount, // _reward
       referralAddress, // _rewardRecipient
     ];
 

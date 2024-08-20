@@ -31,44 +31,56 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_commitmentId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_smartCommitmentAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_principalAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_collateralAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_collateralTokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_collateralTokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_interestRate",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint32",
-        "name": "_loanDuration",
-        "type": "uint32"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "commitmentId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "smartCommitmentAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "principalAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "collateralAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "collateralTokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "collateralTokenAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "interestRate",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "merkleProof",
+            "type": "bytes32[]"
+          }
+        ],
+        "internalType": "struct LoanReferralForwarder.AcceptCommitmentArgs",
+        "name": "_acceptCommitmentArgs",
+        "type": "tuple"
       },
       {
         "internalType": "address",
@@ -87,7 +99,13 @@
       }
     ],
     "name": "acceptCommitmentWithReferral",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "bidId_",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   }

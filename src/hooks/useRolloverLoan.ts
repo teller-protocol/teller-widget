@@ -119,6 +119,8 @@ const useRolloverLoan = (
   const rfwAddress = rfwAddressMap[chainId];
 
   const { referralFee, referralAddress } = useGetUserTokenContext();
+  const referralFeeAmount =
+    (BigInt(referralFee) * maxLoanAmount) / BigInt(10000);
 
   const { flashRolloverLoanContractData, flashRolloverLoanAddress } =
     useMemo(() => {
@@ -266,7 +268,7 @@ const useRolloverLoan = (
       rolloverCommitment?.forwarderAddress,
       bid.bidId,
       acceptCommitmentArgs,
-      referralFee,
+      referralFeeAmount,
       flashloanPremiumPct,
       future15Mins,
     ],
@@ -401,7 +403,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
           loanId,
           flashLoanAmount,
           borrowerAmount,
-          referralFee, //_rewardAmount ie fee
+          referralFeeAmount, //_rewardAmount
           referralAddress, //_rewardRecipient
           acceptCommitmentArgs,
         ],
