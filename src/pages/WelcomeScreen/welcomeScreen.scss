@@ -10,11 +10,18 @@
 
   img {
     margin-bottom: 40px;
+    max-width: 100%;
+    max-height: 100px;
+    height: auto;
+    width: auto;
+    display: block;
+    object-fit: contain;
   }
 
   h1 {
     margin-bottom: 20px;
     text-align: center;
+    line-height: 1.1;
   }
 
   padding: calc(100px - 24px) 30px 200px;

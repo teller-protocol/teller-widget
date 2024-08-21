@@ -51,6 +51,18 @@ const meta = {
       description: "Recipient wallet address to recevie referral fee.",
       defaultValue: "0x0000000000000000000000000000000000000000",
     },
+    welcomeScreenLogo: {
+      description: "Logo (as a URL) to be displayed on the widget's welcome screen.",
+      defaultValue: "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
+    },
+    welcomeScreenTitle: {
+      description: "Bold, header text on the widget's welcome screen.",
+      defaultValue: "DeFi's cash advance",
+    },
+    welcomeScreenParagraph: {
+      description: "Body, paragraph text on the widget's welcome screen.",
+      defaultValue: "Time-based loans, up to thirty days, with no margin-call liquidations.",
+    },
   },
   args: {
     whitelistedTokens: {

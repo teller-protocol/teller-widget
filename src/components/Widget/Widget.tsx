@@ -27,6 +27,9 @@ interface BaseWidgetProps {
   useLightLogo?: boolean;
   referralFee?: number;
   referralAddress?: string;
+  welcomeScreenLogo?: string;
+  welcomeScreenTitle?: string;
+  welcomeScreenParagraph?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -53,6 +56,9 @@ const Widget: React.FC<WidgetProps> = ({
   useLightLogo,
   referralFee = 0,
   referralAddress = "0x193C83873843CA7a170490d3752BCcB678365d57", // need a non-zero address
+  welcomeScreenLogo,
+  welcomeScreenTitle,
+  welcomeScreenParagraph,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -80,7 +86,12 @@ const Widget: React.FC<WidgetProps> = ({
               useLightLogo={useLightLogo}
             >
               {showWelcomeScreen ? (
-                <WelcomeScreen onClick={() => setShowWelcomeScreen(false)} />
+                <WelcomeScreen 
+                  onClick={() => setShowWelcomeScreen(false)} 
+                  welcomeScreenLogo={welcomeScreenLogo}
+                  welcomeScreenTitle={welcomeScreenTitle}
+                  welcomeScreenParagraph={welcomeScreenParagraph}
+                  />
               ) : (
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}
