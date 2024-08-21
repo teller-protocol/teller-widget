@@ -52,7 +52,7 @@ const Widget: React.FC<WidgetProps> = ({
   whitelistedChains,
   useLightLogo,
   referralFee = 0,
-  referralAddress = "0x0000000000000000000000000000000000000000",
+  referralAddress = "0x193C83873843CA7a170490d3752BCcB678365d57", // need a non-zero address
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 

@@ -56,7 +56,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const { referralFee, referralAddress } = useGetUserTokenContext();
   const lrfAddress = lrfAddressMap[chainId];
 
-  const referralFeeAmount = (BigInt(referralFee) * principalToken)/BigInt(10000);
+  const referralFeeAmount =
+    (BigInt(referralFee) * principalToken) / BigInt(10000);
 
   // const signer: any = useSigner({
   //   chainId: chain?.id,
@@ -241,7 +242,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
     if (!isLoadingTransactionInfo)
       row4.push({
-        buttonLabel: <span>Deposit & Borrow Referral</span>,
+        buttonLabel: <span>Deposit & Borrow</span>,
         loadingButtonLabel: <span>Executing Loan...</span>,
         contractName: SupportedContractsEnum.LoanReferralForwarder,
         functionName: step3FunctionName,
