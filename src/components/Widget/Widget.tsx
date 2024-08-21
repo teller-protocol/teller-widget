@@ -68,6 +68,8 @@ const Widget: React.FC<WidgetProps> = ({
     ) as boolean,
   );
 
+  if (referralFee>500){console.warn("Referral fee set to maximum at 5%.")};
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
@@ -75,7 +77,7 @@ const Widget: React.FC<WidgetProps> = ({
           whitelistedTokens={whitelistedTokens}
           showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
           whitelistedChains={whitelistedChains}
-          referralFee={referralFee}
+          referralFee={Math.min(referralFee, 500)}
           referralAddress={referralAddress}
         >
           <div className="teller-widget">

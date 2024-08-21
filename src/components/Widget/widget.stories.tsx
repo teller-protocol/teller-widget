@@ -44,8 +44,14 @@ const meta = {
       },
     },
     referralFee: {
-      description: "Referral fee %, in basis points. For example, 100 = 1%.",
+      description: "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
       defaultValue: "0",
+      control: {
+        type: 'number',
+        min: 0,
+        max: 500,
+        step: 1,
+      },
     },
     referralAddress: {
       description: "Recipient wallet address to recevie referral fee.",
