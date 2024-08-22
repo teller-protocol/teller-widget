@@ -19,14 +19,16 @@ import {
   LCF_ALPHA_POLYGON_ADDRESS,
 } from "./lcfAlphaAddresses";
 import {
-  LRF_POLYGON_ADDRESS,
   LRF_ARBITRUM_ADDRESS,
   LRF_BASE_ADDRESS,
+  LRF_MAINNET_ADDRESS,
+  LRF_POLYGON_ADDRESS,
 } from "./lrfAddresses";
 import {
-  RFW_POLYGON_ADDRESS,
   RFW_ARBITRUM_ADDRESS,
   RFW_BASE_ADDRESS,
+  RFW_MAINNET_ADDRESS,
+  RFW_POLYGON_ADDRESS, 
 } from "./rfwAddress";
 
 interface NetworkContract {
@@ -44,6 +46,14 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
       LenderCommitmentForwarderAlpha: {
         address: LCF_ALPHA_MAINNET_ADDRESS,
         abi: LCF_ALPHA_ABI,
+      },
+      LoanReferralForwarder: {
+        address: LRF_MAINNET_ADDRESS,
+        abi: LRF_ABI,
+      },
+      RolloverForWidget: {
+        address: RFW_MAINNET_ADDRESS,
+        abi: RFW_ABI,
       },
     },
   },
