@@ -342,6 +342,8 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
           ? `Insufficient ${bid.lendingToken.symbol} balance.`
           : "";
 
+      
+
       if (!hasApprovedForwarder.isLoading && !hasApprovedForwarder.data) {
         steps.push({
           buttonLabel: "Approve Teller",
@@ -395,6 +397,9 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       }
       // -----
 
+      const flashLoanReferralLimit = (flashLoanAmount * BigInt(9)) / BigInt(100);
+      const referralFeeAmountToSend = referralFeeAmount < flashLoanReferralLimit ? referralFeeAmount : flashLoanReferralLimit;
+      
       steps.push({
         contractName: SupportedContractsEnum.RolloverForWidget,
         functionName: "rolloverLoanWithFlash",
@@ -403,7 +408,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
           loanId,
           flashLoanAmount,
           borrowerAmount,
-          referralFeeAmount, //_rewardAmount
+          referralFeeAmountToSend, //_rewardAmount, must be less than 9% of flashLoanAmount
           referralAddress, //_rewardRecipient
           acceptCommitmentArgs,
         ],
