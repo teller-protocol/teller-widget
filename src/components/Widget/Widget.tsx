@@ -19,6 +19,8 @@ export type WhitelistedTokens = {
 
 interface BaseWidgetProps {
   buttonLabel?: string;
+  buttonColorPrimary?: string;
+  buttonTextColorPrimary?: string;
   whitelistedTokens?: WhitelistedTokens;
   buttonClassName?: string;
   isBareButton?: boolean;
@@ -47,6 +49,8 @@ export type WidgetProps =
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
+  buttonColorPrimary,
+  buttonTextColorPrimary,
   whitelistedTokens,
   showOnlyWhiteListedTokens,
   buttonClassName,
@@ -79,6 +83,8 @@ const Widget: React.FC<WidgetProps> = ({
           whitelistedChains={whitelistedChains}
           referralFee={Math.min(referralFee, 500)}
           referralAddress={referralAddress}
+          buttonColorPrimary={buttonColorPrimary}
+          buttonTextColorPrimary={buttonTextColorPrimary}
         >
           <div className="teller-widget">
             <Modal

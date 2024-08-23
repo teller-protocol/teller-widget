@@ -25,7 +25,8 @@
     &.active {
       box-shadow: $bg-secondary;
       color: $text-primary;
-      border-bottom: 3px solid $primary;
+      border-bottom: 3px solid var(--button-primary-color, $primary);
+      //border-bottom: 3px solid $primary;
     }
   }
 }

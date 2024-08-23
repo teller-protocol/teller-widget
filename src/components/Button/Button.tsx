@@ -1,5 +1,6 @@
 import cx from "classnames";
 import "./button.scss";
+import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
 
 export interface ButtonProps {
   label?: React.ReactNode;
@@ -11,6 +12,11 @@ export interface ButtonProps {
   variant?: "primary" | "secondary" | "bare";
 }
 
+interface CustomCSSProperties extends React.CSSProperties {
+  '--button-primary-color'?: string;
+  '--button-primary-text-color'?: string;
+}
+
 const Button: React.FC<ButtonProps> = ({
   onClick = () => null,
   disabled = false,
@@ -20,6 +26,15 @@ const Button: React.FC<ButtonProps> = ({
   className,
   variant = "primary",
 }) => {
+  const { buttonColorPrimary, buttonTextColorPrimary } = useGetUserTokenContext 
+  ? useGetUserTokenContext() 
+  : { buttonColorPrimary, buttonTextColorPrimary };
+  
+  const customStyle: CustomCSSProperties = {
+    '--button-primary-color': buttonColorPrimary,
+    '--button-primary-text-color': buttonTextColorPrimary,
+  };
+  
   return (
     <button
       className={cx(
@@ -29,6 +44,7 @@ const Button: React.FC<ButtonProps> = ({
         className,
         variant
       )}
+      style={customStyle}
       onClick={onClick}
       disabled={disabled}
     >

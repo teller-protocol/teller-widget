@@ -100,6 +100,30 @@ const App = () => {
 };
 ```
 
+### `buttonColorPrimary`
+
+A `string` to change the background color for the primary button. Must be in hex format, including the #, ie #ffffff
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget buttonColorPrimary="#000000" />;
+};
+```
+
+### `buttonTextColorPrimary`
+
+A `string` to change the text color for the primary button. Must be in hex format, including the #, ie #ffffff
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget buttonTextColorPrimary="#ffffff" />;
+};
+```
+
 ### `buttonClassName`
 
 A `string` to be passed to the main button for adding a css class. Use this for customizing the button to match your app's design.
@@ -144,7 +168,7 @@ const App = () => {
 
 ### `referralFee`
 
-Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%. Note, referral fee on rollover loans is capped at 5% of the original loan repayment.
+A `number` to set the referral fee %, passed in basis points. For example, 100 = 1%, max 500 = 5%. Note, referral fee on rollover loans is capped at 5% of the original loan repayment.
 
 ```jsx
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
@@ -157,7 +181,7 @@ const App = () => {
 
 ### `referralAddress`
 
-Recipient wallet address to receive referral fee.
+A `string` to set the widget host wallet address, which receives the referral fee.
 
 ```jsx
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
@@ -170,7 +194,7 @@ const App = () => {
 
 ### `welcomeScreenLogo`
 
-Logo (as a URL) to be displayed on the widget's welcome screen. Image types include .png, .jpg, .jpeg, .svg.
+A `string`, of an image URL, to set as the widget host logo on the widget welcome screen. This is displayed on the widget's welcome screen. Must include the "https://" and image file ending. Image types include .png, .jpg, .jpeg, .svg.
 
 ```jsx
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
@@ -183,7 +207,7 @@ const App = () => {
 
 ### `welcomeScreenTitle`
 
-Bold, header text on the widget's welcome screen.
+A `string` which sets the bold, header text on the widget's welcome screen.
 
 ```jsx
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
@@ -196,7 +220,7 @@ const App = () => {
 
 ### `welcomeScreenParagraph`
 
-Body, paragraph text on the widget's welcome screen.
+A `string` which sets the body, paragraph text on the widget's welcome screen.
 
 ```jsx
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";

@@ -28,6 +28,14 @@ const meta = {
       description: "Label for the button.",
       defaultValue: "Cash advance",
     },
+    buttonColorPrimary: {
+      description: "Background color for the primary button. Must be in hex format, including the #, ie #ffffff",
+      defaultValue: "",
+    },
+    buttonTextColorPrimary: {
+        description: "Text color for the primary button. Must be in hex format, including the #, ie #ffffff",
+        defaultValue: "",
+    },
     isBareButton: {
       description:
         "Flag to remove all styling for the button for easier overwriting.",
