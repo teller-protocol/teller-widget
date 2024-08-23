@@ -120,7 +120,7 @@ A `boolean` for additional styling control. This resets the buttons's style to t
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 
 const App = () => {
-  return <TellerWidget buttonClassName="button-v2" />;
+  return <TellerWidget buttonClassName="button-v2" isButtonBare />;
 };
 ```
 
@@ -138,6 +138,71 @@ import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 
 const App = () => {
   return <TellerWidget whitelistedChains={[1,137]} />;
+};
+
+```
+
+### `referralFee`
+
+Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%. Note, referral fee on rollover loans is capped at 5% of the original loan repayment.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget referralFee={100} />;
+};
+
+```
+
+### `referralAddress`
+
+Recipient wallet address to receive referral fee.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget referralAddress={"0x..."} />;
+};
+
+```
+
+### `welcomeScreenLogo`
+
+Logo (as a URL) to be displayed on the widget's welcome screen. Image types include .png, .jpg, .jpeg, .svg.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget welcomeScreenLogo={"https://img-url.png"} />;
+};
+
+```
+
+### `welcomeScreenTitle`
+
+Bold, header text on the widget's welcome screen.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget welcomeScreenTitle={"DeFi's cash advance"} />;
+};
+
+```
+
+### `welcomeScreenParagraph`
+
+Body, paragraph text on the widget's welcome screen.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget welcomeScreenParagraph={"Time-based loans, up to thirty days, with no margin-call liquidations."} />;
 };
 
 ```

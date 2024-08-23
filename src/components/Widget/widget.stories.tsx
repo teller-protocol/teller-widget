@@ -54,7 +54,7 @@ const meta = {
       },
     },
     referralAddress: {
-      description: "Recipient wallet address to recevie referral fee.",
+      description: "Recipient wallet address to receive referral fee.",
       defaultValue: "0x0000000000000000000000000000000000000000",
     },
     welcomeScreenLogo: {
