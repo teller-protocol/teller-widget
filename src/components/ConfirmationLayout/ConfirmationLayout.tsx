@@ -51,7 +51,7 @@ const ConfirmationLayout: React.FC<ConfirmationLayoutProps> = ({
                 <LabelWithIcon label="View transaction" />
               </a>
             </Button>
-            {/*<Button isFullWidth variant="primary">
+            <Button isFullWidth variant="secondary">
               <a
                 href={`https://app.teller.org/${chainName?.toLocaleLowerCase()}/loan/${bidId}`}
                 target="_blank"
@@ -59,7 +59,7 @@ const ConfirmationLayout: React.FC<ConfirmationLayoutProps> = ({
               >
                 <LabelWithIcon label="View cash advance" />
               </a>
-            </Button>*/}
+            </Button>
           </>
         )}
       </div>

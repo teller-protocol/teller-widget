@@ -112,8 +112,8 @@ const RolloverConfirmation = () => {
               >
                 <LabelWithIcon label="View cash advance" />
               </a>
-            </Button>*/}
-            {/* <Button
+            </Button>
+            <Button
               label={"Set payment reminder"}
               isFullWidth
               onClick={() => setCurrentStep(RepaySectionSteps.ADD_TO_CALENDAR)}
