@@ -1,7 +1,7 @@
 @import "../../../tokens.scss";
 
 .rollover-confirmation {
-  background-color: rgba(9, 85, 70, 1);
+  background-color: rgb(61, 61, 61); // converting rgba(9, 85, 70, 1) to grayscale
   overflow: hidden;
   height: 100%;
   position: relative;
@@ -53,6 +53,6 @@
 
   a {
     text-decoration: none;
-    color: $text-primary;
+    color: inherit;
   }
 }

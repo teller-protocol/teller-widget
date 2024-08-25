@@ -1,6 +1,6 @@
 import { useChainId, useChains, useWaitForTransactionReceipt } from "wagmi";
 import confirmationAsset from "../../../assets/confirmation.svg";
-import confirmationBackground from "../../../assets/confirmation_background.svg";
+import confirmationBackground from "../../../assets/confirmation_background.png";
 import externalLink from "../../../assets/external_link.svg";
 import Button from "../../../components/Button";
 import {
@@ -74,7 +74,7 @@ const BorrowConfirmation = () => {
         src={confirmationBackground}
         className="borrow-confirmation-background"
       />
-      <img src={confirmationAsset} className="borrow-confirmation-main-image" />
+      {/*<img src={confirmationAsset} className="borrow-confirmation-main-image" />*/}
       <div className="borrow-confirmation-title">
         Borrowed {formattedPrincipalAmount} {principalToken?.symbol} with{" "}
         {formattedCollateralAmount} {collateralToken?.symbol} as collateral
@@ -109,6 +109,7 @@ const BorrowConfirmation = () => {
             <Button
               label={"Set payment reminder"}
               isFullWidth
+              variant="primary"
               onClick={() => setCurrentStep(BorrowSectionSteps.ADD_TO_CALENDAR)}
             />
           </>

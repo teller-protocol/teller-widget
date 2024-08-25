@@ -107,8 +107,8 @@ const Modal: React.FC<ModalProps> = ({
                     target="_blank"
                     rel="noreferrer"
                   >
+                    <span className="paragraph">Powered by</span>
                     <img src={tellerLogo} className="logo" />
-                    <img src={link} />
                   </a>
                 </div>
               )}

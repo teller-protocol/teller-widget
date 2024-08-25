@@ -1,6 +1,6 @@
 import { useWaitForTransactionReceipt } from "wagmi";
 import confirmationAsset from "../../../assets/confirmation.svg";
-import confirmationBackground from "../../../assets/confirmation_background.svg";
+import confirmationBackground from "../../../assets/confirmation_background.png";
 import externalLink from "../../../assets/external_link.svg";
 import Button from "../../../components/Button";
 
@@ -81,10 +81,7 @@ const RolloverConfirmation = () => {
         src={confirmationBackground}
         className="rollover-confirmation-background"
       />
-      <img
-        src={confirmationAsset}
-        className="rollover-confirmation-main-image"
-      />
+      {/*<img src={confirmationAsset} className="rollover-confirmation-main-image"/>*/}
       <div className="rollover-confirmation-title">
         Borrowed {formattedPrincipalAmount} {principalToken?.symbol} with{" "}
         {formattedCollateralAmount} {collateralToken?.symbol} as collateral
@@ -104,10 +101,10 @@ const RolloverConfirmation = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <LabelWithIcon label="View tx" />
+                <LabelWithIcon label="View transaction" />
               </a>
             </Button>
-            {/* <Button isFullWidth variant="secondary">
+            {/*<Button isFullWidth variant="primary">
               <a
                 href={`https://app.teller.org/${chainName?.toLocaleLowerCase()}/loan/${bidId}`}
                 target="_blank"
@@ -115,8 +112,8 @@ const RolloverConfirmation = () => {
               >
                 <LabelWithIcon label="View cash advance" />
               </a>
-            </Button>
-            <Button
+            </Button>*/}
+            {/* <Button
               label={"Set payment reminder"}
               isFullWidth
               onClick={() => setCurrentStep(RepaySectionSteps.ADD_TO_CALENDAR)}
