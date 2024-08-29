@@ -1,6 +1,6 @@
 import cx from "classnames";
 import "./button.scss";
-import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 export interface ButtonProps {
   label?: React.ReactNode;
@@ -27,7 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = "primary",
 }) => {
   const { buttonColorPrimary, buttonTextColorPrimary } =
-    useGetUserTokenContext();
+    useGetGlobalPropsContext();
 
   const customStyle: CustomCSSProperties = {
     "--button-primary-color": buttonColorPrimary,

@@ -1,6 +1,6 @@
 import cx from "classnames";
 import "./selectButtons.scss";
-import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 type SelectItem = {
   content: React.ReactNode;
@@ -22,7 +22,9 @@ const SelectButtons: React.FC<SelectButtonProps> = ({
   onChange,
   value,
 }) => {
-  const { buttonColorPrimary } = useGetUserTokenContext ? useGetUserTokenContext() : { buttonColorPrimary };
+  const { buttonColorPrimary } = useGetGlobalPropsContext
+    ? useGetGlobalPropsContext()
+    : { buttonColorPrimary };
 
   const customStyle: CustomCSSProperties = {
     '--button-primary-color': buttonColorPrimary,

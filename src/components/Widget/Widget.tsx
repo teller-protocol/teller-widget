@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { TokensContextProvider } from "../../contexts/UserTokensContext";
+import { TokensContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
 import Modal from "../Modal/Modal";
@@ -68,11 +68,13 @@ const Widget: React.FC<WidgetProps> = ({
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true",
-    ) as boolean,
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
+    ) as boolean
   );
 
-  if (referralFee>500){console.warn("Referral fee set to maximum at 5%.")};
+  if (referralFee > 500) {
+    console.warn("Referral fee set to maximum at 5%.");
+  }
 
   return (
     <WagmiProvider config={config}>
@@ -94,12 +96,12 @@ const Widget: React.FC<WidgetProps> = ({
               useLightLogo={useLightLogo}
             >
               {showWelcomeScreen ? (
-                <WelcomeScreen 
-                  onClick={() => setShowWelcomeScreen(false)} 
+                <WelcomeScreen
+                  onClick={() => setShowWelcomeScreen(false)}
                   welcomeScreenLogo={welcomeScreenLogo}
                   welcomeScreenTitle={welcomeScreenTitle}
                   welcomeScreenParagraph={welcomeScreenParagraph}
-                  />
+                />
               ) : (
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}

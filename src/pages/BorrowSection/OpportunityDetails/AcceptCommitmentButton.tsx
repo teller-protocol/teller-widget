@@ -5,7 +5,7 @@ import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import TransactionButton, {
   TransactionStepConfig,
 } from "../../../components/TransactionButton";
-import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { lrfAddressMap } from "../../../constants/lrfAddresses";
@@ -36,7 +36,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 }) => {
   const { address } = useAccount();
 
-  const { userTokens } = useGetUserTokenContext();
+  const { userTokens } = useGetGlobalPropsContext();
   const {
     setCurrentStep,
     setSuccessLoanHash,
@@ -53,7 +53,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const isNotConnected = !address;
 
   const chainId = useChainId();
-  const { referralFee, referralAddress } = useGetUserTokenContext();
+  const { referralFee, referralAddress } = useGetGlobalPropsContext();
   const lrfAddress = lrfAddressMap[chainId];
 
   const referralFeeAmount =

@@ -10,7 +10,7 @@ import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";
 import LoanLink from "../../components/LoanLink";
 import { useGetRolloverableCommitments } from "../../hooks/queries/useGetRolloverableCommitments";
-import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useChainTerms } from "../../hooks/useChainTerms";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "../../hooks/useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import {
@@ -148,7 +148,7 @@ const RolloverLoan: React.FC = () => {
   const chainId = useChainId();
 
   const { protocolFeePercent } = useGetProtocolFee();
-  const { referralFee } = useGetUserTokenContext();
+  const { referralFee } = useGetGlobalPropsContext();
 
   const { address: userAddress } = useAccount();
 

@@ -22,7 +22,7 @@ import cx from "classnames";
 import { useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import "./chainSwitch.scss";
-import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { Icon } from "@iconify/react";
 
 interface ChainDropdownRowProps {
@@ -63,7 +63,7 @@ const ChainSwitch: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const hasImage = !!chain?.id;
   const img = hasImage ? mapChainToImage[chain.id] : undefined;
-  const { whitelistedChains } = useGetUserTokenContext();
+  const { whitelistedChains } = useGetGlobalPropsContext();
 
   const ref = useOutsideClick(() => setIsOpen(false));
 

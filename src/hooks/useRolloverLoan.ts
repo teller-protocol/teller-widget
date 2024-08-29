@@ -2,7 +2,7 @@
 import { useAccount, useChainId } from "wagmi";
 import { Loan } from "./queries/useGetActiveLoansForUser";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
-import { useGetUserTokenContext } from "../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import { useContracts } from "./useContracts";
 import { rfwAddressMap } from "../constants/rfwAddress";
@@ -118,7 +118,7 @@ const useRolloverLoan = (
 
   const rfwAddress = rfwAddressMap[chainId];
 
-  const { referralFee, referralAddress } = useGetUserTokenContext();
+  const { referralFee, referralAddress } = useGetGlobalPropsContext();
   const referralFeeAmount =
     (BigInt(referralFee ?? 0) * BigInt(maxLoanAmount ?? 0)) / BigInt(10000);
 
