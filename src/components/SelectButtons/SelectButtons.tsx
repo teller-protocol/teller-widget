@@ -1,5 +1,6 @@
 import cx from "classnames";
 import "./selectButtons.scss";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 type SelectItem = {
   content: React.ReactNode;
@@ -12,22 +13,37 @@ interface SelectButtonProps {
   onChange: (item: any) => void;
 }
 
+interface CustomCSSProperties extends React.CSSProperties {
+  '--button-primary-color'?: string;
+}
+
 const SelectButtons: React.FC<SelectButtonProps> = ({
   items,
   onChange,
   value,
-}) => (
-  <div className="select-buttons">
-    {items.map((item, index) => (
-      <button
-        key={`select-${index}`}
-        className={cx("select-buttons__item", item.value === value && "active")}
-        onClick={() => onChange(item.value)}
-      >
-        {item.content}
-      </button>
-    ))}
-  </div>
-);
+}) => {
+  const { buttonColorPrimary } = useGetGlobalPropsContext
+    ? useGetGlobalPropsContext()
+    : { buttonColorPrimary };
+
+  const customStyle: CustomCSSProperties = {
+    '--button-primary-color': buttonColorPrimary,
+  };
+
+  return (
+    <div className="select-buttons">
+      {items.map((item, index) => (
+        <button
+          key={`select-${index}`}
+          className={cx("select-buttons__item", item.value === value && "active")}
+          style={customStyle}
+          onClick={() => onChange(item.value)}
+        >
+          {item.content}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 export default SelectButtons;

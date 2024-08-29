@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
-import { useGetUserTokenContext } from "../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useChainId } from "wagmi";
 
 interface Commitment {
@@ -18,7 +18,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
-  const { userTokens } = useGetUserTokenContext();
+  const { userTokens } = useGetGlobalPropsContext();
 
   const hasTokens = userTokens.length > 0;
 

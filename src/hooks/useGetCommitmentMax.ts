@@ -12,6 +12,7 @@ import { CommitmentCollateralType } from "../types/poolsApiTypes";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
 import { useContracts } from "./useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetProtocolFee } from "./useGetProtocolFee";
 import {
   ContractType,
@@ -55,8 +56,10 @@ export const useCommitmentMax = ({
 
   const { protocolFeePercent } = useGetProtocolFee();
   const marketplaceFee = +(commitment?.marketplace?.marketplaceFeePercent ?? 0);
+  const { referralFee } = useGetGlobalPropsContext();
 
-  const totalFeePercent = 10000 - ((protocolFeePercent ?? 0) + marketplaceFee);
+  const totalFeePercent =
+    10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
 
   const availableLenderAllowance = useReadContract(
     commitment?.principalTokenAddress,

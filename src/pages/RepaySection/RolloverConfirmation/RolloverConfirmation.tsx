@@ -1,6 +1,6 @@
 import { useWaitForTransactionReceipt } from "wagmi";
 import confirmationAsset from "../../../assets/confirmation.svg";
-import confirmationBackground from "../../../assets/confirmation_background.svg";
+import confirmationBackground from "../../../assets/confirmation_background.png";
 import externalLink from "../../../assets/external_link.svg";
 import Button from "../../../components/Button";
 
@@ -41,24 +41,17 @@ const RolloverConfirmation = () => {
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[4].principalAmount,
+      successfulLoanParams.args[6].principalAmount,
       principalToken?.decimals ?? 0
     )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[4].collateralAmount,
+      successfulLoanParams.args[6].collateralAmount,
       collateralToken?.decimals ?? 0
     )
   );
-
-  /*   const { data: successData } = useWaitForTransactionReceipt({
-    hash: (successRolloverLoanHash as AddressStringType) ?? "0x",
-    query: {
-      enabled: !!successRolloverLoanHash,
-    },
-  }); */
 
   const config = contracts?.[SupportedContractsEnum.FlashRolloverLoan].abi;
 
@@ -81,10 +74,6 @@ const RolloverConfirmation = () => {
         src={confirmationBackground}
         className="rollover-confirmation-background"
       />
-      <img
-        src={confirmationAsset}
-        className="rollover-confirmation-main-image"
-      />
       <div className="rollover-confirmation-title">
         Borrowed {formattedPrincipalAmount} {principalToken?.symbol} with{" "}
         {formattedCollateralAmount} {collateralToken?.symbol} as collateral
@@ -104,23 +93,9 @@ const RolloverConfirmation = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <LabelWithIcon label="View tx" />
+                <LabelWithIcon label="View transaction" />
               </a>
             </Button>
-            {/* <Button isFullWidth variant="secondary">
-              <a
-                href={`https://app.teller.org/${chainName?.toLocaleLowerCase()}/loan/${bidId}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <LabelWithIcon label="View cash advance" />
-              </a>
-            </Button>
-            <Button
-              label={"Set payment reminder"}
-              isFullWidth
-              onClick={() => setCurrentStep(RepaySectionSteps.ADD_TO_CALENDAR)}
-            /> */}
           </>
         )}
       </div>

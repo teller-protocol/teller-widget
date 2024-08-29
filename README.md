@@ -100,6 +100,30 @@ const App = () => {
 };
 ```
 
+### `buttonColorPrimary`
+
+A `string` to change the background color for the primary button. Must be in hex format, including the #, ie #ffffff
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget buttonColorPrimary="#000000" />;
+};
+```
+
+### `buttonTextColorPrimary`
+
+A `string` to change the text color for the primary button. Must be in hex format, including the #, ie #ffffff
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget buttonTextColorPrimary="#ffffff" />;
+};
+```
+
 ### `buttonClassName`
 
 A `string` to be passed to the main button for adding a css class. Use this for customizing the button to match your app's design.
@@ -120,7 +144,7 @@ A `boolean` for additional styling control. This resets the buttons's style to t
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 
 const App = () => {
-  return <TellerWidget buttonClassName="button-v2" />;
+  return <TellerWidget buttonClassName="button-v2" isButtonBare />;
 };
 ```
 
@@ -138,6 +162,71 @@ import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 
 const App = () => {
   return <TellerWidget whitelistedChains={[1,137]} />;
+};
+
+```
+
+### `referralFee`
+
+A `number` to set the referral fee %, passed in basis points. For example, 100 = 1%, max 500 = 5%. Note, referral fee on rollover loans is capped at 5% of the original loan repayment.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget referralFee={100} />;
+};
+
+```
+
+### `referralAddress`
+
+A `string` to set the widget host wallet address, which receives the referral fee.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget referralAddress={"0x..."} />;
+};
+
+```
+
+### `welcomeScreenLogo`
+
+A `string`, of an image URL, to set as the widget host logo on the widget welcome screen. This is displayed on the widget's welcome screen. Must include the "https://" and image file ending. Image types include .png, .jpg, .jpeg, .svg.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget welcomeScreenLogo={"https://img-url.png"} />;
+};
+
+```
+
+### `welcomeScreenTitle`
+
+A `string` which sets the bold, header text on the widget's welcome screen.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget welcomeScreenTitle={"DeFi's cash advance"} />;
+};
+
+```
+
+### `welcomeScreenParagraph`
+
+A `string` which sets the body, paragraph text on the widget's welcome screen.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget welcomeScreenParagraph={"Time-based loans, up to thirty days, with no margin-call liquidations."} />;
 };
 
 ```

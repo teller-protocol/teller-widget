@@ -2,8 +2,10 @@
 import { useAccount, useChainId } from "wagmi";
 import { Loan } from "./queries/useGetActiveLoansForUser";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import { useContracts } from "./useContracts";
+import { rfwAddressMap } from "../constants/rfwAddress";
 import {
   ContractType,
   SupportedContractsEnum,
@@ -114,6 +116,12 @@ const useRolloverLoan = (
 
   const chainId = useChainId();
 
+  const rfwAddress = rfwAddressMap[chainId];
+
+  const { referralFee, referralAddress } = useGetGlobalPropsContext();
+  const referralFeeAmount =
+    (BigInt(referralFee ?? 0) * BigInt(maxLoanAmount ?? 0)) / BigInt(10000);
+
   const { flashRolloverLoanContractData, flashRolloverLoanAddress } =
     useMemo(() => {
       const flashRolloverLoanContractData =
@@ -132,11 +140,10 @@ const useRolloverLoan = (
   const collateral = bid.collateral[0];
 
   const tokenContractName = bid.lendingToken.address;
-
   const { data: flashRolloverAllowance } = useReadContract(
     tokenContractName,
     "allowance",
-    [walletConnectedAddress, flashRolloverLoanAddress],
+    [walletConnectedAddress, rfwAddress],
     false,
     ContractType.ERC20
   );
@@ -171,7 +178,7 @@ const useRolloverLoan = (
   const hasAddedExtension = useReadContract<boolean>(
     lcfContractName,
     "hasExtension",
-    [walletConnectedAddress, flashRolloverLoanAddress],
+    [walletConnectedAddress, rfwAddress],
     !rolloverCommitment?.marketplaceId
   );
 
@@ -229,6 +236,7 @@ const useRolloverLoan = (
   const acceptCommitmentArgs: any = useMemo(
     () => ({
       commitmentId: rolloverCommitment?.id,
+      smartCommitmentAddress: "0x0000000000000000000000000000000000000000",
       principalAmount: maxLoanAmount,
       collateralAmount: collateralAmount,
       collateralTokenId: 0,
@@ -254,15 +262,18 @@ const useRolloverLoan = (
     isLoading: calcRolloverIsLoading,
     error,
   } = useReadContract(
-    SupportedContractsEnum.FlashRolloverLoan,
+    SupportedContractsEnum.RolloverForWidget,
     `calculateRolloverAmount`,
     [
       rolloverCommitment?.forwarderAddress,
       bid.bidId,
       acceptCommitmentArgs,
+      referralFeeAmount,
       flashloanPremiumPct,
       future15Mins,
-    ]
+    ],
+    false,
+    ContractType.External
   );
 
   const borrowerAmount =
@@ -348,7 +359,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
           loadingButtonLabel: "Enabling rollover...",
           contractName: lcfContractName,
           functionName: "addExtension",
-          args: [flashRolloverLoanAddress],
+          args: [rfwAddress],
         });
         id++;
       }
@@ -356,7 +367,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       if (borrowerAmount > BigInt(flashRolloverAllowance)) {
         steps.push({
           contractName: bid?.lendingTokenAddress,
-          args: [flashRolloverLoanAddress, borrowerAmount * 10n],
+          args: [rfwAddress, borrowerAmount * 10n],
           functionName: "approve",
           buttonLabel: `Approve ${bid.lendingToken.symbol}`,
           loadingButtonLabel: `Approving ${bid.lendingToken.symbol}...`,
@@ -384,14 +395,23 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       }
       // -----
 
+      const flashLoanReferralLimit =
+        (flashLoanAmount * BigInt(9)) / BigInt(100);
+      const referralFeeAmountToSend =
+        referralFeeAmount < flashLoanReferralLimit
+          ? referralFeeAmount
+          : flashLoanReferralLimit;
+
       steps.push({
-        contractName: SupportedContractsEnum.FlashRolloverLoan,
+        contractName: SupportedContractsEnum.RolloverForWidget,
         functionName: "rolloverLoanWithFlash",
         args: [
           rolloverCommitment?.forwarderAddress,
           loanId,
           flashLoanAmount,
           borrowerAmount,
+          referralFeeAmountToSend, //_rewardAmount, must be less than 9% of flashLoanAmount
+          referralAddress, //_rewardRecipient
           acceptCommitmentArgs,
         ],
         buttonLabel: `Rollover loan`,
@@ -399,6 +419,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         errorMessage,
         isStepDisabled: !!errorMessage,
         id,
+        contractType: ContractType.External,
         onSuccess,
       });
       id++;

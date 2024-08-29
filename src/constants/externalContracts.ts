@@ -9,6 +9,8 @@ import { mainnet, arbitrum, polygon, goerli, sepolia, base } from "viem/chains";
 import WETH_ABI from "../contracts/WETH_ABI.json";
 import WMATIC_ABI from "../contracts/WMATIC_ABI.json";
 import LCF_ALPHA_ABI from "../contracts/LCF_ALPHA_ABI.json";
+import LRF_ABI from "../contracts/LRF_ABI.json";
+import RFW_ABI from "../contracts/RFW_ABI.json";
 import { erc20Abi } from "viem";
 import {
   LCF_ALPHA_ARBITRUM_ADDRESS,
@@ -16,6 +18,18 @@ import {
   LCF_ALPHA_MAINNET_ADDRESS,
   LCF_ALPHA_POLYGON_ADDRESS,
 } from "./lcfAlphaAddresses";
+import {
+  LRF_ARBITRUM_ADDRESS,
+  LRF_BASE_ADDRESS,
+  LRF_MAINNET_ADDRESS,
+  LRF_POLYGON_ADDRESS,
+} from "./lrfAddresses";
+import {
+  RFW_ARBITRUM_ADDRESS,
+  RFW_BASE_ADDRESS,
+  RFW_MAINNET_ADDRESS,
+  RFW_POLYGON_ADDRESS, 
+} from "./rfwAddress";
 
 interface NetworkContract {
   address: string;
@@ -33,6 +47,14 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: LCF_ALPHA_MAINNET_ADDRESS,
         abi: LCF_ALPHA_ABI,
       },
+      LoanReferralForwarder: {
+        address: LRF_MAINNET_ADDRESS,
+        abi: LRF_ABI,
+      },
+      RolloverForWidget: {
+        address: RFW_MAINNET_ADDRESS,
+        abi: RFW_ABI,
+      },
     },
   },
   [arbitrum.id]: {
@@ -40,6 +62,14 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
       LenderCommitmentForwarderAlpha: {
         address: LCF_ALPHA_ARBITRUM_ADDRESS,
         abi: LCF_ALPHA_ABI,
+      },
+      LoanReferralForwarder: {
+        address: LRF_ARBITRUM_ADDRESS,
+        abi: LRF_ABI,
+      },
+      RolloverForWidget: {
+        address: RFW_ARBITRUM_ADDRESS,
+        abi: RFW_ABI,
       },
     },
   },
@@ -64,6 +94,14 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: LCF_ALPHA_POLYGON_ADDRESS,
         abi: LCF_ALPHA_ABI,
       },
+      LoanReferralForwarder: {
+        address: LRF_POLYGON_ADDRESS,
+        abi: LRF_ABI,
+      },
+      RolloverForWidget: {
+        address: RFW_POLYGON_ADDRESS,
+        abi: RFW_ABI,
+      },
     },
   },
 
@@ -77,6 +115,14 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: LCF_ALPHA_BASE_ADDRESS,
         abi: LCF_ALPHA_ABI,
       },
+      LoanReferralForwarder: {
+        address: LRF_BASE_ADDRESS,
+        abi: LRF_ABI,
+      },
+      RolloverForWidget: {
+        address: RFW_BASE_ADDRESS,
+        abi: RFW_ABI,
+      },
     },
   },
 };
@@ -89,8 +135,8 @@ for (const chainId in TOKEN_ADDRESSES) {
         token === "WMATIC"
           ? WMATIC_ABI
           : token === "WETH"
-          ? WETH_ABI
-          : erc20Abi,
+            ? WETH_ABI
+            : erc20Abi,
     };
   }
 }

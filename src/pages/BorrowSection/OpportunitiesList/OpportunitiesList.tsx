@@ -17,7 +17,7 @@ import DataPill from "../../../components/DataPill";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
-import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -45,7 +45,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 }) => {
   const { setCurrentStep, setSelectedOpportunity, selectedCollateralToken } =
     useGetBorrowSectionContext();
-  const { userTokens, isWhitelistedToken } = useGetUserTokenContext();
+  const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
     (selectedCollateralToken?.balanceBigInt ?? 0) > 0

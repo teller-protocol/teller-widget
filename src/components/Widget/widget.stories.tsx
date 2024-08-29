@@ -28,6 +28,14 @@ const meta = {
       description: "Label for the button.",
       defaultValue: "Cash advance",
     },
+    buttonColorPrimary: {
+      description: "Background color for the primary button. Must be in hex format, including the #, ie #ffffff",
+      defaultValue: "",
+    },
+    buttonTextColorPrimary: {
+        description: "Text color for the primary button. Must be in hex format, including the #, ie #ffffff",
+        defaultValue: "",
+    },
     isBareButton: {
       description:
         "Flag to remove all styling for the button for easier overwriting.",
@@ -42,6 +50,32 @@ const meta = {
         defaultValue: false,
         disable: true,
       },
+    },
+    referralFee: {
+      description: "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
+      defaultValue: "0",
+      control: {
+        type: 'number',
+        min: 0,
+        max: 500,
+        step: 1,
+      },
+    },
+    referralAddress: {
+      description: "Recipient wallet address to receive referral fee.",
+      defaultValue: "0x0000000000000000000000000000000000000000",
+    },
+    welcomeScreenLogo: {
+      description: "Logo (as a URL) to be displayed on the widget's welcome screen.",
+      defaultValue: "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
+    },
+    welcomeScreenTitle: {
+      description: "Bold, header text on the widget's welcome screen.",
+      defaultValue: "DeFi's cash advance",
+    },
+    welcomeScreenParagraph: {
+      description: "Body, paragraph text on the widget's welcome screen.",
+      defaultValue: "Time-based loans, up to thirty days, with no margin-call liquidations.",
     },
   },
   args: {

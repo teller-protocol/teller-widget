@@ -1,5 +1,5 @@
 import confirmationAsset from "../../assets/confirmation.svg";
-import confirmationBackground from "../../assets/confirmation_background.svg";
+import confirmationBackground from "../../assets/confirmation_background.png";
 import externalLink from "../../assets/external_link.svg";
 import Button from "../../components/Button";
 import { useChainData } from "../../hooks/useChainData";
@@ -32,7 +32,6 @@ const ConfirmationLayout: React.FC<ConfirmationLayoutProps> = ({
         src={confirmationBackground}
         className="confirmation-layout-background"
       />
-      <img src={confirmationAsset} className="confirmation-layout-main-image" />
       <div className="confirmation-layout-title">{title}</div>
       <div className="confirmation-layout-buttons">
         {!txHash ? (
@@ -48,7 +47,7 @@ const ConfirmationLayout: React.FC<ConfirmationLayoutProps> = ({
                 target="_blank"
                 rel="noreferrer"
               >
-                <LabelWithIcon label="View tx" />
+                <LabelWithIcon label="View transaction" />
               </a>
             </Button>
             <Button isFullWidth variant="secondary">

@@ -3,6 +3,7 @@ import { Address, erc20Abi } from "viem";
 import { useChainId, useReadContract as useWagmiReadContract } from "wagmi";
 
 import { useContracts } from "./useContracts";
+import externalContracts from "../constants/externalContracts";
 
 export enum SupportedContractsEnum {
   "TellerV2" = "TellerV2",
@@ -11,6 +12,8 @@ export enum SupportedContractsEnum {
   "LenderCommitmentForwarder" = "LenderCommitmentForwarder",
   "LenderCommitmentForwarderStaging" = "LenderCommitmentForwarderStaging",
   "LenderCommitmentForwarderAlpha" = "LenderCommitmentForwarderAlpha",
+  "LoanReferralForwarder" = "LoanReferralForwarder",
+  "RolloverForWidget" = "RolloverForWidget",
   "MarketLiquidityRewards" = "MarketLiquidityRewards",
   "CollateralManager" = "CollateralManager",
 }
@@ -18,6 +21,7 @@ export enum SupportedContractsEnum {
 export enum ContractType {
   Teller = "Teller",
   ERC20 = "ERC20",
+  External = "External",
 }
 
 export const useReadContract = <T = any>(
@@ -33,6 +37,8 @@ export const useReadContract = <T = any>(
   const mapAbi = useMemo(
     () => ({
       [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
+      [ContractType.External]:
+        externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
     }),
     [contractName, contracts]
@@ -41,7 +47,8 @@ export const useReadContract = <T = any>(
   const address =
     contractType === ContractType.Teller
       ? contracts[contractName ?? ""]?.address
-      : contractName;
+      : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
+        contractName;
   const { data, error, isLoading, refetch, isRefetching } =
     useWagmiReadContract({
       address,

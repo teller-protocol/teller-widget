@@ -4,28 +4,40 @@ import { WhitelistedTokens } from "../components/Widget/Widget";
 import { useChainId } from "wagmi";
 import { Address } from "viem";
 
-export type TokensContextType = {
+export type GlobalPropsContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
   whitelistedChainTokens: string[];
   isWhitelistedToken: (token: Address | undefined) => boolean;
   whitelistedChains?: number[];
+  referralFee?: number;
+  referralAddress?: string;
+  buttonColorPrimary?: string;
+  buttonTextColorPrimary?: string;
 };
 
-interface TokensContextProps {
+interface GlobalPropsContextProps {
   children: React.ReactNode;
   whitelistedTokens?: WhitelistedTokens;
   showOnlyWhiteListedTokens?: boolean;
   whitelistedChains?: number[];
+  referralFee?: number;
+  referralAddress?: string;
+  buttonColorPrimary?: string;
+  buttonTextColorPrimary?: string;
 }
 
-const UserTokensContext = createContext({} as TokensContextType);
+const GlobalPropsContext = createContext({} as GlobalPropsContextType);
 
-export const TokensContextProvider: React.FC<TokensContextProps> = ({
+export const TokensContextProvider: React.FC<GlobalPropsContextProps> = ({
   children,
   whitelistedTokens,
   showOnlyWhiteListedTokens,
   whitelistedChains,
+  referralFee,
+  referralAddress,
+  buttonColorPrimary = undefined,
+  buttonTextColorPrimary = undefined,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -53,25 +65,29 @@ export const TokensContextProvider: React.FC<TokensContextProps> = ({
     token ? whitelistedChainTokens.includes(token) : false;
 
   return (
-    <UserTokensContext.Provider
+    <GlobalPropsContext.Provider
       value={{
         userTokens,
         isLoading,
         isWhitelistedToken,
         whitelistedChainTokens,
         whitelistedChains,
+        referralFee,
+        referralAddress,
+        buttonColorPrimary,
+        buttonTextColorPrimary,
       }}
     >
       {children}
-    </UserTokensContext.Provider>
+    </GlobalPropsContext.Provider>
   );
 };
 
-export const useGetUserTokenContext = () => {
-  const context = useContext(UserTokensContext);
+export const useGetGlobalPropsContext = () => {
+  const context = useContext(GlobalPropsContext);
   if (context === undefined) {
     throw new Error(
-      "useUserTokensContextProvider must be used within a UserTokensContextProvider"
+      "useGetGlobalPropsContext must be used within a UserTokensContextProvider"
     );
   }
   return context;

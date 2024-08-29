@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { TokensContextProvider } from "../../contexts/UserTokensContext";
+import { TokensContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
 import Modal from "../Modal/Modal";
@@ -19,12 +19,19 @@ export type WhitelistedTokens = {
 
 interface BaseWidgetProps {
   buttonLabel?: string;
+  buttonColorPrimary?: string;
+  buttonTextColorPrimary?: string;
   whitelistedTokens?: WhitelistedTokens;
   buttonClassName?: string;
   isBareButton?: boolean;
   showModalByDefault?: boolean;
   whitelistedChains?: number[];
   useLightLogo?: boolean;
+  referralFee?: number;
+  referralAddress?: string;
+  welcomeScreenLogo?: string;
+  welcomeScreenTitle?: string;
+  welcomeScreenParagraph?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -42,6 +49,8 @@ export type WidgetProps =
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
+  buttonColorPrimary,
+  buttonTextColorPrimary,
   whitelistedTokens,
   showOnlyWhiteListedTokens,
   buttonClassName,
@@ -49,6 +58,11 @@ const Widget: React.FC<WidgetProps> = ({
   showModalByDefault,
   whitelistedChains,
   useLightLogo,
+  referralFee = 0,
+  referralAddress = "0x193C83873843CA7a170490d3752BCcB678365d57", // need a non-zero address
+  welcomeScreenLogo,
+  welcomeScreenTitle,
+  welcomeScreenParagraph,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -58,6 +72,10 @@ const Widget: React.FC<WidgetProps> = ({
     ) as boolean
   );
 
+  if (referralFee > 500) {
+    console.warn("Referral fee set to maximum at 5%.");
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
@@ -65,6 +83,10 @@ const Widget: React.FC<WidgetProps> = ({
           whitelistedTokens={whitelistedTokens}
           showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
           whitelistedChains={whitelistedChains}
+          referralFee={Math.min(referralFee, 500)}
+          referralAddress={referralAddress}
+          buttonColorPrimary={buttonColorPrimary}
+          buttonTextColorPrimary={buttonTextColorPrimary}
         >
           <div className="teller-widget">
             <Modal
@@ -74,7 +96,12 @@ const Widget: React.FC<WidgetProps> = ({
               useLightLogo={useLightLogo}
             >
               {showWelcomeScreen ? (
-                <WelcomeScreen onClick={() => setShowWelcomeScreen(false)} />
+                <WelcomeScreen
+                  onClick={() => setShowWelcomeScreen(false)}
+                  welcomeScreenLogo={welcomeScreenLogo}
+                  welcomeScreenTitle={welcomeScreenTitle}
+                  welcomeScreenParagraph={welcomeScreenParagraph}
+                />
               ) : (
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}

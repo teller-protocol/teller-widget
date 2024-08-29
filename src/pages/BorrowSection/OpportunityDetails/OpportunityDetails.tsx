@@ -6,7 +6,7 @@ import DataField from "../../../components/DataField";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
-import { useGetUserTokenContext } from "../../../contexts/UserTokensContext";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import {
@@ -27,7 +27,7 @@ import Button from "../../../components/Button";
 const OpportunityDetails = () => {
   const { setCurrentStep, selectedOpportunity, selectedCollateralToken } =
     useGetBorrowSectionContext();
-  const { isWhitelistedToken } = useGetUserTokenContext();
+  const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
 
   const [collateralTokenValue, setCollataralTokenValue] =
@@ -80,10 +80,12 @@ const OpportunityDetails = () => {
   }
 
   const { protocolFeePercent } = useGetProtocolFee();
+  const { referralFee } = useGetGlobalPropsContext();
 
   const totalFeePercent =
     protocolFeePercent +
-    +(selectedOpportunity?.marketplace?.marketplaceFeePercent ?? 0);
+    +(selectedOpportunity?.marketplace?.marketplaceFeePercent ?? 0) +
+    (referralFee ?? 0);
 
   const totalFees = (maxLoanAmountNumber * totalFeePercent) / 10000;
 
