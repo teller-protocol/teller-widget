@@ -10,3 +10,4 @@ yalc.lock
 .yalc/*
 dts/*
 src/**/*.js
+.replit
