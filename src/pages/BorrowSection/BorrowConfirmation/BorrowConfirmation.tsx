@@ -39,11 +39,17 @@ const BorrowConfirmation = () => {
   const collateralToken = selectedOpportunity?.collateralToken;
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
-    formatUnits(successfulLoanParams.args[1]["principalAmount"], principalToken?.decimals ?? 0)
+    formatUnits(
+      successfulLoanParams.args[1]["principalAmount"],
+      principalToken?.decimals ?? 0
+    )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
-    formatUnits(successfulLoanParams.args[1]["collateralAmount"], collateralToken?.decimals ?? 0)
+    formatUnits(
+      successfulLoanParams.args[1]["collateralAmount"],
+      collateralToken?.decimals ?? 0
+    )
   );
 
   const { data: successData } = useWaitForTransactionReceipt({

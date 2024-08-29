@@ -32,7 +32,6 @@ const ConfirmationLayout: React.FC<ConfirmationLayoutProps> = ({
         src={confirmationBackground}
         className="confirmation-layout-background"
       />
-      {/*<img src={confirmationAsset} className="confirmation-layout-main-image" />*/}
       <div className="confirmation-layout-title">{title}</div>
       <div className="confirmation-layout-buttons">
         {!txHash ? (

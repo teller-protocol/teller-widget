@@ -29,7 +29,7 @@ export const useReadContract = <T = any>(
   functionName: string,
   args: any[],
   skipRun = false,
-  contractType = ContractType.Teller,
+  contractType = ContractType.Teller
 ) => {
   const contracts = useContracts();
   const chainId = useChainId();
@@ -37,16 +37,18 @@ export const useReadContract = <T = any>(
   const mapAbi = useMemo(
     () => ({
       [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
-      [ContractType.External]:externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
+      [ContractType.External]:
+        externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
     }),
-    [contractName, contracts],
+    [contractName, contracts]
   );
 
   const address =
     contractType === ContractType.Teller
       ? contracts[contractName ?? ""]?.address
-      : externalContracts[chainId]["contracts"][contractName ?? ""]?.address || contractName;
+      : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
+        contractName;
   const { data, error, isLoading, refetch, isRefetching } =
     useWagmiReadContract({
       address,

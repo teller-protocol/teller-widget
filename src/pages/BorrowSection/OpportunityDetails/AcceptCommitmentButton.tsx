@@ -44,7 +44,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     setBidId,
   } = useGetBorrowSectionContext();
   const collateralTokenBalance = userTokens.find(
-    (token) => token.address === collateralToken?.token?.address,
+    (token) => token.address === collateralToken?.token?.address
   )?.balance;
 
   const hasInsufficientCollateral =
@@ -57,7 +57,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const lrfAddress = lrfAddressMap[chainId];
 
   const referralFeeAmount =
-    (BigInt(referralFee) * principalToken) / BigInt(10000);
+    (BigInt(referralFee ?? 0) * BigInt(principalToken ?? 0)) / BigInt(10000);
 
   // const signer: any = useSigner({
   //   chainId: chain?.id,
@@ -100,28 +100,29 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       commitment?.collateralToken?.address,
       commitment?.minAPY,
       commitment?.maxDuration,
+      principalToken,
       collateralToken?.valueBI,
-    ],
+    ]
   );
 
   const hasApprovedForwarder = useReadContract<boolean>(
     SupportedContractsEnum.TellerV2,
     "hasApprovedMarketForwarder",
     [commitment?.marketplaceId, commitmentForwarderAddress, address],
-    !commitment?.marketplaceId,
+    !commitment?.marketplaceId
   );
 
   const hasAddedExtension = useReadContract<boolean>(
     lcfContractName,
     "hasExtension",
     [address, lrfAddress],
-    !commitment?.marketplaceId,
+    !commitment?.marketplaceId
   );
 
   const { data: collateralManagerAddress } = useReadContract<string>(
     SupportedContractsEnum.TellerV2,
     "collateralManager",
-    [],
+    []
   );
 
   const collateralAllowance = useReadContract<bigint>(
@@ -129,7 +130,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     "allowance",
     [address, collateralManagerAddress],
     false,
-    ContractType.ERC20,
+    ContractType.ERC20
   );
 
   const isLoadingTransactionInfo =
@@ -141,7 +142,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       setSuccessLoanHash(data);
       setSuccessfulLoanParams(params);
     },
-    [setCurrentStep, setSuccessLoanHash, setSuccessfulLoanParams],
+    [setCurrentStep, setSuccessLoanHash, setSuccessfulLoanParams]
   );
 
   const steps = useMemo<TransactionStepConfig[][]>(() => {
@@ -261,11 +262,16 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     hasAddedExtension.data,
     collateralAllowance.data,
     collateralToken,
-    principalToken,
-    isLoadingTransactionInfo,
-    isCommitmentFromLCFAlpha,
-    onSuccess,
     commitmentForwarderAddress,
+    acceptCommitmentArgs,
+    address,
+    referralFeeAmount,
+    referralAddress,
+    isLoadingTransactionInfo,
+    onSuccess,
+    principalToken,
+    lcfContractName,
+    lrfAddress,
     collateralManagerAddress,
   ]);
 

@@ -424,7 +424,8 @@ const RolloverLoan: React.FC = () => {
     );
 
   const marketplaceFee = +(commitment?.marketplace?.marketplaceFeePercent ?? 0);
-  const totalFeePercent = 10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
+  const totalFeePercent =
+    10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
 
   const amountToPay =
     (maxLoanAmount * BigInt(totalFeePercent)) / BigInt(10000) -

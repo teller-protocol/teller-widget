@@ -80,7 +80,7 @@ export const useWriteContract = ({
   const error = simulatedError || writeError;
 
   if (isError) {
-    console.log("error: " + error);
+    console.log("error: ", error);
   }
 
   return useMemo(

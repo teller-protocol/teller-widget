@@ -53,13 +53,6 @@ const RolloverConfirmation = () => {
     )
   );
 
-  /*   const { data: successData } = useWaitForTransactionReceipt({
-    hash: (successRolloverLoanHash as AddressStringType) ?? "0x",
-    query: {
-      enabled: !!successRolloverLoanHash,
-    },
-  }); */
-
   const config = contracts?.[SupportedContractsEnum.FlashRolloverLoan].abi;
 
   let decodedLog;
@@ -81,7 +74,6 @@ const RolloverConfirmation = () => {
         src={confirmationBackground}
         className="rollover-confirmation-background"
       />
-      {/*<img src={confirmationAsset} className="rollover-confirmation-main-image"/>*/}
       <div className="rollover-confirmation-title">
         Borrowed {formattedPrincipalAmount} {principalToken?.symbol} with{" "}
         {formattedCollateralAmount} {collateralToken?.symbol} as collateral
@@ -104,20 +96,6 @@ const RolloverConfirmation = () => {
                 <LabelWithIcon label="View transaction" />
               </a>
             </Button>
-            {/*<Button isFullWidth variant="primary">
-              <a
-                href={`https://app.teller.org/${chainName?.toLocaleLowerCase()}/loan/${bidId}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <LabelWithIcon label="View cash advance" />
-              </a>
-            </Button>
-            <Button
-              label={"Set payment reminder"}
-              isFullWidth
-              onClick={() => setCurrentStep(RepaySectionSteps.ADD_TO_CALENDAR)}
-            /> */}
           </>
         )}
       </div>

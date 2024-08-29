@@ -13,8 +13,8 @@ export interface ButtonProps {
 }
 
 interface CustomCSSProperties extends React.CSSProperties {
-  '--button-primary-color'?: string;
-  '--button-primary-text-color'?: string;
+  "--button-primary-color"?: string;
+  "--button-primary-text-color"?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -26,15 +26,14 @@ const Button: React.FC<ButtonProps> = ({
   className,
   variant = "primary",
 }) => {
-  const { buttonColorPrimary, buttonTextColorPrimary } = useGetUserTokenContext 
-  ? useGetUserTokenContext() 
-  : { buttonColorPrimary, buttonTextColorPrimary };
-  
+  const { buttonColorPrimary, buttonTextColorPrimary } =
+    useGetUserTokenContext();
+
   const customStyle: CustomCSSProperties = {
-    '--button-primary-color': buttonColorPrimary,
-    '--button-primary-text-color': buttonTextColorPrimary,
+    "--button-primary-color": buttonColorPrimary,
+    "--button-primary-text-color": buttonTextColorPrimary,
   };
-  
+
   return (
     <button
       className={cx(
