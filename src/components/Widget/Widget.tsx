@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { TokensContextProvider } from "../../contexts/GlobalPropsContext";
+import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
 import Modal from "../Modal/Modal";
@@ -32,6 +32,7 @@ interface BaseWidgetProps {
   welcomeScreenLogo?: string;
   welcomeScreenTitle?: string;
   welcomeScreenParagraph?: string;
+  subgraphApiKey: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -63,6 +64,7 @@ const Widget: React.FC<WidgetProps> = ({
   welcomeScreenLogo,
   welcomeScreenTitle,
   welcomeScreenParagraph,
+  subgraphApiKey,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -79,7 +81,7 @@ const Widget: React.FC<WidgetProps> = ({
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <TokensContextProvider
+        <GlobalContextProvider
           whitelistedTokens={whitelistedTokens}
           showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
           whitelistedChains={whitelistedChains}
@@ -87,6 +89,7 @@ const Widget: React.FC<WidgetProps> = ({
           referralAddress={referralAddress}
           buttonColorPrimary={buttonColorPrimary}
           buttonTextColorPrimary={buttonTextColorPrimary}
+          subgraphApiKey={subgraphApiKey}
         >
           <div className="teller-widget">
             <Modal
@@ -113,7 +116,7 @@ const Widget: React.FC<WidgetProps> = ({
               variant={isBareButton ? "bare" : "primary"}
             />
           </div>
-        </TokensContextProvider>
+        </GlobalContextProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

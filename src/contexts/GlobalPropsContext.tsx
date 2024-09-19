@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
-import { WhitelistedTokens } from "../components/Widget/Widget";
-import { useChainId } from "wagmi";
 import { Address } from "viem";
+import { useChainId } from "wagmi";
+import { WhitelistedTokens } from "../components/Widget/Widget";
+import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
 
 export type GlobalPropsContextType = {
   userTokens: UserToken[];
@@ -14,6 +14,7 @@ export type GlobalPropsContextType = {
   referralAddress?: string;
   buttonColorPrimary?: string;
   buttonTextColorPrimary?: string;
+  subgraphApiKey: string;
 };
 
 interface GlobalPropsContextProps {
@@ -25,11 +26,12 @@ interface GlobalPropsContextProps {
   referralAddress?: string;
   buttonColorPrimary?: string;
   buttonTextColorPrimary?: string;
+  subgraphApiKey: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
 
-export const TokensContextProvider: React.FC<GlobalPropsContextProps> = ({
+export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   children,
   whitelistedTokens,
   showOnlyWhiteListedTokens,
@@ -38,6 +40,7 @@ export const TokensContextProvider: React.FC<GlobalPropsContextProps> = ({
   referralAddress,
   buttonColorPrimary = undefined,
   buttonTextColorPrimary = undefined,
+  subgraphApiKey,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -76,6 +79,7 @@ export const TokensContextProvider: React.FC<GlobalPropsContextProps> = ({
         referralAddress,
         buttonColorPrimary,
         buttonTextColorPrimary,
+        subgraphApiKey,
       }}
     >
       {children}

@@ -1,12 +1,12 @@
 import { arbitrum, base, goerli, mainnet, polygon, sepolia } from "viem/chains";
 
-export const GRAPH_ENDPOINTS: { [chainId: number]: string | undefined } = {
-  [mainnet.id]:
-    "https://api.studio.thegraph.com/proxy/51204/tellerv2-mainnet/version/latest",
-  [polygon.id]:
-    "https://api.studio.thegraph.com/proxy/36377/tellerv2-polygon/version/latest",
-  [arbitrum.id]:
-    "https://api.studio.thegraph.com/proxy/51204/tellerv2-arbitrum/version/latest",
-  [base.id]:
-    "https://api.studio.thegraph.com/query/36377/tellerv2-base/version/latest",
+export const getGraphEndpointWithKey = (apiKey: string, chainId: number) => {
+  const GRAPH_ENDPOINTS: { [chainId: number]: string | undefined } = {
+    [mainnet.id]: `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/subgraphs/id/B6FW3z7yLTJKVuqz6kLDJAwJru1T89j4ww5JfY3GYX8F`,
+    [polygon.id]: `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/subgraphs/id/8bjHtQZ9PZUMQAbCGJw5Zx2SbZZY2LQz8WH3rURzN5do`,
+    [arbitrum.id]: `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/subgraphs/id/8bjHtQZ9PZUMQAbCGJw5Zx2SbZZY2LQz8WH3rURzN5do`,
+    [base.id]: `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/subgraphs/id/ArZjkaosc5rmBoYqprFWomvnjKSFMGkPFD7yuaZGuqQo`,
+  };
+
+  return GRAPH_ENDPOINTS[chainId];
 };
