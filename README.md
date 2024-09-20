@@ -1,13 +1,15 @@
 # Teller Widget
 
 Welcome to the Teller Widget! This widget allows any dapp to integrate Teller's front end into their app and allow users to do cash advances with either the tokens in their wallets or a specified token list.
+_Please note that a subgraph studio api key is required to use the widget. Please refer below for instructions._
 
 # Documentation
+
 - [Getting started](https://docs.teller.org/teller-widget/getting-started)
 - [API reference](https://docs.teller.org/teller-widget/api-reference)
 - [Interactive sandbox](https://widget-storybook.teller.org/)
 
-# Required packaages
+# Required packages
 
 ```bash
  @tanstack/react-query
@@ -31,6 +33,10 @@ yarn add @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphq
 npm i --save @teller-protocol/teller-widget @tanstack/react-query alchemy-sdk graphql graphql-request react react-dom @teller-protocol/v2-contracts
 ```
 
+# Getting a subgraph studio api key
+
+Please refer to this [guide](xhttps://docs.teller.org/teller-widget/generating-subgraph-studio-api-key)
+
 # Usage
 
 To use the widget, import the `TellerWidget` component. None of the props are required.
@@ -47,6 +53,18 @@ const App = () => {
 
 The widget works out of the box with no configuration. However, you can pass in the following props to customize the widget.
 
+### `subgraphApiKey`
+
+A _mandatory_ api key to be able to use our subpgrah.
+
+```jsx
+import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
+
+const App = () => {
+  return <TellerWidget subgraphApiKey="xxxxx" />;
+};
+```
+
 ### `buttonLabel`
 
 A `string` to replace the default `Cash Advance` button label.
@@ -60,6 +78,7 @@ const App = () => {
 ```
 
 ### `whitelistedTokens`
+
 An object grouped by chainId, made up of a list of token addresses.
 By default these tokens show on additionally to the ones in the user's wallet.
 
@@ -96,7 +115,12 @@ const whiteListedTokens = {
 };
 
 const App = () => {
-  return <TellerWidget whiteListedTokens={whiteListedTokens} showOnlyWhitelistedTokens />;
+  return (
+    <TellerWidget
+      whiteListedTokens={whiteListedTokens}
+      showOnlyWhitelistedTokens
+    />
+  );
 };
 ```
 
@@ -152,18 +176,18 @@ const App = () => {
 
 An optional `array` to show desired chains. By default, the widget shows all chains.
 Available chains:
-* 1 (Ethereum),
-* 137 (Polygon)
-* 42161 (Arbitrum)
-* 8453 (Base)
+
+- 1 (Ethereum),
+- 137 (Polygon)
+- 42161 (Arbitrum)
+- 8453 (Base)
 
 ```jsx
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 
 const App = () => {
-  return <TellerWidget whitelistedChains={[1,137]} />;
+  return <TellerWidget whitelistedChains={[1, 137]} />;
 };
-
 ```
 
 ### `referralFee`
@@ -176,7 +200,6 @@ import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 const App = () => {
   return <TellerWidget referralFee={100} />;
 };
-
 ```
 
 ### `referralAddress`
@@ -189,7 +212,6 @@ import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 const App = () => {
   return <TellerWidget referralAddress={"0x..."} />;
 };
-
 ```
 
 ### `welcomeScreenLogo`
@@ -202,7 +224,6 @@ import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 const App = () => {
   return <TellerWidget welcomeScreenLogo={"https://img-url.png"} />;
 };
-
 ```
 
 ### `welcomeScreenTitle`
@@ -215,7 +236,6 @@ import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 const App = () => {
   return <TellerWidget welcomeScreenTitle={"DeFi's cash advance"} />;
 };
-
 ```
 
 ### `welcomeScreenParagraph`
@@ -226,9 +246,14 @@ A `string` which sets the body, paragraph text on the widget's welcome screen.
 import { Widget as TellerWidget } from "@teller-protocol/teller-widget";
 
 const App = () => {
-  return <TellerWidget welcomeScreenParagraph={"Time-based loans, up to thirty days, with no margin-call liquidations."} />;
+  return (
+    <TellerWidget
+      welcomeScreenParagraph={
+        "Time-based loans, up to thirty days, with no margin-call liquidations."
+      }
+    />
+  );
 };
-
 ```
 
 # Development

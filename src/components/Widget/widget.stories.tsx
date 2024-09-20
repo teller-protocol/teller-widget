@@ -8,6 +8,8 @@ import { config } from "../../helpers/createWagmiConfig";
 import "./widgetStories.scss";
 import Widget from ".";
 
+const SUBGRAPH_API_KEY = "2f26b4c1f77ea8ff641c8dd081795939";
+
 const meta = {
   title: "Widget",
   component: Widget,
@@ -29,12 +31,14 @@ const meta = {
       defaultValue: "Cash advance",
     },
     buttonColorPrimary: {
-      description: "Background color for the primary button. Must be in hex format, including the #, ie #ffffff",
+      description:
+        "Background color for the primary button. Must be in hex format, including the #, ie #ffffff",
       defaultValue: "",
     },
     buttonTextColorPrimary: {
-        description: "Text color for the primary button. Must be in hex format, including the #, ie #ffffff",
-        defaultValue: "",
+      description:
+        "Text color for the primary button. Must be in hex format, including the #, ie #ffffff",
+      defaultValue: "",
     },
     isBareButton: {
       description:
@@ -52,10 +56,11 @@ const meta = {
       },
     },
     referralFee: {
-      description: "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
+      description:
+        "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
       defaultValue: "0",
       control: {
-        type: 'number',
+        type: "number",
         min: 0,
         max: 500,
         step: 1,
@@ -66,8 +71,10 @@ const meta = {
       defaultValue: "0x0000000000000000000000000000000000000000",
     },
     welcomeScreenLogo: {
-      description: "Logo (as a URL) to be displayed on the widget's welcome screen.",
-      defaultValue: "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
+      description:
+        "Logo (as a URL) to be displayed on the widget's welcome screen.",
+      defaultValue:
+        "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
     },
     welcomeScreenTitle: {
       description: "Bold, header text on the widget's welcome screen.",
@@ -75,7 +82,13 @@ const meta = {
     },
     welcomeScreenParagraph: {
       description: "Body, paragraph text on the widget's welcome screen.",
-      defaultValue: "Time-based loans, up to thirty days, with no margin-call liquidations.",
+      defaultValue:
+        "Time-based loans, up to thirty days, with no margin-call liquidations.",
+    },
+    subgraphApiKey: {
+      table: {
+        disable: true,
+      },
     },
   },
   args: {
@@ -95,6 +108,9 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Main: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+  },
   render: function Render(args) {
     const queryClient = new QueryClient();
 
@@ -111,6 +127,9 @@ export const Main: Story = {
 };
 
 export const AutoOpen: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+  },
   render: function Render(args) {
     const queryClient = new QueryClient();
 

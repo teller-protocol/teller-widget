@@ -14,7 +14,7 @@ interface SelectButtonProps {
 }
 
 interface CustomCSSProperties extends React.CSSProperties {
-  '--button-primary-color'?: string;
+  "--button-primary-color"?: string;
 }
 
 const SelectButtons: React.FC<SelectButtonProps> = ({
@@ -22,12 +22,10 @@ const SelectButtons: React.FC<SelectButtonProps> = ({
   onChange,
   value,
 }) => {
-  const { buttonColorPrimary } = useGetGlobalPropsContext
-    ? useGetGlobalPropsContext()
-    : { buttonColorPrimary };
+  const { buttonColorPrimary } = useGetGlobalPropsContext();
 
   const customStyle: CustomCSSProperties = {
-    '--button-primary-color': buttonColorPrimary,
+    "--button-primary-color": buttonColorPrimary,
   };
 
   return (
@@ -35,7 +33,10 @@ const SelectButtons: React.FC<SelectButtonProps> = ({
       {items.map((item, index) => (
         <button
           key={`select-${index}`}
-          className={cx("select-buttons__item", item.value === value && "active")}
+          className={cx(
+            "select-buttons__item",
+            item.value === value && "active"
+          )}
           style={customStyle}
           onClick={() => onChange(item.value)}
         >
