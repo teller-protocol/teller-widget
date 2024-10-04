@@ -19,6 +19,7 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
+import { parseBigInt } from "helpers/parseBigInt";
 
 interface Result {
   maxLoanAmount: bigint;
@@ -74,10 +75,10 @@ export const useCommitmentMax = ({
   const minAmount = useMemo(
     () =>
       bigIntMin(
-        BigInt(availableLenderBalance?.data?.value ?? 0) +
-          BigInt(loanAmount ?? 0),
-        BigInt(availableLenderAllowance?.data ?? 0),
-        BigInt(commitment?.committedAmount ?? 0) + BigInt(loanAmount ?? 0)
+        parseBigInt(availableLenderBalance?.data?.value ?? 0) +
+          parseBigInt(loanAmount ?? 0),
+        parseBigInt(availableLenderAllowance?.data ?? 0),
+        parseBigInt(commitment?.committedAmount ?? 0) + BigInt(loanAmount ?? 0)
       ),
     [
       availableLenderAllowance?.data,
@@ -163,8 +164,8 @@ export const useCommitmentMax = ({
     )
       return BigInt(0);
     const calculatedAmount =
-      (collateralAmount * BigInt(maxPrincipalPerCollateral ?? 0)) /
-      BigInt(
+      (collateralAmount * parseBigInt(maxPrincipalPerCollateral ?? 0)) /
+      parseBigInt(
         Math.pow(
           10,
           isCommitmentFromLCFAlpha
@@ -173,14 +174,14 @@ export const useCommitmentMax = ({
         )
       );
 
-    const maxPrincipal = BigInt(minAmount ?? 0);
+    const maxPrincipal = parseBigInt(minAmount ?? 0);
 
     const loanAmount =
       !returnCalculatedLoanAmount && calculatedAmount > maxPrincipal
         ? maxPrincipal
         : calculatedAmount;
 
-    return (loanAmount * BigInt(99_90)) / BigInt(10_000);
+    return (loanAmount * BigInt(9_990)) / BigInt(10_000);
   }, [
     collateralAmount,
     collateralTokenDecimals,
@@ -196,9 +197,10 @@ export const useCommitmentMax = ({
   );
 
   let displayedPrincipal = maxLoanAmount;
-  if (minAmount < BigInt(commitment?.committedAmount ?? 0)) {
+  if (minAmount < parseBigInt(commitment?.committedAmount ?? 0)) {
     displayedPrincipal =
-      (BigInt(maxLoanAmount) * BigInt(totalFeePercent)) / BigInt(10000);
+      (parseBigInt(maxLoanAmount) * parseBigInt(totalFeePercent)) /
+      BigInt(10000);
   }
 
   return useMemo(
