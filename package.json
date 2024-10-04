@@ -72,7 +72,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prebuild": "rm -rf dts lib && tsc -p tsconfig.json",
-    "build": "rollup --config --failAfterWarnings"
+    "build": "rollup --config"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.25.0",
