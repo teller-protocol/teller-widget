@@ -19,7 +19,7 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
-import { parseBigInt } from "helpers/parseBigInt";
+import { parseBigInt } from "../helpers/parseBigInt";
 
 interface Result {
   maxLoanAmount: bigint;
