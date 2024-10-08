@@ -24,6 +24,7 @@ type ModalProps = {
   showModal: boolean;
   isWelcomeScreen?: boolean;
   useLightLogo?: boolean;
+  isEmbed?: boolean;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -32,6 +33,7 @@ const Modal: React.FC<ModalProps> = ({
   showModal,
   isWelcomeScreen,
   useLightLogo,
+  isEmbed,
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -57,21 +59,29 @@ const Modal: React.FC<ModalProps> = ({
 
   const node = useMemo(
     () =>
-      showModal && (
-        <div className="modal-container">
+      showModal || isEmbed && (
+        <div 
+          className={cx(
+            "modal-container",
+            isEmbed && "is-embedded-widget",
+            !isEmbed && "is-not-embedded-widget"
+          )}
+        >
           <div className="modal-container-inner">
-            <div className="blur-container" aria-hidden="true">
-              <div
-                className="blur"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  event.preventDefault();
-                  if (event.target === event.currentTarget) {
-                    handleClose();
-                  }
-                }}
-              ></div>
-            </div>
+            {isEmbed ? null : (
+              <div className="blur-container" aria-hidden="true">
+                <div
+                  className="blur"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    if (event.target === event.currentTarget) {
+                      handleClose();
+                    }
+                  }}
+                ></div>
+              </div>
+            )}
             <div
               className={cx(
                 "modal-container-content",
@@ -121,6 +131,7 @@ const Modal: React.FC<ModalProps> = ({
 
   if (typeof document !== "undefined") {
     const portal = createWrapperAndAppendToBody("teller-widget");
+    if (isEmbed) return node
     return ReactDOM.createPortal(node, portal);
   }
 };

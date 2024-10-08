@@ -33,6 +33,7 @@ interface BaseWidgetProps {
   welcomeScreenTitle?: string;
   welcomeScreenParagraph?: string;
   subgraphApiKey: string;
+  isEmbed: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -65,13 +66,14 @@ const Widget: React.FC<WidgetProps> = ({
   welcomeScreenTitle,
   welcomeScreenParagraph,
   subgraphApiKey,
+  isEmbed = false,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
-    ) as boolean
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true",
+    ) as boolean,
   );
 
   if (referralFee > 500) {
@@ -93,10 +95,13 @@ const Widget: React.FC<WidgetProps> = ({
         >
           <div className="teller-widget">
             <Modal
-              closeModal={() => setShowModal(false)}
-              showModal={showModal}
+              {...(!isEmbed && {
+                closeModal: () => setShowModal(false),
+                showModal,
+              })}
               isWelcomeScreen={showWelcomeScreen}
               useLightLogo={useLightLogo}
+              isEmbed={isEmbed}
             >
               {showWelcomeScreen ? (
                 <WelcomeScreen
@@ -109,12 +114,14 @@ const Widget: React.FC<WidgetProps> = ({
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}
             </Modal>
-            <Button
-              label={buttonLabel}
-              onClick={() => setShowModal(true)}
-              className={buttonClassName}
-              variant={isBareButton ? "bare" : "primary"}
-            />
+            {isEmbed ? null : (
+              <Button
+                label={buttonLabel}
+                onClick={() => setShowModal(true)}
+                className={buttonClassName}
+                variant={isBareButton ? "bare" : "primary"}
+              />
+            )}
           </div>
         </GlobalContextProvider>
       </QueryClientProvider>
