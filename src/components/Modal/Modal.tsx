@@ -21,10 +21,10 @@ function createWrapperAndAppendToBody(wrapperId: string) {
 type ModalProps = {
   children: ReactNode;
   closeModal?: () => void;
-  showModal: boolean;
+  showModal?: boolean;
   isWelcomeScreen?: boolean;
   useLightLogo?: boolean;
-  isEmbed?: boolean;
+  isEmbedded?: boolean;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -33,7 +33,7 @@ const Modal: React.FC<ModalProps> = ({
   showModal,
   isWelcomeScreen,
   useLightLogo,
-  isEmbed,
+  isEmbedded,
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -59,15 +59,15 @@ const Modal: React.FC<ModalProps> = ({
 
   const node = useMemo(
     () =>
-      (showModal || isEmbed) && (
-        <div 
+      (showModal || isEmbedded) && (
+        <div
           className={cx(
             "modal-container",
-            !isEmbed && "is-not-embedded-widget"
+            !isEmbedded && "is-not-embedded-widget"
           )}
         >
           <div className="modal-container-inner">
-            {isEmbed ? null : (
+            {isEmbedded ? null : (
               <div className="blur-container" aria-hidden="true">
                 <div
                   className="blur"
@@ -98,7 +98,7 @@ const Modal: React.FC<ModalProps> = ({
                       <ChainSwitch />
                     </div>
                   )}
-                  {!isEmbed && (
+                  {!isEmbedded && (
                     <div className="close-button">
                       <Icon
                         icon="ci:close-big"
@@ -132,7 +132,7 @@ const Modal: React.FC<ModalProps> = ({
 
   if (typeof document !== "undefined") {
     const portal = createWrapperAndAppendToBody("teller-widget");
-    if (isEmbed) return node
+    if (isEmbedded) return node;
     return ReactDOM.createPortal(node, portal);
   }
 };

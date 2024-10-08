@@ -33,7 +33,7 @@ interface BaseWidgetProps {
   welcomeScreenTitle?: string;
   welcomeScreenParagraph?: string;
   subgraphApiKey: string;
-  isEmbed: boolean;
+  isEmbedded: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -66,14 +66,14 @@ const Widget: React.FC<WidgetProps> = ({
   welcomeScreenTitle,
   welcomeScreenParagraph,
   subgraphApiKey,
-  isEmbed = false,
+  isEmbedded = false,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true",
-    ) as boolean,
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
+    ) as boolean
   );
 
   if (referralFee > 500) {
@@ -95,13 +95,13 @@ const Widget: React.FC<WidgetProps> = ({
         >
           <div className="teller-widget">
             <Modal
-              {...(!isEmbed && {
+              {...(!isEmbedded && {
                 closeModal: () => setShowModal(false),
                 showModal,
               })}
               isWelcomeScreen={showWelcomeScreen}
               useLightLogo={useLightLogo}
-              isEmbed={isEmbed}
+              isEmbedded={isEmbedded}
             >
               {showWelcomeScreen ? (
                 <WelcomeScreen
@@ -114,7 +114,7 @@ const Widget: React.FC<WidgetProps> = ({
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}
             </Modal>
-           {!isEmbed && (
+             {!isEmbedded && (
               <Button
                 label={buttonLabel}
                 onClick={() => setShowModal(true)}

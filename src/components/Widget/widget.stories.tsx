@@ -45,7 +45,7 @@ const meta = {
         "Flag to remove all styling for the button for easier overwriting.",
       defaultValue: false,
     },
-    isEmbed: {
+    isEmbedded: {
       description: "Embed the widget navtively as a component.",
       defaultValue: false,
     },
