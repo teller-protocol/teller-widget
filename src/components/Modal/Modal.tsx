@@ -59,7 +59,7 @@ const Modal: React.FC<ModalProps> = ({
 
   const node = useMemo(
     () =>
-      showModal || isEmbed && (
+      (showModal || isEmbed) && (
         <div 
           className={cx(
             "modal-container",
@@ -98,14 +98,16 @@ const Modal: React.FC<ModalProps> = ({
                       <ChainSwitch />
                     </div>
                   )}
-                  <div className="close-button">
-                    <Icon
-                      icon="ci:close-big"
-                      onClick={() => {
-                        handleClose();
-                      }}
-                    />
-                  </div>
+                  {isEmbed ? null : (
+                    <div className="close-button">
+                      <Icon
+                        icon="ci:close-big"
+                        onClick={() => {
+                          handleClose();
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
                 {children}
               </div>
