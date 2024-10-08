@@ -7,37 +7,33 @@
 .modal-container {
   font-family: "Work Sans";
 
-  position: fixed;
-  top: 0;
-  left: 0;
+  /* Remove fixed positioning */
   width: 100%;
-  height: 100%;
+  max-width: 400px;
+  min-width: 400px;
+  margin: 0 auto; /* Center horizontally */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
 
   &-inner {
-    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     display: inline-block;
     height: 600px;
-    width: 350px;
+    width: 100%; /* Use full width of the parent container */
   }
 
   &-content {
     max-height: 100%;
     display: inline-block;
-
     border-radius: 0.5rem;
     background-color: rgba(248, 248, 250, 1);
     border: 0.5px solid rgba(199, 199, 199, 1);
     padding: 1em 1em 0.25em;
-    transform: translate(0, 0); // trick to remove the blur from modal
+    transform: translate(0, 0); /* Remove blur transform trick */
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
 
@@ -53,18 +49,11 @@
     }
   }
 
-  .blur-container > div {
-    position: absolute;
-    inset: 0;
-    backdrop-filter: blur(4px);
-  }
-
   .modal-content-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: $text-primary;
-
     margin-bottom: $s-large;
 
     .title-chain-container {
@@ -115,6 +104,5 @@
       filter: grayscale(100%);
       margin-right: 20px;
     }
-    
   }
 }

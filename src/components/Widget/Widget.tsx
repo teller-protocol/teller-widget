@@ -3,10 +3,8 @@ import { useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
-import Button from "../Button";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
-
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
@@ -49,7 +47,6 @@ export type WidgetProps =
   | WhiteListedTokensOptionalProps;
 
 const Widget: React.FC<WidgetProps> = ({
-  buttonLabel = "Cash advance",
   buttonColorPrimary,
   buttonTextColorPrimary,
   whitelistedTokens,
@@ -66,8 +63,7 @@ const Widget: React.FC<WidgetProps> = ({
   welcomeScreenParagraph,
   subgraphApiKey,
 }) => {
-  const [showModal, setShowModal] = useState(showModalByDefault || false);
-
+  // State for managing the welcome screen visibility
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
       getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
@@ -92,12 +88,7 @@ const Widget: React.FC<WidgetProps> = ({
           subgraphApiKey={subgraphApiKey}
         >
           <div className="teller-widget">
-            <Modal
-              closeModal={() => setShowModal(false)}
-              showModal={showModal}
-              isWelcomeScreen={showWelcomeScreen}
-              useLightLogo={useLightLogo}
-            >
+            <Modal isWelcomeScreen={showWelcomeScreen} useLightLogo={useLightLogo}>
               {showWelcomeScreen ? (
                 <WelcomeScreen
                   onClick={() => setShowWelcomeScreen(false)}
@@ -109,12 +100,6 @@ const Widget: React.FC<WidgetProps> = ({
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}
             </Modal>
-            <Button
-              label={buttonLabel}
-              onClick={() => setShowModal(true)}
-              className={buttonClassName}
-              variant={isBareButton ? "bare" : "primary"}
-            />
           </div>
         </GlobalContextProvider>
       </QueryClientProvider>
