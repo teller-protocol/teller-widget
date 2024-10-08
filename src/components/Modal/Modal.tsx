@@ -98,7 +98,7 @@ const Modal: React.FC<ModalProps> = ({
                       <ChainSwitch />
                     </div>
                   )}
-                  {isEmbed ? null : (
+                  {!isEmbed && (
                     <div className="close-button">
                       <Icon
                         icon="ci:close-big"

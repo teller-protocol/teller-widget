@@ -114,7 +114,7 @@ const Widget: React.FC<WidgetProps> = ({
                 <ModalContent showModalByDefault={showModalByDefault} />
               )}
             </Modal>
-            {isEmbed ? null : (
+           {!isEmbed && (
               <Button
                 label={buttonLabel}
                 onClick={() => setShowModal(true)}
