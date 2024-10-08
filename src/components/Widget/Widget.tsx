@@ -33,7 +33,7 @@ interface BaseWidgetProps {
   welcomeScreenTitle?: string;
   welcomeScreenParagraph?: string;
   subgraphApiKey: string;
-  isEmbedded: boolean;
+  isEmbedded?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
