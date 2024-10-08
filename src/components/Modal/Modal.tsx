@@ -21,9 +21,10 @@ function createWrapperAndAppendToBody(wrapperId: string) {
 type ModalProps = {
   children: ReactNode;
   closeModal?: () => void;
-  showModal: boolean;
+  showModal?: boolean;
   isWelcomeScreen?: boolean;
   useLightLogo?: boolean;
+  isEmbedded?: boolean;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -32,6 +33,7 @@ const Modal: React.FC<ModalProps> = ({
   showModal,
   isWelcomeScreen,
   useLightLogo,
+  isEmbedded,
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -57,21 +59,28 @@ const Modal: React.FC<ModalProps> = ({
 
   const node = useMemo(
     () =>
-      showModal && (
-        <div className="modal-container">
+      (showModal || isEmbedded) && (
+        <div
+          className={cx(
+            "modal-container",
+            !isEmbedded && "is-not-embedded-widget"
+          )}
+        >
           <div className="modal-container-inner">
-            <div className="blur-container" aria-hidden="true">
-              <div
-                className="blur"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  event.preventDefault();
-                  if (event.target === event.currentTarget) {
-                    handleClose();
-                  }
-                }}
-              ></div>
-            </div>
+            {isEmbedded ? null : (
+              <div className="blur-container" aria-hidden="true">
+                <div
+                  className="blur"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    if (event.target === event.currentTarget) {
+                      handleClose();
+                    }
+                  }}
+                ></div>
+              </div>
+            )}
             <div
               className={cx(
                 "modal-container-content",
@@ -89,14 +98,16 @@ const Modal: React.FC<ModalProps> = ({
                       <ChainSwitch />
                     </div>
                   )}
-                  <div className="close-button">
-                    <Icon
-                      icon="ci:close-big"
-                      onClick={() => {
-                        handleClose();
-                      }}
-                    />
-                  </div>
+                  {!isEmbedded && (
+                    <div className="close-button">
+                      <Icon
+                        icon="ci:close-big"
+                        onClick={() => {
+                          handleClose();
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
                 {children}
               </div>
@@ -121,6 +132,7 @@ const Modal: React.FC<ModalProps> = ({
 
   if (typeof document !== "undefined") {
     const portal = createWrapperAndAppendToBody("teller-widget");
+    if (isEmbedded) return node;
     return ReactDOM.createPortal(node, portal);
   }
 };
