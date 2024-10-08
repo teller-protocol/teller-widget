@@ -19,12 +19,6 @@
     z-index: 100;
   }
 
-  &.is-embedded-widget {
-    max-width: 400px;
-    min-width: 400px;
-    margin: 0 auto;
-  }
-
   &-inner {
     inset: 0;
     display: flex;

@@ -63,7 +63,6 @@ const Modal: React.FC<ModalProps> = ({
         <div 
           className={cx(
             "modal-container",
-            isEmbed && "is-embedded-widget",
             !isEmbed && "is-not-embedded-widget"
           )}
         >
