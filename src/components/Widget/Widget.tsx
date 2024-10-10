@@ -34,6 +34,7 @@ interface BaseWidgetProps {
   welcomeScreenParagraph?: string;
   subgraphApiKey: string;
   isEmbedded?: boolean;
+  showChainSwitch?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -67,6 +68,7 @@ const Widget: React.FC<WidgetProps> = ({
   welcomeScreenParagraph,
   subgraphApiKey,
   isEmbedded = false,
+  showChainSwitch = true,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -102,6 +104,7 @@ const Widget: React.FC<WidgetProps> = ({
               isWelcomeScreen={showWelcomeScreen}
               useLightLogo={useLightLogo}
               isEmbedded={isEmbedded}
+              showChainSwitch={showChainSwitch}
             >
               {showWelcomeScreen ? (
                 <WelcomeScreen
