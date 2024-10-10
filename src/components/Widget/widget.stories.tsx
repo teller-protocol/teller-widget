@@ -49,6 +49,10 @@ const meta = {
       description: "Embed the widget navtively as a component.",
       defaultValue: false,
     },
+    showChainSwitch: {
+      description: "Shows a chain switch component within the widget.",
+      defaultValue: true,
+    },
     showOnlyWhiteListedTokens: {
       defaultValue: false,
       description: "Flag to show only whitelisted tokens.",

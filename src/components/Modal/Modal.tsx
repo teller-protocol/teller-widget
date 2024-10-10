@@ -25,6 +25,7 @@ type ModalProps = {
   isWelcomeScreen?: boolean;
   useLightLogo?: boolean;
   isEmbedded?: boolean;
+  showChainSwitch?: boolean;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -34,6 +35,7 @@ const Modal: React.FC<ModalProps> = ({
   isWelcomeScreen,
   useLightLogo,
   isEmbedded,
+  showChainSwitch,
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -91,24 +93,26 @@ const Modal: React.FC<ModalProps> = ({
               aria-labelledby="modal-headline"
             >
               <div className="modal-container-content-inner">
-                <div className="modal-content-title">
-                  {!isWelcomeScreen && (
-                    <div className="title-chain-container">
-                      <div className="modal-title">Cash Advance</div>
-                      <ChainSwitch />
-                    </div>
-                  )}
-                  {!isEmbedded && (
-                    <div className="close-button">
-                      <Icon
-                        icon="ci:close-big"
-                        onClick={() => {
-                          handleClose();
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
+                {showChainSwitch &&(
+                  <div className="modal-content-title">
+                    {!isWelcomeScreen && (
+                      <div className="title-chain-container">
+                        <div className="modal-title">Cash Advance</div>
+                        <ChainSwitch />
+                      </div>
+                    )}
+                    {!isEmbedded && (
+                      <div className="close-button">
+                        <Icon
+                          icon="ci:close-big"
+                          onClick={() => {
+                            handleClose();
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
                 {children}
               </div>
               {!isWelcomeScreen && (
