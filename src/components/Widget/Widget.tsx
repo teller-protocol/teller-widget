@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WagmiProvider } from "wagmi";
 import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
@@ -9,7 +9,7 @@ import ModalContent from "../ModalContent";
 
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
-import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
+import useWelcomeScreen from "../../hooks/useWelcomeScreenOverride";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +34,7 @@ interface BaseWidgetProps {
   welcomeScreenParagraph?: string;
   subgraphApiKey: string;
   isEmbedded?: boolean;
+  showWelcomeScreenOverride?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -67,13 +68,12 @@ const Widget: React.FC<WidgetProps> = ({
   welcomeScreenParagraph,
   subgraphApiKey,
   isEmbedded = false,
+  showWelcomeScreenOverride,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
-  const [showWelcomeScreen, setShowWelcomeScreen] = useState(
-    JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
-    ) as boolean
+  const [showWelcomeScreen, setShowWelcomeScreen] = useWelcomeScreen(
+    showWelcomeScreenOverride
   );
 
   if (referralFee > 500) {
