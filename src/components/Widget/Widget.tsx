@@ -9,7 +9,7 @@ import ModalContent from "../ModalContent";
 
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
-import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
+import useWelcomeScreen from "../../hooks/useWelcomeScreenOverride";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +35,7 @@ interface BaseWidgetProps {
   subgraphApiKey: string;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
+  showWelcomeScreenOverride?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -69,13 +70,12 @@ const Widget: React.FC<WidgetProps> = ({
   subgraphApiKey,
   isEmbedded = false,
   showChainSwitch = true,
+  showWelcomeScreenOverride,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
-  const [showWelcomeScreen, setShowWelcomeScreen] = useState(
-    JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
-    ) as boolean
+  const [showWelcomeScreen, setShowWelcomeScreen] = useWelcomeScreen(
+    showWelcomeScreenOverride
   );
 
   if (referralFee > 500) {

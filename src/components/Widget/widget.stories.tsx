@@ -53,6 +53,10 @@ const meta = {
       description: "Shows a chain switch component within the widget.",
       defaultValue: true,
     },
+      showWelcomeScreenOverride: {
+      description: "Overrides local storage of welcome screen previously shown.",
+      defaultValue: true,
+    },
     showOnlyWhiteListedTokens: {
       defaultValue: false,
       description: "Flag to show only whitelisted tokens.",
