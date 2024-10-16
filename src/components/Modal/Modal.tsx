@@ -4,7 +4,6 @@ import "./modal.scss";
 
 import tellerLight from "../../assets/TellerLight.svg";
 import tellerDark from "../../assets/TellerDark.svg";
-import link from "../../assets/link.svg";
 
 import { Icon } from "@iconify/react";
 import { ReactNode, useCallback, useEffect, useMemo } from "react";
@@ -22,7 +21,6 @@ type ModalProps = {
   children: ReactNode;
   closeModal?: () => void;
   showModal?: boolean;
-  isWelcomeScreen?: boolean;
   useLightLogo?: boolean;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
@@ -32,7 +30,6 @@ const Modal: React.FC<ModalProps> = ({
   children,
   closeModal,
   showModal,
-  isWelcomeScreen,
   useLightLogo,
   isEmbedded,
   showChainSwitch,
@@ -84,10 +81,7 @@ const Modal: React.FC<ModalProps> = ({
               </div>
             )}
             <div
-              className={cx(
-                "modal-container-content",
-                isWelcomeScreen && "is-welcome-screen"
-              )}
+              className={cx("modal-container-content")}
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-headline"
@@ -95,12 +89,10 @@ const Modal: React.FC<ModalProps> = ({
               <div className="modal-container-content-inner">
                 {showChainSwitch && (
                   <div className="modal-content-title">
-                    {!isWelcomeScreen && (
-                      <div className="title-chain-container">
-                        <div className="modal-title">Cash Advance</div>
-                        <ChainSwitch />
-                      </div>
-                    )}
+                    <div className="title-chain-container">
+                      <div className="modal-title">Cash Advance</div>
+                      <ChainSwitch />
+                    </div>
                     {!isEmbedded && (
                       <div className="close-button">
                         <Icon
@@ -115,31 +107,21 @@ const Modal: React.FC<ModalProps> = ({
                 )}
                 {children}
               </div>
-              {!isWelcomeScreen && (
-                <div className="modal-footer-logo">
-                  <a
-                    href="https://www.teller.org"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="paragraph">Powered by</span>
-                    <img src={tellerLogo} className="logo" />
-                  </a>
-                </div>
-              )}
+              <div className="modal-footer-logo">
+                <a
+                  href="https://www.teller.org"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="paragraph">Powered by</span>
+                  <img src={tellerLogo} className="logo" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
       ),
-    [
-      children,
-      handleClose,
-      isEmbedded,
-      isWelcomeScreen,
-      showChainSwitch,
-      showModal,
-      tellerLogo,
-    ]
+    [children, handleClose, isEmbedded, showChainSwitch, showModal, tellerLogo]
   );
 
   if (typeof document !== "undefined") {
