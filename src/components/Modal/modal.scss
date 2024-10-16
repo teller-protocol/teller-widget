@@ -27,6 +27,7 @@
     display: inline-block;
     height: 600px;
     width: 350px;
+    position: relative;
   }
 
   &-content {
@@ -117,6 +118,6 @@
       filter: grayscale(100%);
       margin-right: 20px;
     }
-    
+
   }
 }

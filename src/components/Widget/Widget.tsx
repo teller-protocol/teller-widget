@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
@@ -10,6 +10,7 @@ import ModalContent from "../ModalContent";
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
 import useWelcomeScreen from "../../hooks/useWelcomeScreenOverride";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 const queryClient = new QueryClient();
 
@@ -74,10 +75,6 @@ const Widget: React.FC<WidgetProps> = ({
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
-  const [showWelcomeScreen, setShowWelcomeScreen] = useWelcomeScreen(
-    showWelcomeScreenOverride
-  );
-
   if (referralFee > 500) {
     console.warn("Referral fee set to maximum at 5%.");
   }
@@ -101,23 +98,20 @@ const Widget: React.FC<WidgetProps> = ({
                 closeModal: () => setShowModal(false),
                 showModal,
               })}
-              isWelcomeScreen={showWelcomeScreen}
               useLightLogo={useLightLogo}
               isEmbedded={isEmbedded}
               showChainSwitch={showChainSwitch}
             >
-              {showWelcomeScreen ? (
-                <WelcomeScreen
-                  onClick={() => setShowWelcomeScreen(false)}
-                  welcomeScreenLogo={welcomeScreenLogo}
-                  welcomeScreenTitle={welcomeScreenTitle}
-                  welcomeScreenParagraph={welcomeScreenParagraph}
-                />
-              ) : (
-                <ModalContent showModalByDefault={showModalByDefault} />
-              )}
+              <ModalContent
+                showModalByDefault={showModalByDefault}
+                showWelcomeScreenOverride={showWelcomeScreenOverride}
+                welcomeScreenLogo={welcomeScreenLogo}
+                welcomeScreenTitle={welcomeScreenTitle}
+                welcomeScreenParagraph={welcomeScreenParagraph}
+                closeModal={() => setShowModal(false)}
+              />
             </Modal>
-             {!isEmbedded && (
+            {!isEmbedded && (
               <Button
                 label={buttonLabel}
                 onClick={() => setShowModal(true)}

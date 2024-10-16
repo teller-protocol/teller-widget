@@ -6,25 +6,37 @@ import Button from "../../components/Button";
 import "./welcomeScreen.scss";
 import { setItemInLocalStorage } from "../../helpers/localStorageUtils";
 
+import { Icon } from "@iconify/react";
+
 interface WelcomeScreenProps {
-  onClick: () => void;
+  handleClose?: () => void;
   welcomeScreenLogo?: string;
   welcomeScreenTitle?: string;
   welcomeScreenParagraph?: string;
+  onClick?: () => void;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
-  onClick,
+  handleClose,
   welcomeScreenLogo,
   welcomeScreenTitle,
   welcomeScreenParagraph,
+  onClick,
 }) => {
   const handleOnClick = () => {
     setItemInLocalStorage("showTellerWidgetWelcomeScreen", "false");
-    onClick();
+    onClick?.();
   };
   return (
     <div className="welcome-screen">
+      <div className="close-button">
+        <Icon
+          icon="ci:close-big"
+          onClick={() => {
+            handleClose?.();
+          }}
+        />
+      </div>
       <img src={welcomeScreenLogo ?? tellerLogoFull} alt="Logo" />
 
       <h1>{welcomeScreenTitle ?? "DeFi's cash advance"}</h1>

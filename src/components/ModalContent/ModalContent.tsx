@@ -5,6 +5,8 @@ import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import BorrowSection from "../../pages/BorrowSection";
 import RepaySection from "../../pages/RepaySection";
 import SelectButtons from "../SelectButtons";
+import WelcomeScreen from "../../pages/WelcomeScreen";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 enum WIDGET_ACTION_ENUM {
   BORROW = "BORROW",
@@ -18,10 +20,31 @@ const selectOptions = [
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
+  showWelcomeScreenOverride?: boolean;
+  welcomeScreenLogo?: string;
+  welcomeScreenTitle?: string;
+  welcomeScreenParagraph?: string;
+  closeModal?: () => void;
+  onClick?: () => void;
 }
 
-const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
+const ModalContent: React.FC<ModalContentProps> = ({
+  showModalByDefault,
+  showWelcomeScreenOverride,
+  welcomeScreenLogo,
+  welcomeScreenTitle,
+  welcomeScreenParagraph,
+  closeModal,
+  onClick,
+}) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
+
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(
+    showWelcomeScreenOverride ||
+      (JSON.parse(
+        getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
+      ) as boolean)
+  );
 
   const mapOptionToComponent = {
     [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection />,
@@ -39,6 +62,15 @@ const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
 
   return (
     <>
+      {showWelcomeScreen && (
+        <WelcomeScreen
+          onClick={() => setShowWelcomeScreen(false)}
+          welcomeScreenLogo={welcomeScreenLogo}
+          welcomeScreenTitle={welcomeScreenTitle}
+          welcomeScreenParagraph={welcomeScreenParagraph}
+          handleClose={closeModal}
+        />
+      )}
       <SelectButtons
         items={selectOptions}
         value={widgetAction}
