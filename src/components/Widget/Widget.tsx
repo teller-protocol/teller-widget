@@ -7,10 +7,7 @@ import Button from "../Button";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
 
-import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
-import useWelcomeScreen from "../../hooks/useWelcomeScreenOverride";
-import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 const queryClient = new QueryClient();
 
