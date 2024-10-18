@@ -1,10 +1,8 @@
-import { useAccount } from "wagmi";
-
 import tellerLogoFull from "../../assets/tellerLogoFull.svg";
 import Button from "../../components/Button";
 
-import "./welcomeScreen.scss";
 import { setItemInLocalStorage } from "../../helpers/localStorageUtils";
+import "./welcomeScreen.scss";
 
 import { Icon } from "@iconify/react";
 
@@ -14,6 +12,7 @@ interface WelcomeScreenProps {
   welcomeScreenTitle?: string;
   welcomeScreenParagraph?: string;
   onClick?: () => void;
+  isEmbedded?: boolean;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
@@ -22,6 +21,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   welcomeScreenTitle,
   welcomeScreenParagraph,
   onClick,
+  isEmbedded,
 }) => {
   const handleOnClick = () => {
     setItemInLocalStorage("showTellerWidgetWelcomeScreen", "false");
@@ -29,14 +29,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
   return (
     <div className="welcome-screen">
-      <div className="close-button">
-        <Icon
-          icon="ci:close-big"
-          onClick={() => {
-            handleClose?.();
-          }}
-        />
-      </div>
+      {!isEmbedded && (
+        <div className="close-button">
+          <Icon
+            icon="ci:close-big"
+            onClick={() => {
+              handleClose?.();
+            }}
+          />
+        </div>
+      )}
       <img src={welcomeScreenLogo ?? tellerLogoFull} alt="Logo" />
 
       <h1>{welcomeScreenTitle ?? "DeFi's cash advance"}</h1>

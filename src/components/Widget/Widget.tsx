@@ -106,6 +106,7 @@ const Widget: React.FC<WidgetProps> = ({
                 welcomeScreenTitle={welcomeScreenTitle}
                 welcomeScreenParagraph={welcomeScreenParagraph}
                 closeModal={() => setShowModal(false)}
+                isEmbedded={isEmbedded}
               />
             </Modal>
             {!isEmbedded && (

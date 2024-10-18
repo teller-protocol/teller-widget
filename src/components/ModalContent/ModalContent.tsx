@@ -26,6 +26,7 @@ interface ModalContentProps {
   welcomeScreenParagraph?: string;
   closeModal?: () => void;
   onClick?: () => void;
+  isEmbedded?: boolean;
 }
 
 const ModalContent: React.FC<ModalContentProps> = ({
@@ -35,7 +36,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   welcomeScreenTitle,
   welcomeScreenParagraph,
   closeModal,
-  onClick,
+  isEmbedded,
 }) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
 
@@ -69,6 +70,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           welcomeScreenTitle={welcomeScreenTitle}
           welcomeScreenParagraph={welcomeScreenParagraph}
           handleClose={closeModal}
+          isEmbedded={isEmbedded}
         />
       )}
       <SelectButtons
