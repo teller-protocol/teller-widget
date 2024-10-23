@@ -34,7 +34,6 @@ const CollateralTokenList: React.FC = () => {
             <Loader />
           ) : tokensWithCommitments.length > 0 ? (
             tokensWithCommitments
-              .slice()
               .sort((a, b) => a.symbol.localeCompare(b.symbol))
               .map((token) => (
                 <CollateralTokenRow
