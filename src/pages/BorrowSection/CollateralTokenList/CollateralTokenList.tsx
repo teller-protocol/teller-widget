@@ -33,13 +33,16 @@ const CollateralTokenList: React.FC = () => {
           {loading ? (
             <Loader />
           ) : tokensWithCommitments.length > 0 ? (
-            tokensWithCommitments.map((token) => (
-              <CollateralTokenRow
-                token={token}
-                onClick={onCollateralTokenSelected}
-                key={token.address.toString()}
-              />
-            ))
+            tokensWithCommitments
+              .slice()
+              .sort((a, b) => a.symbol.localeCompare(b.symbol))
+              .map((token) => (
+                <CollateralTokenRow
+                  token={token}
+                  onClick={onCollateralTokenSelected}
+                  key={token.address.toString()}
+                />
+              ))
           ) : (
             <div className="section-title">No tokens available</div>
           )}
