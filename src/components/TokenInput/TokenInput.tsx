@@ -6,6 +6,7 @@ import { SubgraphTokenType } from "../../hooks/queries/useGetCommitmentsForColla
 
 import "./tokenInput.scss";
 import TokenLogo from "../TokenLogo";
+import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { useState } from "react";
 
 export type TokenInputType = {
@@ -92,6 +93,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
     });
   };
 
+  const logoUrl = imageUrl ? imageUrl : defaultTokenImage;
+
   return (
     <div className="token-input-container">
       {label && <label className="section-title">{label}</label>}
@@ -109,7 +112,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           </div>
         )}
         <div className="token-info">
-          <TokenLogo logoUrl={imageUrl} size={16} />
+          <TokenLogo logoUrl={logoUrl} size={16} />
           <span className="token-info-symbol">{tokenValue.token?.symbol}</span>
         </div>
       </div>

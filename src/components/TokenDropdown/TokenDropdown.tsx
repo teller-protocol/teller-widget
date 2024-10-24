@@ -3,6 +3,7 @@ import cx from "classnames";
 
 import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
+import defaultTokenImage from "../../assets/generic_token-icon.svg";
 
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
@@ -22,17 +23,21 @@ interface TokenDropdownButtonProps {
 const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   token,
   onClick,
-}) => (
-  <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
-    <TokenLogo logoUrl={token?.logo} size={32} />
-    <div className="token-info">
-      <div className="paragraph">{token?.symbol}</div>
-      <div className="section-sub-title">
-        Balance: {Number(token?.balance).toFixed(3)} {token?.symbol}
+}) => {
+  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+
+  return (
+    <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
+      <TokenLogo logoUrl={logoUrl} size={32} />
+      <div className="token-info">
+        <div className="paragraph">{token?.symbol}</div>
+        <div className="section-sub-title">
+          Balance: {Number(token?.balance).toFixed(3)} {token?.symbol}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const TokenDropdown: React.FC<TokenDropdownProps> = ({
   tokens,

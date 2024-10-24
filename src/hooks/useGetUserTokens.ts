@@ -1,5 +1,6 @@
 import { useAccount, useChainId } from "wagmi";
 import { useAlchemy } from "./useAlchemy";
+import { TokenBalanceType } from 'alchemy-sdk';
 import { useEffect, useState } from "react";
 import { Address, formatUnits, parseUnits } from "viem";
 import { WhitelistedTokens } from "../components/Widget/Widget";
@@ -33,13 +34,23 @@ export const useGetUserTokens = (
 
     void (async () => {
       const userTokensData: UserToken[] = [];
+      let pageKey: string | undefined = undefined;
+      let nonZeroBalances: any[] = [];
 
-      const balances = address
-        ? await alchemy.core.getTokenBalances(address)
-        : { tokenBalances: [] };
-      const nonZeroBalances = balances.tokenBalances.filter(
-        (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
-      );
+      // Loop through token pages
+      do {
+        const balances: any = address
+          ? await alchemy.core.getTokenBalances(address, {
+              pageKey, // Pass the pageKey for pagination
+              type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
+            })
+          : { tokenBalances: [] };
+        const filteredBalances = balances.tokenBalances.filter(
+          (token: any) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
+        );
+        nonZeroBalances.push(...filteredBalances);
+        pageKey = balances.pageKey; // Update pageKey to fetch next page if available
+      } while (pageKey);
 
       const whiteListedTokensWithBalances = whiteListedTokens?.map(
         (appToken) => {
