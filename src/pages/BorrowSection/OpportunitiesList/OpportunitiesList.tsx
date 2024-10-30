@@ -16,7 +16,7 @@ import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
-import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 
 interface OpportunityListItemProps {
@@ -55,12 +55,13 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       : BigInt(0)
   );
 
-  const commitmentMax = useCommitmentMax({
+  const commitmentMax = useGetCommitmentMax({
     commitment: opportunity,
     requestedCollateral: collateralAmount,
     collateralTokenDecimals: opportunity.collateralToken?.decimals,
   });
 
+  // TODO: ADD SOCIAL FI CONDITIONAL
   useEffect(() => {
     commitmentMax.maxCollateral > 0 &&
       setCollateralAmount(commitmentMax.maxCollateral);
@@ -119,7 +120,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayCollateralAmountData.formattedAmount}
           logo={displayCollateralAmountData.token}
         />{" "}
-        to borow{" "}
+        to borrow{" "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token}
