@@ -11,7 +11,7 @@ import {
   optimism,
   polygon,
 } from "viem/chains";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useChainId, useSwitchChain } from "wagmi";
 import arbitrumIcon from "../../assets/arbitrum.png";
 import baseIcon from "../../assets/base.png";
 import mainnetIcon from "../../assets/mainnet.png";
@@ -19,11 +19,11 @@ import polygonIcon from "../../assets/polygon.png";
 
 import cx from "classnames";
 
+import { Icon } from "@iconify/react";
 import { useState } from "react";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import "./chainSwitch.scss";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { Icon } from "@iconify/react";
 
 interface ChainDropdownRowProps {
   chain: Chain;
@@ -59,23 +59,19 @@ const ChainDropdownRow: React.FC<ChainDropdownRowProps> = ({ chain }) => {
 };
 
 const ChainSwitch: React.FC = () => {
-  const { chain } = useAccount();
+  const chainId = useChainId();
   const [isOpen, setIsOpen] = useState(false);
-  const hasImage = !!chain?.id;
-  const img = hasImage ? mapChainToImage[chain.id] : undefined;
+  const hasImage = !!chainId;
+  const img = hasImage ? mapChainToImage[chainId] : undefined;
   const { whitelistedChains } = useGetGlobalPropsContext();
 
   const ref = useOutsideClick(() => setIsOpen(false));
-
-  if (img === undefined) {
-    return <></>;
-  }
 
   const filteredChains = whitelistedChains
     ? supportedChains.filter((c) => whitelistedChains?.includes(c.id))
     : supportedChains;
 
-  const visibleChains = filteredChains.filter((c) => c.id !== chain?.id);
+  const visibleChains = filteredChains.filter((c) => c.id !== chainId);
 
   const isSingleChain = visibleChains.length === 0;
 
