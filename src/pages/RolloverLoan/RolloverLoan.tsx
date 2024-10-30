@@ -37,7 +37,7 @@ import {
 } from "../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import useDebounce from "../../hooks/useDebounce";
-import { useCommitmentMax } from "../../hooks/useGetCommitmentMax";
+import { useGetCommitmentMax } from "../../hooks/useGetCommitmentMax";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import useRolloverLoan from "../../hooks/useRolloverLoan";
 
@@ -244,7 +244,7 @@ const RolloverLoan: React.FC = () => {
   const {
     maxCollateral: maxCollateralWithWalletBalance,
     isLoading: maxCollateralWithWalletBalanceLoading,
-  } = useCommitmentMax({
+  } = useGetCommitmentMax({
     commitment,
     requestedCollateral:
       isSameLender &&
@@ -330,7 +330,7 @@ const RolloverLoan: React.FC = () => {
     maxLoanAmount,
     maxCollateral,
     isLoading: maxCollateralLoading,
-  } = useCommitmentMax({
+  } = useGetCommitmentMax({
     commitment,
     requestedCollateral: collateralAmountDebounced.valueBI,
     isRollover: true,
