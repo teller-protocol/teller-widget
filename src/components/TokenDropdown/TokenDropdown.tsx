@@ -66,13 +66,16 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
       </div>
       {isOpen && tokens.length > 0 && (
         <div className="token-dropdown--tokens">
-          {tokens.map((token) => (
-            <TokenDropdownRow
-              token={token}
-              key={token.address}
-              onClick={onTokenDropdownRowClick}
-            />
-          ))}
+          {tokens
+            .sort((a, b) => a.symbol.localeCompare(b.symbol))
+            .map((token) => ( 
+              <TokenDropdownRow
+                token={token}
+                key={token.address}
+                onClick={onTokenDropdownRowClick}
+              />
+            ))
+          }
         </div>
       )}
     </div>
