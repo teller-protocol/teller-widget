@@ -18,6 +18,7 @@ import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
+import { useAccount } from "wagmi";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -144,8 +145,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 const OpportunitiesList: React.FC = () => {
   const { selectedCollateralToken, tokensWithCommitments } =
     useGetBorrowSectionContext();
+  const { address: userAddress } = useAccount();
   const { data } = useGetCommitmentsForCollateralToken(
-    selectedCollateralToken?.address
+    selectedCollateralToken?.address,
+    userAddress
   );
 
   return (

@@ -43,7 +43,8 @@ export type CommitmentType = {
 };
 
 export const useGetCommitmentsForCollateralToken = (
-  collateralTokenAddress?: string
+  collateralTokenAddress?: string,
+  userAddress?: Address
 ) => {
   const graphURL = useGraphURL();
 
@@ -54,13 +55,26 @@ export const useGetCommitmentsForCollateralToken = (
     query commitmentsForCollateralToken_${collateralTokenAddress} {
       commitments(
         where: {
-          collateralToken_: {
-            address: "${collateralTokenAddress}"
-          },
-          status: "Active",
-          expirationTimestamp_gt: "${Math.floor(Date.now() / 1000)}",
-          committedAmount_gt: "0"
-          forwarderAddress_in: ["${lcfAlphaAddress}", "${lcfAddress}"]
+          and: [
+            {
+              collateralToken_: {
+                address: "${collateralTokenAddress}"
+              },
+              status: "Active",
+              expirationTimestamp_gt: "${Math.floor(Date.now() / 1000)}",
+              committedAmount_gt: "0",
+              forwarderAddress_in: [
+                "${lcfAlphaAddress}",
+                "${lcfAddress}"
+              ]
+            },
+            {
+              or: [
+                { commitmentBorrowers_contains: ["${userAddress}"] },
+                { commitmentBorrowers: [] }
+              ]
+            }
+          ]
         },
         orderBy: maxPrincipalPerCollateralAmount,
         orderDirection: desc
@@ -68,7 +82,6 @@ export const useGetCommitmentsForCollateralToken = (
         collateralTokenType
         commitmentBorrowers
         committedAmount
-        collateralTokenType
         createdAt
         expirationTimestamp
         id: commitmentId
@@ -104,11 +117,10 @@ export const useGetCommitmentsForCollateralToken = (
         }
         acceptedPrincipal
         maxPrincipal
-        forwarderAddress
       }
     }
   `,
-    [collateralTokenAddress, lcfAddress, lcfAlphaAddress]
+    [collateralTokenAddress, lcfAddress, lcfAlphaAddress, userAddress]
   );
 
   const { data, isLoading, error } = useQuery({
