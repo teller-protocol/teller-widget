@@ -213,7 +213,13 @@ export const usePayLoan = (
         formattedWalletBalance,
         transactions,
         totalOwedNum,
+        currentAmountDueNum,
       };
-    }, [formattedWalletBalance, transactions, totalOwedNum]);
+    }, [
+      formattedWalletBalance,
+      transactions,
+      totalOwedNum,
+      currentAmountDueNum,
+    ]);
   }
 };

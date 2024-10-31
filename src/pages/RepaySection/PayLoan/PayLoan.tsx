@@ -38,11 +38,8 @@ const PayLoan: React.FC = () => {
     setCurrentStep(RepaySectionSteps.CONFIRMATION);
   };
 
-  const { transactions, formattedWalletBalance, totalOwedNum } = usePayLoan(
-    loan,
-    tokenValue.value ?? 0,
-    onSuccessfulTx
-  );
+  const { transactions, formattedWalletBalance, currentAmountDueNum } =
+    usePayLoan(loan, tokenValue.value ?? 0, onSuccessfulTx);
 
   const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
 
@@ -70,7 +67,7 @@ const PayLoan: React.FC = () => {
             </div>
           </div>
         }
-        maxAmount={Number(totalOwedNum)}
+        maxAmount={Number(currentAmountDueNum)}
         tokenValue={tokenValue}
         onChange={onTokenInputChange}
         limitToMax
@@ -97,7 +94,7 @@ const PayLoan: React.FC = () => {
           <div className="loan-information-row">
             <div>Total owed</div>
             <div className="token-data">
-              {numberWithCommasAndDecimals(totalOwedNum)}{" "}
+              {numberWithCommasAndDecimals(currentAmountDueNum)}{" "}
               {loan.lendingToken.symbol}
               <TokenLogo logoUrl={principalTokenLogo} />
             </div>

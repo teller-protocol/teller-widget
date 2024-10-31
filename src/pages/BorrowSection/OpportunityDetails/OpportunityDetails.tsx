@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
@@ -14,7 +14,7 @@ import {
   useGetBorrowSectionContext,
 } from "../../BorrowSection/BorrowSectionContext";
 
-import { useCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import "./opportunityDetails.scss";
 
 import { formatUnits, parseUnits } from "viem";
@@ -30,24 +30,21 @@ const OpportunityDetails = () => {
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
 
-  const [collateralTokenValue, setCollataralTokenValue] =
+  const isWhitelistedTokenAndUserHasNoBalance =
+    whitelistedToken && Number(selectedCollateralToken?.balance) === 0;
+
+  const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({
       token: selectedOpportunity.collateralToken,
       value: Number(
         Number(selectedCollateralToken?.balance) > 0
           ? selectedCollateralToken?.balance
-          : whitelistedToken
-          ? 1
-          : 0
+          : 1
       ),
       valueBI:
         selectedCollateralToken?.balanceBigInt ?? 0n > BigInt(0)
           ? selectedCollateralToken?.balanceBigInt
-          : BigInt(
-              whitelistedToken
-                ? parseUnits("1", selectedCollateralToken?.decimals ?? 0)
-                : 0
-            ),
+          : BigInt(parseUnits("1", selectedCollateralToken?.decimals ?? 0)),
     });
 
   const {
@@ -56,12 +53,36 @@ const OpportunityDetails = () => {
     maxCollateral,
     maxLoanAmount,
     maxLoanAmountNumber,
-  } = useCommitmentMax({
+  } = useGetCommitmentMax({
     collateralTokenDecimals: selectedCollateralToken?.decimals,
     commitment: selectedOpportunity,
     requestedCollateral: collateralTokenValue.valueBI,
     returnCalculatedLoanAmount: true,
   });
+
+  useEffect(() => {
+    if (isWhitelistedTokenAndUserHasNoBalance) {
+      return;
+    }
+
+    setCollateralTokenValue((prev) => {
+      if (prev.valueBI === maxCollateral) {
+        return prev;
+      }
+      return {
+        ...prev,
+        valueBI: maxCollateral,
+        value: Number(
+          formatUnits(maxCollateral, selectedCollateralToken?.decimals ?? 0)
+        ),
+      };
+    });
+  }, [
+    collateralTokenValue,
+    isWhitelistedTokenAndUserHasNoBalance,
+    maxCollateral,
+    selectedCollateralToken?.decimals,
+  ]);
 
   const { isNewBorrower } = useIsNewBorrower();
 
@@ -112,9 +133,12 @@ const OpportunityDetails = () => {
         maxAmount={Number(selectedCollateralToken?.balance ?? 0)}
         imageUrl={selectedCollateralToken?.logo || ""}
         sublabel={`Max collateral: ${numberWithCommasAndDecimals(
-          selectedCollateralToken?.balance
+          formatUnits(
+            maxCollateral ?? 0n,
+            selectedCollateralToken?.decimals ?? 0
+          )
         )} ${selectedCollateralToken?.symbol}`}
-        onChange={setCollataralTokenValue}
+        onChange={setCollateralTokenValue}
       />
       <div className="duration-info">
         <DataField label="Duration">

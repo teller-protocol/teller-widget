@@ -38,7 +38,7 @@ interface Args {
   loanAmount?: bigint;
 }
 
-export const useCommitmentMax = ({
+export const useGetCommitmentMax = ({
   commitment,
   requestedCollateral,
   collateralTokenDecimals,
@@ -165,7 +165,7 @@ export const useCommitmentMax = ({
       return BigInt(0);
     const calculatedAmount =
       (collateralAmount * parseBigInt(maxPrincipalPerCollateral ?? 0)) /
-      parseBigInt(
+      BigInt(
         Math.pow(
           10,
           isCommitmentFromLCFAlpha
@@ -181,7 +181,7 @@ export const useCommitmentMax = ({
         ? maxPrincipal
         : calculatedAmount;
 
-    return (loanAmount * BigInt(9_990)) / BigInt(10_000);
+    return parseBigInt((loanAmount * BigInt(9_990)) / BigInt(10_000));
   }, [
     collateralAmount,
     collateralTokenDecimals,
