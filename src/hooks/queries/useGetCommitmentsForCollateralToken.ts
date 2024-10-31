@@ -68,11 +68,15 @@ export const useGetCommitmentsForCollateralToken = (
                 "${lcfAddress}"
               ]
             },
-            {
+            ${
+              userAddress
+                ? `{
               or: [
                 { commitmentBorrowers_contains: ["${userAddress}"] },
                 { commitmentBorrowers: [] }
               ]
+            }`
+                : ""
             }
           ]
         },
