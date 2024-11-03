@@ -76,7 +76,7 @@ export const useGetCommitmentsForCollateralToken = (
                 { commitmentBorrowers: [] }
               ]
             }`
-                : { commitmentBorrowers: [] }
+                : `{ commitmentBorrowers: [] }`
             }
           ]
         },
