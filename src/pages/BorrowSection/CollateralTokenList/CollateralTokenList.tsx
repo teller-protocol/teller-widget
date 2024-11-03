@@ -1,3 +1,4 @@
+import React from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import { UserToken } from "../../../hooks/useGetUserTokens";
@@ -23,25 +24,32 @@ const CollateralTokenList: React.FC = () => {
     setSelectedCollateralToken(token);
   };
 
+  const sortedTokens = [
+    ...tokensWithCommitments
+      .filter((token) => parseFloat(token.balance) > 0)
+      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+    ...tokensWithCommitments
+      .filter((token) => parseFloat(token.balance) <= 0)
+      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+  ];
+
   return (
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
           <div className="section-title">
-            Select token collateral for deposit:{" "}
+            Select token collateral for deposit:
           </div>
           {loading ? (
             <Loader />
-          ) : tokensWithCommitments.length > 0 ? (
-            tokensWithCommitments
-              .sort((a, b) => a.symbol.localeCompare(b.symbol))
-              .map((token) => (
-                <CollateralTokenRow
-                  token={token}
-                  onClick={onCollateralTokenSelected}
-                  key={token.address.toString()}
-                />
-              ))
+          ) : sortedTokens.length > 0 ? (
+            sortedTokens.map((token) => (
+              <CollateralTokenRow
+                token={token}
+                onClick={() => onCollateralTokenSelected(token)}
+                key={token.address.toString()}
+              />
+            ))
           ) : (
             <div className="section-title">No tokens available</div>
           )}
