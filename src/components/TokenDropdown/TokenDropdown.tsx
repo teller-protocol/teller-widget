@@ -1,10 +1,8 @@
 import { useState } from "react";
 import cx from "classnames";
-
 import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
-
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
@@ -53,6 +51,15 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 
   const ref = useOutsideClick(() => setIsOpen(false));
 
+  const sortedTokens = [
+    ...tokens
+      .filter((token) => parseFloat(token.balance) > 0)
+      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+    ...tokens
+      .filter((token) => parseFloat(token.balance) <= 0)
+      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+  ];
+
   return (
     <div className="token-dropdown" ref={ref}>
       <div
@@ -64,18 +71,15 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           <Icon icon="clarity:caret-line" />
         </div>
       </div>
-      {isOpen && tokens.length > 0 && (
+      {isOpen && sortedTokens.length > 0 && (
         <div className="token-dropdown--tokens">
-          {tokens
-            .sort((a, b) => a.symbol.localeCompare(b.symbol))
-            .map((token) => ( 
-              <TokenDropdownRow
-                token={token}
-                key={token.address}
-                onClick={onTokenDropdownRowClick}
-              />
-            ))
-          }
+          {sortedTokens.map((token) => (
+            <TokenDropdownRow
+              token={token}
+              key={token.address}
+              onClick={onTokenDropdownRowClick}
+            />
+          ))}
         </div>
       )}
     </div>
