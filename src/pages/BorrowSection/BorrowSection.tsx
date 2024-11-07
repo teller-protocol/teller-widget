@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-
+import { useMemo, useEffect } from "react";
+import { useChainId } from "wagmi";
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -12,9 +12,12 @@ import OpportunityDetails from "./OpportunityDetails";
 import "./borrowSection.scss";
 import BorrowConfirmation from "./BorrowConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 const RenderComponent: React.FC = () => {
+  const { whitelistedChainTokens } = useGetGlobalPropsContext();
   const { currentStep, setCurrentStep, bidId } = useGetBorrowSectionContext();
+  const chainId = useChainId();
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,
@@ -31,6 +34,10 @@ const RenderComponent: React.FC = () => {
     }),
     [bidId, setCurrentStep]
   );
+
+  useEffect(() => {
+    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+  }, [chainId, setCurrentStep, whitelistedChainTokens]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>
