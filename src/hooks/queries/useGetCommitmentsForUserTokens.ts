@@ -85,7 +85,13 @@ export const useGetCommitmentsForUserTokens = () => {
         }
         return acc;
       }, [] as UserToken[]);
-      setTokensWithCommitments(userCommitments);
+      const userCommitmentsUnique = userCommitments.filter((item, index, self) => {
+        return (
+          item.address &&
+          self.findIndex((obj) => obj.address === item.address) === index
+        );
+      });
+      setTokensWithCommitments(userCommitmentsUnique);
       setLoading(false);
     }
   }, [data, userTokens, setTokensWithCommitments, setLoading]);
