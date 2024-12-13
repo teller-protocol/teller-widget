@@ -130,8 +130,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       </div>
       <div className="opportunity-list-item-body">
         <OpportunityListDataItem
-          label="APR"
-          value={`${Number(opportunity.minAPY) / 100} %`}
+          label="Interest"
+          value={`${
+            ((Number(opportunity.minAPY) / 100) * ((Number(opportunity.maxDuration) / 86400) / 365)).toFixed(2)
+          } %`}
         />
         <OpportunityListDataItem
           label="Duration"
