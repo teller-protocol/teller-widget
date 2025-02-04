@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { useChainId } from "wagmi";
+import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -27,7 +28,7 @@ const RenderComponent: React.FC = () => {
       
       if (tokenMetadata && !isLoading) {
         setSelectedCollateralToken({
-          address: tokenAddress,
+          address: `0x${tokenAddress}`,
           name: tokenMetadata.name || '',
           symbol: tokenMetadata.symbol || '',
           logo: tokenMetadata.logo || '',
