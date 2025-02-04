@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import { UserToken } from "../../../hooks/useGetUserTokens";
@@ -45,7 +45,7 @@ const CollateralTokenList: React.FC = () => {
           </div>
           <input
             type="text"
-            placeholder="Search tokens..."
+            placeholder="Search collateral to deposit:"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="token-search-input"
