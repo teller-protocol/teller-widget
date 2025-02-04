@@ -40,8 +40,9 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
 export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
+  const { showOnlySingleTokenAddress } = useGetGlobalPropsContext();
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
-    BorrowSectionSteps.SELECT_TOKEN
+    showOnlySingleTokenAddress ? BorrowSectionSteps.SELECT_OPPORTUNITY : BorrowSectionSteps.SELECT_TOKEN
   );
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
