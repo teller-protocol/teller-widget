@@ -35,6 +35,7 @@ interface BaseWidgetProps {
   subgraphApiKey: string;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
+  showOnlySingleTokenAddress?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
