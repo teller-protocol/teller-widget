@@ -22,8 +22,21 @@ const RenderComponent: React.FC = () => {
   useEffect(() => {
     console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress)
     if (showOnlySingleTokenAddress?.startsWith('0x')) {
-      setSelectedCollateralToken({ address: `0x${showOnlySingleTokenAddress}` });
-      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      const tokenAddress = `0x${showOnlySingleTokenAddress}`;
+      const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress);
+      
+      if (tokenMetadata && !isLoading) {
+        setSelectedCollateralToken({
+          address: tokenAddress,
+          name: tokenMetadata.name || '',
+          symbol: tokenMetadata.symbol || '',
+          logo: tokenMetadata.logo || '',
+          balance: '0',
+          decimals: tokenMetadata.decimals || 18,
+          chainId
+        });
+        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      }
     }
   }, [showOnlySingleTokenAddress, whitelistedChainTokens, setSelectedCollateralToken, setCurrentStep]);
   const mapStepToComponent = useMemo(
