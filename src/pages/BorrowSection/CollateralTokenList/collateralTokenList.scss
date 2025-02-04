@@ -4,15 +4,21 @@
   .token-search-input {
     width: 100%;
     padding: 8px 12px 8px 32px;
-    margin: 12px 0;
-    border: 1px solid #e0e0e0;
+    margin: 0 0 12px 0;
+    border: 1px solid #dfdfdf;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
     outline: none;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") 8px center no-repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") 8px center no-repeat;
+
+    color: #132725;
     
     &:focus {
-      border-color: #0097FB;
+      border-color: #bebebe;
+    }
+
+    &::placeholder {
+        color: #87a1a1;
     }
   }
   .section-title {
