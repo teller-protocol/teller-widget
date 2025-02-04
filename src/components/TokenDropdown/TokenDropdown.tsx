@@ -5,6 +5,7 @@ import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { Icon } from "@iconify/react";
 
