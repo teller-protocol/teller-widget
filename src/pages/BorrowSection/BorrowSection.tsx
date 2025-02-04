@@ -22,11 +22,8 @@ const RenderComponent: React.FC = () => {
   useEffect(() => {
     console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress)
     if (showOnlySingleTokenAddress?.startsWith('0x')) {
-      const token = whitelistedChainTokens?.find(t => t.address.toLowerCase() === showOnlySingleTokenAddress.toLowerCase());
-      if (token) {
-        setSelectedCollateralToken(token);
-        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-      }
+      setSelectedCollateralToken({ address: `0x${showOnlySingleTokenAddress}` });
+      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     }
   }, [showOnlySingleTokenAddress, whitelistedChainTokens, setSelectedCollateralToken, setCurrentStep]);
   const mapStepToComponent = useMemo(

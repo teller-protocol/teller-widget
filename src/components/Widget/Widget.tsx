@@ -70,6 +70,7 @@ const Widget: React.FC<WidgetProps> = ({
   subgraphApiKey,
   isEmbedded = false,
   showChainSwitch = true,
+  showOnlySingleTokenAddress,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
