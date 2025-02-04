@@ -7,16 +7,11 @@
     margin: 12px 0;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
-    font-size: inherit;
+    font-size: 14px;
     outline: none;
     
     &:focus {
       border-color: #0097FB;
-    }
-
-    &::placeholder {
-      color: inherit;
-      font-size: inherit;
     }
   }
   .section-title {
