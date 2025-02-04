@@ -95,6 +95,7 @@ const Widget: React.FC<WidgetProps> = ({
           buttonColorPrimary={buttonColorPrimary}
           buttonTextColorPrimary={buttonTextColorPrimary}
           subgraphApiKey={subgraphApiKey}
+          showOnlySingleTokenAddress={showOnlySingleTokenAddress}
         >
           <div className="teller-widget">
             <Modal
