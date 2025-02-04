@@ -15,7 +15,6 @@ export type GlobalPropsContextType = {
   buttonColorPrimary?: string;
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
-  showOnlySingleTokenAddress?: string;
 };
 
 interface GlobalPropsContextProps {
@@ -28,7 +27,6 @@ interface GlobalPropsContextProps {
   buttonColorPrimary?: string;
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
-  showOnlySingleTokenAddress?: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -43,7 +41,6 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   buttonColorPrimary = undefined,
   buttonTextColorPrimary = undefined,
   subgraphApiKey,
-  showOnlySingleTokenAddress,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -83,7 +80,6 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         buttonColorPrimary,
         buttonTextColorPrimary,
         subgraphApiKey,
-        showOnlySingleTokenAddress,
       }}
     >
       {children}
