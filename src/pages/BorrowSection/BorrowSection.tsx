@@ -44,7 +44,6 @@ const RenderComponent: React.FC = () => {
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || '');
 
   useEffect(() => {
-    console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress);
     if (tokenAddress && tokenMetadata && !isLoading) {
       setSelectedCollateralToken({
         address: tokenAddress as `0x${string}`,
