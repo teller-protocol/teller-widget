@@ -20,26 +20,24 @@ const RenderComponent: React.FC = () => {
   const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
   const chainId = useChainId();
 
+  const tokenAddress = showOnlySingleTokenAddress?.startsWith('0x') ? `0x${showOnlySingleTokenAddress}` : undefined;
+  const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || '');
+
   useEffect(() => {
-    console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress)
-    if (showOnlySingleTokenAddress?.startsWith('0x')) {
-      const tokenAddress = `0x${showOnlySingleTokenAddress}`;
-      const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress);
-      
-      if (tokenMetadata && !isLoading) {
-        setSelectedCollateralToken({
-          address: `0x${tokenAddress}`,
-          name: tokenMetadata.name || '',
-          symbol: tokenMetadata.symbol || '',
-          logo: tokenMetadata.logo || '',
-          balance: '0',
-          decimals: tokenMetadata.decimals || 18,
-          chainId
-        });
-        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-      }
+    console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress);
+    if (tokenAddress && tokenMetadata && !isLoading) {
+      setSelectedCollateralToken({
+        address: tokenAddress as `0x${string}`,
+        name: tokenMetadata.name || '',
+        symbol: tokenMetadata.symbol || '',
+        logo: tokenMetadata.logo || '',
+        balance: '0',
+        decimals: tokenMetadata.decimals || 18,
+        chainId
+      });
+      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     }
-  }, [showOnlySingleTokenAddress, whitelistedChainTokens, setSelectedCollateralToken, setCurrentStep]);
+  }, [tokenAddress, tokenMetadata, isLoading, chainId, setSelectedCollateralToken, setCurrentStep]);
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,
