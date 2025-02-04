@@ -76,8 +76,10 @@ const RenderComponent: React.FC = () => {
   );
 
   useEffect(() => {
-    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-  }, [chainId, setCurrentStep, whitelistedChainTokens]);
+    if (!showOnlySingleTokenAddress) {
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    }
+  }, [chainId, setCurrentStep, whitelistedChainTokens, showOnlySingleTokenAddress]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>
