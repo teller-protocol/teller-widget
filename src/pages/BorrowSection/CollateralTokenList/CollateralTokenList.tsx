@@ -27,12 +27,18 @@ const CollateralTokenList: React.FC = () => {
 
   const filteredAndSortedTokens = [
     ...tokensWithCommitments
-      .filter((token) => parseFloat(token.balance) > 0 && 
-        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter(
+        (token) =>
+          parseFloat(token.balance) > 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokensWithCommitments
-      .filter((token) => parseFloat(token.balance) <= 0 && 
-        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter(
+        (token) =>
+          parseFloat(token.balance) <= 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
 
