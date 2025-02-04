@@ -69,9 +69,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
         onClick={() => !showOnlySingleTokenAddress && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
-        <div className={cx("caret", isOpen && "opened")}>
-          <Icon icon="clarity:caret-line" />
-        </div>
+        {!showOnlySingleTokenAddress && (
+          <div className={cx("caret", isOpen && "opened")}>
+            <Icon icon="clarity:caret-line" />
+          </div>
+        )}
       </div>
       {isOpen && sortedTokens.length > 0 && (
         <div className="token-dropdown--tokens">
