@@ -45,17 +45,19 @@ const RenderComponent: React.FC = () => {
 };
 
 const BorrowSection: React.FC<{ isActive?: boolean }> = ({ isActive }) => {
-  const { setCurrentStep } = useGetBorrowSectionContext();
+  const [shouldReset, setShouldReset] = useState(false);
 
   useEffect(() => {
-    if (isActive) {
-      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    if (isActive && shouldReset) {
+      setShouldReset(false);
+    } else if (isActive) {
+      setShouldReset(true);
     }
-  }, [isActive, setCurrentStep]);
+  }, [isActive]);
 
   return (
     <BorrowSectionContextProvider>
-      <RenderComponent />
+      <RenderComponent key={shouldReset ? "reset" : "default"} />
     </BorrowSectionContextProvider>
   );
 };
