@@ -43,6 +43,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { setSelectedCollateralToken } = useGetBorrowSectionContext();
+  const { showOnlySingleTokenAddress } = useGetGlobalPropsContext();
 
   const onTokenDropdownRowClick = (token: UserToken) => {
     setSelectedCollateralToken(token);
@@ -64,7 +65,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     <div className="token-dropdown" ref={ref}>
       <div
         className={cx("token-dropdown--row-container", isOpen && "opened")}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !showOnlySingleTokenAddress && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
         <div className={cx("caret", isOpen && "opened")}>
