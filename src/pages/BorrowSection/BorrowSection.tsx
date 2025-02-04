@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { useChainId } from "wagmi";
+import { useAlchemy } from '@alch/alchemy-web3'; // Added Alchemy import - ASSUMPTION
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -14,18 +15,49 @@ import BorrowConfirmation from "./BorrowConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
+// Added UserToken type definition - ASSUMPTION
+type UserToken = {
+  address: `0x${string}`;
+  name: string;
+  symbol: string;
+  logo: string;
+  balance: string;
+  balanceBigInt: bigint;
+  decimals: number;
+};
+
+
 const RenderComponent: React.FC = () => {
   const { whitelistedChainTokens, showOnlySingleTokenAddress } = useGetGlobalPropsContext();
   const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
   const chainId = useChainId();
+  const alchemy = useAlchemy(); // Added Alchemy hook call
+
 
   useEffect(() => {
-    console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress)
     if (showOnlySingleTokenAddress?.startsWith('0x')) {
-      setSelectedCollateralToken({ address: `0x${showOnlySingleTokenAddress}` });
-      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      const fetchTokenData = async () => {
+        try {
+          const metadata = await alchemy.core.getTokenMetadata(showOnlySingleTokenAddress);
+          const token: UserToken = {
+            address: showOnlySingleTokenAddress,
+            name: metadata.name ?? '',
+            symbol: metadata.symbol ?? '',
+            logo: metadata.logo ?? '',
+            balance: '0',
+            balanceBigInt: BigInt(0),
+            decimals: metadata.decimals ?? 18,
+          };
+          setSelectedCollateralToken(token);
+          setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+        } catch (error) {
+          console.error("Error fetching token metadata:", error);
+          // Handle error appropriately, e.g., display an error message
+        }
+      };
+      void fetchTokenData();
     }
-  }, [showOnlySingleTokenAddress, whitelistedChainTokens, setSelectedCollateralToken, setCurrentStep]);
+  }, [showOnlySingleTokenAddress, alchemy, setSelectedCollateralToken, setCurrentStep]);
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,
