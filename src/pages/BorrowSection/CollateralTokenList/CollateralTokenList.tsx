@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import { UserToken } from "../../../hooks/useGetUserTokens";
@@ -17,6 +17,7 @@ const CollateralTokenList: React.FC = () => {
     tokensWithCommitments,
   } = useGetBorrowSectionContext();
 
+  const [searchQuery, setSearchQuery] = useState("");
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
@@ -24,12 +25,20 @@ const CollateralTokenList: React.FC = () => {
     setSelectedCollateralToken(token);
   };
 
-  const sortedTokens = [
+  const filteredAndSortedTokens = [
     ...tokensWithCommitments
-      .filter((token) => parseFloat(token.balance) > 0)
+      .filter(
+        (token) =>
+          parseFloat(token.balance) > 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokensWithCommitments
-      .filter((token) => parseFloat(token.balance) <= 0)
+      .filter(
+        (token) =>
+          parseFloat(token.balance) <= 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
 
@@ -37,13 +46,17 @@ const CollateralTokenList: React.FC = () => {
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
-          <div className="section-title">
-            Select token collateral for deposit:
-          </div>
+          <input
+            type="text"
+            placeholder="Select collateral for deposit"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="token-search-input"
+          />
           {loading ? (
             <Loader />
-          ) : sortedTokens.length > 0 ? (
-            sortedTokens.map((token) => (
+          ) : filteredAndSortedTokens.length > 0 ? (
+            filteredAndSortedTokens.map((token) => (
               <CollateralTokenRow
                 token={token}
                 onClick={() => onCollateralTokenSelected(token)}
