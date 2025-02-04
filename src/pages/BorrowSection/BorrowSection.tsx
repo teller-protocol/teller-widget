@@ -15,9 +15,19 @@ import AddToCalendar from "../../components/AddToCalendar";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens } = useGetGlobalPropsContext();
-  const { currentStep, setCurrentStep, bidId } = useGetBorrowSectionContext();
+  const { whitelistedChainTokens, showOnlySingleTokenAddress } = useGetGlobalPropsContext();
+  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
   const chainId = useChainId();
+
+  useEffect(() => {
+    if (showOnlySingleTokenAddress?.startsWith('0x')) {
+      const token = whitelistedChainTokens?.find(t => t.address.toLowerCase() === showOnlySingleTokenAddress.toLowerCase());
+      if (token) {
+        setSelectedCollateralToken(token);
+        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      }
+    }
+  }, [showOnlySingleTokenAddress, whitelistedChainTokens, setSelectedCollateralToken, setCurrentStep]);
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,
