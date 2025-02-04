@@ -15,32 +15,12 @@ import BorrowConfirmation from "./BorrowConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
-const formatAddressForAlchemy = (address: string): string | undefined => {
-  if (!address) return undefined;
-
-  // Remove accidental spaces, quotes, or invalid characters
-  let formattedAddress = address.trim().toLowerCase();
-
-  // Ensure it starts with "0x"
-  if (!formattedAddress.startsWith("0x")) {
-    formattedAddress = `0x${formattedAddress}`;
-  }
-
-  // Validate that it's exactly 42 characters long
-  if (/^0x[a-fA-F0-9]{40}$/.test(formattedAddress)) {
-    return formattedAddress;
-  }
-
-  console.error("Invalid Ethereum address:", address);
-  return undefined;
-};
-
 const RenderComponent: React.FC = () => {
   const { whitelistedChainTokens, showOnlySingleTokenAddress } = useGetGlobalPropsContext();
   const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
   const chainId = useChainId();
 
-  const tokenAddress = formatAddressForAlchemy(showOnlySingleTokenAddress || "");
+  const tokenAddress = showOnlySingleTokenAddress?.startsWith('0x') ? `0x${showOnlySingleTokenAddress}` : undefined;
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || '');
 
   useEffect(() => {
