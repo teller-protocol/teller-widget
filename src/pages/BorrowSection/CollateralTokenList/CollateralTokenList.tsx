@@ -45,7 +45,7 @@ const CollateralTokenList: React.FC = () => {
             placeholder="Select collateral for deposit"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="token-search-input"
+            className="token-search-input" style={{fontSize: '16px'}}
           />
           {loading ? (
             <Loader />
