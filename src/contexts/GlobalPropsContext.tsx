@@ -59,8 +59,14 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   );
 
   useEffect(() => {
+    let mounted = true;
     if (_userTokens?.length > 0) return;
-    setUserTokens(userTokens);
+    if (mounted) {
+      setUserTokens(userTokens);
+    }
+    return () => {
+      mounted = false;
+    };
   }, [_userTokens?.length, userTokens]);
 
   useEffect(() => {
