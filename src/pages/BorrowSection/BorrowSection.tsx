@@ -45,12 +45,6 @@ const RenderComponent: React.FC = () => {
 };
 
 const BorrowSection: React.FC = () => {
-  const { setCurrentStep } = useGetBorrowSectionContext();
-
-  useEffect(() => {
-    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-  }, [setCurrentStep]);
-
   return (
     <BorrowSectionContextProvider>
       <RenderComponent />
