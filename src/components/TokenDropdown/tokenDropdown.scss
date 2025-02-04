@@ -1,13 +1,14 @@
 @import "../../tokens.scss";
 
 .token-dropdown {
-  .disabled {
-    pointer-events: none;
-    opacity: 0.7;
-  }
   position: relative;
 
   &--row-container {
+    &.disabled {
+      pointer-events: none;
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
     display: flex;
     border-radius: $border-radius;
     position: relative;
