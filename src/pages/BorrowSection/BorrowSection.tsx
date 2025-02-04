@@ -44,7 +44,15 @@ const RenderComponent: React.FC = () => {
   );
 };
 
-const BorrowSection: React.FC = () => {
+const BorrowSection: React.FC<{ isActive?: boolean }> = ({ isActive }) => {
+  const { setCurrentStep } = useGetBorrowSectionContext();
+
+  useEffect(() => {
+    if (isActive) {
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    }
+  }, [isActive, setCurrentStep]);
+
   return (
     <BorrowSectionContextProvider>
       <RenderComponent />
