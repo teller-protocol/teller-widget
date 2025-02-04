@@ -40,11 +40,6 @@ const CollateralTokenList: React.FC = () => {
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
-          {/*
-          <div className="section-title">
-            Select token collateral for deposit:
-          </div>
-          */}
           <input
             type="text"
             placeholder="Select collateral for deposit"
