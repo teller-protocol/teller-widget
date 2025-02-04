@@ -21,10 +21,10 @@
   align-items: center;
   background-color: rgba(252, 252, 252, 1);
 
-  &.showOnlySingleTokenAddress:hover {
+  &.singleWhitelistedToken:hover {
     cursor: default;
   }
-  &:not(.showOnlySingleTokenAddress):hover {
+  &:not(.singleWhitelistedToken):hover {
     cursor: pointer;
   }
 

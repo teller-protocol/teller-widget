@@ -44,7 +44,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { setSelectedCollateralToken } = useGetBorrowSectionContext();
-  const { showOnlySingleTokenAddress } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
   const onTokenDropdownRowClick = (token: UserToken) => {
     setSelectedCollateralToken(token);
@@ -65,11 +65,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   return (
     <div className="token-dropdown" ref={ref}>
       <div
-        className={cx("token-dropdown--row-container", isOpen && "opened", showOnlySingleTokenAddress && "disabled")}
-        onClick={() => !showOnlySingleTokenAddress && setIsOpen(!isOpen)}
+        className={cx("token-dropdown--row-container", isOpen && "opened", singleWhitelistedToken && "disabled")}
+        onClick={() => !singleWhitelistedToken && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
-        {!showOnlySingleTokenAddress && (
+        {!singleWhitelistedToken && (
           <div className={cx("caret", isOpen && "opened")}>
             <Icon icon="clarity:caret-line" />
           </div>

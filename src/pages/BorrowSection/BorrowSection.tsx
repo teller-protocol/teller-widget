@@ -36,11 +36,11 @@ const formatAddressForAlchemy = (address: string): string | undefined => {
 };
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens, showOnlySingleTokenAddress } = useGetGlobalPropsContext();
+  const { whitelistedChainTokens, singleWhitelistedToken } = useGetGlobalPropsContext();
   const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
   const chainId = useChainId();
 
-  const tokenAddress = formatAddressForAlchemy(showOnlySingleTokenAddress || "");
+  const tokenAddress = formatAddressForAlchemy(singleWhitelistedToken || "");
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || '');
 
   useEffect(() => {
