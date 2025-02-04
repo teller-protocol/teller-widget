@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
