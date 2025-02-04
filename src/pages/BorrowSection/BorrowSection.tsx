@@ -20,6 +20,7 @@ const RenderComponent: React.FC = () => {
   const chainId = useChainId();
 
   useEffect(() => {
+    console.log("showOnlySingleTokenAddress", showOnlySingleTokenAddress)
     if (showOnlySingleTokenAddress?.startsWith('0x')) {
       const token = whitelistedChainTokens?.find(t => t.address.toLowerCase() === showOnlySingleTokenAddress.toLowerCase());
       if (token) {
