@@ -14,11 +14,17 @@
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
+    &.disabled {
+      cursor: default;
+    }
   }
   align-items: center;
   background-color: rgba(252, 252, 252, 1);
 
-  &:hover {
+  &.showOnlySingleTokenAddress:hover {
+    cursor: default;
+  }
+  &:not(.showOnlySingleTokenAddress):hover {
     cursor: pointer;
   }
 

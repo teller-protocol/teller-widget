@@ -65,7 +65,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   return (
     <div className="token-dropdown" ref={ref}>
       <div
-        className={cx("token-dropdown--row-container", isOpen && "opened")}
+        className={cx("token-dropdown--row-container", isOpen && "opened", showOnlySingleTokenAddress && "disabled")}
         onClick={() => !showOnlySingleTokenAddress && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
