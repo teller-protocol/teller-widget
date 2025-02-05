@@ -21,6 +21,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 }) => {
   const handleOnClick = () => {
     setItemInLocalStorage("showTellerWidgetWelcomeScreen", "false");
+    window.dispatchEvent(
+      new CustomEvent("teller-widget-welcome-screen-closed")
+    );
     onClick();
   };
   return (
