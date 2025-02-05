@@ -65,9 +65,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   // TODO: ADD SOCIAL FI CONDITIONAL
   useEffect(() => {
-    if (commitmentMax.maxCollateral > 0) {
+    commitmentMax.maxCollateral > 0 &&
       setCollateralAmount(commitmentMax.maxCollateral);
-    }
   }, [commitmentMax.maxCollateral]);
 
   const displayCollateralAmountData = {
@@ -114,7 +113,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token}
         />
-        <img src={caret} alt="caret" />
+        <img src={caret} />
       </div>
       <div className="opportunity-list-item-body">
         <OpportunityListDataItem
