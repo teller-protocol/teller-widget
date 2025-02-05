@@ -45,8 +45,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
   const [isMin, setIsMin] = useState(false);
 
   const maxValueBigInt = parseUnits(
-    (maxAmount ?? 0)?.toString(),
-    tokenValue.token?.decimals ?? 0
+    (maxAmount ?? 0).toLocaleString('fullwide', { useGrouping: false }),
+    Number(tokenValue.token?.decimals) || 0
   );
 
   const setMaxValue = () => {
