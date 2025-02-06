@@ -118,12 +118,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       <div className="opportunity-list-item-body">
         <OpportunityListDataItem
           label="Interest"
-          value={`${
-            (
-              (Number(opportunity.minAPY) / 100) *
-              (Number(opportunity.maxDuration) / 86400 / 365)
-            ).toFixed(2)
-          } %`}
+          value={`${(
+            (Number(opportunity.minAPY) / 100) *
+            (Number(opportunity.maxDuration) / 86400 / 365)
+          ).toFixed(2)} %`}
         />
         <OpportunityListDataItem
           label="Duration"
@@ -171,15 +169,18 @@ const OpportunitiesList: React.FC = () => {
                 minHeight: "200px",
               }}
             >
-              <div
-                className="section-title"
-                style={{ marginBottom: "1rem" }}
-              >
-                No liquidity found &nbsp; 👀 
+              <div className="section-title" style={{ marginBottom: "1rem" }}>
+                No liquidity found &nbsp; 👀
               </div>
               <Button
                 label={
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     Deploy ${selectedCollateralToken?.symbol} pool
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +201,6 @@ const OpportunitiesList: React.FC = () => {
                   </span>
                 }
                 variant="secondary"
-                
                 onClick={() =>
                   window.open(
                     "https://app.teller.org/lend",
@@ -212,7 +212,10 @@ const OpportunitiesList: React.FC = () => {
             </div>
           ) : (
             data.commitments.map((commitment) => (
-              <OpportunityListItem opportunity={commitment} key={commitment.id} />
+              <OpportunityListItem
+                opportunity={commitment}
+                key={commitment.id}
+              />
             ))
           )}
         </div>

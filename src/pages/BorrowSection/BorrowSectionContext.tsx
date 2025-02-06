@@ -43,7 +43,9 @@ export const BorrowSectionContextProvider: React.FC<
 > = ({ children }) => {
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
-    singleWhitelistedToken ? BorrowSectionSteps.SELECT_OPPORTUNITY : BorrowSectionSteps.SELECT_TOKEN
+    singleWhitelistedToken
+      ? BorrowSectionSteps.SELECT_OPPORTUNITY
+      : BorrowSectionSteps.SELECT_TOKEN
   );
 
   const [selectedCollateralToken, setSelectedCollateralToken] =

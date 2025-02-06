@@ -137,15 +137,28 @@ const OpportunityDetails = () => {
       <TokenInput
         tokenValue={collateralTokenValue}
         label={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             Deposit
             <Tooltip
-              description={`Deposit $${selectedCollateralToken?.symbol} to borrow $${selectedOpportunity?.principalToken?.symbol} for ${convertSecondsToDays(Number(selectedOpportunity?.maxDuration))} days—extend anytime via rollover.`}
+              description={`Deposit $${
+                selectedCollateralToken?.symbol
+              } to borrow $${
+                selectedOpportunity?.principalToken?.symbol
+              } for ${convertSecondsToDays(
+                Number(selectedOpportunity?.maxDuration)
+              )} days—extend anytime via rollover.`}
               icon={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="tooltip-svg" style={{ position: 'relative', top: '1px' }}>
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path d="M12 16v-4" strokeWidth="2"/>
-                  <circle cx="12" cy="8" r="1"/>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="tooltip-svg"
+                  style={{ position: "relative", top: "1px" }}
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <path d="M12 16v-4" strokeWidth="2" />
+                  <circle cx="12" cy="8" r="1" />
                 </svg>
               }
             />
@@ -174,15 +187,26 @@ const OpportunityDetails = () => {
           valueBI: displayedPrincipal,
         }}
         label={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             Borrow
             <Tooltip
-              description={`Borrow $${selectedOpportunity?.principalToken?.symbol} for ${convertSecondsToDays(Number(selectedOpportunity?.maxDuration))} days—extend anytime via rollover.`}
+              description={`Borrow $${
+                selectedOpportunity?.principalToken?.symbol
+              } for ${convertSecondsToDays(
+                Number(selectedOpportunity?.maxDuration)
+              )} days—extend anytime via rollover.`}
               icon={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="tooltip-svg" style={{ position: 'relative', top: '1px' }}>
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path d="M12 16v-4" strokeWidth="2"/>
-                  <circle cx="12" cy="8" r="1"/>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="tooltip-svg"
+                  style={{ position: "relative", top: "1px" }}
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <path d="M12 16v-4" strokeWidth="2" />
+                  <circle cx="12" cy="8" r="1" />
                 </svg>
               }
             />
@@ -195,7 +219,9 @@ const OpportunityDetails = () => {
         }
         sublabelUpper={
           <span>
-            Duration: {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))} days • Rollover: {' '}
+            Duration:{" "}
+            {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
+            days • Rollover:{" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               overflow="visible"
@@ -217,7 +243,6 @@ const OpportunityDetails = () => {
                 ></path>
               </g>
             </svg>
-
           </span>
         }
         readonly

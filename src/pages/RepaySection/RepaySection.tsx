@@ -35,24 +35,17 @@ const RenderComponent: React.FC = () => {
   );
 
   useEffect(() => {
-    if (currentStep === RepaySectionSteps.LOANS) {
-      setCurrentStep(null as any);
-      setTimeout(() => {
-        setCurrentStep(RepaySectionSteps.LOANS);
-      }, 0);
-    } else {
-      setCurrentStep(RepaySectionSteps.LOANS);
-    }
+    setCurrentStep(RepaySectionSteps.LOANS);
   }, [chainId]);
-
 
   return <div className="repay-section">{mapStepToComponent[currentStep]}</div>;
 };
 
 const RepaySection = () => {
+  const chainId = useChainId();
   return (
     <RepaySectionContextProvider>
-      <RenderComponent />
+      <RenderComponent key={chainId} />
     </RepaySectionContextProvider>
   );
 };

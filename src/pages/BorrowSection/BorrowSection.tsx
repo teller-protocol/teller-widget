@@ -16,56 +16,48 @@ import BorrowConfirmation from "./BorrowConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
-const formatAddressForAlchemy = (address: string): string | undefined => {
-  if (!address) return undefined;
-
-  // Remove accidental spaces, quotes, or invalid characters
-  let formattedAddress = address.trim().toLowerCase();
-
-  // Ensure it starts with "0x"
-  if (!formattedAddress.startsWith("0x")) {
-    formattedAddress = `0x${formattedAddress}`;
-  }
-
-  // Validate that it's exactly 42 characters long
-  if (/^0x[a-fA-F0-9]{40}$/.test(formattedAddress)) {
-    return formattedAddress;
-  }
-
-  console.error("Invalid Ethereum address:", address);
-  return undefined;
-};
-
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens, singleWhitelistedToken, userTokens } = useGetGlobalPropsContext();
-  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
+  const { whitelistedChainTokens, singleWhitelistedToken, userTokens } =
+    useGetGlobalPropsContext();
+  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } =
+    useGetBorrowSectionContext();
   const chainId = useChainId();
 
-  const tokenAddress = formatAddressForAlchemy(singleWhitelistedToken || "");
-  const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || '');
+  const tokenAddress = singleWhitelistedToken?.toLowerCase() || "";
+  const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
 
   useEffect(() => {
     if (tokenAddress && tokenMetadata && !isLoading) {
-      const tokenBalance = userTokens.find(token => 
-        token.address.toLowerCase() === tokenAddress.toLowerCase()
-      )?.balance || '0';
-      
-      const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
+      const tokenBalance =
+        userTokens.find(
+          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+        )?.balance || "0";
+
+      const balanceUnits = parseUnits(
+        tokenBalance,
+        tokenMetadata.decimals || 18
+      );
       const balanceBigInt = BigInt(balanceUnits.toString());
 
       setSelectedCollateralToken({
         address: tokenAddress as `0x${string}`,
-        name: tokenMetadata.name || '',
-        symbol: tokenMetadata.symbol || '',
-        logo: tokenMetadata.logo || '',
+        name: tokenMetadata.name || "",
+        symbol: tokenMetadata.symbol || "",
+        logo: tokenMetadata.logo || "",
         balance: tokenBalance,
         balanceBigInt: balanceBigInt,
         decimals: tokenMetadata.decimals || 18,
-        chainId
       });
       setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     }
-  }, [tokenAddress, tokenMetadata, isLoading, chainId, setSelectedCollateralToken, setCurrentStep]);
+  }, [
+    tokenAddress,
+    tokenMetadata,
+    isLoading,
+    setSelectedCollateralToken,
+    setCurrentStep,
+  ]);
+
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,

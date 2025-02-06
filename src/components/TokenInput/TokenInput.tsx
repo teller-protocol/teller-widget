@@ -47,7 +47,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
   const [isMin, setIsMin] = useState(false);
 
   const maxValueBigInt = parseUnits(
-    (maxAmount ?? 0).toLocaleString('fullwide', { useGrouping: false }),
+    (maxAmount ?? 0).toLocaleString("fullwide", { useGrouping: false }),
     Number(tokenValue.token?.decimals) || 0
   );
 
@@ -101,7 +101,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
     <div className="token-input-container">
       <div className="label-container">
         {label && <label className="section-title">{label}</label>}
-        {sublabelUpper && <label className="sublabel-upper section-sub-title">{sublabelUpper}</label>}
+        {sublabelUpper && (
+          <label className="sublabel-upper section-sub-title">
+            {sublabelUpper}
+          </label>
+        )}
       </div>
       <div className="token-input">
         <input
