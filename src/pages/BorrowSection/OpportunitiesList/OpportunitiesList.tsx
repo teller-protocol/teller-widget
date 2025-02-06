@@ -148,7 +148,6 @@ const OpportunitiesList: React.FC = () => {
       <div className="opportunities-list-header">
         {selectedCollateralToken && (
           <>
-            <div className="section-title">My token collateral</div>
             <TokenDropdown
               tokens={tokensWithCommitments}
               selectedToken={selectedCollateralToken}
