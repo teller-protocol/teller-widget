@@ -30,6 +30,7 @@ const OpportunityDetails = () => {
     useGetBorrowSectionContext();
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
+  const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
 
   const isWhitelistedTokenAndUserHasNoBalance =
     whitelistedToken && Number(selectedCollateralToken?.balance) === 0;
@@ -66,6 +67,10 @@ const OpportunityDetails = () => {
       return;
     }
 
+    if (!staticMaxCollateral && maxCollateral) {
+      setStaticMaxCollateral(maxCollateral);
+    }
+
     setCollateralTokenValue((prev) => {
       if (prev.valueBI === maxCollateral) {
         return prev;
@@ -83,6 +88,7 @@ const OpportunityDetails = () => {
     isWhitelistedTokenAndUserHasNoBalance,
     maxCollateral,
     selectedCollateralToken?.decimals,
+    staticMaxCollateral,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();
@@ -149,7 +155,7 @@ const OpportunityDetails = () => {
         imageUrl={selectedCollateralToken?.logo || ""}
         sublabelUpper={`Max: ${numberWithCommasAndDecimals(
           formatUnits(
-            maxCollateral ?? 0n,
+            staticMaxCollateral ?? 0n,
             selectedCollateralToken?.decimals ?? 0
           )
         )} ${selectedCollateralToken?.symbol}`}
