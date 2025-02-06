@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-
+import { useMemo, useEffect } from "react";
+import { useChainId } from "wagmi";
 import RolloverLoan from "../RolloverLoan";
 
 import Loans from "./Loans";
@@ -16,6 +16,7 @@ import AddToCalendar from "../../components/AddToCalendar";
 
 const RenderComponent: React.FC = () => {
   const { currentStep, bidId, setCurrentStep } = useGetRepaySectionContext();
+  const chainId = useChainId();
   const mapStepToComponent = useMemo(
     () => ({
       [RepaySectionSteps.LOANS]: <Loans />,
@@ -32,6 +33,18 @@ const RenderComponent: React.FC = () => {
     }),
     []
   );
+
+  useEffect(() => {
+    if (currentStep === RepaySectionSteps.LOANS) {
+      setCurrentStep(null as any);
+      setTimeout(() => {
+        setCurrentStep(RepaySectionSteps.LOANS);
+      }, 0);
+    } else {
+      setCurrentStep(RepaySectionSteps.LOANS);
+    }
+  }, [chainId]);
+
 
   return <div className="repay-section">{mapStepToComponent[currentStep]}</div>;
 };
