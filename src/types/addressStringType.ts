@@ -1,1 +1,1 @@
-export type AddressStringType = `0x${string}` | undefined;
+export type AddressStringType = `0x${string}`;

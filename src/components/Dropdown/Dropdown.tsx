@@ -12,14 +12,14 @@ export interface DropdownOption<L = React.ReactNode> {
 
 interface DropdownProps {
   options: DropdownOption[];
-  selectedOption: DropdownOption;
+  selectedOption?: DropdownOption;
   onChange: (option: DropdownOption) => void;
   label?: string;
   readonly?: boolean;
 }
 
 interface DropdownButtonProps {
-  option: DropdownOption;
+  option?: DropdownOption;
   onClick?: (token: DropdownOption) => void;
 }
 

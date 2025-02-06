@@ -40,6 +40,8 @@ export type CommitmentType = {
   marketplace?: {
     marketplaceFeePercent: string;
   };
+  isLenderGroup?: boolean;
+  collateralRatio?: number;
 };
 
 export const useGetCommitmentsForCollateralToken = (

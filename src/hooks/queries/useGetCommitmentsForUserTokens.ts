@@ -63,7 +63,10 @@ export const useGetCommitmentsForUserTokens = () => {
   }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
-    if (!userTokens.length) setLoading(true);
+    if (!userTokens.length) {
+      setLoading(true);
+      return;
+    }
     if (data?.commitments) {
       const userCommitments = data.commitments.reduce((acc, current) => {
         if (
@@ -85,12 +88,14 @@ export const useGetCommitmentsForUserTokens = () => {
         }
         return acc;
       }, [] as UserToken[]);
-      const userCommitmentsUnique = userCommitments.filter((item, index, self) => {
-        return (
-          item.address &&
-          self.findIndex((obj) => obj.address === item.address) === index
-        );
-      });
+      const userCommitmentsUnique = userCommitments.filter(
+        (item, index, self) => {
+          return (
+            item.address &&
+            self.findIndex((obj) => obj.address === item.address) === index
+          );
+        }
+      );
       setTokensWithCommitments(userCommitmentsUnique);
       setLoading(false);
     }

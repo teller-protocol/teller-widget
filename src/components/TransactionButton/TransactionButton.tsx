@@ -155,7 +155,8 @@ const TransactionButton = ({
               isPending ||
               currentStep?.isStepDisabled ||
               !!currentStep?.errorMessage ||
-              isConfirming
+              isConfirming ||
+              !!isError
             }
           >
             {(isPending || customTxLoading || isConfirming) &&

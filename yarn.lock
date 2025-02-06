@@ -3934,10 +3934,10 @@
   dependencies:
     "@tanstack/query-core" "5.25.0"
 
-"@teller-protocol/v2-contracts@^3.1.13":
-  version "3.1.13"
-  resolved "https://registry.yarnpkg.com/@teller-protocol/v2-contracts/-/v2-contracts-3.1.13.tgz#7dd2e6870d26f57e8a9751598c8cfd6899bec1b4"
-  integrity sha512-XH4IQqIgwgeTWJzekNinZbNhYlnEGZK/P/ZAO4miiMmzntuC1gPrE1PIJICFc4exazzLXObJXOM5H1MoArMuqg==
+"@teller-protocol/v2-contracts@^3.1.30":
+  version "3.1.30"
+  resolved "https://registry.yarnpkg.com/@teller-protocol/v2-contracts/-/v2-contracts-3.1.30.tgz#0f3b53d32354335c4b8eb6b848011eb86b4fbaa4"
+  integrity sha512-gvfpQCOCmS2uvKuJlo4Sns0JbjvZH29L66YuI2CJ26KQtDH99KKloAWguRipHVi2KMl6fZlfclSMo7f8DdAb4A==
 
 "@testing-library/dom@^9.3.1":
   version "9.3.4"
