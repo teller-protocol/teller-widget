@@ -43,6 +43,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   selectedToken: token,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { setSelectedCollateralToken } = useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
@@ -51,14 +52,25 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     setIsOpen(false);
   };
 
-  const ref = useOutsideClick(() => setIsOpen(false));
+  const ref = useOutsideClick(() => {
+    setIsOpen(false);
+    setSearchQuery("");
+  });
 
   const sortedTokens = [
     ...tokens
-      .filter((token) => parseFloat(token.balance) > 0)
+      .filter(
+        (token) =>
+          parseFloat(token.balance) > 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokens
-      .filter((token) => parseFloat(token.balance) <= 0)
+      .filter(
+        (token) =>
+          parseFloat(token.balance) <= 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
 
@@ -75,8 +87,17 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           </div>
         )}
       </div>
-      {isOpen && sortedTokens.length > 0 && (
-        <div className="token-dropdown--tokens">
+          {isOpen && (
+            <div className="token-dropdown--tokens">
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Select collateral for deposit"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="token-dropdown--search"
+                />
+              </div>
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}
