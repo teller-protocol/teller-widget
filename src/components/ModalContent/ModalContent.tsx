@@ -22,9 +22,17 @@ interface ModalContentProps {
 
 const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
+  const [key, setKey] = useState(0);
+
+  const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
+    if (action === widgetAction && action === WIDGET_ACTION_ENUM.BORROW) {
+      setKey(prev => prev + 1);
+    }
+    setWidgetAction(action);
+  };
 
   const mapOptionToComponent = {
-    [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection />,
+    [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection key={key} />,
     [WIDGET_ACTION_ENUM.REPAY]: <RepaySection />,
   };
 
@@ -42,7 +50,7 @@ const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
       <SelectButtons
         items={selectOptions}
         value={widgetAction}
-        onChange={setWidgetAction}
+        onChange={handleWidgetAction}
       />
       {mapOptionToComponent[widgetAction]}
     </>

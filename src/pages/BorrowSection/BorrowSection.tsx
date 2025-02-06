@@ -1,5 +1,7 @@
 import { useMemo, useEffect } from "react";
 import { useChainId } from "wagmi";
+import { parseUnits } from "viem";
+import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -15,9 +17,47 @@ import AddToCalendar from "../../components/AddToCalendar";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens } = useGetGlobalPropsContext();
-  const { currentStep, setCurrentStep, bidId } = useGetBorrowSectionContext();
+  const { whitelistedChainTokens, singleWhitelistedToken, userTokens } =
+    useGetGlobalPropsContext();
+  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } =
+    useGetBorrowSectionContext();
   const chainId = useChainId();
+
+  const tokenAddress = singleWhitelistedToken?.toLowerCase() || "";
+  const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
+
+  useEffect(() => {
+    if (tokenAddress && tokenMetadata && !isLoading) {
+      const tokenBalance =
+        userTokens.find(
+          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+        )?.balance || "0";
+
+      const balanceUnits = parseUnits(
+        tokenBalance,
+        tokenMetadata.decimals || 18
+      );
+      const balanceBigInt = BigInt(balanceUnits.toString());
+
+      setSelectedCollateralToken({
+        address: tokenAddress as `0x${string}`,
+        name: tokenMetadata.name || "",
+        symbol: tokenMetadata.symbol || "",
+        logo: tokenMetadata.logo || "",
+        balance: tokenBalance,
+        balanceBigInt: balanceBigInt,
+        decimals: tokenMetadata.decimals || 18,
+      });
+      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    }
+  }, [
+    tokenAddress,
+    tokenMetadata,
+    isLoading,
+    setSelectedCollateralToken,
+    setCurrentStep,
+  ]);
+
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,

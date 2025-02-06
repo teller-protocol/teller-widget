@@ -35,6 +35,7 @@ interface BaseWidgetProps {
   subgraphApiKey: string;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
+  singleWhitelistedToken?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -69,6 +70,7 @@ const Widget: React.FC<WidgetProps> = ({
   subgraphApiKey,
   isEmbedded = false,
   showChainSwitch = true,
+  singleWhitelistedToken,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -94,6 +96,7 @@ const Widget: React.FC<WidgetProps> = ({
           buttonColorPrimary={buttonColorPrimary}
           buttonTextColorPrimary={buttonTextColorPrimary}
           subgraphApiKey={subgraphApiKey}
+          singleWhitelistedToken={singleWhitelistedToken}
         >
           <div className="teller-widget">
             <Modal

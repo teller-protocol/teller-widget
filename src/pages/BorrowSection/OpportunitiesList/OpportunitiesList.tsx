@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TokenDropdown from "../../../components/TokenDropdown";
+import Button from "../../../components/Button";
 import {
   CommitmentType,
   useGetCommitmentsForCollateralToken,
@@ -94,20 +95,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     token: SUPPORTED_TOKEN_LOGOS[opportunity.principalToken?.symbol as string],
   };
 
-  const formatedCollateralAmount = Number(
-    formatUnits(
-      commitmentMax.maxCollateral,
-      opportunity.collateralToken?.decimals ?? 0
-    )
-  ).toFixed(2);
-
-  const formatedLoanAmount = Number(
-    formatUnits(
-      commitmentMax.maxLoanAmount,
-      opportunity.principalToken?.decimals ?? 0
-    )
-  ).toFixed(2);
-
   const handleOnOpportunityClick = () => {
     setSelectedOpportunity(opportunity);
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
@@ -131,9 +118,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       <div className="opportunity-list-item-body">
         <OpportunityListDataItem
           label="Interest"
-          value={`${
-            ((Number(opportunity.minAPY) / 100) * ((Number(opportunity.maxDuration) / 86400) / 365)).toFixed(2)
-          } %`}
+          value={`${(
+            (Number(opportunity.minAPY) / 100) *
+            (Number(opportunity.maxDuration) / 86400 / 365)
+          ).toFixed(2)} %`}
         />
         <OpportunityListDataItem
           label="Duration"
@@ -158,7 +146,6 @@ const OpportunitiesList: React.FC = () => {
       <div className="opportunities-list-header">
         {selectedCollateralToken && (
           <>
-            <div className="section-title">My token collateral</div>
             <TokenDropdown
               tokens={tokensWithCommitments}
               selectedToken={selectedCollateralToken}
@@ -171,9 +158,66 @@ const OpportunitiesList: React.FC = () => {
           <div className="paragraph opportunities-sub-title">
             My opportunities
           </div>
-          {data.commitments.map((commitment) => (
-            <OpportunityListItem opportunity={commitment} key={commitment.id} />
-          ))}
+          {data.commitments.length === 0 ? (
+            <div
+              className="empty-opportunities"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "200px",
+              }}
+            >
+              <div className="section-title" style={{ marginBottom: "1rem" }}>
+                No liquidity found &nbsp; 👀
+              </div>
+              <Button
+                label={
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    Deploy ${selectedCollateralToken?.symbol} pool
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      viewBox="0 0 24 24"
+                      style={{ marginLeft: "0.5rem" }}
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </span>
+                }
+                variant="secondary"
+                onClick={() =>
+                  window.open(
+                    "https://app.teller.org/lend",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              />
+            </div>
+          ) : (
+            data.commitments.map((commitment) => (
+              <OpportunityListItem
+                opportunity={commitment}
+                key={commitment.id}
+              />
+            ))
+          )}
         </div>
       )}
     </div>

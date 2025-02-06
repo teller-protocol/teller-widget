@@ -5,6 +5,7 @@ import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { Icon } from "@iconify/react";
 
@@ -42,37 +43,61 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   selectedToken: token,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { setSelectedCollateralToken } = useGetBorrowSectionContext();
+  const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
   const onTokenDropdownRowClick = (token: UserToken) => {
     setSelectedCollateralToken(token);
     setIsOpen(false);
   };
 
-  const ref = useOutsideClick(() => setIsOpen(false));
+  const ref = useOutsideClick(() => {
+    setIsOpen(false);
+    setSearchQuery("");
+  });
 
   const sortedTokens = [
     ...tokens
-      .filter((token) => parseFloat(token.balance) > 0)
+      .filter(
+        (token) =>
+          parseFloat(token.balance) > 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokens
-      .filter((token) => parseFloat(token.balance) <= 0)
+      .filter(
+        (token) =>
+          parseFloat(token.balance) <= 0 &&
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
 
   return (
     <div className="token-dropdown" ref={ref}>
       <div
-        className={cx("token-dropdown--row-container", isOpen && "opened")}
-        onClick={() => setIsOpen(!isOpen)}
+        className={cx("token-dropdown--row-container", isOpen && "opened", singleWhitelistedToken && "disabled")}
+        onClick={() => !singleWhitelistedToken && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
-        <div className={cx("caret", isOpen && "opened")}>
-          <Icon icon="clarity:caret-line" />
-        </div>
+        {!singleWhitelistedToken && (
+          <div className={cx("caret", isOpen && "opened")}>
+            <Icon icon="clarity:caret-line" />
+          </div>
+        )}
       </div>
-      {isOpen && sortedTokens.length > 0 && (
-        <div className="token-dropdown--tokens">
+          {isOpen && (
+            <div className="token-dropdown--tokens">
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Select collateral for deposit"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="token-dropdown--search"
+                />
+              </div>
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}

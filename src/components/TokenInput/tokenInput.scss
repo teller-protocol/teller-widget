@@ -74,4 +74,36 @@
     color: $text-secondary;
     text-align: right;
   }
+
+  .sublabel-upper.section-sub-title {
+    color: $text-secondary;
+    text-align: right;
+  }
+
+  .label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .rollover-svg .outer {
+    fill: none;             
+    stroke: #3D8974;
+    stroke-width: 1.5;
+    overflow: visible;
+  }
+
+  .rollover-svg .check {
+    fill: #3D8974;          
+    stroke: #3D8974;        
+    stroke-width: 4;        
+    overflow: visible;
+  }
+
+
+  .tooltip-svg {
+    stroke: $text-secondary;
+    overflow: visible;
+  }
+
 }
