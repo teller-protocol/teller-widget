@@ -20,6 +20,7 @@ interface TokenInputProps {
   imageUrl: string | null;
   label?: React.ReactNode;
   sublabel?: string;
+  sublabelUpper?: React.ReactNode;
   maxAmount?: number;
   showMaxButton?: boolean;
   onChange?: (value: TokenInputType) => void;
@@ -35,6 +36,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
   maxAmount,
   imageUrl,
   sublabel,
+  sublabelUpper,
   onChange,
   readonly,
   showMaxButton = true,
@@ -97,7 +99,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
 
   return (
     <div className="token-input-container">
-      {label && <label className="section-title">{label}</label>}
+      <div className="label-container">
+        {label && <label className="section-title">{label}</label>}
+        {sublabelUpper && <label className="sublabel-upper section-sub-title">{sublabelUpper}</label>}
+      </div>
       <div className="token-input">
         <input
           type="number"
