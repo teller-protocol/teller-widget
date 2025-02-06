@@ -68,8 +68,35 @@
     z-index: 100;
     width: 100%;
     left: 0%;
-    max-height: 335px;
+    max-height: 375px;
     overflow-y: auto;
+
+    .search-container {
+      padding: 8px;
+      border: 0.5px solid $border-color-secondary;
+      border-top: 0;
+
+      .token-dropdown--search {
+        width: 100%;
+        padding: 8px 8px 8px 32px;
+        border: 0.5px solid $border-color-secondary;
+        border-radius: $border-radius;
+        font-size: 13px;
+        font-family: "Roboto";
+        outline: none;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2387a1a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") 8px calc(50% - 0.5px) no-repeat;
+
+        color: #132725;
+
+        &:focus {
+          border-color: #bebebe;
+        }
+
+        &::placeholder {
+            color: #87a1a1;
+        }
+      }
+    }
 
     .token-dropdown--row {
       padding: $s-small $s-small $s-small $s-normal;
