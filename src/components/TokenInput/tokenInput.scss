@@ -74,4 +74,20 @@
     color: $text-secondary;
     text-align: right;
   }
+
+  .sublabel-upper.section-sub-title {
+    color: $text-secondary;
+    text-align: right;
+  }
+
+  .label-container {
+    display: flex;
+    justify-content: space-between; /* This spaces out the items */
+    align-items: center; /* This vertically centers the items (optional) */
+  }
+
+  .rollover-svg {
+    stroke: $text-secondary;
+  }
+
 }
