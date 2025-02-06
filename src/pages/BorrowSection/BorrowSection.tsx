@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { useChainId } from "wagmi";
+import { parseUnits } from "viem";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
 import {
@@ -36,7 +37,7 @@ const formatAddressForAlchemy = (address: string): string | undefined => {
 };
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens, singleWhitelistedToken } = useGetGlobalPropsContext();
+  const { whitelistedChainTokens, singleWhitelistedToken, userTokens } = useGetGlobalPropsContext();
   const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } = useGetBorrowSectionContext();
   const chainId = useChainId();
 
@@ -45,12 +46,20 @@ const RenderComponent: React.FC = () => {
 
   useEffect(() => {
     if (tokenAddress && tokenMetadata && !isLoading) {
+      const tokenBalance = userTokens.find(token => 
+        token.address.toLowerCase() === tokenAddress.toLowerCase()
+      )?.balance || '0';
+      
+      const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
+      const balanceBigInt = BigInt(balanceUnits.toString());
+
       setSelectedCollateralToken({
         address: tokenAddress as `0x${string}`,
         name: tokenMetadata.name || '',
         symbol: tokenMetadata.symbol || '',
         logo: tokenMetadata.logo || '',
-        balance: '0',
+        balance: tokenBalance,
+        balanceBigInt: balanceBigInt,
         decimals: tokenMetadata.decimals || 18,
         chainId
       });
