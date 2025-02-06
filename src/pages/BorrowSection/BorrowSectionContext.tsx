@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -40,8 +41,11 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
 export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
+  const { singleWhitelistedToken } = useGetGlobalPropsContext();
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
-    BorrowSectionSteps.SELECT_TOKEN
+    singleWhitelistedToken
+      ? BorrowSectionSteps.SELECT_OPPORTUNITY
+      : BorrowSectionSteps.SELECT_TOKEN
   );
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
