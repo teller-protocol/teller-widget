@@ -4,16 +4,19 @@ import { injected } from "wagmi/connectors";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import BorrowSection from "../../pages/BorrowSection";
 import RepaySection from "../../pages/RepaySection";
+import PoolSection from "../../pages/PoolSection";
 import SelectButtons from "../SelectButtons";
 
 enum WIDGET_ACTION_ENUM {
   BORROW = "BORROW",
   REPAY = "REPAY",
+  POOL = "POOL",
 }
 
 const selectOptions = [
   { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
   { value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" },
+  { value: WIDGET_ACTION_ENUM.POOL, content: "POOL" },
 ];
 
 interface ModalContentProps {
@@ -34,6 +37,7 @@ const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
   const mapOptionToComponent = {
     [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection key={key} />,
     [WIDGET_ACTION_ENUM.REPAY]: <RepaySection />,
+    [WIDGET_ACTION_ENUM.POOL]: <PoolSection />,
   };
 
   useGetProtocolFee();
