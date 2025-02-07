@@ -37,10 +37,6 @@ const OpportunityDetails = () => {
     setSuccessfulLoanParams,
     maxCollateral: maxCollateralFromContext,
   } = useGetBorrowSectionContext();
-  console.log(
-    "TCL ~ OpportunityDetails.tsx:44 ~ OpportunityDetails ~ maxCollateralFromContext:",
-    maxCollateralFromContext
-  );
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
@@ -166,7 +162,6 @@ const OpportunityDetails = () => {
     onSuccess: (receipt: any) => {
       // match the structure of a succesful loan from a LCFa so it works with the confirmation screen
       const loanParams = {
-        eventName: "LoanCreated",
         args: [
           {},
           {
@@ -177,7 +172,7 @@ const OpportunityDetails = () => {
       };
 
       setCurrentStep(BorrowSectionSteps.SUCCESS);
-      setSuccessLoanHash(receipt.transactionHash);
+      setSuccessLoanHash(receipt);
       setSuccessfulLoanParams(loanParams);
     },
   });
