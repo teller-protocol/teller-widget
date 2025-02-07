@@ -1,10 +1,12 @@
-import { createContext } from "react";
-import { UserToken } from "../../hooks/useGetUserTokens";
-import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
+import { createContext, useContext } from "react";
+import { CommitmentType } from "../../hooks/queries/useGetRolloverableCommitments";
+import { useGetLiquidityPools } from "../../hooks/queries/useGetLiquidityPools";
+
+// then in PoolList.tsx, use data and fill in cards
 
 export type PoolSectionContextType = {
-  tokensWithCommitments: UserToken[];
-  tokensWithCommitmentsLoading: boolean;
+  liquidityPools: CommitmentType[];
+  liquidityPoolsLoading: boolean;
 };
 
 interface PoolSectionContextProps {
@@ -19,20 +21,27 @@ export const PoolSectionContextProvider: React.FC<
   PoolSectionContextProps
 > = ({ children }) => {
 
-  const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
-    useGetCommitmentsForUserTokens();
-
-  console.log("tokensWithCommitments", tokensWithCommitments)
-  console.log("tokensWithCommitmentsLoading", tokensWithCommitmentsLoading)
+  const { data: liquidityPools, isLoading: liquidityPoolsLoading, } = useGetLiquidityPools();
 
   return (
     <PoolSectionContext.Provider
       value={{
-        tokensWithCommitments,
-        tokensWithCommitmentsLoading,
+        liquidityPools,
+        liquidityPoolsLoading,
       }}
     >
       {children}
     </PoolSectionContext.Provider>
   );
+};
+
+export const useGetPoolSectionContext = () => {
+  const context = useContext(PoolSectionContext);
+  if (context === undefined) {
+    throw new Error(
+      "useGetBorrowSectionContext must be used within a BorrowSectionContextProvider"
+    );
+  }
+
+  return context;
 };
