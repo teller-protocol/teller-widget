@@ -16,8 +16,11 @@ export const useGetLiquidityPools = () => {
     queryFn: async () => {
       const response = await fetch(`https://xyon-xymz-1ofj.n7d.xano.io/api:x0wU2WHq/no_show_pools_by_network?network_id=${chainId}`);
       const data = await response.json();
-      return data.map((pool: any) => pool.pool_id.toLowerCase());
-    }
+      return data.map((pool: any) => pool.pool_id.toLowerCase()); // Ensure consistent typing
+    },
+    // Ensure type safety by defining blockedPools as string[]
+    initialData: [],
+    select: (data: any) => data as string[]
   });
 
   console.log("blockedPools", blockedPools)
@@ -28,7 +31,7 @@ export const useGetLiquidityPools = () => {
         groupPoolMetrics(
           where: {
             ${singleWhitelistedToken ? `collateral_token_address: "${singleWhitelistedToken.toLocaleLowerCase()}",` : ""}
-            ${blockedPools?.length ? `NOT: { group_pool_address_in: ${JSON.stringify(blockedPools)} }` : ""}
+            ${blockedPools?.length ? `NOT: { group_pool_address_in: [${blockedPools.map(address => `"${address}"`)}] }` : ""}
           }
           orderBy: principal_token_address
           orderDirection: asc
@@ -68,5 +71,5 @@ const { data, isLoading, error } = useQuery({
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { liquidityPools: data || [blockedPools, singleWhitelistedToken], isLoading };
+  return { liquidityPools: data || [], isLoading };
 };
