@@ -3,15 +3,16 @@ import { ContractType, useReadContract } from "./useReadContract";
 
 export const useGetAPRForLiquidityPools = (
   address: Address,
-  principalAmount: string
+  principalAmount: string,
+  skip: boolean = false
 ) => {
-  const { data } = useReadContract(
+  const { data, isLoading } = useReadContract(
     address,
     "getMinInterestRate",
     [principalAmount],
-    false,
+    skip,
     ContractType.LenderGroups
   );
 
-  return data;
+  return { data, isLoading };
 };

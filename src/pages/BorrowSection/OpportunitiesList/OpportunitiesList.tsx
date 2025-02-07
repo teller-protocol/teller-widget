@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import TokenDropdown from "../../../components/TokenDropdown";
 import Button from "../../../components/Button";
+import TokenDropdown from "../../../components/TokenDropdown";
 import {
   CommitmentType,
   useGetCommitmentsForCollateralToken,
@@ -13,16 +13,17 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
+import { useAccount } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
-import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
-import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
-import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
-import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
-import { useAccount } from "wagmi";
-import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
-import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import Loader from "../../../components/Loader";
+import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
+import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
+import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -123,6 +124,15 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
   };
 
+  const { data: liquidityPoolApr, isLoading: aprLoading = false } =
+    useGetAPRForLiquidityPools(
+      opportunity.lenderAddress ?? "0x",
+      commitmentMax.maxLoanAmount.toString(),
+      !isLiquidityPool
+    );
+
+  const apr = isLiquidityPool ? liquidityPoolApr : opportunity.minAPY;
+
   return (
     <div className="opportunity-list-item" onClick={handleOnOpportunityClick}>
       <div className="paragraph opportunity-list-item-header">
@@ -139,17 +149,23 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         <img src={caret} />
       </div>
       <div className="opportunity-list-item-body">
-        <OpportunityListDataItem
-          label="Interest"
-          value={`${(
-            (Number(opportunity.minAPY) / 100) *
-            (Number(opportunity.maxDuration) / 86400 / 365)
-          ).toFixed(2)} %`}
-        />
-        <OpportunityListDataItem
-          label="Duration"
-          value={`${Number(opportunity.maxDuration) / 86400} days`}
-        />
+        {aprLoading ? (
+          <Loader isSkeleton height={16} />
+        ) : (
+          <>
+            <OpportunityListDataItem
+              label="Interest"
+              value={`${(
+                (Number(apr) / 100) *
+                (Number(opportunity.maxDuration) / 86400 / 365)
+              ).toFixed(2)} %`}
+            />
+            <OpportunityListDataItem
+              label="Duration"
+              value={`${Number(opportunity.maxDuration) / 86400} days`}
+            />
+          </>
+        )}
       </div>
     </div>
   );
