@@ -14,13 +14,6 @@ interface PoolSelectProps {
 }
 
 const PoolRow: React.FC<PoolSelectProps> = ({ pool }) => {
-  const chainId = useChainId();
-  const chainName = {
-    1: 'ethereum',
-    137: 'polygon',
-    42161: 'arbitrum',
-    8453: 'base'
-  }[chainId] || 'ethereum';
   // Retrieve metadata for both principal and collateral tokens
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(pool?.principal_token_address);
   const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(pool?.collateral_token_address);
