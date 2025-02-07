@@ -40,14 +40,14 @@ const BorrowConfirmation = () => {
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[1]["principalAmount"],
+      successfulLoanParams.args?.[1]["principalAmount"] ?? 0n,
       principalToken?.decimals ?? 0
     )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[1]["collateralAmount"],
+      successfulLoanParams.args?.[1]["collateralAmount"] ?? 0n,
       collateralToken?.decimals ?? 0
     )
   );

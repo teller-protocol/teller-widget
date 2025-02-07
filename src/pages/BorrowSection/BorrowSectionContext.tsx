@@ -28,6 +28,8 @@ export type BorrowSectionContextType = {
   setSuccessfulLoanParams: (data: any) => void;
   bidId: string;
   setBidId: (bidId: string) => void;
+  maxCollateral: bigint;
+  setMaxCollateral: (maxCollateral: bigint) => void;
 };
 
 interface BorrowSectionContextProps {
@@ -63,6 +65,8 @@ export const BorrowSectionContextProvider: React.FC<
 
   const [bidId, setBidId] = useState<string>("");
 
+  const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
+
   return (
     <BorrowSectionContext.Provider
       value={{
@@ -80,6 +84,8 @@ export const BorrowSectionContextProvider: React.FC<
         setSuccessLoanHash,
         bidId,
         setBidId,
+        maxCollateral,
+        setMaxCollateral,
         // onCollateralTokenSelected,
         // onOpportunitySelected,
         // mapStepToComponent,

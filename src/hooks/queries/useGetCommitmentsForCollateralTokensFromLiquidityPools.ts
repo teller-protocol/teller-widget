@@ -1,15 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { getLiquidityPoolsGraphEndpoint } from "constants/liquidityPoolsGraphEndpoints";
+import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useChainId } from "wagmi";
+import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
+import { CommitmentType } from "./useGetRolloverableCommitments";
 
 export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
   collateralTokenAddress: string
 ) => {
   const chainId = useChainId();
   const graphURL = getLiquidityPoolsGraphEndpoint(chainId);
+
+  const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
 
   const collateralTokenCommitmentsDashboard = useMemo(
     () => gql`
@@ -42,11 +46,23 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
   );
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["commitmentsForCollateralToken-", collateralTokenAddress],
-    queryFn: async () => request(graphURL, collateralTokenCommitmentsDashboard),
+    queryKey: [
+      "commitmentsForLiquidityPoolsCollateralToken-",
+      collateralTokenAddress,
+    ],
+    queryFn: async () => {
+      const rawCommitments = await request(
+        graphURL,
+        collateralTokenCommitmentsDashboard
+      );
+      const commitments = await Promise.all(
+        rawCommitments.groupPoolMetrics.map(convertCommitment)
+      );
+      return commitments;
+    },
     enabled: !!collateralTokenAddress,
   }) as {
-    data: { commitments: LenderGroupsPoolMetrics[] };
+    data: CommitmentType[];
     isLoading: boolean;
     error: string;
   };

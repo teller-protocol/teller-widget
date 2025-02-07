@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import TokenDropdown from "../../../components/TokenDropdown";
 import Button from "../../../components/Button";
 import {
@@ -20,6 +20,8 @@ import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { useAccount } from "wagmi";
+import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -45,9 +47,15 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
 }) => {
-  const { setCurrentStep, setSelectedOpportunity, selectedCollateralToken } =
-    useGetBorrowSectionContext();
+  const {
+    setCurrentStep,
+    setSelectedOpportunity,
+    selectedCollateralToken,
+    setMaxCollateral,
+  } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
+
+  const isLiquidityPool = opportunity.isLenderGroup;
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
     (selectedCollateralToken?.balanceBigInt ?? 0) > 0
@@ -57,11 +65,25 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       : BigInt(0)
   );
 
-  const commitmentMax = useGetCommitmentMax({
+  const lcfaCommitmentMax = useGetCommitmentMax({
     commitment: opportunity,
     requestedCollateral: collateralAmount,
     collateralTokenDecimals: opportunity.collateralToken?.decimals,
   });
+
+  const lenderGroupCommitmentMax = useLiquidityPoolsCommitmentMax({
+    lenderGroupCommitment: opportunity,
+    collateralAmount: collateralAmount,
+    skip: !isLiquidityPool,
+  });
+
+  const commitmentMax = isLiquidityPool
+    ? lenderGroupCommitmentMax
+    : lcfaCommitmentMax;
+
+  useEffect(() => {
+    setMaxCollateral(commitmentMax.maxCollateral);
+  }, [commitmentMax.maxCollateral, setMaxCollateral]);
 
   // TODO: ADD SOCIAL FI CONDITIONAL
   useEffect(() => {
@@ -136,10 +158,29 @@ const OpportunitiesList: React.FC = () => {
   const { selectedCollateralToken, tokensWithCommitments } =
     useGetBorrowSectionContext();
   const { address: userAddress } = useAccount();
-  const { data } = useGetCommitmentsForCollateralToken(
+  const { data: lcfaCommitments } = useGetCommitmentsForCollateralToken(
     selectedCollateralToken?.address,
     userAddress
   );
+
+  const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
+    useGetCommitmentsForCollateralTokensFromLiquidityPools(
+      selectedCollateralToken?.address
+    );
+
+  const data = useMemo(() => {
+    if (lcfaCommitments && lenderGroupsCommitments) {
+      return {
+        commitments: [
+          ...lcfaCommitments.commitments,
+          ...lenderGroupsCommitments,
+        ],
+      };
+    }
+    return {
+      commitments: [],
+    };
+  }, [lcfaCommitments, lenderGroupsCommitments]);
 
   return (
     <div className="opportunities-list">
