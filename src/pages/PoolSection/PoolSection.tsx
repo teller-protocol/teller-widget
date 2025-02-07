@@ -9,7 +9,6 @@ const PoolSection: React.FC = () => {
   return (
     <PoolSectionContextProvider>
       <div className="pool-section">
-        <div>Pools</div>
         <PoolList />
       </div>
     </PoolSectionContextProvider>

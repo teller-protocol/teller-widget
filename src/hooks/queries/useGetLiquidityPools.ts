@@ -13,7 +13,7 @@ export const useGetLiquidityPools = () => {
     () => gql`
       query groupLiquidityPools {
         groupPoolMetrics(
-          orderBy: current_min_interest_rate
+          orderBy: principal_token_address
           orderDirection: asc
         ) {
           id
@@ -24,6 +24,7 @@ export const useGetLiquidityPools = () => {
           total_principal_tokens_committed
           total_principal_tokens_borrowed
           total_principal_tokens_withdrawn
+          total_interest_collected
           total_interest_collected
           interest_rate_lower_bound
           interest_rate_upper_bound
