@@ -15,21 +15,30 @@ enum WIDGET_ACTION_ENUM {
 
 const selectOptions = [
   { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
-  { value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" },
 ];
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
   showPoolSection?: boolean;
+  showRepaySection?: boolean;
 }
 
-const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault, showPoolSection }) => {
+const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault, showPoolSection, showRepaySection }) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
   const [key, setKey] = useState(0);
 
-  console.log("showPoolSection", showPoolSection)
+  showPoolSection
+    ? !selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.POOL) &&
+      selectOptions.push({ value: WIDGET_ACTION_ENUM.POOL, content: "Pools" })
+    : selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.POOL) &&
+      selectOptions.splice(selectOptions.findIndex(option => option.value === WIDGET_ACTION_ENUM.POOL), 1);
 
-  showPoolSection && selectOptions.push({ value: WIDGET_ACTION_ENUM.POOL, content: "POOL" });
+  showRepaySection
+    ? !selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.REPAY) &&
+      selectOptions.push({ value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" })
+    : selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.REPAY) &&
+      selectOptions.splice(selectOptions.findIndex(option => option.value === WIDGET_ACTION_ENUM.REPAY), 1);
+
 
   const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
     if (action === widgetAction && action === WIDGET_ACTION_ENUM.BORROW) {

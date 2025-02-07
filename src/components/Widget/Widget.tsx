@@ -37,6 +37,7 @@ interface BaseWidgetProps {
   showChainSwitch?: boolean;
   singleWhitelistedToken?: string;
   showPoolSection?: boolean;
+  showRepaySection?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -73,6 +74,7 @@ const Widget: React.FC<WidgetProps> = ({
   showChainSwitch = true,
   singleWhitelistedToken,
   showPoolSection = false,
+  showRepaySection = true,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -99,7 +101,6 @@ const Widget: React.FC<WidgetProps> = ({
           buttonTextColorPrimary={buttonTextColorPrimary}
           subgraphApiKey={subgraphApiKey}
           singleWhitelistedToken={singleWhitelistedToken}
-          showPoolSection={showPoolSection}
         >
           <div className="teller-widget">
             <Modal
@@ -120,7 +121,11 @@ const Widget: React.FC<WidgetProps> = ({
                   welcomeScreenParagraph={welcomeScreenParagraph}
                 />
               ) : (
-                <ModalContent showModalByDefault={showModalByDefault} />
+                <ModalContent 
+                  showModalByDefault={showModalByDefault} 
+                  showPoolSection={showPoolSection} 
+                  showRepaySection={showRepaySection} 
+                />
               )}
             </Modal>
              {!isEmbedded && (
