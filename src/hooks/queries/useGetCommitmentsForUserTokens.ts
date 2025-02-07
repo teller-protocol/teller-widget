@@ -6,6 +6,7 @@ import { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useChainId } from "wagmi";
+import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 
 interface Commitment {
   collateralToken: {
@@ -18,6 +19,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
+  const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
   const { userTokens } = useGetGlobalPropsContext();
 
   const hasTokens = userTokens.length > 0;
@@ -45,6 +47,24 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens]
   );
 
+  const lenderGroupsUserTokenCommitments = useMemo(
+    () =>
+      gql`
+        query checkCommitmentsLenderGroups {
+          groupPoolMetrics(
+            where: {
+              collateral_token_address_in: ${JSON.stringify(
+                Array.from(new Set(userTokens.map((token) => token.address)))
+              )}
+            }
+          ) {
+            group_pool_address
+            collateral_token_address
+          }
+        }
+      `,
+    [userTokens]
+  );
   const { data, refetch } = useQuery({
     queryKey: [`commitmentsForUserTokens-${chainId}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
@@ -53,6 +73,37 @@ export const useGetCommitmentsForUserTokens = () => {
     data: { commitments: Commitment[] };
     isLoading: boolean;
     refetch: any;
+  };
+
+  const {
+    data: lenderGroupsUserTokenCommitmentsData,
+    isLoading: lenderGroupsUserTokenCommitmentsLoading,
+  } = useQuery({
+    queryKey: [`lenderGroupsUserTokenCommitments-${chainId}`],
+    queryFn: async () => {
+      const response = await request(
+        lenderGroupsGraphURL,
+        lenderGroupsUserTokenCommitments
+      ).then((res: any) => {
+        return res.groupPoolMetrics.map((metric: any) => ({
+          ...metric,
+          collateralToken: {
+            address: metric.collateral_token_address,
+          },
+        }));
+      });
+      return response;
+    },
+    enabled: !!hasTokens,
+  }) as {
+    data: {
+      group_pool_address: string;
+      collateral_token_address: string;
+      collateralToken: {
+        address: string;
+      };
+    }[];
+    isLoading: boolean;
   };
 
   useEffect(() => {
@@ -67,8 +118,12 @@ export const useGetCommitmentsForUserTokens = () => {
       setLoading(true);
       return;
     }
-    if (data?.commitments) {
-      const userCommitments = data.commitments.reduce((acc, current) => {
+    if (data?.commitments || lenderGroupsUserTokenCommitmentsData) {
+      const combinedCommitments = [
+        ...(data?.commitments || []),
+        ...(lenderGroupsUserTokenCommitmentsData || []),
+      ];
+      const userCommitments = combinedCommitments.reduce((acc, current) => {
         if (
           acc?.find(
             (commitment) =>
@@ -99,7 +154,13 @@ export const useGetCommitmentsForUserTokens = () => {
       setTokensWithCommitments(userCommitmentsUnique);
       setLoading(false);
     }
-  }, [data, userTokens, setTokensWithCommitments, setLoading]);
+  }, [
+    data,
+    userTokens,
+    setTokensWithCommitments,
+    setLoading,
+    lenderGroupsUserTokenCommitmentsData,
+  ]);
 
   return useMemo(
     () => ({ tokensWithCommitments, loading }),
