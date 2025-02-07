@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import BorrowSection from "../../pages/BorrowSection";
 import RepaySection from "../../pages/RepaySection";
 import PoolSection from "../../pages/PoolSection";
@@ -13,10 +14,12 @@ enum WIDGET_ACTION_ENUM {
   POOL = "POOL",
 }
 
+const { showPoolSection } = useGetGlobalPropsContext();
+
 const selectOptions = [
   { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
   { value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" },
-  { value: WIDGET_ACTION_ENUM.POOL, content: "POOL" },
+  ...(showPoolSection ? [{ value: WIDGET_ACTION_ENUM.POOL, content: "POOL" }] : []),
 ];
 
 interface ModalContentProps {
