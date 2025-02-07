@@ -68,5 +68,5 @@ const { data, isLoading, error } = useQuery({
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { liquidityPools: data || [], isLoading };
+  return { liquidityPools: data || [blockedPools, singleWhitelistedToken], isLoading };
 };
