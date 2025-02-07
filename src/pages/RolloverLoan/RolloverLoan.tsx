@@ -338,49 +338,29 @@ const RolloverLoan: React.FC = () => {
     defaultCollateralValue
   );
 
-  useEffect(() => {
-    if (
-      (isSameLender && !requiredCollateralDefaultLoan) ||
-      !maxCollateralWithWalletBalance ||
-      collateralValue.valueBI
-    ) {
-      return;
-    }
 
-    if (
-      (isSameLender &&
-        (requiredCollateralDefaultLoan ?? 0) > BigInt(0) &&
-        collateralValue.valueBI === BigInt(0)) ||
-      (maxCollateralWithWalletBalance > BigInt(0) &&
-        collateralValue.valueBI === BigInt(0))
-    ) {
-      setCollateralValue({
-        token: {
-          address: loanCollateral?.collateralAddress,
-          decimals: loanCollateral?.token.decimals,
-          symbol: loanCollateral?.token.symbol,
-        },
-        valueBI: defaultCollateralValueAmount,
-        value: Number(
-          formatUnits(
-            BigInt(defaultCollateralValueAmount),
-            loanCollateral?.token.decimals
-          )
-        ),
-      });
-    }
+  useEffect(() => {
+    setCollateralValue({
+      token: {
+        address: loanCollateral?.collateralAddress,
+        decimals: loanCollateral?.token.decimals,
+        symbol: loanCollateral?.token.symbol,
+      },
+      valueBI: defaultCollateralValueAmount,
+      value: Number(
+        formatUnits(
+          BigInt(defaultCollateralValueAmount),
+          loanCollateral?.token.decimals
+        )
+      ),
+    });
   }, [
     requiredCollateralDefaultLoan,
     maxCollateralWithWalletBalance,
-    collateralValue,
-    defaultCollateralValue,
-    isSameLender,
-    duration?.value,
-    collateralValue.valueBI,
+    defaultCollateralValueAmount,
     loanCollateral?.collateralAddress,
     loanCollateral?.token.decimals,
     loanCollateral?.token.symbol,
-    defaultCollateralValueAmount,
   ]);
 
   const collateralAmountDebounced = useDebounce(collateralValue, 250);

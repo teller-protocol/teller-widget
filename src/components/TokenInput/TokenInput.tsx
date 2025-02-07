@@ -33,7 +33,7 @@ interface TokenInputProps {
 const TokenInput: React.FC<TokenInputProps> = ({
   tokenValue,
   label,
-  maxAmount,
+  maxAmount = 0,
   imageUrl,
   sublabel,
   sublabelUpper,
@@ -46,8 +46,13 @@ const TokenInput: React.FC<TokenInputProps> = ({
 }) => {
   const [isMin, setIsMin] = useState(false);
 
+  const maxAmountRoundedDown = Math.floor(maxAmount * 10000) / 10000;
+
   const maxValueBigInt = parseUnits(
-    (maxAmount ?? 0).toLocaleString("fullwide", { useGrouping: false }),
+    maxAmountRoundedDown.toString().toLocaleString("fullwide", {
+      // need to convert to string first to avoid rounding up
+      useGrouping: false,
+    }),
     Number(tokenValue.token?.decimals) || 0
   );
 
@@ -63,7 +68,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
     } else {
       onChange?.({
         ...tokenValue,
-        value: maxAmount,
+        value: maxAmountRoundedDown,
         valueBI: maxValueBigInt,
       });
     }
