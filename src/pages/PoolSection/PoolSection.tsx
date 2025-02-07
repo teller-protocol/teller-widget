@@ -1,10 +1,18 @@
 import React from 'react';
+import PoolList from "./PoolList";
+import "./poolSection.scss";
+import {
+  PoolSectionContextProvider,
+} from "./PoolSectionContext";
 
 const PoolSection: React.FC = () => {
   return (
-    <div>
-      Pools
-    </div>
+    <PoolSectionContextProvider>
+      <div className="pool-section">
+        <div>Pools</div>
+        <PoolList />
+      </div>
+    </PoolSectionContextProvider>
   );
 };
 
