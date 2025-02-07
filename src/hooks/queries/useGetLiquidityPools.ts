@@ -40,7 +40,7 @@ export const useGetLiquidityPools = () => {
   );
 
 const { data, isLoading, error } = useQuery({
-    queryKey: ["allLiquidityPools"],
+    queryKey: ["allLiquidityPools", chainId],
     queryFn: async () => {
       const response = await request(graphURL, poolCommitmentsDashboard) as { 
         groupPoolMetrics: LenderGroupsPoolMetrics[] 
