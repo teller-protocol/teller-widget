@@ -58,9 +58,6 @@ export const useGetLiquidityPools = () => {
         groupPoolMetrics: LenderGroupsPoolMetrics[] 
       };
 
-      console.log("blockedPools", blockedPools)
-      console.log("response.groupPoolMetrics", response.groupPoolMetrics)
-
       const filteredPools = blockedPools?.length 
         ? response.groupPoolMetrics.filter(pool => !blockedPools.includes(pool.group_pool_address.toLowerCase()))
         : response.groupPoolMetrics;
