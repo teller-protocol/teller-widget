@@ -22,6 +22,7 @@ import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { useAccount } from "wagmi";
 import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import Loader from "../../../components/Loader";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -158,10 +159,11 @@ const OpportunitiesList: React.FC = () => {
   const { selectedCollateralToken, tokensWithCommitments } =
     useGetBorrowSectionContext();
   const { address: userAddress } = useAccount();
-  const { data: lcfaCommitments } = useGetCommitmentsForCollateralToken(
-    selectedCollateralToken?.address,
-    userAddress
-  );
+  const { data: lcfaCommitments, isLoading: isLcfaLoading } =
+    useGetCommitmentsForCollateralToken(
+      selectedCollateralToken?.address,
+      userAddress
+    );
 
   const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
     useGetCommitmentsForCollateralTokensFromLiquidityPools(
@@ -182,6 +184,8 @@ const OpportunitiesList: React.FC = () => {
     };
   }, [lcfaCommitments, lenderGroupsCommitments]);
 
+  const isLoading = isLcfaLoading || isLenderGroupsLoading;
+
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">
@@ -199,66 +203,70 @@ const OpportunitiesList: React.FC = () => {
           <div className="paragraph opportunities-sub-title">
             My opportunities
           </div>
-          {data.commitments.length === 0 ? (
-            <div
-              className="empty-opportunities"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "200px",
-              }}
-            >
-              <div className="section-title" style={{ marginBottom: "1rem" }}>
-                No liquidity found &nbsp; 👀
-              </div>
-              <Button
-                label={
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    Deploy ${selectedCollateralToken?.symbol} pool
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      viewBox="0 0 24 24"
-                      style={{ marginLeft: "0.5rem" }}
+          <>
+            {isLoading ? (
+              <Loader />
+            ) : data.commitments.length === 0 ? (
+              <div
+                className="empty-opportunities"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "200px",
+                }}
+              >
+                <div className="section-title" style={{ marginBottom: "1rem" }}>
+                  No liquidity found &nbsp; 👀
+                </div>
+                <Button
+                  label={
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
                     >
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                      <polyline points="15 3 21 3 21 9" />
-                      <line x1="10" y1="14" x2="21" y2="3" />
-                    </svg>
-                  </span>
-                }
-                variant="secondary"
-                onClick={() =>
-                  window.open(
-                    "https://app.teller.org/lend",
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
-              />
-            </div>
-          ) : (
-            data.commitments.map((commitment) => (
-              <OpportunityListItem
-                opportunity={commitment}
-                key={commitment.id}
-              />
-            ))
-          )}
+                      Deploy ${selectedCollateralToken?.symbol} pool
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        viewBox="0 0 24 24"
+                        style={{ marginLeft: "0.5rem" }}
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </span>
+                  }
+                  variant="secondary"
+                  onClick={() =>
+                    window.open(
+                      "https://app.teller.org/lend",
+                      "_blank",
+                      "noopener,noreferrer"
+                    )
+                  }
+                />
+              </div>
+            ) : (
+              data.commitments.map((commitment) => (
+                <OpportunityListItem
+                  opportunity={commitment}
+                  key={commitment.id}
+                />
+              ))
+            )}
+          </>
         </div>
       )}
     </div>
