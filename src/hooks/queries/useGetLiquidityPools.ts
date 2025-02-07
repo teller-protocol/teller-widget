@@ -3,7 +3,7 @@ import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGr
 import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
-import { CommitmentType } from "./useGetRolloverableCommitments";
+import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 
 export const useGetLiquidityPools = () => {
   const chainId = useChainId();
@@ -38,24 +38,15 @@ export const useGetLiquidityPools = () => {
     []
   );
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: [
-      "allLiquidityPools",
-    ],
+const { data, isLoading, error } = useQuery({
+    queryKey: ["allLiquidityPools"],
     queryFn: async () => {
-      const liquidityPools = await request(
-        graphURL,
-        poolCommitmentsDashboard
-      );
-      return liquidityPools;
+      const response = await request(graphURL, poolCommitmentsDashboard);
+      return response.groupPoolMetrics as LenderGroupsPoolMetrics[];
     },
-  }) as {
-    data: CommitmentType[];
-    isLoading: boolean;
-    error: string;
-  };
+  });
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { data, isLoading };
+  return { liquidityPools: data || [], isLoading };
 };
