@@ -29,23 +29,32 @@ interface LoanRowProps {
 }
 
 interface TokenPairProps {
-  principalTokenSymbol: string;
+  principalTokenAddress: string;
   collateralTokenAdress: string;
 }
 
 const TokenPair: React.FC<TokenPairProps> = ({
-  principalTokenSymbol,
+  principalTokenAddress,
   collateralTokenAdress,
 }) => {
   const { setCollateralImageURL } = useGetRepaySectionContext();
-  const { tokenMetadata: collateralTokenMetadata, isLoading } =
-    useGetTokenMetadata(collateralTokenAdress, setCollateralImageURL);
+  const {
+    tokenMetadata: collateralTokenMetadata,
+    isLoading: collateralLoading,
+  } = useGetTokenMetadata(collateralTokenAdress, setCollateralImageURL);
+
+  const { tokenMetadata: principalTokenMetadata, isLoading: principalLoading } =
+    useGetTokenMetadata(principalTokenAddress, setCollateralImageURL);
 
   const collateralTokenLogo = useMemo(() => {
     return collateralTokenMetadata?.logo;
   }, [collateralTokenMetadata]);
 
-  const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[principalTokenSymbol];
+  const principalTokenLogo = useMemo(() => {
+    return principalTokenMetadata?.logo;
+  }, [principalTokenMetadata]);
+
+  const isLoading = collateralLoading || principalLoading;
 
   return (
     <>
@@ -53,7 +62,7 @@ const TokenPair: React.FC<TokenPairProps> = ({
         <Loader height={20} isSkeleton />
       ) : (
         <div className="token-pair">
-          <img src={principalTokenLogo} alt={principalTokenSymbol} />
+          <img src={principalTokenLogo ?? ""} alt={principalTokenAddress} />
           <img src={collateralTokenLogo ?? ""} alt={collateralTokenAdress} />
         </div>
       )}
@@ -95,7 +104,7 @@ export const LoanRow: React.FC<LoanRowProps> = ({ loan }) => {
               formatUnits(BigInt(loan.principal), loan.lendingToken.decimals)
             )}{" "}
             <TokenPair
-              principalTokenSymbol={loan.lendingToken.symbol}
+              principalTokenAddress={loan.lendingToken.address}
               collateralTokenAdress={collateralTokenAddress}
             />
           </div>

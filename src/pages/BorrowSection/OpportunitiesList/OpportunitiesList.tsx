@@ -24,6 +24,7 @@ import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../..
 import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -56,6 +57,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setMaxCollateral,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
+
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    opportunity.principalToken?.address ?? ""
+  );
 
   const isLiquidityPool = opportunity.isLenderGroup;
 
@@ -116,7 +121,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         )
       ).toFixed(2)
     ),
-    token: SUPPORTED_TOKEN_LOGOS[opportunity.principalToken?.symbol as string],
+    token: principalTokenMetadata?.logo,
   };
 
   const handleOnOpportunityClick = () => {
