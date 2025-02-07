@@ -4,15 +4,18 @@ import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 export const useGetLiquidityPools = () => {
   const chainId = useChainId();
   const graphURL = getLiquidityPoolsGraphEndpoint(chainId);
+  const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
   const poolCommitmentsDashboard = useMemo(
     () => gql`
       query groupLiquidityPools {
         groupPoolMetrics(
+          where: ${singleWhitelistedToken ? `{ collateral_token_address: "${singleWhitelistedToken.toLocaleLowerCase()}" }` : "{}"}
           orderBy: principal_token_address
           orderDirection: asc
         ) {
