@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import BorrowSection from "../../pages/BorrowSection";
 import RepaySection from "../../pages/RepaySection";
 import PoolSection from "../../pages/PoolSection";
@@ -14,21 +13,23 @@ enum WIDGET_ACTION_ENUM {
   POOL = "POOL",
 }
 
-const { showPoolSection } = useGetGlobalPropsContext();
-
 const selectOptions = [
   { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
   { value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" },
-  ...(showPoolSection ? [{ value: WIDGET_ACTION_ENUM.POOL, content: "POOL" }] : []),
 ];
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
+  showPoolSection?: boolean;
 }
 
-const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
+const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault, showPoolSection }) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
   const [key, setKey] = useState(0);
+
+  console.log("showPoolSection", showPoolSection)
+
+  showPoolSection && selectOptions.push({ value: WIDGET_ACTION_ENUM.POOL, content: "POOL" });
 
   const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
     if (action === widgetAction && action === WIDGET_ACTION_ENUM.BORROW) {
