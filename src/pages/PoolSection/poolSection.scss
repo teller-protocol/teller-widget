@@ -1,0 +1,11 @@
+@import "../../tokens.scss";
+
+.pool-section {
+  margin-top: $s-normal;
+  padding: 1rem;
+  background-color: white;
+  border-radius: $border-radius;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+}
