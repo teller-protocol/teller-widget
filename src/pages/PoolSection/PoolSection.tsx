@@ -4,12 +4,14 @@ import "./poolSection.scss";
 import {
   PoolSectionContextProvider,
 } from "./PoolSectionContext";
+import { useChainId } from "wagmi";
 
 const PoolSection: React.FC = () => {
+  const chainId = useChainId();
   return (
     <PoolSectionContextProvider>
       <div className="pool-section">
-        <PoolList />
+        <PoolList  key={chainId} />
       </div>
     </PoolSectionContextProvider>
   );
