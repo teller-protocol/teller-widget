@@ -1,11 +1,11 @@
 import { createContext, useContext } from "react";
-import { CommitmentType } from "../../hooks/queries/useGetRolloverableCommitments";
+import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useGetLiquidityPools } from "../../hooks/queries/useGetLiquidityPools";
 
 // then in PoolList.tsx, use data and fill in cards
 
 export type PoolSectionContextType = {
-  liquidityPools: CommitmentType[];
+  liquidityPools: LenderGroupsPoolMetrics[];
   liquidityPoolsLoading: boolean;
 };
 
@@ -21,7 +21,7 @@ export const PoolSectionContextProvider: React.FC<
   PoolSectionContextProps
 > = ({ children }) => {
 
-  const { data: liquidityPools, isLoading: liquidityPoolsLoading, } = useGetLiquidityPools();
+  const { liquidityPools: liquidityPools, isLoading: liquidityPoolsLoading, } = useGetLiquidityPools();
 
   return (
     <PoolSectionContext.Provider
