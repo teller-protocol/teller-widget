@@ -17,7 +17,7 @@ import {
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import "./opportunityDetails.scss";
 
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 
 import Button from "../../../components/Button";
 import TransactionButton from "../../../components/TransactionButton";
@@ -27,6 +27,7 @@ import { useContracts } from "../../../hooks/useContracts";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
+import { useAccount, useBalance } from "wagmi";
 
 const OpportunityDetails = () => {
   const {
@@ -37,6 +38,7 @@ const OpportunityDetails = () => {
     setSuccessfulLoanParams,
     maxCollateral: maxCollateralFromContext,
   } = useGetBorrowSectionContext();
+  const { address } = useAccount();
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
@@ -47,16 +49,12 @@ const OpportunityDetails = () => {
     whitelistedToken && Number(selectedCollateralToken?.balance) === 0;
 
   const [collateralTokenValue, setCollateralTokenValue] =
-    useState<TokenInputType>({
-      token: selectedOpportunity.collateralToken,
-      value: Number(
-        formatUnits(
-          maxCollateralFromContext ?? 0n,
-          selectedCollateralToken?.decimals ?? 0
-        )
-      ),
-      valueBI: maxCollateralFromContext,
-    });
+    useState<TokenInputType>({});
+
+  const collateralWalletBalance = useBalance({
+    token: selectedCollateralToken?.address,
+    address,
+  });
 
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
@@ -103,12 +101,24 @@ const OpportunityDetails = () => {
     if (!staticMaxCollateral && maxCollateral) {
       setStaticMaxCollateral(maxCollateral);
     }
+
+    if (staticMaxCollateral && collateralTokenValue.valueBI === undefined) {
+      setCollateralTokenValue({
+        token: selectedCollateralToken,
+        value: Number(
+          formatUnits(
+            staticMaxCollateral ?? 0n,
+            selectedCollateralToken?.decimals ?? 0
+          )
+        ),
+        valueBI: staticMaxCollateral ?? 0n,
+      });
+    }
   }, [
     collateralTokenValue,
     isWhitelistedTokenAndUserHasNoBalance,
     maxCollateral,
     selectedCollateralToken,
-    selectedCollateralToken.decimals,
     staticMaxCollateral,
   ]);
 
@@ -177,6 +187,14 @@ const OpportunityDetails = () => {
     },
   });
 
+  const isCollateralMoreThanBalance =
+    (collateralWalletBalance?.data?.value ?? 0n) <
+    (collateralTokenValue.valueBI ?? 0n);
+
+  const isCollateralMoreThanMax =
+    liquidityPoolsCommitmentMax.maxAvailableCollateralInPool <
+    (collateralTokenValue.valueBI ?? 0n);
+
   return (
     <div className="opportunity-details">
       <BackButton
@@ -212,7 +230,12 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        maxAmount={Number(selectedCollateralToken?.balance ?? 0)}
+        maxAmount={Number(
+          formatUnits(
+            staticMaxCollateral ?? 0n,
+            selectedCollateralToken?.decimals ?? 0
+          )
+        )}
         imageUrl={selectedCollateralToken?.logo || ""}
         sublabelUpper={`Max: ${numberWithCommasAndDecimals(
           formatUnits(
@@ -309,7 +332,17 @@ const OpportunityDetails = () => {
           isFullWidth
         />
       ) : isLenderGroup ? (
-        <TransactionButton transactions={lenderGroupTransactions} />
+        <TransactionButton
+          transactions={lenderGroupTransactions}
+          isButtonDisabled={
+            isCollateralMoreThanBalance || isCollateralMoreThanMax
+          }
+          buttonDisabledMessage={
+            isCollateralMoreThanMax
+              ? "Insufficient liquidity"
+              : "Insufficient collateral"
+          }
+        />
       ) : (
         <AcceptCommitmentButton
           collateralToken={collateralTokenValue}

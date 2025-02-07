@@ -39,6 +39,14 @@ export const useLiquidityPoolsCommitmentMax = ({
     ContractType.LenderGroups
   );
 
+  const { data: maxAvailableCollateralInPool } = useReadContract(
+    poolId,
+    "calculateCollateralRequiredToBorrowPrincipal",
+    [maxLoanAmountFromContract],
+    !maxLoanAmountFromContract,
+    ContractType.LenderGroups // Setting the contractType to LenderGroups
+  );
+
   const standardExpansionFactorExponent = 18;
   const principalTokenDecimals = principalTokenData?.decimals ?? 0;
 
@@ -117,5 +125,6 @@ export const useLiquidityPoolsCommitmentMax = ({
     maxLoanAmount: maxLoanAmountWithBuffer,
     displayedPrincipal: maxLoanAmountWithBuffer,
     maxLoanAmountNumber,
+    maxAvailableCollateralInPool,
   };
 };
