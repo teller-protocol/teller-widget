@@ -39,7 +39,7 @@ const PoolRow: React.FC<PoolSelectProps> = ({ pool }) => {
   return (
     <div className="pool-row">
       <div className="token-logos">
-        <TokenLogo logoUrl={pool?.principalLogoUrl} size={32} />
+        <TokenLogo logoUrl={principalLogoUrl} size={32} />
         <TokenLogo logoUrl={collateralLogoUrl} size={32} />
       </div>
       <div className="token-balance-info">
