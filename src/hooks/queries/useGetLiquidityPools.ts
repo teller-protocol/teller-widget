@@ -53,7 +53,7 @@ export const useGetLiquidityPools = () => {
         }
       }
     `,
-    []
+    [blockedPools, singleWhitelistedToken]
   );
 
 const { data, isLoading, error } = useQuery({
