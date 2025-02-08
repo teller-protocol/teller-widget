@@ -49,11 +49,17 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { setSelectedCollateralToken } = useGetBorrowSectionContext();
+  const { 
+    setSelectedCollateralToken, 
+    setSelectedPrincipalErc20Token 
+  } = useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
   const onTokenDropdownRowClick = (token: UserToken) => {
-    setSelectedCollateralToken(token);
+    isStableView ? setSelectedCollateralToken(token) : setSelectedPrincipalErc20Token(token);
     setIsOpen(false);
   };
 

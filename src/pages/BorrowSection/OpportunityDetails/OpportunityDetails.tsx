@@ -9,6 +9,7 @@ import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -51,7 +52,9 @@ const OpportunityDetails = () => {
       )
     : selectedCollateralToken;
 
-  console.log("matchingCollateralToken", matchingCollateralToken)
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    selectedOpportunity.principalToken?.address ?? ""
+  );
   
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
@@ -293,7 +296,7 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        principalTokenMetadata={principalTokenMetadata}
+        imageUrl={principalTokenMetadata?.logo || ""}
         sublabelUpper={
           <span>
             Duration:{" "}
