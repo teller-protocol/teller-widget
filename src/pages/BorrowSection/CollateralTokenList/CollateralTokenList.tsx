@@ -83,7 +83,7 @@ const CollateralTokenList: React.FC = () => {
             type="text"
             placeholder={
               tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 
-              ? "Token to borrow" : "Collateral to deposit"
+              ? "Token to borrow" : "Collateral for loan"
             }
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

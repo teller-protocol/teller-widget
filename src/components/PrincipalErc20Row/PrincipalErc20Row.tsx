@@ -2,6 +2,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
+import DataPill from "../../components/DataPill";
 
 import "./principalErc20Row.scss";
 
@@ -20,9 +21,16 @@ const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
     <div className="principal-erc20-token-row" onClick={() => onClick?.(token)}>
       <TokenLogo logoUrl={logoUrl} size={32} />
       <div className="token-balance-info">
-        <span className="paragraph">{token?.symbol}</span>
+        <div className="symbol-data-row">
+          <span className="paragraph">{token?.symbol}</span>
+          <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
+          <DataPill
+            label={"76% APY"}
+            logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
+          /></span>
+        </div>
         <span className="section-sub-title">
-          Available: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
+          Borrow: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
         </span>
       </div>
     </div>

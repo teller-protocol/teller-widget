@@ -28,4 +28,18 @@
   .token-logo {
     margin-right: $s-small;
   }
+
+  .symbol-data-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .data-pill {
+    padding: 1px 5px !important;
+
+    .img {
+      height: 10px !important;
+    }
+  }
 }
