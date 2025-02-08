@@ -11,6 +11,8 @@ import { ReactNode, useCallback, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom";
 import ChainSwitch from "../ChainSwitch";
 
+import { BORROW_TOKEN_TYPE_ENUM } from "../../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
+
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
@@ -26,6 +28,7 @@ type ModalProps = {
   useLightLogo?: boolean;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
+  tokenTypeListView: any;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -36,6 +39,7 @@ const Modal: React.FC<ModalProps> = ({
   useLightLogo,
   isEmbedded,
   showChainSwitch,
+  tokenTypeListView,
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -97,7 +101,9 @@ const Modal: React.FC<ModalProps> = ({
                   <div className="modal-content-title">
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
-                        <div className="modal-title">Cash Advance</div>
+                        <div className="modal-title">{tokenTypeListView === BORROW_TOKEN_TYPE_ENUM?.ERC20
+                          ? "Borrow tokens"
+                          : "Borrow stables"}</div>
                         <ChainSwitch />
                       </div>
                     )}
@@ -139,6 +145,7 @@ const Modal: React.FC<ModalProps> = ({
       showChainSwitch,
       showModal,
       tellerLogo,
+      tokenTypeListView,
     ]
   );
 
