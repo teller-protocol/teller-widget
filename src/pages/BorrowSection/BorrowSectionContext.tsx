@@ -3,6 +3,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import { useGeCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -58,6 +59,8 @@ export const BorrowSectionContextProvider: React.FC<
 
   // query to get all pools, non-blocked, where principalToken not in supportedPrincipalTokens
   // look at way done in pools section
+
+  const { erc20sWithCommitments, loading: erc20sWithCommitmentsLoading } = useGeCommitmentsForErc20Tokens();
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);

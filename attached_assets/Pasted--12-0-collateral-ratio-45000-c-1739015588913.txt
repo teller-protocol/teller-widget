@@ -1,0 +1,93 @@
+(12) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+0
+: 
+collateral_ratio
+: 
+"45000"
+collateral_token_address
+: 
+"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+current_min_interest_rate
+: 
+"2796"
+group_pool_address
+: 
+"0x060acddbf520c887e7db349f56ee7bfd0b4ab7c2"
+id
+: 
+"060acddbf520c887e7db349f56ee7bfd0b4ab7c2"
+interest_rate_lower_bound
+: 
+"2500"
+interest_rate_upper_bound
+: 
+"3500"
+market_id
+: 
+"26"
+max_loan_duration
+: 
+"2592000"
+principal_token_address
+: 
+"0x594daad7d77592a2b97b725a7ad59d7e188b5bfa"
+shares_token_address
+: 
+"0x824b8f8912177e5d6938795a84aa653da72a4cd6"
+smart_commitment_forwarder_address
+: 
+"0x80314d77e86d70a67126da86ec823f5fc018c010"
+total_interest_collected
+: 
+"0"
+total_principal_tokens_borrowed
+: 
+"22333447677694126963615417"
+total_principal_tokens_committed
+: 
+"75306944365761110757256518"
+total_principal_tokens_withdrawn
+: 
+"0"
+[[Prototype]]
+: 
+Object
+1
+: 
+{id: 'f88143a25c03924a968970eaacf6a7e4fb2a374f', market_id: '25', max_loan_duration: '604800', collateral_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', principal_token_address: '0x6982508145454ce325ddbe47a25d4ec3d2311933', …}
+2
+: 
+{id: '0147dd4bba5e33e7f9231a812e1aff5bb19b9827', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0x944824290cc12f31ae18ef51216a223ba4063092', principal_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', …}
+3
+: 
+{id: '39839dba7a9982ba670e26ea5c958796fb6ad0a7', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c', principal_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', …}
+4
+: 
+{id: '52171eb49bc5274dbff695bf30044357819d5088', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0xb23d80f5fefcddaa212212f028021b41ded428cf', principal_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', …}
+5
+: 
+{id: '9c182f8611316498cdc99738087e96f4fb53e929', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0x594daad7d77592a2b97b725a7ad59d7e188b5bfa', principal_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', …}
+6
+: 
+{id: 'b65320e0e814aac23b70545331bf004820ba9553', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0x62d0a8458ed7719fdaf978fe5929c6d342b0bfce', principal_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', …}
+7
+: 
+{id: 'ec5446bbf7c40557d4d4041dfcce745a4374d0f1', market_id: '25', max_loan_duration: '604800', collateral_token_address: '0x427a03fb96d9a94a6727fbcfbba143444090dd64', principal_token_address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', …}
+8
+: 
+{id: '222a133634e0dac6df7b6e1a89c9c675e373c79d', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0x944824290cc12f31ae18ef51216a223ba4063092', principal_token_address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', …}
+9
+: 
+{id: '37b85d51f007867fcf5c7b5fdad99d5f85a4c642', market_id: '26', max_loan_duration: '2592000', collateral_token_address: '0xb23d80f5fefcddaa212212f028021b41ded428cf', principal_token_address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', …}
+10
+: 
+{id: 'f3069606f537f79caecc071de20732f2f6c66ecc', market_id: '28', max_loan_duration: '259200', collateral_token_address: '0xaaee1a9723aadb7afa2810263653a34ba2c21c7a', principal_token_address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', …}
+11
+: 
+{id: 'ffc71d4ff0cd4f7ba97241ec9cfb6bdaea383a00', market_id: '28', max_loan_duration: '259200', collateral_token_address: '0xba386a4ca26b85fd057ab1ef86e3dc7bdeb5ce70', principal_token_address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', …}
+length
+: 
+12
+[[Prototype]]
+: 
+Array(0)
