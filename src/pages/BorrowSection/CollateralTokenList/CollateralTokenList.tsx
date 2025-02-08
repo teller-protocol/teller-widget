@@ -11,7 +11,7 @@ import {
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 
-export enum BORROW_TOKEN_TYPE_ENUM {
+enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
   ERC20 = "ERC20",
 }
