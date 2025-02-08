@@ -1,0 +1,62 @@
+@import "../../../tokens.scss";
+
+.principal-erc20-list {
+  .token-search-input {
+    width: 100%;
+    padding: 8px 12px 8px 32px;
+    margin: 0 0 12px 0;
+    border: 0.5px solid rgb(190, 190, 190);
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2387a1a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") 8px calc(50% - 0.5px) no-repeat;
+
+    color: #132725;
+
+    &:focus {
+      border-color: #bebebe;
+    }
+
+    &::placeholder {
+        color: #87a1a1;
+    }
+  }
+  .section-title {
+    margin-bottom: $s-normal;
+    text-align: center;
+  }
+
+  &-select {
+    border: 0.5px solid $border-color-secondary;
+    border-radius: $border-radius;
+    display: flex;
+    padding: $s-small $s-normal;
+    align-items: center;
+    margin: $s-small 0;
+
+    &:hover {
+      cursor: pointer;
+      background-color: $border-color-background;
+    }
+
+    .token-balance-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .token-logo {
+      margin-right: $s-small;
+    }
+  }
+
+  .loader {
+    margin-top: $s-normal;
+  }
+
+  .unsupported-chain {
+    font-style: italic;
+    text-align: center;
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
+import SelectButtons from "../../../components/SelectButtons";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import {
@@ -8,6 +9,16 @@ import {
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
+
+enum BORROW_TOKEN_TYPE_ENUM {
+  STABLE = "STABLE",
+  ERC20 = "ERC20",
+}
+
+const selectOptions = [
+  { value: BORROW_TOKEN_TYPE_ENUM.STABLE, content: "💰" },
+  { value: BORROW_TOKEN_TYPE_ENUM.ERC20, content: "🪙" },
+];
 
 const CollateralTokenList: React.FC = () => {
   const {
@@ -51,6 +62,11 @@ const CollateralTokenList: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="token-search-input"
+          />
+          <SelectButtons
+            items={selectOptions}
+            value={widgetAction}
+            onChange={handleWidgetAction}
           />
           {loading ? (
             <Loader />
