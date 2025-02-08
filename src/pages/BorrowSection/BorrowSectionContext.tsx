@@ -23,7 +23,7 @@ export type BorrowSectionContextType = {
   setSelectedOpportunity: (commitmentType: CommitmentType) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
-  erc20sWithCommitments: (commitmentType: CommitmentType) => void;
+  erc20sWithCommitments: CommitmentType[];
   erc20sWithCommitmentsLoading: boolean;
   successLoanHash?: string;
   setSuccessLoanHash: (hash: string) => void;
