@@ -51,8 +51,14 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
   </div>
 );
 
+interface OpportunityListItemProps {
+  opportunity: CommitmentType;
+  principalTokenMetadata?: TokenMetadata;
+}
+
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
+  principalTokenMetadata,
 }) => {
   const {
     setCurrentStep,
@@ -64,10 +70,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     tokenTypeListView,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
-
-  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
-    opportunity.principalToken?.address ?? ""
-  );
 
   const isLiquidityPool = opportunity.isLenderGroup;
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
@@ -331,13 +333,18 @@ const OpportunitiesList: React.FC = () => {
                 />
               </div>
             ) : (
-              data.commitments.map((commitment) => (
-                <OpportunityListItem
-                  opportunity={commitment}
-                  key={commitment.id}
-                  principalTokenMetadata={principalTokenMetadata}
-                />
-              ))
+              data.commitments.map((commitment) => {
+                const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+                  commitment.principalToken?.address ?? ""
+                );
+                return (
+                  <OpportunityListItem
+                    opportunity={commitment}
+                    key={commitment.id}
+                    principalTokenMetadata={principalTokenMetadata}
+                  />
+                );
+              })
             )}
           </>
         </div>
