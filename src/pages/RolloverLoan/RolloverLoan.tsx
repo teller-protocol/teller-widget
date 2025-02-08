@@ -525,7 +525,7 @@ const RolloverLoan: React.FC = () => {
         <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
         <LoanLink loan={loan} />
       </div>
-      <h2>Extend cash advance</h2>
+      <h3></h3>
       {rolloverableCommitmentsLoading || !commitment ? (
         <Loader height={55} isSkeleton />
       ) : (
@@ -533,7 +533,6 @@ const RolloverLoan: React.FC = () => {
           options={dropdownOptions}
           selectedOption={duration}
           onChange={setDuration}
-          label="Duration"
           readonly={dropdownOptions.length === 1}
         />
       )}
