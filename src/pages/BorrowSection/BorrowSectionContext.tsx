@@ -84,18 +84,13 @@ export const BorrowSectionContextProvider: React.FC<
         uniqueAddresses.map(async (address) => {
           try {
             const metadata = await alchemy.core.getTokenMetadata(address as string);
-            const { account } = useAccount();
-            const balanceResponse = await alchemy.core.getTokenBalances(account.address, [address]);
-            const tokenBalance = balanceResponse.tokenBalances[0]?.tokenBalance || '0';
-            const balanceBigInt = BigInt(tokenBalance);
-
             return {
               address: address as `0x${string}`,
               name: metadata.name || '',
               symbol: metadata.symbol || '',
               logo: metadata.logo || '',
-              balance: tokenBalance,
-              balanceBigInt,
+              balance: '0',
+              balanceBigInt: BigInt(0),
               decimals: metadata.decimals || 18,
             };
           } catch (error) {
