@@ -21,6 +21,7 @@ import { Address, zeroAddress } from "viem";
 import { useCalculateMaxCollateralFromCommitment } from "./useCalculateMaxCollateralFromCommitment";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 import { useGetProtocolFee } from "./useGetProtocolFee";
+import { useWriteContract } from "./useWriteContract";
 
 export const calculateCollateralRequiredForPrincipal = (
   loanPrincipal: bigint, // base units of the principal token
@@ -335,6 +336,22 @@ const useRolloverLoan = (
     ]
   );
 
+  const { error: rolloverLoanError } = useWriteContract({
+    contractName: SupportedContractsEnum.FlashRolloverLoanWidget,
+    functionName: "rolloverLoanWithFlash",
+    args: [
+      rolloverCommitment?.forwarderAddress,
+      bid.bidId,
+      rolloverLoanEstimation?.[0],
+      borrowerAmount,
+      referralFeeAmount, //_rewardAmount, must be less than 9% of flashLoanAmount
+      referralAddress, //_rewardRecipient
+      acceptCommitmentArgs,
+    ],
+  });
+
+  const isError27 = rolloverLoanError?.message.includes("27");
+
   const transactions = useMemo(() => {
     let id = 0;
     const steps: any[] = [];
@@ -373,12 +390,13 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
     } else if (rolloverLoanEstimation) {
       const flashLoanAmount = rolloverLoanEstimation[0];
 
-      const errorMessage =
-        borrowerAmount &&
-        walletBalance &&
-        borrowerAmount > BigInt(walletBalance?.data)
-          ? `Insufficient ${bid.lendingToken.symbol} balance.`
-          : "";
+      const errorMessage = isError27
+        ? "Rollover not supported for this token pair"
+        : borrowerAmount &&
+          walletBalance &&
+          borrowerAmount > BigInt(walletBalance?.data)
+        ? `Insufficient ${bid.lendingToken.symbol} balance.`
+        : "";
 
       if (!hasApprovedForwarder.isLoading && !hasApprovedForwarder.data) {
         steps.push({
@@ -473,6 +491,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
     bid?.lendingTokenAddress,
     isInputMoreThanMaxCollateral,
     rolloverLoanEstimation,
+    isError27,
     borrowerAmount,
     walletBalance,
     hasApprovedForwarder.isLoading,
