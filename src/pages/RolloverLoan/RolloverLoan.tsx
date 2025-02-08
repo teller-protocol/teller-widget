@@ -533,6 +533,7 @@ const RolloverLoan: React.FC = () => {
           options={dropdownOptions}
           selectedOption={duration}
           onChange={setDuration}
+          label="Extend"
           readonly={dropdownOptions.length === 1}
         />
       )}
