@@ -1,4 +1,5 @@
-import { useQuery, useMemo } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { useChainId } from "wagmi";
 import { useGetLiquidityPools } from "./useGetLiquidityPools";
 import { TOKEN_ADDRESSES } from "../../constants/tokens";

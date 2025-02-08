@@ -6,7 +6,6 @@ import {
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import {
-  erc20sWithCommitments,
   useGetCommitmentsForErc20TokensByPrincipalToken,
 } from "../../../hooks/queries/useGetCommitmentsForErc20Tokens";
 import {
@@ -29,7 +28,7 @@ import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidity
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
-import BORROW_TOKEN_TYPE_ENUM from "../CollateralTokenList"
+import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -59,6 +58,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setCurrentStep,
     setSelectedOpportunity,
     selectedCollateralToken,
+    selectedPrincipalErc20Token,
     setMaxCollateral,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
@@ -184,44 +184,71 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
 
-  const { tokenTypeListView } = useGetBorrowSectionContext();
+  // Grab common values from context
+  const {
+    tokenTypeListView,
+    selectedCollateralToken,
+    selectedPrincipalErc20Token,
+    tokensWithCommitments,
+  } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
-  // if on BORROW_TOKEN_TYPE_ENUM.STABLE
+  // Always call all hooks unconditionally:
+  const {
+    data: lcfaCommitments,
+    isLoading: isLcfaLoading,
+  } = useGetCommitmentsForCollateralToken(
+    selectedCollateralToken?.address,
+    userAddress
+  );
 
-  const { selectedCollateralToken, tokensWithCommitments } =
-    useGetBorrowSectionContext();
-  
-  const { data: lcfaCommitments, isLoading: isLcfaLoading } =
-    useGetCommitmentsForCollateralToken(
-      selectedCollateralToken?.address,
-      userAddress
-    );
+  const {
+    data: lenderGroupsCommitments,
+    isLoading: isLenderGroupsLoading,
+  } = useGetCommitmentsForCollateralTokensFromLiquidityPools(
+    selectedCollateralToken?.address
+  );
 
-  const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
-    useGetCommitmentsForCollateralTokensFromLiquidityPools(
-      selectedCollateralToken?.address
-    );
+  const {
+    erc20sWithCommitments: erc20sWithCommitments,
+    isLoading: isErc20Loading,
+  } = useGetCommitmentsForErc20TokensByPrincipalToken(selectedPrincipalErc20Token?.address);
 
+  // Prepare the data conditionally using useMemo:
   const data = useMemo(() => {
-    if (lcfaCommitments && lenderGroupsCommitments) {
+    if (isStableView) {
+      // For the STABLE view, combine commitments from two sources
+      if (lcfaCommitments && lenderGroupsCommitments) {
+        return {
+          commitments: [
+            ...lcfaCommitments.commitments,
+            ...lenderGroupsCommitments,
+          ],
+        };
+      }
+      return { commitments: [] };
+    } else {
+      // For the ERC20 view, use the ERC20 commitments data (adjust as needed)
       return {
-        commitments: [
-          ...lcfaCommitments.commitments,
-          ...lenderGroupsCommitments,
-        ],
+        commitments: erc20sWithCommitments || [],
       };
     }
-    return {
-      commitments: [],
-    };
-  }, [lcfaCommitments, lenderGroupsCommitments]);
+  }, [
+    isStableView,
+    lcfaCommitments,
+    lenderGroupsCommitments,
+    erc20sWithCommitments,
+  ]);
 
-  const isLoading = isLcfaLoading || isLenderGroupsLoading;
+  // Determine the loading state based on which view is active:
+  const isLoading = isStableView
+    ? isLcfaLoading || isLenderGroupsLoading
+    : isErc20Loading;
 
-  // if on BORROW_TOKEN_TYPE_ENUM.ERC20
-  const { data: erc20sWithCommitments, isLoading: isErc20Loading } = useGetCommitmentsForErc20TokensByPrincipalToken();
 
+  console.log("data", data)
+  console.log("isStableView", isStableView)
+  
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">

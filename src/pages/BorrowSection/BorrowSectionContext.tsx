@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAlchemy } from "../../hooks/useAlchemy";
 import { UserToken } from "../../hooks/useGetUserTokens";
+import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenList";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
@@ -25,6 +26,8 @@ export type BorrowSectionContextType = {
   setSelectedPrincipalErc20Token: (token: UserToken) => void;
   selectedOpportunity: CommitmentType;
   setSelectedOpportunity: (commitmentType: CommitmentType) => void;
+  tokenTypeListView: BORROW_TOKEN_TYPE_ENUM;
+  setTokenTypeListView: (view: BORROW_TOKEN_TYPE_ENUM) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
   successLoanHash?: string;
@@ -138,6 +141,8 @@ export const BorrowSectionContextProvider: React.FC<
 
   const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
 
+  const [tokenTypeListView, setTokenTypeListView] = useState<BORROW_TOKEN_TYPE_ENUM>(BORROW_TOKEN_TYPE_ENUM.STABLE);
+
   return (
     <BorrowSectionContext.Provider
       value={{
@@ -151,6 +156,8 @@ export const BorrowSectionContextProvider: React.FC<
         tokensWithCommitmentsLoading,
         selectedOpportunity,
         setSelectedOpportunity,
+        tokenTypeListView,
+        setTokenTypeListView,
         successfulLoanParams,
         setSuccessfulLoanParams,
         successLoanHash,
