@@ -4,7 +4,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useGetCommitmentsForErc20Tokens, convertCommitmentsToUniquePrincipalTokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { useGetCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 
 export enum BorrowSectionSteps {
