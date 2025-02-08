@@ -6,9 +6,6 @@ import tellerLight from "../../assets/TellerLight.svg";
 import tellerDark from "../../assets/TellerDark.svg";
 import link from "../../assets/link.svg";
 
-import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
-import { BORROW_TOKEN_TYPE_ENUM } from "../../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
-
 import { Icon } from "@iconify/react";
 import { ReactNode, useCallback, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom";
@@ -40,7 +37,6 @@ const Modal: React.FC<ModalProps> = ({
   isEmbedded,
   showChainSwitch,
 }: ModalProps) => {
-  const { tokenTypeListView } = useGetBorrowSectionContext();
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -102,7 +98,7 @@ const Modal: React.FC<ModalProps> = ({
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
                         <div className="modal-title">
-                          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE ? "Cash Advance" : "Borrow tokens"}
+                          Cash Advance
                         </div>
                         <ChainSwitch />
                       </div>
