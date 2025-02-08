@@ -174,7 +174,7 @@ const OpportunityDetails = () => {
           (convertSecondsToDays(
             Number(selectedOpportunity?.maxDuration ?? 0)
           ) ?? 0),
-        3
+        2
       ),
     [selectedOpportunity, maxLoanAmountNumber]
   );
@@ -328,7 +328,7 @@ const OpportunityDetails = () => {
         readonly
       />
       <div className="section-title fee-details">
-        Interest: {numberWithCommasAndDecimals(payPerLoan)}{" "}
+        Interest: {payPerLoan}{" "}
         {selectedOpportunity.principalToken?.symbol} • Fees:{" "}
         {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
