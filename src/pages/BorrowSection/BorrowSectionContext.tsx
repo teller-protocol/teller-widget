@@ -5,6 +5,8 @@ import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommit
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetCommitmentsForErc20Tokens, convertCommitmentsToUniquePrincipalTokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
+import { formatUnits } from "viem";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -93,7 +95,9 @@ export const BorrowSectionContextProvider: React.FC<
         uniqueAddresses.map(async (address) => {
           try {
             const metadata = await alchemy.core.getTokenMetadata(address as string);
-            const aggregatedBalance = tokenCommitmentMap.get(address) || BigInt(0);
+            const aggregatedBalance = numberWithCommasAndDecimals(
+              formatUnits(tokenCommitmentMap.get(address) || BigInt(0), metadata.decimals || 18)
+            );
             return {
               address: address as `0x${string}`,
               name: metadata.name || '',
