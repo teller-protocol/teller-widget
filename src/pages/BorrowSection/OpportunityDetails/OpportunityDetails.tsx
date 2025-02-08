@@ -293,11 +293,7 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        imageUrl= {
-          SUPPORTED_TOKEN_LOGOS[
-            selectedOpportunity.principalToken?.symbol ?? ""
-          ]
-        }
+        principalTokenMetadata={principalTokenMetadata}
         sublabelUpper={
           <span>
             Duration:{" "}
