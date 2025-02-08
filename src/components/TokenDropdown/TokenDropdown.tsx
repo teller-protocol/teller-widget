@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import cx from "classnames";
 import { UserToken } from "../../hooks/useGetUserTokens";
@@ -20,15 +19,16 @@ interface TokenDropdownProps {
 interface TokenDropdownButtonProps {
   token: UserToken;
   onClick?: (token: UserToken) => void;
-  isStableView?: boolean;
 }
 
 const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   token,
   onClick,
-  isStableView
 }) => {
   const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
   return (
     <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
@@ -36,7 +36,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {isStableView ? "Balance" : "Available"}: {isStableView ? Number(token?.balance).toFixed(3) : numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
+          {isStableView ? "Balance" : "Available"}: {isStableView ? Number(token?.balance).toFixed(3) : numberWithCommasAndDecimals(token?.balance)}  {token?.symbol}
         </div>
       </div>
     </div>
@@ -51,11 +51,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const { 
     setSelectedCollateralToken, 
-    setSelectedPrincipalErc20Token,
-    tokenTypeListView 
+    setSelectedPrincipalErc20Token 
   } = useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
+  const { tokenTypeListView } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
   const onTokenDropdownRowClick = (token: UserToken) => {
@@ -91,30 +91,29 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
         className={cx("token-dropdown--row-container", isOpen && "opened", singleWhitelistedToken && "disabled")}
         onClick={() => !singleWhitelistedToken && setIsOpen(!isOpen)}
       >
-        <TokenDropdownRow token={token} isStableView={isStableView} />
+        <TokenDropdownRow token={token} />
         {!singleWhitelistedToken && (
           <div className={cx("caret", isOpen && "opened")}>
             <Icon icon="clarity:caret-line" />
           </div>
         )}
       </div>
-      {isOpen && (
-        <div className="token-dropdown--tokens">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Select collateral for deposit"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="token-dropdown--search"
-            />
-          </div>
+          {isOpen && (
+            <div className="token-dropdown--tokens">
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Select collateral for deposit"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="token-dropdown--search"
+                />
+              </div>
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}
               key={token.address}
               onClick={onTokenDropdownRowClick}
-              isStableView={isStableView}
             />
           ))}
         </div>
