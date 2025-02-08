@@ -131,6 +131,8 @@ export const BorrowSectionContextProvider: React.FC<
 
   const [bidId, setBidId] = useState<string>("");
 
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
 
   return (

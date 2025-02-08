@@ -4,11 +4,15 @@ import PrincipalErc20TokenRow from "../../../components/PrincipalErc20Row";
 import "./principalErc20List.scss";
 
 const PrincipalErc20List: React.FC = () => {
-  const { principalErc20Tokens } = useGetBorrowSectionContext();
+  const { principalErc20Tokens, searchQuery } = useGetBorrowSectionContext();
+
+  const filteredTokens = principalErc20Tokens.filter(token => 
+    token.symbol.toLowerCase().includes(searchQuery?.toLowerCase() || '')
+  );
 
   return (
     <div className="principal-erc20-list">
-      {principalErc20Tokens.map((token) => (
+      {filteredTokens.map((token) => (
         <PrincipalErc20TokenRow
           key={token.address}
           token={token}
