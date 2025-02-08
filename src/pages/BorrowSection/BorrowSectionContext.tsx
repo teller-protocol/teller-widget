@@ -23,6 +23,8 @@ export type BorrowSectionContextType = {
   setSelectedOpportunity: (commitmentType: CommitmentType) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
+  erc20sWithCommitments: (commitmentType: CommitmentType) => void;
+  erc20sWithCommitmentsLoading: boolean;
   successLoanHash?: string;
   setSuccessLoanHash: (hash: string) => void;
   successfulLoanParams: any;
@@ -61,8 +63,9 @@ export const BorrowSectionContextProvider: React.FC<
 
   // query to get all pools, non-blocked, where principalToken not in supportedPrincipalTokens
   // look at way done in pools section
+  // return tokens list as 
 
-  const { erc20sWithCommitments, loading: erc20sWithCommitmentsLoading } = useGeCommitmentsForErc20Tokens();
+  const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } = useGeCommitmentsForErc20Tokens();
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
@@ -84,6 +87,8 @@ export const BorrowSectionContextProvider: React.FC<
         setSelectedCollateralToken,
         tokensWithCommitments,
         tokensWithCommitmentsLoading,
+        erc20sWithCommitments,
+        erc20sWithCommitmentsLoading,
         selectedOpportunity,
         setSelectedOpportunity,
         successfulLoanParams,

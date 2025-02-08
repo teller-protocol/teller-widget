@@ -33,12 +33,11 @@ export const useGeCommitmentsForErc20Tokens = () => {
       const commitments = await Promise.all(
         filteredPools.map(convertCommitment)
       );
-
       return commitments;
     },
   });
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { liquidityPools: data || [], isLoading };
+  return { erc20sWithCommitments: data || [], isLoading };
 };
