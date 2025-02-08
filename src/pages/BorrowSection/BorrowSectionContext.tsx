@@ -19,8 +19,6 @@ export enum BorrowSectionSteps {
 export type BorrowSectionContextType = {
   currentStep: BorrowSectionSteps;
   setCurrentStep: (step: BorrowSectionSteps) => void;
-  tokenTypeListView: BORROW_TOKEN_TYPE_ENUM;
-  setTokenTypeListView: (type: BORROW_TOKEN_TYPE_ENUM) => void;
   selectedCollateralToken?: UserToken;
   setSelectedCollateralToken: (token: UserToken) => void;
   selectedOpportunity: CommitmentType;
@@ -134,7 +132,6 @@ export const BorrowSectionContextProvider: React.FC<
   const [bidId, setBidId] = useState<string>("");
 
   const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
-  const [tokenTypeListView, setTokenTypeListView] = useState(BORROW_TOKEN_TYPE_ENUM.STABLE);
 
   return (
     <BorrowSectionContext.Provider
@@ -157,8 +154,6 @@ export const BorrowSectionContextProvider: React.FC<
         setMaxCollateral,
         principalErc20Tokens,
         setPrincipalErc20Tokens,
-        tokenTypeListView,
-        setTokenTypeListView,
         // onCollateralTokenSelected,
         // onOpportunitySelected,
         // mapStepToComponent,
