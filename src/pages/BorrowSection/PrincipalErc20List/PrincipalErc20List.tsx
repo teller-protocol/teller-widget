@@ -15,9 +15,6 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // somehow use setSelectedCollateralToken but change to setSelectedPrincipalErc20Token
-  // starts at BorrowSection, then here, then opportunities list needs new function
-
   const {
     setCurrentStep,
     setSelectedPrincipalErc20Token,

@@ -184,7 +184,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
 
-  // Grab common values from context
   const {
     tokenTypeListView,
     selectedCollateralToken,
@@ -194,7 +193,6 @@ const OpportunitiesList: React.FC = () => {
   } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
-  // Always call all hooks unconditionally:
   const {
     data: lcfaCommitments,
     isLoading: isLcfaLoading,
@@ -215,10 +213,8 @@ const OpportunitiesList: React.FC = () => {
     isLoading: isErc20Loading,
   } = useGetCommitmentsForErc20TokensByPrincipalToken(selectedPrincipalErc20Token?.address);
 
-  // Prepare the data conditionally using useMemo:
   const data = useMemo(() => {
     if (isStableView) {
-      // For the STABLE view, combine commitments from two sources
       if (lcfaCommitments && lenderGroupsCommitments) {
         return {
           commitments: [
@@ -229,7 +225,6 @@ const OpportunitiesList: React.FC = () => {
       }
       return { commitments: [] };
     } else {
-      // For the ERC20 view, use the ERC20 commitments data (adjust as needed)
       return {
         commitments: erc20sWithCommitments || [],
       };
@@ -241,14 +236,9 @@ const OpportunitiesList: React.FC = () => {
     erc20sWithCommitments,
   ]);
 
-  // Determine the loading state based on which view is active:
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
-
-
-  console.log("data", data)
-  console.log("isStableView", isStableView)
   
   return (
     <div className="opportunities-list">

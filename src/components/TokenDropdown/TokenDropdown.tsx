@@ -36,7 +36,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {isStableView ? "Balance" : "Available"}: {Number(token?.balance).toFixed(3)} {token?.symbol}
+          {isStableView ? "Balance" : "Available"}: {isStableView ? Number(token?.balance).toFixed(3) : numberWithCommasAndDecimals(token?.balance)}  {token?.symbol}
         </div>
       </div>
     </div>

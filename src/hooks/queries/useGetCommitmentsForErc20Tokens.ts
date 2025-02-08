@@ -5,7 +5,6 @@ import { useGetLiquidityPools } from "./useGetLiquidityPools";
 import { TOKEN_ADDRESSES } from "../../constants/tokens";
 import { supportedPrincipalTokens } from "../../constants/tokens";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
-import { UserToken } from "../useGetUserTokens";
 
 export const useGetCommitmentsForErc20TokensByPrincipalToken = (principalTokenAddress?: string) => {
   const { erc20sWithCommitments, isLoading } = useGetCommitmentsForErc20Tokens();

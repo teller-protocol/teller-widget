@@ -69,10 +69,6 @@ export const BorrowSectionContextProvider: React.FC<
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
 
-  // query to get all pools, non-blocked, where principalToken not in supportedPrincipalTokens
-  // look at way done in pools section
-  // return tokens list as 
-
   const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } = useGetCommitmentsForErc20Tokens();
 
   console.log("erc20sWithCommitments", erc20sWithCommitments)
