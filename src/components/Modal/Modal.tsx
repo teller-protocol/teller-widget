@@ -97,7 +97,9 @@ const Modal: React.FC<ModalProps> = ({
                   <div className="modal-content-title">
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
-                        <ModalTitle />
+                        <div className="modal-title">
+                          Cash Advance
+                        </div>
                         <ChainSwitch />
                       </div>
                     )}
