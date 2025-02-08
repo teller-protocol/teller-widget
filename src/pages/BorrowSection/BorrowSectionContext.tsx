@@ -82,7 +82,7 @@ export const BorrowSectionContextProvider: React.FC<
         .reduce((acc, commitment) => {
           const address = commitment?.principalToken.address.toLowerCase();
           const currentAmount = acc.get(address as string) || BigInt(0);
-          const committedAmount = BigInt(commitment?.committedAmount || 0);
+          const committedAmount = commitment?.committedAmount ? BigInt(commitment.committedAmount.toString()) : BigInt(0);
           acc.set(address as string, currentAmount + committedAmount);
           return acc;
         }, new Map<string, bigint>());
