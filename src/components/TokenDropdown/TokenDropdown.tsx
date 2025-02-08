@@ -1,6 +1,8 @@
 import { useState } from "react";
 import cx from "classnames";
 import { UserToken } from "../../hooks/useGetUserTokens";
+import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
+import { BORROW_TOKEN_TYPE_ENUM } from "../../types/bidStatuses";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
@@ -25,13 +27,16 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
 }) => {
   const logoUrl = token?.logo ? token.logo : defaultTokenImage;
 
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
   return (
     <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
       <TokenLogo logoUrl={logoUrl} size={32} />
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          Balance: {Number(token?.balance).toFixed(3)} {token?.symbol}
+          {isStableView ? "Balance" : "Available"}: {Number(token?.balance).toFixed(3)} {token?.symbol}
         </div>
       </div>
     </div>
