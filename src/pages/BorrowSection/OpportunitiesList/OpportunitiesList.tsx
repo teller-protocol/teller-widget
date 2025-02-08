@@ -60,6 +60,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     selectedCollateralToken,
     selectedPrincipalErc20Token,
     setMaxCollateral,
+    tokensWithCommitments,
+    tokenTypeListView,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
 
@@ -68,13 +70,22 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   );
 
   const isLiquidityPool = opportunity.isLenderGroup;
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
+  const matchingCollateralToken = !isStableView 
+    ? tokensWithCommitments.find(token => 
+        token.address.toLowerCase() === opportunity.collateralToken?.address?.toLowerCase()
+      )
+    : selectedCollateralToken;
+
+  const defaultAmount = isWhitelistedToken(opportunity.collateralToken?.address)
+    ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
+    : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
-    (selectedCollateralToken?.balanceBigInt ?? 0) > 0
-      ? selectedCollateralToken?.balanceBigInt
-      : isWhitelistedToken(opportunity.collateralToken?.address)
-      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
-      : BigInt(0)
+    (matchingCollateralToken?.balanceBigInt ?? 0) > 0 
+      ? matchingCollateralToken?.balanceBigInt 
+      : defaultAmount
   );
 
   const lcfaCommitmentMax = useGetCommitmentMax({
