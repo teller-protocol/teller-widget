@@ -33,7 +33,7 @@ const selectOptions = [
     content: (
       <img
         src={coinClatter}
-        style={{ width: "18px", height: "22px", verticalAlign: "middle" }}
+        style={{ width: "17px", height: "21px", verticalAlign: "middle" }}
       />
     ),
   },
