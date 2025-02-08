@@ -11,6 +11,10 @@
     align-items: center;
   }
 
+  .section-title {
+    width: 100%;
+  }
+
   &-token-input {
     display: flex;
     justify-content: space-between;
@@ -19,6 +23,7 @@
 
     .wallet-amount {
       font-size: 12px;
+      text-align: right;
     }
   }
 
