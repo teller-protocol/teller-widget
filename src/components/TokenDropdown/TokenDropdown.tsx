@@ -1,14 +1,14 @@
 import { useState } from "react";
 import cx from "classnames";
 import { UserToken } from "../../hooks/useGetUserTokens";
-import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
-import { BORROW_TOKEN_TYPE_ENUM } from "../../types/bidStatuses";
+import { BORROW_TOKEN_TYPE_ENUM } from "../../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
+import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { Icon } from "@iconify/react";
 
 interface TokenDropdownProps {
