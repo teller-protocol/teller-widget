@@ -335,7 +335,6 @@ const OpportunitiesList: React.FC = () => {
                 <OpportunityListItem
                   opportunity={commitment}
                   key={commitment.id}
-                  principalTokenMetadata={principalTokenMetadata}
                 />
               ))
             )}
