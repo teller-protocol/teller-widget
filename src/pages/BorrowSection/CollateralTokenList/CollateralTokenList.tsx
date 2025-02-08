@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import coinClatter from "../../../assets/coin-vector-shiny.svg";
+import dollarSignSvg from "../../../assets/dollar-sign-money.svg";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import SelectButtons from "../../../components/SelectButtons";
@@ -17,9 +19,26 @@ export enum BORROW_TOKEN_TYPE_ENUM {
 }
 
 const selectOptions = [
-  { value: BORROW_TOKEN_TYPE_ENUM.STABLE, content: "💰" },
-  { value: BORROW_TOKEN_TYPE_ENUM.ERC20, content: "🪙" },
+  {
+    value: BORROW_TOKEN_TYPE_ENUM.STABLE,
+    content: (
+      <img
+        src={dollarSignSvg}
+        style={{ width: "12.5px", height: "12.5px", verticalAlign: "middle" }}
+      />
+    ),
+  },
+  {
+    value: BORROW_TOKEN_TYPE_ENUM.ERC20,
+    content: (
+      <img
+        src={coinClatter}
+        style={{ width: "18px", height: "22px", verticalAlign: "middle" }}
+      />
+    ),
+  },
 ];
+
 
 const CollateralTokenList: React.FC = () => {
   const {

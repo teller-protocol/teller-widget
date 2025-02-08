@@ -72,8 +72,6 @@ export const BorrowSectionContextProvider: React.FC<
 
   const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } = useGetCommitmentsForErc20Tokens();
 
-  console.log("erc20sWithCommitments", erc20sWithCommitments)
-
   const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>([]);
 
   const alchemy = useAlchemy();
@@ -124,8 +122,6 @@ export const BorrowSectionContextProvider: React.FC<
 
     void fetchTokenMetadata();
   }, [erc20sWithCommitments, alchemy]); 
-
-  console.log("principalErc20Tokens", principalErc20Tokens)
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
