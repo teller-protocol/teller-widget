@@ -25,15 +25,13 @@ const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
   const [key, setKey] = useState(0);
 
   const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
-    if (action === widgetAction && action === WIDGET_ACTION_ENUM.BORROW) {
-      setKey((prev) => prev + 1);
-    }
+    setKey((prev) => prev + 1);
     setWidgetAction(action);
   };
 
   const mapOptionToComponent = {
     [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection key={key} />,
-    [WIDGET_ACTION_ENUM.REPAY]: <RepaySection />,
+    [WIDGET_ACTION_ENUM.REPAY]: <RepaySection key={key} />,
   };
 
   useGetProtocolFee();

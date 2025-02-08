@@ -21,7 +21,7 @@ interface TokenInputProps {
   label?: React.ReactNode;
   sublabel?: string;
   sublabelUpper?: React.ReactNode;
-  maxAmount?: number;
+  maxAmount?: bigint;
   showMaxButton?: boolean;
   onChange?: (value: TokenInputType) => void;
   readonly?: boolean;
@@ -33,7 +33,7 @@ interface TokenInputProps {
 const TokenInput: React.FC<TokenInputProps> = ({
   tokenValue,
   label,
-  maxAmount = 0,
+  maxAmount = 0n,
   imageUrl,
   sublabel,
   sublabelUpper,
@@ -45,16 +45,6 @@ const TokenInput: React.FC<TokenInputProps> = ({
   minAmount,
 }) => {
   const [isMin, setIsMin] = useState(false);
-
-  const maxAmountRoundedDown = Math.floor(maxAmount * 10000) / 10000;
-
-  const maxValueBigInt = parseUnits(
-    maxAmountRoundedDown.toString().toLocaleString("fullwide", {
-      // need to convert to string first to avoid rounding up
-      useGrouping: false,
-    }),
-    Number(tokenValue.token?.decimals) || 0
-  );
 
   const setMaxValue = () => {
     if (isMin) {
@@ -68,8 +58,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
     } else {
       onChange?.({
         ...tokenValue,
-        value: maxAmountRoundedDown,
-        valueBI: maxValueBigInt,
+        value: Number(formatUnits(maxAmount, tokenValue.token?.decimals ?? 0)),
+        valueBI: maxAmount,
       });
     }
     min && setIsMin(!isMin);

@@ -230,12 +230,7 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        maxAmount={Number(
-          formatUnits(
-            staticMaxCollateral ?? 0n,
-            selectedCollateralToken?.decimals ?? 0
-          )
-        )}
+        maxAmount={staticMaxCollateral}
         imageUrl={selectedCollateralToken?.logo || ""}
         sublabelUpper={`Max: ${numberWithCommasAndDecimals(
           formatUnits(

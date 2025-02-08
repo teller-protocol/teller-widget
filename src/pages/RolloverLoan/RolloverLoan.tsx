@@ -476,7 +476,7 @@ const RolloverLoan: React.FC = () => {
           min
           minAmount={defaultCollateralValue.valueBI}
           key={commitment?.id}
-          maxAmount={Number(formattedMaxCollateral)}
+          maxAmount={maxCollateralWithWalletBalance}
         />
       ),
     }),
@@ -486,9 +486,9 @@ const RolloverLoan: React.FC = () => {
       commitment?.id,
       commitment?.minAPY,
       defaultCollateralValue.valueBI,
-      formattedMaxCollateral,
       isLenderGroup,
       loan.lendingToken.decimals,
+      maxCollateralWithWalletBalance,
       maxLoanAmount,
       minInterestRateLenderGroups,
       minInterestRateLenderGroupsLoading,

@@ -17,6 +17,7 @@ import {
   useGetRepaySectionContext,
 } from "../RepaySectionContext";
 import "./payLoan.scss";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 
 const PayLoan: React.FC = () => {
   const {
@@ -38,10 +39,18 @@ const PayLoan: React.FC = () => {
     setCurrentStep(RepaySectionSteps.CONFIRMATION);
   };
 
-  const { transactions, formattedWalletBalance, currentAmountDueNum } =
-    usePayLoan(loan, tokenValue.value ?? 0, onSuccessfulTx);
+  const {
+    transactions,
+    formattedWalletBalance,
+    currentAmountDueBI,
+    currentAmountDueNum,
+  } = usePayLoan(loan, tokenValue.valueBI ?? BigInt(0), onSuccessfulTx);
 
-  const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    loan.lendingToken.address
+  );
+
+  const principalTokenLogo = principalTokenMetadata?.logo;
 
   const collateral = loan.collateral[0];
 
@@ -67,7 +76,7 @@ const PayLoan: React.FC = () => {
             </div>
           </div>
         }
-        maxAmount={Number(currentAmountDueNum)}
+        maxAmount={currentAmountDueBI}
         tokenValue={tokenValue}
         onChange={onTokenInputChange}
         limitToMax
