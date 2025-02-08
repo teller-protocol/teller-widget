@@ -77,13 +77,13 @@ export const BorrowSectionContextProvider: React.FC<
       const uniqueAddresses = [...new Set(
         erc20sWithCommitments
           .filter(commitment => commitment?.principalToken?.address)
-          .map(commitment => commitment.principalToken.address.toLowerCase())
+          .map(commitment => commitment?.principalToken.address.toLowerCase())
       )];
 
       const tokensWithMetadata = await Promise.all(
         uniqueAddresses.map(async (address) => {
           try {
-            const metadata = await alchemy.core.getTokenMetadata(address);
+            const metadata = await alchemy.core.getTokenMetadata(address as string);
             return {
               address: address as `0x${string}`,
               name: metadata.name || '',
