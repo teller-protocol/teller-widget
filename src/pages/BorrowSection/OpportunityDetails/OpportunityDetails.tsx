@@ -26,6 +26,7 @@ import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
 import { useContracts } from "../../../hooks/useContracts";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import { useAccount, useBalance } from "wagmi";
 
@@ -34,25 +35,38 @@ const OpportunityDetails = () => {
     setCurrentStep,
     selectedOpportunity,
     selectedCollateralToken,
+    selectedPrincipalErc20Token,
     setSuccessLoanHash,
     setSuccessfulLoanParams,
     maxCollateral: maxCollateralFromContext,
+    tokensWithCommitments,
+    tokenTypeListView,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
+  
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const matchingCollateralToken = !isStableView 
+    ? tokensWithCommitments.find(token => 
+        token.address.toLowerCase() === selectedOpportunity?.collateralToken?.address?.toLowerCase()
+      )
+    : selectedCollateralToken;
+
+  console.log("matchingCollateralToken", matchingCollateralToken)
+  
   const { isWhitelistedToken } = useGetGlobalPropsContext();
-  const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
+  const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
 
   const isWhitelistedTokenAndUserHasNoBalance =
-    whitelistedToken && Number(selectedCollateralToken?.balance) === 0;
+    whitelistedToken && Number(matchingCollateralToken?.balance) === 0;
 
   const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({});
 
   const collateralWalletBalance = useBalance({
-    token: selectedCollateralToken?.address,
+    token: matchingCollateralToken?.address,
     address,
   });
 
@@ -63,7 +77,7 @@ const OpportunityDetails = () => {
     maxLoanAmount: maxLoanAmountFromLCFa,
     maxLoanAmountNumber: maxLoanAmountNumberFromLCFa,
   } = useGetCommitmentMax({
-    collateralTokenDecimals: selectedCollateralToken?.decimals,
+    collateralTokenDecimals: matchingCollateralToken?.decimals,
     commitment: selectedOpportunity,
     requestedCollateral: collateralTokenValue.valueBI,
     returnCalculatedLoanAmount: true,
@@ -104,11 +118,11 @@ const OpportunityDetails = () => {
 
     if (staticMaxCollateral && collateralTokenValue.valueBI === undefined) {
       setCollateralTokenValue({
-        token: selectedCollateralToken,
+        token: matchingCollateralToken,
         value: Number(
           formatUnits(
             staticMaxCollateral ?? 0n,
-            selectedCollateralToken?.decimals ?? 0
+            matchingCollateralToken?.decimals ?? 0
           )
         ),
         valueBI: staticMaxCollateral ?? 0n,
@@ -119,6 +133,7 @@ const OpportunityDetails = () => {
     isWhitelistedTokenAndUserHasNoBalance,
     maxCollateral,
     selectedCollateralToken,
+    selectedPrincipalErc20Token,
     staticMaxCollateral,
   ]);
 
@@ -207,7 +222,7 @@ const OpportunityDetails = () => {
             Deposit
             <Tooltip
               description={`Deposit $${
-                selectedCollateralToken?.symbol
+                matchingCollateralToken?.symbol
               } to borrow $${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
@@ -231,13 +246,13 @@ const OpportunityDetails = () => {
           </div>
         }
         maxAmount={staticMaxCollateral}
-        imageUrl={selectedCollateralToken?.logo || ""}
+        imageUrl={matchingCollateralToken?.logo || ""}
         sublabelUpper={`Max: ${numberWithCommasAndDecimals(
           formatUnits(
             staticMaxCollateral ?? 0n,
-            selectedCollateralToken?.decimals ?? 0
+            matchingCollateralToken?.decimals ?? 0
           )
-        )} ${selectedCollateralToken?.symbol}`}
+        )} ${matchingCollateralToken?.symbol}`}
         onChange={setCollateralTokenValue}
       />
       <img src={separatorWithCaret} className="separator" />
@@ -278,7 +293,7 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        imageUrl={
+        imageUrl= {
           SUPPORTED_TOKEN_LOGOS[
             selectedOpportunity.principalToken?.symbol ?? ""
           ]
