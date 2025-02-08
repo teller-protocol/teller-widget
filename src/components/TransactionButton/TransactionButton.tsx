@@ -175,6 +175,7 @@ const TransactionButton = ({
       isButtonDisabled,
       isConfirming,
       isDisabled,
+      isError,
       isLastStep,
       isLoading,
       isPending,

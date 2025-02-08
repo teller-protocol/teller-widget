@@ -314,7 +314,6 @@ const useRolloverLoan = (
     ],
     false
   );
-
   const borrowerAmount =
     BigInt(rolloverLoanEstimation?.[1] ?? 0) < 0
       ? abs(BigInt(rolloverLoanEstimation[1] ?? 0))
@@ -463,9 +462,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
       id++;
     } else {
       console.log("WARN: no loan estimation");
-      {
-        error && console.error("Contract error", error);
-      }
+      error && console.error("Contract error", error);
     }
 
     return steps;
