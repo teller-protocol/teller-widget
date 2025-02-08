@@ -56,6 +56,9 @@ export const BorrowSectionContextProvider: React.FC<
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
 
+  // query to get all pools, non-blocked, where principalToken not in supportedPrincipalTokens
+  // look at way done in pools section
+
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
 

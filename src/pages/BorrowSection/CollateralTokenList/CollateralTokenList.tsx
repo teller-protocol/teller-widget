@@ -4,6 +4,7 @@ import Loader from "../../../components/Loader";
 import SelectButtons from "../../../components/SelectButtons";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
+import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -69,18 +70,22 @@ const CollateralTokenList: React.FC = () => {
             value={tokenTypeListView}
             onChange={setTypeTokenListView}
           />
-          {loading ? (
-            <Loader />
-          ) : filteredAndSortedTokens.length > 0 ? (
-            filteredAndSortedTokens.map((token) => (
-              <CollateralTokenRow
-                token={token}
-                onClick={() => onCollateralTokenSelected(token)}
-                key={token.address.toString()}
-              />
-            ))
-          ) : (
-            <div className="section-title">No tokens available</div>
+          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 ? (
+              <PrincipalErc20List />
+            ) : (
+            loading ? (
+              <Loader />
+            ) : filteredAndSortedTokens.length > 0 ? (
+              filteredAndSortedTokens.map((token) => (
+                <CollateralTokenRow
+                  token={token}
+                  onClick={() => onCollateralTokenSelected(token)}
+                  key={token.address.toString()}
+                />
+              ))
+            ) : (
+              <div className="section-title">No tokens available</div>
+            )
           )}
         </div>
       ) : (
