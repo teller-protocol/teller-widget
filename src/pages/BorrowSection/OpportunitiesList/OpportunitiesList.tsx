@@ -6,7 +6,7 @@ import {
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import {
-  useGetCommitmentsForErc20Tokens,
+  erc20sWithCommitments,
 } from "../../../hooks/queries/useGetCommitmentsForErc20Tokens";
 import {
   BorrowSectionSteps,
@@ -183,6 +183,9 @@ const OpportunitiesList: React.FC = () => {
   const { selectedCollateralToken, tokensWithCommitments } =
     useGetBorrowSectionContext();
   const { address: userAddress } = useAccount();
+
+  // if on BORROW_TOKEN_TYPE_ENUM.STABLE
+  
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
       selectedCollateralToken?.address,
@@ -209,6 +212,9 @@ const OpportunitiesList: React.FC = () => {
   }, [lcfaCommitments, lenderGroupsCommitments]);
 
   const isLoading = isLcfaLoading || isLenderGroupsLoading;
+
+  // if on BORROW_TOKEN_TYPE_ENUM.ERC20
+  const { data: erc20sWithCommitments, isLoading: isErc20Loading } = useGetCommitmentsForErc20TokensByPrincipalToken();
 
   return (
     <div className="opportunities-list">

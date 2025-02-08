@@ -21,6 +21,8 @@ export type BorrowSectionContextType = {
   setCurrentStep: (step: BorrowSectionSteps) => void;
   selectedCollateralToken?: UserToken;
   setSelectedCollateralToken: (token: UserToken) => void;
+  selectedPrincipalErc20Token?: UserToken;
+  setSelectedPrincipalErc20Token: (token: UserToken) => void;
   selectedOpportunity: CommitmentType;
   setSelectedOpportunity: (commitmentType: CommitmentType) => void;
   tokensWithCommitments: UserToken[];
@@ -56,6 +58,9 @@ export const BorrowSectionContextProvider: React.FC<
   );
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
+    useState<UserToken>();
+
+  const [selectedPrincipalErc20Token, setSelectedPrincipalErc20Token] =
     useState<UserToken>();
 
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
@@ -140,6 +145,8 @@ export const BorrowSectionContextProvider: React.FC<
         setCurrentStep,
         selectedCollateralToken,
         setSelectedCollateralToken,
+        selectedPrincipalErc20Token,
+        setSelectedPrincipalErc20Token,
         tokensWithCommitments,
         tokensWithCommitmentsLoading,
         selectedOpportunity,

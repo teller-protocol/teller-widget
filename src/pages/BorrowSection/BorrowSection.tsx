@@ -19,7 +19,7 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 const RenderComponent: React.FC = () => {
   const { whitelistedChainTokens, singleWhitelistedToken, userTokens } =
     useGetGlobalPropsContext();
-  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken } =
+  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken, setSelectedPrincipalErc20Token } =
     useGetBorrowSectionContext();
   const chainId = useChainId();
 
@@ -48,6 +48,17 @@ const RenderComponent: React.FC = () => {
         balanceBigInt: balanceBigInt,
         decimals: tokenMetadata.decimals || 18,
       });
+
+      setSelectedPrincipalErc20Token({
+        address: tokenAddress as `0x${string}`,
+        name: tokenMetadata.name || "",
+        symbol: tokenMetadata.symbol || "",
+        logo: tokenMetadata.logo || "",
+        balance: tokenBalance,
+        balanceBigInt: balanceBigInt,
+        decimals: tokenMetadata.decimals || 18,
+      });
+      
       setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     }
   }, [
@@ -55,6 +66,7 @@ const RenderComponent: React.FC = () => {
     tokenMetadata,
     isLoading,
     setSelectedCollateralToken,
+    setSelectedPrincipalErc20Token,
     setCurrentStep,
   ]);
 

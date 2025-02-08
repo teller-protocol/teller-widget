@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMemo } from "@tanstack/react-query";
 import { useChainId } from "wagmi";
 import { useGetLiquidityPools } from "./useGetLiquidityPools";
 import { TOKEN_ADDRESSES } from "../../constants/tokens";
@@ -6,30 +6,17 @@ import { supportedPrincipalTokens } from "../../constants/tokens";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "../useGetUserTokens";
 
-export const convertCommitmentsToUniquePrincipalTokens = (commitments: any[]): UserToken[] => {
-  const uniqueTokens = commitments.reduce((acc: UserToken[], commitment) => {
-    if (!commitment?.principalToken?.address) return acc;
+export const useGetCommitmentsForErc20TokensByPrincipalToken = (principalTokenAddress?: string) => {
+  const { erc20sWithCommitments, isLoading } = useGetCommitmentsForErc20Tokens();
 
-    const existingToken = acc.find(token => 
-      token.address.toLowerCase() === commitment.principalToken.address.toLowerCase()
+  const filteredCommitments = useMemo(() => {
+    if (!principalTokenAddress) return [];
+    return erc20sWithCommitments.filter(
+      commitment => commitment?.principalToken?.address?.toLowerCase() === principalTokenAddress?.toLowerCase()
     );
+  }, [erc20sWithCommitments, principalTokenAddress]);
 
-    if (!existingToken) {
-      acc.push({
-        address: commitment.principalToken.address as `0x${string}`,
-        name: commitment.principalToken.name || '',
-        symbol: commitment.principalToken.symbol || '',
-        logo: commitment.principalToken.imageUri || '',
-        balance: '0',
-        balanceBigInt: BigInt(0),
-        decimals: commitment.principalToken.decimals || 18,
-      });
-    }
-
-    return acc;
-  }, []);
-
-  return uniqueTokens;
+  return { erc20sWithCommitments: filteredCommitments, isLoading };
 };
 
 export const useGetCommitmentsForErc20Tokens = () => {
