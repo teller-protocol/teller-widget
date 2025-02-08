@@ -7,6 +7,7 @@ import {
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import {
   erc20sWithCommitments,
+  useGetCommitmentsForErc20TokensByPrincipalToken,
 } from "../../../hooks/queries/useGetCommitmentsForErc20Tokens";
 import {
   BorrowSectionSteps,
@@ -28,6 +29,7 @@ import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidity
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
+import BORROW_TOKEN_TYPE_ENUM from "../CollateralTokenList"
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -180,11 +182,15 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 };
 
 const OpportunitiesList: React.FC = () => {
-  const { selectedCollateralToken, tokensWithCommitments } =
-    useGetBorrowSectionContext();
   const { address: userAddress } = useAccount();
 
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
   // if on BORROW_TOKEN_TYPE_ENUM.STABLE
+
+  const { selectedCollateralToken, tokensWithCommitments } =
+    useGetBorrowSectionContext();
   
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
