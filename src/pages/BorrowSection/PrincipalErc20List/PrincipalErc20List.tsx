@@ -1,6 +1,6 @@
 import React from "react";
 import { useGetBorrowSectionContext } from "../BorrowSectionContext";
-import CollateralTokenRow from "../../../components/CollateralTokenRow";
+import PrincipalErc20TokenRow from "../../../components/PrincipalErc20Row";
 import "./principalErc20List.scss";
 
 const PrincipalErc20List: React.FC = () => {
@@ -9,7 +9,7 @@ const PrincipalErc20List: React.FC = () => {
   return (
     <div className="principal-erc20-list">
       {principalErc20Tokens.map((token) => (
-        <CollateralTokenRow
+        <PrincipalErc20TokenRow
           key={token.address}
           token={token}
           onClick={() => {}}
