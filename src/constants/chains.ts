@@ -6,3 +6,7 @@ export enum SupportedChainId {
   ARBITRUM = arbitrum.id,
   BASE = base.id,
 }
+
+export function normalizeChainName(chainName?: string) {
+  return chainName?.replace(/ /g, "-")?.toLowerCase();
+}

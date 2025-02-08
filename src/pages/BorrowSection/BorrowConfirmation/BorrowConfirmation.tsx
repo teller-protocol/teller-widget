@@ -15,6 +15,7 @@ import { useContracts } from "../../../hooks/useContracts";
 import { SupportedContractsEnum } from "../../../hooks/useReadContract";
 import "./borrowConfirmation.scss";
 import { useChainData } from "../../../hooks/useChainData";
+import { normalizeChainName } from "../../../constants/chains";
 
 const LabelWithIcon = ({ label }: { label: string }) => (
   <div className="label-with-icon">
@@ -105,7 +106,9 @@ const BorrowConfirmation = () => {
             </Button>
             <Button isFullWidth variant="secondary">
               <a
-                href={`https://app.teller.org/${chainName?.toLocaleLowerCase()}/loan/${bidId}`}
+                href={`https://app.teller.org/${normalizeChainName(
+                  chainName
+                )}/loan/${bidId}`}
                 target="_blank"
                 rel="noreferrer"
               >

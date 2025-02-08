@@ -4,7 +4,7 @@ import confirmationBackground from "../../../assets/confirmation_background.png"
 import externalLink from "../../../assets/external_link.svg";
 import Button from "../../../components/Button";
 
-import { decodeEventLog, formatUnits } from "viem";
+import { Address, decodeEventLog, formatUnits, fromHex } from "viem";
 import Loader from "../../../components/Loader";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useChainData } from "../../../hooks/useChainData";
@@ -16,7 +16,7 @@ import {
 } from "../RepaySectionContext";
 import "./rolloverConfirmation.scss";
 import RepaySection from "../RepaySection";
-
+import { normalizeChainName } from "../../../constants/chains";
 const LabelWithIcon = ({ label }: { label: string }) => (
   <div className="label-with-icon">
     {label} <img src={externalLink} />
@@ -28,11 +28,9 @@ const RolloverConfirmation = () => {
     successRolloverLoanHash,
     rolloverCommitment,
     setBidId,
-    bidId,
     setCurrentStep,
     successfulLoanParams,
   } = useGetRepaySectionContext();
-  const contracts = useContracts();
 
   const { chainExplorerURL, chainName } = useChainData();
 
@@ -53,20 +51,15 @@ const RolloverConfirmation = () => {
     )
   );
 
-  const config = contracts?.[SupportedContractsEnum.FlashRolloverLoan].abi;
+  const { data: successData } = useWaitForTransactionReceipt({
+    hash: (successRolloverLoanHash as Address) ?? "0x",
+    query: {
+      enabled: !!successRolloverLoanHash,
+    },
+  });
 
-  let decodedLog;
-  let _bidId;
-  // if (successData) {
-  //   decodedLog = decodeEventLog({
-  //     abi: config,
-  //     topics: successData?.logs?.[0]?.topics,
-  //     data: successData?.logs?.[0]?.data,
-  //     strict: false,
-  //   });
-  //   _bidId = decodedLog?.args?.bidId;
-  //   setBidId(_bidId);
-  // }
+  const bidId = fromHex(successData?.logs?.[10]?.topics?.[1] ?? "0x", "number");
+  setBidId(bidId.toString());
 
   return (
     <div className="rollover-confirmation">
@@ -82,8 +75,8 @@ const RolloverConfirmation = () => {
         {!successRolloverLoanHash ? (
           <div className="loader-container">
             <Loader isSkeleton height={40} />
-            {/* <Loader isSkeleton height={40} />
-            <Loader isSkeleton height={40} /> */}
+            <Loader isSkeleton height={40} />
+            <Loader isSkeleton height={40} />
           </div>
         ) : (
           <>
@@ -96,6 +89,25 @@ const RolloverConfirmation = () => {
                 <LabelWithIcon label="View transaction" />
               </a>
             </Button>
+            <Button isFullWidth variant="secondary">
+              <a
+                href={`https://app.teller.org/${normalizeChainName(
+                  chainName
+                )}/loan/${bidId}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <LabelWithIcon label="View cash advance" />
+              </a>
+            </Button>
+            <Button
+              label={"Set payment reminder"}
+              isFullWidth
+              variant="primary"
+              onClick={() =>
+                setCurrentStep(RepaySectionSteps.ADD_ROLLOVER_TO_CALENDAR)
+              }
+            />
           </>
         )}
       </div>
