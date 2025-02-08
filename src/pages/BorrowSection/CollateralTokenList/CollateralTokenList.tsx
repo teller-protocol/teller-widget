@@ -75,7 +75,7 @@ const CollateralTokenList: React.FC = () => {
             onChange={setTypeTokenListView}
           /></div>
           {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 ? (
-              <PrincipalErc20List />
+              <PrincipalErc20List searchQuery={searchQuery} />
             ) : (
             loading ? (
               <Loader />
