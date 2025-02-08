@@ -27,9 +27,9 @@ const CollateralTokenList: React.FC = () => {
     setSelectedCollateralToken,
     tokensWithCommitmentsLoading: loading,
     tokensWithCommitments,
-    searchQuery,
-    setSearchQuery,
   } = useGetBorrowSectionContext();
+
+  const [searchQuery, setSearchQuery] = useState("");
   const [tokenTypeListView, setTypeTokenListView] = useState(BORROW_TOKEN_TYPE_ENUM.STABLE);
   const isSupportedChain = useIsSupportedChain();
 
