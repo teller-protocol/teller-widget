@@ -8,7 +8,7 @@ import { config } from "../../helpers/createWagmiConfig";
 import "./widgetStories.scss";
 import Widget from ".";
 
-const SUBGRAPH_API_KEY = "2f26b4c1f77ea8ff641c8dd081795939";
+const SUBGRAPH_API_KEY = "945bcc23bc7f0a6f3956725a9c3513a1";
 
 const meta = {
   title: "Widget",
