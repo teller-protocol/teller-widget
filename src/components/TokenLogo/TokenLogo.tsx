@@ -1,7 +1,7 @@
 import "./tokenLogo.scss";
 
 interface TokenLogoProps {
-  logoUrl: string | null;
+  logoUrl?: string | null;
   size?: number;
 }
 

@@ -118,6 +118,12 @@ const RolloverLoan: React.FC = () => {
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
 
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    collateralTokenAddress
+  );
+
+  const collateralTokenIcon = collateralTokenMetadata?.logo;
+
   const loanCollateral = loan.collateral[0];
 
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
@@ -465,7 +471,7 @@ const RolloverLoan: React.FC = () => {
       collateral: (
         <TokenInput
           onChange={(token) => setCollateralValue(token)}
-          imageUrl={collateralImageURL}
+          imageUrl={collateralTokenIcon}
           tokenValue={collateralValue}
           min
           minAmount={defaultCollateralValue.valueBI}
@@ -475,7 +481,7 @@ const RolloverLoan: React.FC = () => {
       ),
     }),
     [
-      collateralImageURL,
+      collateralTokenIcon,
       collateralValue,
       commitment?.id,
       commitment?.minAPY,

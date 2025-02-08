@@ -269,7 +269,7 @@ const useRolloverLoan = (
     () => ({
       commitmentId: rolloverCommitment?.id,
       smartCommitmentAddress: smartCommitmentAddress,
-      principalAmount: maxLoanAmount?.toString(),
+      principalAmount: principalAmount?.toString(),
       collateralAmount: collateralAmount.toString(),
       collateralTokenId: 0,
       collateralTokenAddress: rolloverCommitment?.collateralToken?.address,
@@ -285,7 +285,7 @@ const useRolloverLoan = (
       rolloverCommitment?.minAPY,
       rolloverCommitment?.maxDuration,
       smartCommitmentAddress,
-      maxLoanAmount,
+      principalAmount,
       collateralAmount,
       isLenderGroup,
       minInterestRateLenderGroups,

@@ -21,7 +21,7 @@ interface ModalContentProps {
 }
 
 const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault }) => {
-  const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.REPAY);
+  const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
   const [key, setKey] = useState(0);
 
   const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
