@@ -43,17 +43,18 @@ export const useGeCommitmentsForErc20Tokens = () => {
 
       const principalTokenPromises = uniquePrincipalAddresses.map(async (address) => {
         try {
-          const metadata = useGetTokenMetadata(address as string);
-          if (!metadata.tokenMetadata) return null;
+          const alchemy = useAlchemy();
+          const metadata = await alchemy.core.getTokenMetadata(address as string);
+          if (!metadata) return null;
 
           const token: UserToken = {
             address: address as `0x${string}`,
-            name: metadata.tokenMetadata.name || '',
-            symbol: metadata.tokenMetadata.symbol || '',
-            logo: metadata.tokenMetadata.logo || '',
+            name: metadata.name || '',
+            symbol: metadata.symbol || '',
+            logo: metadata.logo || '',
             balance: '0',
             balanceBigInt: BigInt(0),
-            decimals: metadata.tokenMetadata.decimals || 18,
+            decimals: metadata.decimals || 18,
           };
           return token;
         } catch (error) {
