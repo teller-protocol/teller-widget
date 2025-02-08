@@ -3,7 +3,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useGeCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { useGetCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -61,7 +61,9 @@ export const BorrowSectionContextProvider: React.FC<
   // look at way done in pools section
   // return tokens list as 
 
-  const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } = useGeCommitmentsForErc20Tokens();
+  const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } = useGetCommitmentsForErc20Tokens();
+
+  console.log("erc20sWithCommitments", erc20sWithCommitments)
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
