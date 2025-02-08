@@ -56,12 +56,11 @@ const PayLoan: React.FC = () => {
         <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
         <LoanLink loan={loan} />
       </div>
-      <h2>Repay cash advance</h2>
       <TokenInput
         imageUrl={principalTokenLogo}
         label={
           <div className="pay-loan-token-input">
-            Amount
+            Repay
             <div className="wallet-amount">
               My wallet: {formattedWalletBalance} {loan.lendingToken.symbol}{" "}
             </div>
