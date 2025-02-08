@@ -71,40 +71,29 @@ export const BorrowSectionContextProvider: React.FC<
   const alchemy = useAlchemy();
 
   useEffect(() => {
-    async function fetchTokenMetadata() {
-      if (!erc20sWithCommitments?.length || !alchemy) return;
+    if (!erc20sWithCommitments?.length) return;
 
-      const uniqueAddresses = [...new Set(
-        erc20sWithCommitments
-          .filter(commitment => commitment?.principalToken?.address)
-          .map(commitment => commitment?.principalToken.address.toLowerCase())
-      )];
+    const uniqueAddresses = [...new Set(
+      erc20sWithCommitments
+        .filter(commitment => commitment?.principalToken?.address)
+        .map(commitment => commitment?.principalToken.address.toLowerCase())
+    )];
 
-      const tokensWithMetadata = await Promise.all(
-        uniqueAddresses.map(async (address) => {
-          try {
-            const metadata = await alchemy.core.getTokenMetadata(address as string);
-            return {
-              address: address as `0x${string}`,
-              name: metadata.name || '',
-              symbol: metadata.symbol || '',
-              logo: metadata.logo || '',
-              balance: '0',
-              balanceBigInt: BigInt(0),
-              decimals: metadata.decimals || 18,
-            };
-          } catch (error) {
-            console.error(`Error fetching metadata for token ${address}:`, error);
-            return null;
-          }
-        })
-      );
+    const tokens = uniqueAddresses.map(address => {
+      const { tokenMetadata } = useGetTokenMetadata(address as string);
+      return tokenMetadata ? {
+        address: address as `0x${string}`,
+        name: tokenMetadata.name || '',
+        symbol: tokenMetadata.symbol || '',
+        logo: tokenMetadata.logo || '',
+        balance: '0',
+        balanceBigInt: BigInt(0),
+        decimals: tokenMetadata.decimals || 18,
+      } : null;
+    });
 
-      setPrincipalErc20Tokens(tokensWithMetadata.filter((token): token is UserToken => token !== null));
-    }
-
-    void fetchTokenMetadata();
-  }, [erc20sWithCommitments, alchemy]); 
+    setPrincipalErc20Tokens(tokens.filter((token): token is UserToken => token !== null));
+  }, [erc20sWithCommitments]); 
 
   console.log("principalErc20Tokens", principalErc20Tokens)
 
