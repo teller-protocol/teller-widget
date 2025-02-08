@@ -5,6 +5,7 @@ import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommit
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetCommitmentsForErc20Tokens, convertCommitmentsToUniquePrincipalTokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -67,8 +68,6 @@ export const BorrowSectionContextProvider: React.FC<
   console.log("erc20sWithCommitments", erc20sWithCommitments)
 
   const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>([]);
-
-  const alchemy = useAlchemy();
 
   useEffect(() => {
     if (!erc20sWithCommitments?.length) return;
