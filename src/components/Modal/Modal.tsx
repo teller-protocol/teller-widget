@@ -26,7 +26,6 @@ type ModalProps = {
   useLightLogo?: boolean;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
-  tokenTypeListView: any; // Added tokenTypeListView prop
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -37,7 +36,6 @@ const Modal: React.FC<ModalProps> = ({
   useLightLogo,
   isEmbedded,
   showChainSwitch,
-  tokenTypeListView, // Added tokenTypeListView prop
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -99,11 +97,7 @@ const Modal: React.FC<ModalProps> = ({
                   <div className="modal-content-title">
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
-                        <div className="modal-title">
-                          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE
-                            ? "Cash Advance"
-                            : "Borrow tokens"}
-                        </div>
+                        <div className="modal-title">Cash Advance</div>
                         <ChainSwitch />
                       </div>
                     )}
@@ -145,7 +139,6 @@ const Modal: React.FC<ModalProps> = ({
       showChainSwitch,
       showModal,
       tellerLogo,
-      tokenTypeListView, // Added tokenTypeListView to dependencies
     ]
   );
 
