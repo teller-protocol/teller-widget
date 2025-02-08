@@ -3,34 +3,38 @@ import { useChainId } from "wagmi";
 import { useGetLiquidityPools } from "./useGetLiquidityPools";
 import { TOKEN_ADDRESSES } from "../../constants/tokens";
 import { supportedPrincipalTokens } from "../../constants/tokens";
-
-// filter out all weth / usdc lending tokens ie supportedPrincipalTokens
+import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
 
 export const useGeCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
+  const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
   
   const {
     liquidityPools: liquidityPools, 
     isLoading: liquidityPoolsLoading, 
   } = useGetLiquidityPools();
-
-  console.log("liquidityPools", liquidityPools)
   
   const chainTokenAddresses = supportedPrincipalTokens
     .map((token: string) => TOKEN_ADDRESSES[chainId]?.[token])  
     .filter((token: string) => typeof token === 'string') as string[];
 
-  console.log("chainTokenAddresses", chainTokenAddresses)
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["allLiquidityPools", chainId, chainTokenAddresses],
     queryFn: async () => {
+      if (!Array.isArray(liquidityPools) || liquidityPools.length === 0) {
+        console.warn("No liquidity pools available for filtering");
+        return [];
+      }
 
-      const filteredPools = chainTokenAddresses?.length 
-        ? liquidityPools.filter(pool => !chainTokenAddresses.includes(pool.principal_token_address.toLowerCase()))
-        : liquidityPools;
+      const filteredPools = liquidityPools.filter(pool =>
+        !chainTokenAddresses.includes(pool.principal_token_address?.toLowerCase())
+      );
 
-      return filteredPools;
+      const commitments = await Promise.all(
+        filteredPools.map(convertCommitment)
+      );
+
+      return commitments;
     },
   });
 
