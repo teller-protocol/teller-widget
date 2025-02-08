@@ -190,6 +190,7 @@ const OpportunitiesList: React.FC = () => {
     selectedCollateralToken,
     selectedPrincipalErc20Token,
     tokensWithCommitments,
+    principalErc20Tokens,
   } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
@@ -252,13 +253,20 @@ const OpportunitiesList: React.FC = () => {
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">
-        {selectedCollateralToken && (
-          <>
+        {isStableView ? (
+          selectedCollateralToken && (
             <TokenDropdown
               tokens={tokensWithCommitments}
               selectedToken={selectedCollateralToken}
             />
-          </>
+          )
+        ) : (
+          selectedPrincipalErc20Token && (
+            <TokenDropdown
+              tokens={principalErc20Tokens}
+              selectedToken={selectedPrincipalErc20Token}
+            />
+          )
         )}
       </div>
       {data && (
@@ -292,7 +300,7 @@ const OpportunitiesList: React.FC = () => {
                         justifyContent: "center",
                       }}
                     >
-                      Deploy ${selectedCollateralToken?.symbol} pool
+                      Deploy ${isStableView ? selectedCollateralToken?.symbol : selectedPrincipalErc20Token?.symbol} pool
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
