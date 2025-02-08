@@ -44,6 +44,7 @@ import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import useRolloverLoan from "../../hooks/useRolloverLoan";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "../../hooks/useGetMaxPrincipalPerCollateralLenderGroup";
 import { AddressStringType } from "../../types/addressStringType";
+import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 
 type RolloverData = {
   dueDate: string;
@@ -119,7 +120,11 @@ const RolloverLoan: React.FC = () => {
 
   const loanCollateral = loan.collateral[0];
 
-  const principalTokenIcon = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    loan.lendingToken.address
+  );
+
+  const principalTokenIcon = principalTokenMetadata?.logo;
 
   const chainTerms = useChainTerms();
   const chainTermsLenderGroups = useChainTermsLiquidityPools();
@@ -337,7 +342,6 @@ const RolloverLoan: React.FC = () => {
   const [collateralValue, setCollateralValue] = useState<TokenInputType>(
     defaultCollateralValue
   );
-
 
   useEffect(() => {
     setCollateralValue({
