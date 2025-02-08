@@ -80,10 +80,10 @@ export const BorrowSectionContextProvider: React.FC<
       const tokenCommitmentMap = erc20sWithCommitments
         .filter(commitment => commitment?.principalToken?.address)
         .reduce((acc, commitment) => {
-          const address = commitment.principalToken.address.toLowerCase();
-          const currentAmount = acc.get(address) || BigInt(0);
-          const committedAmount = BigInt(commitment.committedAmount || 0);
-          acc.set(address, currentAmount + committedAmount);
+          const address = commitment?.principalToken.address.toLowerCase();
+          const currentAmount = acc.get(address as string) || BigInt(0);
+          const committedAmount = BigInt(commitment?.committedAmount || 0);
+          acc.set(address as string, currentAmount + committedAmount);
           return acc;
         }, new Map<string, bigint>());
 
