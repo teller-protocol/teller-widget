@@ -38,8 +38,6 @@ export const useGeCommitmentsForErc20Tokens = () => {
     },
   });
 
-  console.log("data", data)
-
   if (error) console.error("allLiquidityPools Query error", error);
 
   return { liquidityPools: data || [], isLoading };
