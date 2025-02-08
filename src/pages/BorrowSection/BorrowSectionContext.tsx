@@ -40,6 +40,7 @@ export type BorrowSectionContextType = {
   setMaxCollateral: (maxCollateral: bigint) => void;
   principalErc20Tokens: UserToken[];
   setPrincipalErc20Tokens: (tokens: UserToken[]) => void;
+  erc20sWithCommitmentsLoading: boolean;
 };
 
 interface BorrowSectionContextProps {
@@ -164,6 +165,7 @@ export const BorrowSectionContextProvider: React.FC<
         setMaxCollateral,
         principalErc20Tokens,
         setPrincipalErc20Tokens,
+        erc20sWithCommitmentsLoading,
         // onCollateralTokenSelected,
         // onOpportunitySelected,
         // mapStepToComponent,

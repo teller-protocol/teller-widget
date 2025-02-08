@@ -27,6 +27,7 @@ const CollateralTokenList: React.FC = () => {
     setSelectedCollateralToken,
     tokensWithCommitmentsLoading: loading,
     tokensWithCommitments,
+    erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,7 +76,11 @@ const CollateralTokenList: React.FC = () => {
             onChange={setTokenTypeListView}
           /></div>
           {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 ? (
-              <PrincipalErc20List searchQuery={searchQuery} />
+              erc20Loading ? (
+                <Loader />
+              ) : (
+                <PrincipalErc20List searchQuery={searchQuery} />
+              )
             ) : (
             loading ? (
               <Loader />
