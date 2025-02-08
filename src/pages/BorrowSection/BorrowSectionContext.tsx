@@ -76,23 +76,31 @@ export const BorrowSectionContextProvider: React.FC<
     async function fetchTokenMetadata() {
       if (!erc20sWithCommitments?.length || !alchemy) return;
 
-      const uniqueAddresses = [...new Set(
-        erc20sWithCommitments
-          .filter(commitment => commitment?.principalToken?.address)
-          .map(commitment => commitment?.principalToken.address.toLowerCase())
-      )];
+      // Create a map to aggregate committed amounts
+      const tokenCommitmentMap = erc20sWithCommitments
+        .filter(commitment => commitment?.principalToken?.address)
+        .reduce((acc, commitment) => {
+          const address = commitment.principalToken.address.toLowerCase();
+          const currentAmount = acc.get(address) || BigInt(0);
+          const committedAmount = BigInt(commitment.committedAmount || 0);
+          acc.set(address, currentAmount + committedAmount);
+          return acc;
+        }, new Map<string, bigint>());
+
+      const uniqueAddresses = [...tokenCommitmentMap.keys()];
 
       const tokensWithMetadata = await Promise.all(
         uniqueAddresses.map(async (address) => {
           try {
             const metadata = await alchemy.core.getTokenMetadata(address as string);
+            const aggregatedBalance = tokenCommitmentMap.get(address) || BigInt(0);
             return {
               address: address as `0x${string}`,
               name: metadata.name || '',
               symbol: metadata.symbol || '',
               logo: metadata.logo || '',
-              balance: '0',
-              balanceBigInt: BigInt(0),
+              balance: aggregatedBalance.toString(),
+              balanceBigInt: aggregatedBalance,
               decimals: metadata.decimals || 18,
             };
           } catch (error) {
