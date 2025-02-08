@@ -11,6 +11,9 @@ import { ReactNode, useCallback, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom";
 import ChainSwitch from "../ChainSwitch";
 
+import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
+import { BORROW_TOKEN_TYPE_ENUM } from "../../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
+
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
@@ -37,6 +40,7 @@ const Modal: React.FC<ModalProps> = ({
   isEmbedded,
   showChainSwitch,
 }: ModalProps) => {
+  const { tokenTypeListView } = useGetBorrowSectionContext();
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -98,7 +102,7 @@ const Modal: React.FC<ModalProps> = ({
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
                         <div className="modal-title">
-                          Cash Advance
+                          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE ? "Borrow stables" : "Borrow tokens"}
                         </div>
                         <ChainSwitch />
                       </div>
