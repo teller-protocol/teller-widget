@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
@@ -57,8 +57,6 @@ export const BorrowSectionContextProvider: React.FC<
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
 
-  const {} = convertCommitmentsToUniquePrincipalTokens();
-
   // query to get all pools, non-blocked, where principalToken not in supportedPrincipalTokens
   // look at way done in pools section
   // return tokens list as 
@@ -66,6 +64,17 @@ export const BorrowSectionContextProvider: React.FC<
   const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } = useGetCommitmentsForErc20Tokens();
 
   console.log("erc20sWithCommitments", erc20sWithCommitments)
+
+  const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>([]);
+
+  useEffect(() => {
+    if (erc20sWithCommitments?.length > 0) {
+      const uniquePrincipalTokens = convertCommitmentsToUniquePrincipalTokens(erc20sWithCommitments);
+      setPrincipalErc20Tokens(uniquePrincipalTokens);
+    }
+  }, [erc20sWithCommitments]); 
+
+  console.log("principalErc20Tokens", principalErc20Tokens)
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
