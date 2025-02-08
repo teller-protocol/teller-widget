@@ -4,8 +4,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useGetCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
-import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
+import { useGetCommitmentsForErc20Tokens, convertCommitmentsToUniquePrincipalTokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
@@ -69,30 +68,43 @@ export const BorrowSectionContextProvider: React.FC<
 
   const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>([]);
 
+  const alchemy = useAlchemy();
+
   useEffect(() => {
-    if (!erc20sWithCommitments?.length) return;
+    async function fetchTokenMetadata() {
+      if (!erc20sWithCommitments?.length || !alchemy) return;
 
-    const uniqueAddresses = [...new Set(
-      erc20sWithCommitments
-        .filter(commitment => commitment?.principalToken?.address)
-        .map(commitment => commitment?.principalToken.address.toLowerCase())
-    )];
+      const uniqueAddresses = [...new Set(
+        erc20sWithCommitments
+          .filter(commitment => commitment?.principalToken?.address)
+          .map(commitment => commitment?.principalToken.address.toLowerCase())
+      )];
 
-    const tokens = uniqueAddresses.map(address => {
-      const { tokenMetadata } = useGetTokenMetadata(address as string);
-      return tokenMetadata ? {
-        address: address as `0x${string}`,
-        name: tokenMetadata.name || '',
-        symbol: tokenMetadata.symbol || '',
-        logo: tokenMetadata.logo || '',
-        balance: '0',
-        balanceBigInt: BigInt(0),
-        decimals: tokenMetadata.decimals || 18,
-      } : null;
-    });
+      const tokensWithMetadata = await Promise.all(
+        uniqueAddresses.map(async (address) => {
+          try {
+            const metadata = await alchemy.core.getTokenMetadata(address as string);
+            return {
+              address: address as `0x${string}`,
+              name: metadata.name || '',
+              symbol: metadata.symbol || '',
+              logo: metadata.logo || '',
+              balance: '0',
+              balanceBigInt: BigInt(0),
+              decimals: metadata.decimals || 18,
+            };
+          } catch (error) {
+            console.error(`Error fetching metadata for token ${address}:`, error);
+            return null;
+          }
+        })
+      );
 
-    setPrincipalErc20Tokens(tokens.filter((token): token is UserToken => token !== null));
-  }, [erc20sWithCommitments]); 
+      setPrincipalErc20Tokens(tokensWithMetadata.filter((token): token is UserToken => token !== null));
+    }
+
+    void fetchTokenMetadata();
+  }, [erc20sWithCommitments, alchemy]); 
 
   console.log("principalErc20Tokens", principalErc20Tokens)
 

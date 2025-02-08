@@ -6,6 +6,32 @@ import { supportedPrincipalTokens } from "../../constants/tokens";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "../useGetUserTokens";
 
+export const convertCommitmentsToUniquePrincipalTokens = (commitments: any[]): UserToken[] => {
+  const uniqueTokens = commitments.reduce((acc: UserToken[], commitment) => {
+    if (!commitment?.principalToken?.address) return acc;
+
+    const existingToken = acc.find(token => 
+      token.address.toLowerCase() === commitment.principalToken.address.toLowerCase()
+    );
+
+    if (!existingToken) {
+      acc.push({
+        address: commitment.principalToken.address as `0x${string}`,
+        name: commitment.principalToken.name || '',
+        symbol: commitment.principalToken.symbol || '',
+        logo: commitment.principalToken.imageUri || '',
+        balance: '0',
+        balanceBigInt: BigInt(0),
+        decimals: commitment.principalToken.decimals || 18,
+      });
+    }
+
+    return acc;
+  }, []);
+
+  return uniqueTokens;
+};
+
 export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
