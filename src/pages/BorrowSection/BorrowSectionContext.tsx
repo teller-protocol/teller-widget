@@ -33,8 +33,6 @@ export type BorrowSectionContextType = {
   setBidId: (bidId: string) => void;
   maxCollateral: bigint;
   setMaxCollateral: (maxCollateral: bigint) => void;
-  principalErc20Tokens: UserToken[];
-  erc20sWithCommitments: CommitmentType[];
 };
 
 interface BorrowSectionContextProps {
