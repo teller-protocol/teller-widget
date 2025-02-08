@@ -58,6 +58,7 @@ const CollateralTokenList: React.FC = () => {
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
+          <div className="search-and-buttons">
           <input
             type="text"
             placeholder="Select collateral for deposit"
@@ -69,7 +70,7 @@ const CollateralTokenList: React.FC = () => {
             items={selectOptions}
             value={tokenTypeListView}
             onChange={setTypeTokenListView}
-          />
+          /></div>
           {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 ? (
               <PrincipalErc20List />
             ) : (

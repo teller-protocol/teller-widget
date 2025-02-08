@@ -1,6 +1,13 @@
 @import "../../../tokens.scss";
 
 .collateral-token-list {
+    .search-and-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
   .token-search-input {
     width: 100%;
     padding: 8px 12px 8px 32px;
@@ -21,6 +28,11 @@
         color: #87a1a1;
     }
   }
+
+  .select-buttons {
+    width: 30%;
+  }
+  
   .section-title {
     margin-bottom: $s-normal;
     text-align: center;
