@@ -349,6 +349,10 @@ const OpportunityDetails = () => {
         {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
+      <div className="section-title fee-details" style={{ margin: "0", color: "#3D8974" || 'inherit', }}>
+        Est. earned on uni: +{payPerLoan}{" "}
+        {selectedOpportunity.principalToken?.symbol}
+      </div>
 
       {isNewBorrower ? (
         <Button

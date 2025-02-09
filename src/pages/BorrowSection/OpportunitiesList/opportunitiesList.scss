@@ -46,11 +46,17 @@
 
     &-body {
       background-color: $bg-light;
-      padding: .7rem $s-large;
+      padding: 0.7rem $s-large;
       margin-bottom: $s-normal;
 
       display: flex;
+      flex-wrap: wrap; // Allow children to wrap onto new lines
       justify-content: space-around;
+
+      > :nth-child(3) {
+        margin-top: $s-small;
+        flex-basis: 100%; // Force the third child onto a new row
+      }
     }
 
     &-data {

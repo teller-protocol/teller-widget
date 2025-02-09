@@ -37,17 +37,19 @@ interface OpportunityListItemProps {
 interface OpportunityListDataItemProps {
   label: string;
   value: React.ReactNode;
+  valueTextColor?: string;
 }
 
 const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
   label,
   value,
+  valueTextColor,
 }) => (
   <div className="opportunity-list-item-data">
     <div className="opportunity-list-item-data-label section-sub-title">
       {label}
     </div>
-    <div className="opportunity-list-item-data-value">{value}</div>
+    <div className="opportunity-list-item-data-value" style={{ color: valueTextColor || 'inherit' }}>{value}</div>
   </div>
 );
 
@@ -173,25 +175,27 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         {aprLoading ? (
           <Loader isSkeleton height={16} />
         ) : (
-          <>
-            <OpportunityListDataItem
-              label="Interest"
-              value={`${(
-                (Number(apr) / 100) *
-                (Number(opportunity.maxDuration) / 86400 / 365)
-              ).toFixed(2)} %`}
-            />
-            <OpportunityListDataItem
-              label="Duration"
-              value={`${Number(opportunity.maxDuration) / 86400} days`}
-            />
-            {!isStableView && (
-              <OpportunityListDataItem
-                label="Estimated Borrow + Uniswap ROI:"
-                value={`${(Number(apr) / 100).toFixed(2)} %`}
-              />
-            )}
-          </>
+      <>
+        <OpportunityListDataItem
+          label="Interest"
+          value={`${(
+            (Number(apr) / 100) *
+            (Number(opportunity.maxDuration) / 86400 / 365)
+          ).toFixed(2)} %`}
+        />
+        <OpportunityListDataItem
+          label="Duration"
+          value={`${Number(opportunity.maxDuration) / 86400} days`}
+        />
+        {!isStableView && (
+          <OpportunityListDataItem
+            label="Est. loan to uni ROI:"
+            value={`+ ${(Number(apr) / 100).toFixed(2)} %`}
+            valueTextColor={"#3D8974"}
+          />
+        )}
+      </>
+
         )}
       </div>
     </div>
