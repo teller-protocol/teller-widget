@@ -3,6 +3,7 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
+import { formatUnits } from "viem";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useGetLiquidityPools } from "../../../hooks/queries/useGetUniswapV3Pools";
 import { useUniswapV3PoolUSDValue } from "../../../hooks/useUniswapV3PoolUSDValue";

@@ -150,7 +150,7 @@ export const useUniswapV3PoolUSDValue = ({
   ) {
     const value0 = parseFloat(token0Balance.toString()) * token0USDPrice;
     const value1 = parseFloat(token1Balance.toString()) * token1USDPrice;
-    totalUSDValue = value0 + value1;
+    totalUSDValue = (value0 + value1)/(10**18);
   }
 
   const isLoading =
