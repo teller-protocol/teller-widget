@@ -29,8 +29,37 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
       setSelectedPrincipalErc20Token(token);
   };
 
-  useGetLiquidityPools()
-  useUniswapV3PoolUSDValue()
+  const tokenAddress = "0x594daad7d77592a2b97b725a7ad59d7e188b5bfa";
+  // Optionally, specify the number of days to aggregate fees (defaults to 30 if omitted).
+  const { bestPool, poolDayDatas, aggregatedFeesUSD, isLoading: liquidityPoolIsLoading } = useGetLiquidityPools({
+    tokenAddress,
+    days: 30,
+  });
+
+  console.log("bestPool id", bestPool?.id)
+  console.log("aggregatedFeesUSD", aggregatedFeesUSD)
+
+  const poolAddress = bestPool?.id ?? ""; // can be dynamic
+  const ethPrice = 2628.5; // replace with a dynamic value if needed
+  const { totalUSDValue, isLoading: poolUSDValueIsLoading } = useUniswapV3PoolUSDValue({
+    poolAddress,
+    ethPrice,
+  });
+
+  console.log("totalUSDValue", totalUSDValue)
+
+  // Make sure to convert aggregatedFeesUSD from a string to a number.
+  const fees = parseFloat(aggregatedFeesUSD);
+
+  // Only compute APY if totalUSDValue is greater than 0.
+  const uniswapAPY =
+    totalUSDValue > 0
+      ? (((fees / totalUSDValue) * (365 / 30)) * 100).toFixed(2)
+      : "0";
+
+  console.log("Uniswap APY:", uniswapAPY + "%");
+
+  
 
   return (
     <div className="principal-erc20-list">

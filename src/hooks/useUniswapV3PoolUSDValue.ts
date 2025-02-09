@@ -1,122 +1,172 @@
 // useUniswapV3PoolUSDValue.ts
 import { useReadContract, ContractType } from "./useReadContract";
-import { useTokenUSDPrice } from "./useTokenUSDPrice";
+import { useQuery } from "@tanstack/react-query";
+import request, { gql } from "graphql-request";
+import { useChainId } from "wagmi";
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import { getUniswapV3GraphEndpointWithKey } from "../constants/graphEndpoints";
 
-// The Uniswap V3 pool address
-const poolAddress = "0x120ffad35bb97a5baf9ab68f9dd7667864530245";
+export interface UseUniswapV3PoolUSDValueParams {
+  /** The Uniswap V3 pool address */
+  poolAddress: string;
+  /** The current ETH price in USD */
+  ethPrice: number;
+}
 
 /**
  * Hook to estimate the total USD value held in a Uniswap V3 pool.
  *
- * Note: For a Uniswap V3 pool the on‑chain token balances (read via ERC‑20 balanceOf)
- * typically represent accrued fees and not the full liquidity (which is maintained
- * via concentrated liquidity positions off the pool contract).
- *
- * To compute the USD value, this hook:
+ * This hook:
  *  1. Reads token0 and token1 addresses from the pool contract.
  *  2. Reads the token balances (via ERC‑20 balanceOf) held by the pool.
- *  3. Multiplies each balance by its USD price (dummy values shown; replace with your oracle).
- *  4. Returns the aggregated value.
+ *  3. Fetches each token's derived ETH value from the Uniswap V3 subgraph.
+ *  4. Computes each token's USD price by multiplying its derived ETH value by the passed-in ETH price.
+ *  5. Aggregates the total USD value.
+ *
+ * @param params.poolAddress The address of the Uniswap V3 pool contract.
+ * @param params.ethPrice The current ETH price in USD.
  */
+export const useUniswapV3PoolUSDValue = ({
+  poolAddress,
+  ethPrice,
+}: UseUniswapV3PoolUSDValueParams) => {
+  // 1. Get token addresses from the pool contract.
+  const {
+    data: token0Address,
+    isLoading: token0AddrLoading,
+    error: token0AddrError,
+  } = useReadContract(poolAddress, "token0", [], false, ContractType.UNIV3POOL);
 
-// Minimal ABI for retrieving token0 and token1 from the Uniswap V3 pool contract
-const poolMinimalAbi = [
-  {
-    "inputs": [],
-    "name": "token0",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "token1",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
+  const {
+    data: token1Address,
+    isLoading: token1AddrLoading,
+    error: token1AddrError,
+  } = useReadContract(poolAddress, "token1", [], false, ContractType.UNIV3POOL);
 
+  // Keep the "0x" prefix; simply convert to lowercase.
+  const token0AddressLower = token0Address
+    ? (token0Address as string).toLowerCase()
+    : "";
+  const token1AddressLower = token1Address
+    ? (token1Address as string).toLowerCase()
+    : "";
 
-export const useUniswapV3PoolUSDValue = () => {
-  // 1. Get token addresses from the pool contract
-  const { data: token0Address, isLoading: token0AddrLoading, error: token0AddrError } = useReadContract(
-    poolAddress,
-    "token0",
-    [],
-    false,
-    ContractType.UNIV3POOL,
-  );
-
-  console.log("token0Address", token0Address)
-
-  const { data: token1Address, isLoading: token1AddrLoading, error: token1AddrError } = useReadContract(
-    poolAddress,
-    "token1",
-    [],
-    false,
-    ContractType.UNIV3POOL,
-  );
-
-  console.log("token1Address", token1Address)
-
-  const token0AddressLower = token0Address ? (token0Address as string).toLowerCase().replace("0x", "") : "";
-  const token1AddressLower = token1Address ? (token1Address as string).toLowerCase().replace("0x", "") : "";
-
-  console.log(token0AddressLower, token1AddressLower)
-
-  // 2. Once we have the token addresses, get their ERC-20 balances held by the pool.
-  // (These calls return the on-chain balance held by the pool contract.)
-  const { data: token0Balance, isLoading: token0BalLoading, error: token0BalError } = useReadContract(
-    `0x${token0AddressLower as string}`, // prefix "0x" to the address
+  // 2. Get token balances held by the pool.
+  // (We assume that token0AddressLower and token1AddressLower already include the "0x" prefix.)
+  const {
+    data: token0Balance,
+    isLoading: token0BalLoading,
+    error: token0BalError,
+  } = useReadContract(
+    token0AddressLower,
     "balanceOf",
     [poolAddress],
     false,
     ContractType.ERC20
   );
 
-  console.log("token0Balance", token0Balance)
-
-  const { data: token1Balance, isLoading: token1BalLoading, error: token1BalError } = useReadContract(
-    `0x${token1AddressLower as string}`, // prefix "0x" to the address
+  const {
+    data: token1Balance,
+    isLoading: token1BalLoading,
+    error: token1BalError,
+  } = useReadContract(
+    token1AddressLower,
     "balanceOf",
     [poolAddress],
     false,
     ContractType.ERC20
   );
 
-  console.log("token1Balance", token1Balance)
+  // 3. Setup subgraph queries to fetch derived ETH values.
+  const chainId = useChainId();
+  const { subgraphApiKey } = useGetGlobalPropsContext();
+  const UNISWAP_V3_SUBGRAPH_URL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId);
 
-  // 3. Get USD prices for each token.
-  // Replace these dummy values with your real price data (via an oracle or price API).
-  const token0PriceUSD = useTokenUSDPrice(token0AddressLower) //0.0002; // e.g. $1 per token0 unit
-  const token1PriceUSD = useTokenUSDPrice(token1AddressLower) //2500; // e.g. $1 per token1 unit
+  // GraphQL query to get the token's derived ETH value.
+  const GET_TOKEN_DERIVED_ETH = gql`
+    query GetTokenDerivedETH($tokenId: String!) {
+      token(id: $tokenId) {
+        derivedETH
+      }
+    }
+  `;
 
-  // 4. Compute the total USD value
+  // Fetch function with logging and error handling.
+  const fetchTokenDerivedETH = async (tokenId: string): Promise<string | null> => {
+    try {
+      const data = await request(UNISWAP_V3_SUBGRAPH_URL!, GET_TOKEN_DERIVED_ETH, {
+        tokenId,
+      });
+      if (!data || !data.token) {
+        console.warn("Token not found in subgraph for", tokenId);
+        return null;
+      }
+      return data.token.derivedETH;
+    } catch (error) {
+      console.error("Error fetching derivedETH for", tokenId, error);
+      return null;
+    }
+  };
+
+  // Query for token0's derivedETH.
+  const {
+    data: token0DerivedETH,
+    isLoading: token0DerivedLoading,
+    error: token0DerivedError,
+  } = useQuery({
+    queryKey: ["token-derived-eth", token0AddressLower],
+    queryFn: () => fetchTokenDerivedETH(token0AddressLower),
+    enabled: !!token0AddressLower,
+  });
+
+  // Query for token1's derivedETH.
+  const {
+    data: token1DerivedETH,
+    isLoading: token1DerivedLoading,
+    error: token1DerivedError,
+  } = useQuery({
+    queryKey: ["token-derived-eth", token1AddressLower],
+    queryFn: () => fetchTokenDerivedETH(token1AddressLower),
+    enabled: !!token1AddressLower,
+  });
+
+  // 4. Calculate each token's USD price (derivedETH * ETH price).
+  const token0USDPrice =
+    token0DerivedETH && ethPrice
+      ? parseFloat(token0DerivedETH) * ethPrice
+      : undefined;
+  const token1USDPrice =
+    token1DerivedETH && ethPrice
+      ? parseFloat(token1DerivedETH) * ethPrice
+      : undefined;
+
+  // 5. Compute the total USD value of the pool's tokens.
   let totalUSDValue = 0;
-  if (token0Balance && token1Balance) {
-    // Depending on the token’s decimals you may need to convert the raw balance.
-    // Here we assume the balances are already adjusted or you do that conversion elsewhere.
-    const value0 = parseFloat(token0Balance.toString()) * token0PriceUSD;
-    const value1 = parseFloat(token1Balance.toString()) * token1PriceUSD;
+  if (
+    token0Balance &&
+    token1Balance &&
+    token0USDPrice !== undefined &&
+    token1USDPrice !== undefined
+  ) {
+    const value0 = parseFloat(token0Balance.toString()) * token0USDPrice;
+    const value1 = parseFloat(token1Balance.toString()) * token1USDPrice;
     totalUSDValue = value0 + value1;
   }
 
-  const isLoading = token0AddrLoading || token1AddrLoading || token0BalLoading || token1BalLoading;
-  const error = token0AddrError || token1AddrError || token0BalError || token1BalError;
+  const isLoading =
+    token0AddrLoading ||
+    token1AddrLoading ||
+    token0BalLoading ||
+    token1BalLoading ||
+    token0DerivedLoading ||
+    token1DerivedLoading;
+  const error =
+    token0AddrError ||
+    token1AddrError ||
+    token0BalError ||
+    token1BalError ||
+    token0DerivedError ||
+    token1DerivedError;
 
-  console.log("totalUSDValue", totalUSDValue)
   return { totalUSDValue, isLoading, error };
 };

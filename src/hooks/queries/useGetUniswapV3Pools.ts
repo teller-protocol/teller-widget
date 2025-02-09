@@ -6,16 +6,42 @@ import { useChainId } from "wagmi";
 import { UniswapV3Pool } from "../../constants/uniswapV3Pool.type";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
-export const useGetLiquidityPools = () => {
+export interface UseGetLiquidityPoolsParams {
+  /** The token address to search pools for */
+  tokenAddress: string;
+  /** The number of days to aggregate fees for (default: 30) */
+  days?: number;
+}
+
+/**
+ * Hook to fetch liquidity pool data from Uniswap V3 based on a token address.
+ *
+ * This hook performs the following steps:
+ *
+ * 1. It queries for pools that have the given token as token0 or token1,
+ *    ordered by `totalValueLockedUSD` in descending order, and selects the "best" pool.
+ *
+ * 2. It queries for `poolDayDatas` for that best pool starting from (days ago)
+ *    until today.
+ *
+ * 3. It aggregates the `feesUSD` for the period (excluding the most recent day).
+ *
+ * @param params.tokenAddress The token address to fetch liquidity pools for.
+ * @param params.days (Optional) The number of days to aggregate fees (default is 30).
+ */
+export const useGetLiquidityPools = ({
+  tokenAddress,
+  days = 30,
+}: UseGetLiquidityPoolsParams) => {
   const chainId = useChainId();
   const { subgraphApiKey } = useGetGlobalPropsContext();
   const graphURL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId);
 
   // ------------------------------
-  // Step 1: Get the "best" pool
+  // Step 1: Get the "best" pool for the given token.
   // ------------------------------
 
-  // Query to fetch liquidity pools by token, ordered by totalValueLockedUSD descending.
+  // Query to fetch liquidity pools by token address, ordered by totalValueLockedUSD descending.
   const getUniswapV3PoolsByToken = useMemo(
     () => gql`
       query UniswapV3PoolsByTokens($tokenAddress: String!) {
@@ -40,15 +66,14 @@ export const useGetLiquidityPools = () => {
     []
   );
 
-  // Query to fetch liquidity pools.
   const bestPoolQuery = useQuery({
-    queryKey: ["allLiquidityPools", chainId],
+    queryKey: ["allLiquidityPools", chainId, tokenAddress],
     queryFn: async () => {
-      const response = await request(
+      const response = (await request(
         graphURL || "",
         getUniswapV3PoolsByToken,
-        { tokenAddress: "0x594daad7d77592a2b97b725a7ad59d7e188b5bfa" }
-      ) as { pools: UniswapV3Pool[] };
+        { tokenAddress }
+      )) as { pools: UniswapV3Pool[] };
 
       // Return the first pool from the array (if any)
       return response.pools.length > 0 ? response.pools[0] : null;
@@ -59,12 +84,12 @@ export const useGetLiquidityPools = () => {
   const poolId = bestPoolQuery.data?.id;
 
   // ------------------------------
-  // Step 2: Query poolDayDatas for the best pool
+  // Step 2: Query poolDayDatas for the best pool.
   // ------------------------------
 
-  // Compute a UNIX timestamp for 30 days ago
-  const THIRTY_DAYS = 30 * 24 * 60 * 60;
-  const thirtyDaysAgoTimestamp = Math.floor(Date.now() / 1000) - THIRTY_DAYS;
+  // Compute a UNIX timestamp for the number of days ago.
+  const secondsAgo = days * 24 * 60 * 60;
+  const daysAgoTimestamp = Math.floor(Date.now() / 1000) - secondsAgo;
 
   // Query to fetch poolDayDatas for a given pool and date filter.
   const getPoolDayDatasQuery = useMemo(
@@ -83,46 +108,40 @@ export const useGetLiquidityPools = () => {
     []
   );
 
-  // Use a second query that only runs when a valid poolId is available.
+  // Query for poolDayDatas that only runs when a valid poolId is available.
   const poolDayDatasQuery = useQuery({
-    queryKey: ["poolDayDatas", poolId, thirtyDaysAgoTimestamp],
+    queryKey: ["poolDayDatas", poolId, daysAgoTimestamp],
     queryFn: async () => {
       if (!poolId) return null;
-      const response = await request(
+      const response = (await request(
         graphURL || "",
         getPoolDayDatasQuery,
-        { poolId, dateGt: thirtyDaysAgoTimestamp }
-      ) as { poolDayDatas: { date: number; feesUSD: string }[] };
+        { poolId, dateGt: daysAgoTimestamp }
+      )) as { poolDayDatas: { date: number; feesUSD: string }[] };
       return response.poolDayDatas;
     },
-    enabled: !!poolId, // Only run this query when poolId is available
+    enabled: !!poolId,
   });
 
   // ------------------------------
-  // Step 3: Aggregate feesUSD for the previous 30 days, excluding today
+  // Step 3: Aggregate feesUSD for the given period (excluding the most recent day).
   // ------------------------------
 
   let aggregatedFeesUSD = "0";
   if (poolDayDatasQuery.data && poolDayDatasQuery.data.length > 1) {
-    // The query results are sorted by date in ascending order.
-    // We assume the last item is the most recent (today), so we exclude it.
+    // Assume the query results are sorted by date in ascending order.
+    // Exclude the most recent day (last item) from the aggregation.
     const feesToAggregate = poolDayDatasQuery.data.slice(0, -1);
-
     const totalFees = feesToAggregate.reduce((acc, dayData) => {
-      // feesUSD is typically returned as a string. Convert it to a float before summing.
       return acc + parseFloat(dayData.feesUSD);
     }, 0);
-
     aggregatedFeesUSD = totalFees.toString();
   }
 
-  console.log("bestPoolQuery.data", bestPoolQuery.data)
-  console.log("aggregatedFeesUSD", aggregatedFeesUSD)
-
   return {
-    bestPool: bestPoolQuery.data,                // The best pool object (or null)
-    poolDayDatas: poolDayDatasQuery.data,          // Array of poolDayDatas for the pool
-    aggregatedFeesUSD,                             // Total feesUSD over the previous 30 days (excluding today)
+    bestPool: bestPoolQuery.data,         // The best pool object (or null)
+    poolDayDatas: poolDayDatasQuery.data,   // Array of poolDayDatas for the pool
+    aggregatedFeesUSD,                      // Total feesUSD over the previous period (excluding today)
     isLoading: bestPoolQuery.isLoading || poolDayDatasQuery.isLoading,
     error: bestPoolQuery.error || poolDayDatasQuery.error,
   };
