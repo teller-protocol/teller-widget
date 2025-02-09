@@ -16,6 +16,12 @@
       border-bottom: 1px solid $border-color;
       padding-left: $s-large;
       padding-bottom: $s-small;
+
+      .opp-pill-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
     }
   }
 

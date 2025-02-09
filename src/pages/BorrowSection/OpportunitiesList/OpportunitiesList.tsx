@@ -273,7 +273,17 @@ const OpportunitiesList: React.FC = () => {
       {data && (
         <div className="opportunities-list-body">
           <div className="paragraph opportunities-sub-title">
-            My opportunities
+            <div className="opp-pill-row">
+              My opportunities
+              {!isStableView && (
+                <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
+                  <DataPill
+                    label={"76% APY"}
+                    logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
+                  />
+                </span>
+              )}
+            </div>
           </div>
           <>
             {isLoading ? (

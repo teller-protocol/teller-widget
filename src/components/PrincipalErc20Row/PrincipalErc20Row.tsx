@@ -24,10 +24,11 @@ const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
         <div className="symbol-data-row">
           <span className="paragraph">{token?.symbol}</span>
           <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
-          <DataPill
-            label={"76% APY"}
-            logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
-          /></span>
+            <DataPill
+              label={"76% APY"}
+              logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
+            />
+          </span>
         </div>
         <span className="section-sub-title">
           Borrow: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}

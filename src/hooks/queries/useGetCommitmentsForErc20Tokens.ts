@@ -45,7 +45,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
       );
 
       const commitments = await Promise.all(
-        filteredPools.map(convertCommitment)
+        liquidityPools.map(convertCommitment)
       );
       return commitments;
     },

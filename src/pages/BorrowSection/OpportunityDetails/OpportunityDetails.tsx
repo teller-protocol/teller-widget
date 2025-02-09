@@ -5,6 +5,9 @@ import BackButton from "../../../components/BackButton";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import Tooltip from "../../../components/Tooltip";
+import DataPill from "../../../components/DataPill";
+import { normalizeChainName } from "../../../constants/chains";
+import { useChainData } from "../../../hooks/useChainData";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
@@ -179,6 +182,8 @@ const OpportunityDetails = () => {
     [selectedOpportunity, maxLoanAmountNumber]
   );
 
+  const { chainName } = useChainData();
+
   const lenderGroupTransactions = useBorrowFromPool({
     skip: !isLenderGroup,
     commitmentPoolAddress: selectedOpportunity?.lenderAddress ?? "0x",
@@ -215,9 +220,20 @@ const OpportunityDetails = () => {
 
   return (
     <div className="opportunity-details">
-      <BackButton
-        onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
-      />
+      <div className="back-pill-row">
+        <BackButton
+          onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
+        />
+        {!isStableView && (
+          <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
+            <DataPill
+              label={"76% APY"}
+              logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
+              linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(chainName)?.replace(/-one/g, '')}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
+            />
+          </span>
+        )}
+      </div>
       <TokenInput
         tokenValue={collateralTokenValue}
         label={
