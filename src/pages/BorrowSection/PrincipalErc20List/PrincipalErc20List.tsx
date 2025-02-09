@@ -1,10 +1,11 @@
-
 import React from "react";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 import { UserToken } from "../../../hooks/useGetUserTokens";
+import { useGetLiquidityPools } from "../../../hooks/queries/useGetUniswapV3Pools";
+import { useUniswapV3PoolUSDValue } from "../../../hooks/useUniswapV3PoolUSDValue";
 import PrincipalErc20TokenRow from "../../../components/PrincipalErc20Row";
 import "./principalErc20List.scss";
 
@@ -27,6 +28,9 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
       setSelectedPrincipalErc20Token(token);
   };
+
+  useGetLiquidityPools()
+  useUniswapV3PoolUSDValue()
 
   return (
     <div className="principal-erc20-list">

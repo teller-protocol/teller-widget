@@ -1,11 +1,11 @@
 import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import { graphqlRequestBaseQuery } from '@rtk-query/graphql-request-base-query'
-import { UniswapV3Pool } from 'constants/uniswapV3Pool.type'
-import { getSubgraphURL } from 'services/uniswapV3Api/uniswapV3Config'
+import { UniswapV3Pool } from '../../constants/uniswapV3Pool.type'
+import { getSubgraphURL } from './uniswapV3Config'
 import {
   getUniswapV3PoolsByToken,
   getUniswapV3PoolsByTokensPair,
-} from './uniswapV3ApiQueries'
+} from '../uniswapV3Api/uniswapV3ApiQueries'
 
 // Custom baseQuery that changes URL dynamically based on chainId
 const dynamicBaseQuery: BaseQueryFn<

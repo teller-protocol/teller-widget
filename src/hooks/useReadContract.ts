@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Address, erc20Abi } from "viem";
+import uniswapV3PoolAbi from "../contracts/UNISWAP_V3_POOL_ABI.json";
 import { useChainId, useReadContract as useWagmiReadContract } from "wagmi";
 
 import { useContracts } from "./useContracts";
@@ -24,6 +25,7 @@ export enum SupportedContractsEnum {
 export enum ContractType {
   Teller = "Teller",
   ERC20 = "ERC20",
+  UNIV3POOL = "UNIV3POOL",
   External = "External",
   LenderGroups = "LenderCommitmentGroupBeacon",
 }
@@ -44,6 +46,7 @@ export const useReadContract = <T = any>(
       [ContractType.External]:
         externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
+      [ContractType.UNIV3POOL]: uniswapV3PoolAbi,
       [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
     }),
     [chainId, contractName, contracts]
