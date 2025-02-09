@@ -185,6 +185,12 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               label="Duration"
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
+            {!isStableView && (
+              <OpportunityListDataItem
+                label="Estimated Borrow + Uniswap ROI:"
+                value={`${(Number(apr) / 100).toFixed(2)} %`}
+              />
+            )}
           </>
         )}
       </div>
