@@ -55,7 +55,8 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
         // Calculate APY from the uniswapDataMap based on token address.
         const uniswapData = uniswapDataMap[token.address];
         const apy = uniswapData?.apy ?? "0";
-
+        console.log("uniswapData", uniswapData)
+        console.log("apy", apy)
         return (
           <PrincipalErc20TokenRow
             key={token.address}
