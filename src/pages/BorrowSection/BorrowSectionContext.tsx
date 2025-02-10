@@ -108,8 +108,6 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
     erc20sWithCommitments,
     isLoading: erc20sWithCommitmentsLoading,
   } = useGetCommitmentsForErc20Tokens();
-  console.log("erc20sWithCommitments", erc20sWithCommitments)
-  console.log("erc20sWithCommitmentsLoading", erc20sWithCommitmentsLoading)
 
   const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>([]);
   const alchemy = useAlchemy();
@@ -117,8 +115,6 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
   // Fetch token metadata based on commitments.
   useEffect(() => {
     async function fetchTokenMetadata() {
-      console.log("erc20sWithCommitments?.length", erc20sWithCommitments?.length)
-      console.log("alchemy", alchemy)
       if (!erc20sWithCommitments?.length || !alchemy) return;
 
       const tokenCommitmentMap = erc20sWithCommitments

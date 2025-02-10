@@ -27,9 +27,6 @@ export const useGetCommitmentsForErc20Tokens = () => {
     liquidityPools: liquidityPools, 
     isLoading: liquidityPoolsLoading, 
   } = useGetLiquidityPools();
-
-  console.log("liquidityPools", liquidityPools)
-  console.log("liquidityPoolsLoading", liquidityPoolsLoading)
   
   const chainTokenAddresses = supportedPrincipalTokens
     .map((token: string) => TOKEN_ADDRESSES[chainId]?.[token])  
@@ -39,8 +36,6 @@ export const useGetCommitmentsForErc20Tokens = () => {
     queryKey: ["allLiquidityPools", chainId, chainTokenAddresses],
     queryFn: async () => {
       if (!Array.isArray(liquidityPools) || liquidityPools.length === 0) {
-        console.log("Array.isArray(liquidityPools)",Array.isArray(liquidityPools))
-        console.log("liquidityPools.length === 0",liquidityPools.length)
         console.warn("No liquidity pools available for filtering");
         return [];
       }
@@ -49,17 +44,14 @@ export const useGetCommitmentsForErc20Tokens = () => {
         !chainTokenAddresses.includes(pool.principal_token_address?.toLowerCase())
       );
 
-      console.log("filteredPools", filteredPools)
-
       const commitments = await Promise.all(
         filteredPools.map(convertCommitment)
       );
-      console.log("commitments", commitments)
       return commitments;
     },
   });
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { erc20sWithCommitments: data || [], isLoading: liquidityPoolsLoading };
+  return { erc20sWithCommitments: data || [], isLoading };
 };
