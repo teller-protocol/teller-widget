@@ -23,10 +23,9 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const onPrincipalErc20TokenSelected = (token: UserToken, apy: string) => {
+  const onPrincipalErc20TokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedPrincipalErc20Token(token);
-    setSelectedErc20Apy(apy);
   };
 
   return (
@@ -62,7 +61,7 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
             key={token.address}
             token={token}
             apy={apy} // Pass APY as a prop
-            onClick={() => onPrincipalErc20TokenSelected(token, apy)}
+            onClick={() => onPrincipalErc20TokenSelected(token)}
           />
         );
       })}

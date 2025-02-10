@@ -69,8 +69,6 @@ export type BorrowSectionContextType = {
   erc20sWithCommitmentsLoading: boolean;
   uniswapDataMap: Record<string, UniswapData>;
   setUniswapDataMap: (data: Record<string, UniswapData>) => void;
-  selectedErc20Apy: string;
-  setSelectedErc20Apy: (apy: string) => void;
 };
 
 interface BorrowSectionContextProps {
@@ -99,7 +97,6 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
     useState<UserToken>();
   const [selectedPrincipalErc20Token, setSelectedPrincipalErc20Token] =
     useState<UserToken>();
-  const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("0");
 
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
@@ -227,8 +224,6 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
         erc20sWithCommitmentsLoading,
         uniswapDataMap,
         setUniswapDataMap,
-        selectedErc20Apy,
-        setSelectedErc20Apy,
       }}
     >
       {children}
@@ -284,11 +279,6 @@ const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({ token, onData }
     }
   }, [
     isLiquidityLoading,
-    isPoolValueLoading,
-    bestPool,
-    aggregatedFeesUSD,
-    totalUSDValue,
-    onData,
   ]);
 
   return null;
