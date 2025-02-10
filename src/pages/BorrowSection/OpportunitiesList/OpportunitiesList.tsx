@@ -32,6 +32,7 @@ import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenLi
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
+  apy?: number; // Added APY prop
 }
 
 interface OpportunityListDataItemProps {
@@ -55,6 +56,7 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
 
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
+  apy, // Use the APY prop
 }) => {
   const {
     setCurrentStep,
@@ -260,7 +262,7 @@ const OpportunitiesList: React.FC = () => {
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
-  
+
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">
@@ -288,7 +290,7 @@ const OpportunitiesList: React.FC = () => {
               {!isStableView && (
                 <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
                   <DataPill
-                    label={"76% APY"}
+                    label={`${selectedErc20Apy}% APY`} {/* Updated label */}
                     logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
                   />
                 </span>
@@ -355,6 +357,7 @@ const OpportunitiesList: React.FC = () => {
                 <OpportunityListItem
                   opportunity={commitment}
                   key={commitment.id}
+                  apy={ /* Add logic here to get apy from commitment or other source */} 0  {/* Placeholder - Replace with actual APY value */}
                 />
               ))
             )}
