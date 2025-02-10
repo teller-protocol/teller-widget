@@ -51,7 +51,9 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const { 
     setSelectedCollateralToken, 
-    setSelectedPrincipalErc20Token 
+    setSelectedPrincipalErc20Token,
+    setSelectedErc20Apy,
+    uniswapDataMap
   } = useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
@@ -59,14 +61,24 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
   const onTokenDropdownRowClick = (token: UserToken) => {
-    isStableView ? setSelectedCollateralToken(token) : setSelectedPrincipalErc20Token(token);
+    if (isStableView) {
+      setSelectedCollateralToken(token);
+    } else {
+      setSelectedPrincipalErc20Token(token);
+      const uniswapData = uniswapDataMap[token.address];
+      const apy = uniswapData?.apy ?? "...";
+      setSelectedErc20Apy(apy);
+    }
     setIsOpen(false);
   };
+
 
   const ref = useOutsideClick(() => {
     setIsOpen(false);
     setSearchQuery("");
   });
+
+  
 
   const sortedTokens = [
     ...tokens

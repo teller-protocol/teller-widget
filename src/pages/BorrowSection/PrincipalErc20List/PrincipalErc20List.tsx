@@ -1,4 +1,3 @@
-// PrincipalErc20List.tsx
 import React from "react";
 import {
   BorrowSectionSteps,
@@ -9,6 +8,7 @@ import PrincipalErc20TokenRow from "../../../components/PrincipalErc20Row";
 import "./principalErc20List.scss";
 
 import TokenLogo from "../../../components/TokenLogo";
+import Loader from "../../../components/Loader";
 import "../../../components/PrincipalErc20Row/principalErc20Row.scss";
 
 const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = "" }) => {
@@ -18,9 +18,10 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
     setCurrentStep,
     setSelectedPrincipalErc20Token,
     setSelectedErc20Apy,
+    erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
 
-  const filteredTokens = principalErc20Tokens.filter(token =>
+  const filteredTokens = principalErc20Tokens.filter((token) =>
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -53,20 +54,24 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
           </span>
         </div>
       </div>
-      {filteredTokens.map((token) => {
-        // Retrieve APY from the uniswapDataMap based on token address
-        const uniswapData = uniswapDataMap[token.address];
-        const apy = uniswapData?.apy ?? "...";
+      {erc20Loading ? (
+        <Loader />
+      ) : (
+        filteredTokens.map((token) => {
+          // Retrieve APY from the uniswapDataMap based on token address
+          const uniswapData = uniswapDataMap[token.address];
+          const apy = uniswapData?.apy ?? "...";
 
-        return (
-          <PrincipalErc20TokenRow
-            key={token.address}
-            token={token}
-            apy={apy} // Pass APY as a prop
-            onClick={() => onPrincipalErc20TokenSelected(token, apy)}
-          />
-        );
-      })}
+          return (
+            <PrincipalErc20TokenRow
+              key={token.address}
+              token={token}
+              apy={apy} // Pass APY as a prop
+              onClick={() => onPrincipalErc20TokenSelected(token, apy)}
+            />
+          );
+        })
+      )}
     </div>
   );
 };
