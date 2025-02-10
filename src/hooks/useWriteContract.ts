@@ -61,6 +61,9 @@ export const useWriteContract = ({
     args,
     query: {
       enabled: !skip,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   });
 

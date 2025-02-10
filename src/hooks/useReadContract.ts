@@ -62,6 +62,9 @@ export const useReadContract = <T = any>(
       chainId: chainId,
       query: {
         enabled: !skipRun,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
       },
     });
 
