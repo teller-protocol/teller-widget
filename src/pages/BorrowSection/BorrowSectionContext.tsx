@@ -216,15 +216,14 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
     >
       {children}
       {/* For each principal token, render a helper component to fetch its Uniswap data */}
-      {principalErc20Tokens.map((token) => (
-        <UniswapDataFetcher
-          key={token.address}
-          token={token}
-          onData={(data) =>
-            setUniswapDataMap((prev) => ({ ...prev, [token.address]: data }))
-          }
-        />
-      ))}
+      {/* Use the custom hook instead of UniswapDataFetcher */}
+      {(() => {
+        const uniswapData = useUniswapDataForTokens(principalErc20Tokens);
+        useEffect(() => {
+          setUniswapDataMap(uniswapData);
+        }, [uniswapData]);
+        return null;
+      })()}
     </BorrowSectionContext.Provider>
   );
 };
