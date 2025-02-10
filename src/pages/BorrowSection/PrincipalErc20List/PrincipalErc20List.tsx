@@ -5,7 +5,7 @@ import {
 } from "../BorrowSectionContext";
 import { formatUnits } from "viem";
 import { UserToken } from "../../../hooks/useGetUserTokens";
-import { useGetLiquidityPools } from "../../../hooks/queries/useGetUniswapV3Pools";
+import { useGetUniswapV3LiquidityPools } from "../../../hooks/queries/useGetUniswapV3Pools";
 import { useUniswapV3PoolUSDValue } from "../../../hooks/useUniswapV3PoolUSDValue";
 import PrincipalErc20TokenRow from "../../../components/PrincipalErc20Row";
 import "./principalErc20List.scss";
@@ -30,9 +30,10 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
       setSelectedPrincipalErc20Token(token);
   };
 
+  /*
   const tokenAddress = "0x594daad7d77592a2b97b725a7ad59d7e188b5bfa";
   // Optionally, specify the number of days to aggregate fees (defaults to 30 if omitted).
-  const { bestPool, poolDayDatas, aggregatedFeesUSD, isLoading: liquidityPoolIsLoading } = useGetLiquidityPools({
+  const { bestPool, poolDayDatas, aggregatedFeesUSD, isLoading: liquidityPoolIsLoading } = useGetUniswapV3LiquidityPools({
     tokenAddress,
     days: 30,
   });
@@ -59,7 +60,7 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
       : "0";
 
   console.log("Uniswap APY:", uniswapAPY + "%");
-
+  */
   
 
   return (

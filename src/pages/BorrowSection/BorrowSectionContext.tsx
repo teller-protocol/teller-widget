@@ -107,7 +107,7 @@ export const BorrowSectionContextProvider: React.FC<
               symbol: metadata.symbol || '',
               logo: metadata.logo || '',
               balance: aggregatedBalance || '0',
-              balanceBigInt: aggregatedBalance,
+              balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
               decimals: metadata.decimals || 18,
             };
           } catch (error) {

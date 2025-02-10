@@ -9,8 +9,6 @@ import { getUniswapV3GraphEndpointWithKey } from "../constants/graphEndpoints";
 export interface UseUniswapV3PoolUSDValueParams {
   /** The Uniswap V3 pool address */
   poolAddress: string;
-  /** The current ETH price in USD */
-  ethPrice: number;
 }
 
 /**
@@ -28,7 +26,6 @@ export interface UseUniswapV3PoolUSDValueParams {
  */
 export const useUniswapV3PoolUSDValue = ({
   poolAddress,
-  ethPrice,
 }: UseUniswapV3PoolUSDValueParams) => {
   // 1. Get token addresses from the pool contract.
   const {
@@ -130,14 +127,48 @@ export const useUniswapV3PoolUSDValue = ({
     enabled: !!token1AddressLower,
   });
 
+  // 4. Fetch the current ETH price in USD from the subgraph.
+  // The Uniswap subgraph exposes the ETH price via the "bundle" entity.
+  const GET_ETH_PRICE_USD = gql`
+    query GetEthPriceUSD {
+      bundle(id: "1") {
+        ethPriceUSD
+      }
+    }
+  `;
+
+  const fetchEthPriceUSD = async (): Promise<number | null> => {
+    try {
+      const data = await request(UNISWAP_V3_SUBGRAPH_URL!, GET_ETH_PRICE_USD);
+      if (!data || !data.bundle) {
+        console.warn("ETH price not found in subgraph");
+        return null;
+      }
+      return parseFloat(data.bundle.ethPriceUSD);
+    } catch (error) {
+      console.error("Error fetching ETH price", error);
+      return null;
+    }
+  };
+
+  const {
+    data: fetchedEthPrice,
+    isLoading: ethPriceLoading,
+    error: ethPriceError,
+  } = useQuery({
+    queryKey: ["eth-price-usd"],
+    queryFn: fetchEthPriceUSD,
+    enabled: !!UNISWAP_V3_SUBGRAPH_URL,
+  });
+
   // 4. Calculate each token's USD price (derivedETH * ETH price).
   const token0USDPrice =
-    token0DerivedETH && ethPrice
-      ? parseFloat(token0DerivedETH) * ethPrice
+    token0DerivedETH && fetchedEthPrice
+      ? parseFloat(token0DerivedETH) * fetchedEthPrice
       : undefined;
   const token1USDPrice =
-    token1DerivedETH && ethPrice
-      ? parseFloat(token1DerivedETH) * ethPrice
+    token1DerivedETH && fetchedEthPrice
+      ? parseFloat(token1DerivedETH) * fetchedEthPrice
       : undefined;
 
   // 5. Compute the total USD value of the pool's tokens.
@@ -159,14 +190,16 @@ export const useUniswapV3PoolUSDValue = ({
     token0BalLoading ||
     token1BalLoading ||
     token0DerivedLoading ||
-    token1DerivedLoading;
+    token1DerivedLoading || 
+    ethPriceLoading;
   const error =
     token0AddrError ||
     token1AddrError ||
     token0BalError ||
     token1BalError ||
     token0DerivedError ||
-    token1DerivedError;
+    token1DerivedError ||
+    ethPriceError;
 
   return { totalUSDValue, isLoading, error };
 };

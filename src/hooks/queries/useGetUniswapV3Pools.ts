@@ -6,7 +6,7 @@ import { useChainId } from "wagmi";
 import { UniswapV3Pool } from "../../constants/uniswapV3Pool.type";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
-export interface UseGetLiquidityPoolsParams {
+export interface UseGetUniswapV3LiquidityPoolsParams {
   /** The token address to search pools for */
   tokenAddress: string;
   /** The number of days to aggregate fees for (default: 30) */
@@ -29,10 +29,10 @@ export interface UseGetLiquidityPoolsParams {
  * @param params.tokenAddress The token address to fetch liquidity pools for.
  * @param params.days (Optional) The number of days to aggregate fees (default is 30).
  */
-export const useGetLiquidityPools = ({
+export const useGetUniswapV3LiquidityPools = ({
   tokenAddress,
   days = 30,
-}: UseGetLiquidityPoolsParams) => {
+}: UseGetUniswapV3LiquidityPoolsParams) => {
   const chainId = useChainId();
   const { subgraphApiKey } = useGetGlobalPropsContext();
   const graphURL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId);
