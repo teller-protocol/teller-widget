@@ -7,27 +7,18 @@ import { UniswapData } from '../pages/BorrowSection/BorrowSectionContext';
 
 export const useUniswapDataForTokens = (tokens: UserToken[]) => {
   const [uniswapDataMap, setUniswapDataMap] = useState<Record<string, UniswapData>>({});
-  
-  // Create separate hooks for each token
-  const poolsData = tokens.map(token => 
-    useGetUniswapV3LiquidityPools({
-      tokenAddress: token.address,
-      days: 30,
-    })
-  );
-
-  const poolValues = poolsData.map(data => 
-    useUniswapV3PoolUSDValue({
-      poolAddress: data.bestPool?.id || "",
-    })
-  );
 
   useEffect(() => {
-    const newUniswapDataMap: Record<string, UniswapData> = {};
+    tokens.forEach((token) => {
+      const { bestPool, aggregatedFeesUSD, isLoading: isLiquidityLoading } = 
+        useGetUniswapV3LiquidityPools({
+          tokenAddress: token.address,
+          days: 30,
+        });
 
-    tokens.forEach((token, index) => {
-      const { bestPool, aggregatedFeesUSD, isLoading: isLiquidityLoading } = poolsData[index];
-      const { totalUSDValue, isLoading: isPoolValueLoading } = poolValues[index];
+      const { totalUSDValue, isLoading: isPoolValueLoading } = useUniswapV3PoolUSDValue({
+        poolAddress: bestPool?.id || "",
+      });
 
       if (!isLiquidityLoading && !isPoolValueLoading && bestPool && aggregatedFeesUSD != null) {
         const fees = parseFloat(aggregatedFeesUSD);
@@ -35,17 +26,13 @@ export const useUniswapDataForTokens = (tokens: UserToken[]) => {
           ? (((fees / totalUSDValue) * (365 / 30)) * 100).toFixed(0)
           : "0";
 
-        newUniswapDataMap[token.address] = { 
-          bestPool, 
-          aggregatedFeesUSD, 
-          totalUSDValue, 
-          apy 
-        };
+        setUniswapDataMap(prev => ({
+          ...prev,
+          [token.address]: { bestPool, aggregatedFeesUSD, totalUSDValue, apy }
+        }));
       }
     });
-
-    setUniswapDataMap(newUniswapDataMap);
-  }, [tokens, poolsData, poolValues]);
+  }, [tokens]);
 
   return uniswapDataMap;
 };
