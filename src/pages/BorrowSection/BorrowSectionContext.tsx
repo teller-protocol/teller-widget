@@ -255,11 +255,17 @@ const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({ token, onData }
   } = useGetUniswapV3LiquidityPools({
     tokenAddress: token.address,
     days: 30,
+  }, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
   });
 
   const { totalUSDValue, isLoading: isPoolValueLoading } =
     useUniswapV3PoolUSDValue({
       poolAddress: bestPool?.id || "",
+    }, {
+      cacheTime: Infinity,
+      staleTime: Infinity,
     });
 
   useEffect(() => {
@@ -279,6 +285,11 @@ const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({ token, onData }
     }
   }, [
     isLiquidityLoading,
+    isPoolValueLoading,
+    bestPool,
+    aggregatedFeesUSD,
+    totalUSDValue,
+    onData
   ]);
 
   return null;
