@@ -79,12 +79,7 @@ export const useWriteContract = ({
     hash: data,
   });
 
-  const isError = simulatedError || writeError;
   const error = simulatedError || writeError;
-
-  if (isError) {
-    console.log("error: ", error);
-  }
 
   return useMemo(
     () => ({
@@ -93,11 +88,12 @@ export const useWriteContract = ({
       error,
       isConfirmed,
       successData,
-      isError,
       simulatedData,
       isSimulationLoading,
       isPending,
       isConfirming,
+      simulatedError,
+      writeError,
     }),
     [
       writeContract,
@@ -105,11 +101,12 @@ export const useWriteContract = ({
       error,
       isConfirmed,
       successData,
-      isError,
       simulatedData,
       isSimulationLoading,
       isPending,
       isConfirming,
+      simulatedError,
+      writeError,
     ]
   );
 };
