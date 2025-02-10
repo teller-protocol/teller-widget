@@ -15,7 +15,7 @@
     "classnames": "^2.5.1",
     "dayjs": "^1.11.9",
     "graphql": "^16.8.1",
-    "graphql-request": "^7.1.2",
+    "graphql-request": "^6.1.0",
     "punycode": "^2.3.1",
     "react-dom": "^18.2.0",
     "react-tooltip": "4.4.3",
