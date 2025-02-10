@@ -17,15 +17,17 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
     uniswapDataMap, // Get uniswapDataMap here
     setCurrentStep,
     setSelectedPrincipalErc20Token,
+    setSelectedErc20Apy,
   } = useGetBorrowSectionContext();
 
   const filteredTokens = principalErc20Tokens.filter(token =>
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const onPrincipalErc20TokenSelected = (token: UserToken) => {
+  const onPrincipalErc20TokenSelected = (token: UserToken, apy: string) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedPrincipalErc20Token(token);
+    setSelectedErc20Apy(apy);
   };
 
   return (
@@ -61,7 +63,7 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
             key={token.address}
             token={token}
             apy={apy} // Pass APY as a prop
-            onClick={() => onPrincipalErc20TokenSelected(token)}
+            onClick={() => onPrincipalErc20TokenSelected(token, apy)}
           />
         );
       })}

@@ -27,6 +27,7 @@ import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../..
 import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 
@@ -64,6 +65,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setMaxCollateral,
     tokensWithCommitments,
     tokenTypeListView,
+    selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
 
@@ -156,6 +158,14 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const apr = isLiquidityPool ? liquidityPoolApr : opportunity.minAPY;
 
+  const { protocolFeePercent } = useGetProtocolFee();
+  const { referralFee } = useGetGlobalPropsContext();
+
+  const totalFeePercent =
+    protocolFeePercent +
+    +(opportunity?.marketplace?.marketplaceFeePercent ?? 0) +
+    (referralFee ?? 0);
+
   return (
     <div className="opportunity-list-item" onClick={handleOnOpportunityClick}>
       <div className="paragraph opportunity-list-item-header">
@@ -188,11 +198,18 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           value={`${Number(opportunity.maxDuration) / 86400} days`}
         />
         {!isStableView && (
-          <OpportunityListDataItem
-            label="Est. loan to uni ROI:"
-            value={`+ ${(Number(apr) / 100).toFixed(2)} %`}
-            valueTextColor={"#3D8974"}
-          />
+        <OpportunityListDataItem
+          label="Est. loan to uni ROI:"
+          value={
+            parseFloat(selectedErc20Apy) - 
+            (apr / 100 + (totalFeePercent / 100) * (365 / (Number(opportunity.maxDuration) / 86400)))
+            < 0 
+              ? "-" 
+              : `+ ${(parseFloat(selectedErc20Apy) - ((apr / 100) + ((totalFeePercent / 100) * (365 / (Number(opportunity.maxDuration) / 86400))))).toFixed(2)} %`
+          }
+          valueTextColor={"#3D8974"}
+        />
+
         )}
       </>
 
@@ -211,6 +228,7 @@ const OpportunitiesList: React.FC = () => {
     selectedPrincipalErc20Token,
     tokensWithCommitments,
     principalErc20Tokens,
+    selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
@@ -288,7 +306,7 @@ const OpportunitiesList: React.FC = () => {
               {!isStableView && (
                 <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
                   <DataPill
-                    label={"76% APY"}
+                    label={`${selectedErc20Apy}% APY`}
                     logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
                   />
                 </span>

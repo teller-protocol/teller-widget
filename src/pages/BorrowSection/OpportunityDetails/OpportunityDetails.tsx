@@ -45,6 +45,7 @@ const OpportunityDetails = () => {
     maxCollateral: maxCollateralFromContext,
     tokensWithCommitments,
     tokenTypeListView,
+    selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
   
@@ -168,6 +169,7 @@ const OpportunityDetails = () => {
     (referralFee ?? 0);
 
   const totalFees = (maxLoanAmountNumber * totalFeePercent) / 10000;
+  const loanMinusFees = (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
 
   const payPerLoan = useMemo(
     () =>
@@ -227,7 +229,7 @@ const OpportunityDetails = () => {
         {!isStableView && (
           <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
             <DataPill
-              label={"76% APY"}
+              label={`${selectedErc20Apy}% APY`}
               logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
               linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(chainName)?.replace(/-one/g, '')}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
             />
@@ -350,7 +352,7 @@ const OpportunityDetails = () => {
         {selectedOpportunity.principalToken?.symbol}
       </div>
       <div className="section-title fee-details" style={{ margin: "0", color: "#3D8974" || 'inherit', }}>
-        Est. earned on uni: +{payPerLoan}{" "}
+        Est. earned on uni: +{numberWithCommasAndDecimals(loanMinusFees * (parseFloat(selectedErc20Apy)/100) * (convertSecondsToDays(Number(selectedOpportunity?.maxDuration) / 365)))}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
 
