@@ -7,15 +7,17 @@ import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import DataPill from "../../components/DataPill";
 import "./principalErc20Row.scss";
 
-interface PrincipalErc20TokenRowProps {
+interface PrincipalErc20TokenSelectProps {
   token: UserToken;
-  /** APY string to display (e.g., "5" for 5% APY) */
-  apy: string;
+  apy: string; // Accept APY as a prop
   onClick?: (token: UserToken) => void;
 }
 
-const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenRowProps> = ({ token, apy, onClick }) => {
-  // Use the token logo or a default image.
+const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
+  token,
+  apy,
+  onClick,
+}) => {
   const logoUrl = token.logo || defaultTokenImage;
 
   return (

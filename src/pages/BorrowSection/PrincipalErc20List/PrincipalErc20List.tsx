@@ -14,7 +14,7 @@ import "../../../components/PrincipalErc20Row/principalErc20Row.scss";
 const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = "" }) => {
   const {
     principalErc20Tokens,
-    uniswapDataMap, // now get uniswapDataMap here
+    uniswapDataMap, // Get uniswapDataMap here
     setCurrentStep,
     setSelectedPrincipalErc20Token,
   } = useGetBorrowSectionContext();
@@ -52,16 +52,15 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
         </div>
       </div>
       {filteredTokens.map((token) => {
-        // Calculate APY from the uniswapDataMap based on token address.
+        // Retrieve APY from the uniswapDataMap based on token address
         const uniswapData = uniswapDataMap[token.address];
         const apy = uniswapData?.apy ?? "0";
-        console.log("uniswapData", uniswapData)
-        console.log("apy", apy)
+
         return (
           <PrincipalErc20TokenRow
             key={token.address}
             token={token}
-            apy={apy}
+            apy={apy} // Pass APY as a prop
             onClick={() => onPrincipalErc20TokenSelected(token)}
           />
         );
