@@ -351,10 +351,11 @@ const OpportunityDetails = () => {
         {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
+      {!isStableView && (
       <div className="section-title fee-details" style={{ margin: "0", color: "#3D8974" || 'inherit', }}>
         Est. earned on uni: +{numberWithCommasAndDecimals(loanMinusFees * (parseFloat(selectedErc20Apy)/100) * (convertSecondsToDays(Number(selectedOpportunity?.maxDuration) / 365)))}{" "}
         {selectedOpportunity.principalToken?.symbol}
-      </div>
+      </div>)}
 
       {isNewBorrower ? (
         <Button

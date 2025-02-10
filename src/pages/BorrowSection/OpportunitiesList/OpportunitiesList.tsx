@@ -174,7 +174,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayCollateralAmountData.formattedAmount}
           logo={displayCollateralAmountData.token}
         />{" "}
-        to borrow{" "}
+        borrow{" "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token}

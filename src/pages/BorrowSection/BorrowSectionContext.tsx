@@ -100,7 +100,7 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
   const [selectedPrincipalErc20Token, setSelectedPrincipalErc20Token] =
     useState<UserToken>();
   useState<UserToken>();
-  const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("0");
+  const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("-");
 
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
