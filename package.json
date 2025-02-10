@@ -10,8 +10,6 @@
   "repository": "git@github.com:teller-protocol/teller-widget.git",
   "dependencies": {
     "@iconify/react": "^4.1.1",
-    "@reduxjs/toolkit": "^2.5.1",
-    "@rtk-query/graphql-request-base-query": "^2.3.1",
     "@tanstack/react-query": "^5.25.0",
     "alchemy-sdk": "^3.3.1",
     "classnames": "^2.5.1",
@@ -20,7 +18,6 @@
     "graphql-request": "^7.1.2",
     "punycode": "^2.3.1",
     "react-dom": "^18.2.0",
-    "react-redux": "^9.2.0",
     "react-tooltip": "4.4.3",
     "typescript": "^5.4.3",
     "viem": "2.x",
