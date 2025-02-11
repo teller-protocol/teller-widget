@@ -53,5 +53,5 @@ export const useGetCommitmentsForErc20Tokens = () => {
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { erc20sWithCommitments: data || [], isLoading };
+  return { erc20sWithCommitments: data || [], isLoading: liquidityPoolsLoading };
 };

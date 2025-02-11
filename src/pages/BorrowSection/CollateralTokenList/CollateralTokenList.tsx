@@ -11,6 +11,7 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import "./collateralTokenList.scss";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
@@ -48,6 +49,8 @@ const CollateralTokenList: React.FC = () => {
     tokensWithCommitments,
     erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
+
+  const { showPrincipalTokenBorrowList } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
   const { tokenTypeListView, setTokenTypeListView } = useGetBorrowSectionContext();
@@ -89,12 +92,15 @@ const CollateralTokenList: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="token-search-input"
           />
-          <SelectButtons
-            items={selectOptions}
-            value={tokenTypeListView}
-            onChange={setTokenTypeListView}
-          /></div>
-          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 ? (
+          {showPrincipalTokenBorrowList &&(
+            <SelectButtons
+              items={selectOptions}
+              value={tokenTypeListView}
+              onChange={setTokenTypeListView}
+            />
+          )}
+          </div>
+          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 && showPrincipalTokenBorrowList ? (
               erc20Loading ? (
                 <Loader />
               ) : (
