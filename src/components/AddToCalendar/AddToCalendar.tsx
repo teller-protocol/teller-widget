@@ -6,15 +6,11 @@ import yahoo from "../../assets/yahoo.svg";
 import "./addToCalendar.scss";
 
 import { useCallback, useMemo } from "react";
-import Button from "../Button";
 import {
   SupportedContractsEnum,
   useReadContract,
 } from "../../hooks/useReadContract";
-import {
-  BorrowSectionSteps,
-  useGetBorrowSectionContext,
-} from "../../pages/BorrowSection/BorrowSectionContext";
+import Button from "../Button";
 
 interface AddToCalendarProps {
   bidId: string;
