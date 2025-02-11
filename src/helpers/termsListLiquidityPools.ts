@@ -1,4 +1,4 @@
-import { SupportedChainId } from "constants/chains";
+import { SupportedChainId } from "../constants/chains";
 import * as dayjs from "dayjs";
 import duration, { DurationUnitType } from "dayjs/plugin/duration";
 import { arbitrum, base } from "viem/chains";

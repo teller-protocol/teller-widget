@@ -25,6 +25,7 @@ import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidity
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
+import { AddressStringType } from "../../../types/addressStringType";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -83,7 +84,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   });
 
   const lenderGroupCommitmentMax = useLiquidityPoolsCommitmentMax({
-    lenderGroupCommitment: opportunity,
+    lenderGroupCommitment: opportunity as any,
     collateralAmount: collateralAmount,
     skip: !isLiquidityPool,
     tokenIsWhitelistedAndBalanceIs0,
@@ -153,7 +154,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         to borrow{" "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
-          logo={displayLoanAmountData.token}
+          logo={displayLoanAmountData.token ?? ""}
         />
         <img src={caret} />
       </div>
@@ -192,7 +193,7 @@ const OpportunitiesList: React.FC = () => {
 
   const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
     useGetCommitmentsForCollateralTokensFromLiquidityPools(
-      selectedCollateralToken?.address
+      selectedCollateralToken?.address as AddressStringType
     );
 
   const data = useMemo(() => {

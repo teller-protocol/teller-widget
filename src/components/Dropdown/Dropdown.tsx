@@ -19,7 +19,7 @@ interface DropdownProps {
 }
 
 interface DropdownButtonProps {
-  option?: DropdownOption;
+  option: DropdownOption;
   onClick?: (token: DropdownOption) => void;
 }
 
@@ -54,7 +54,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           className={cx("token-dropdown--row-container", isOpen && "opened")}
           onClick={() => !readonly && setIsOpen(!isOpen)}
         >
-          <DropdownRow option={selectedOption} />
+          <DropdownRow option={selectedOption ?? { label: "", value: "" }} />
           {!readonly && (
             <div className={cx("caret", isOpen && "opened")}>
               <Icon icon="clarity:caret-line" />

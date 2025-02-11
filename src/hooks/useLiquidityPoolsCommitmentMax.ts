@@ -40,7 +40,7 @@ export const useLiquidityPoolsCommitmentMax = ({
   const { data: requiredCollateralFor1PrincipalAmount } = useReadContract(
     poolId as AddressStringType,
     "calculateCollateralRequiredToBorrowPrincipal",
-    [parseUnits("1", principalTokenData?.decimals)],
+    [parseUnits("1", principalTokenData?.decimals ?? 18)],
     skip,
     ContractType.LenderGroups
   );
@@ -110,7 +110,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     address,
   });
   const maxCollateral = tokenIsWhitelistedAndBalanceIs0
-    ? parseUnits("1", collateralTokenData?.decimals)
+    ? parseUnits("1", collateralTokenData?.decimals ?? 18)
     : bigIntMin(
         collateralWalletBalance?.value ?? BigInt(0),
         maxAvailableCollateral ?? BigInt(0)

@@ -102,8 +102,8 @@ export const useBorrowFromPool = ({
     ],
     buttonLabel: `Deposit & Borrow`,
     loadingButtonLabel: `Borrowing...`,
-    onSuccess: (receipt) => {
-      onSuccess?.(receipt);
+    onSuccess: (receipt, params) => {
+      onSuccess?.(receipt, params);
     },
   });
 
