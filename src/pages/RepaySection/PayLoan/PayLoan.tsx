@@ -20,13 +20,8 @@ import "./payLoan.scss";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 
 const PayLoan: React.FC = () => {
-  const {
-    setCurrentStep,
-    loan,
-    collateralImageURL,
-    setPaidTokenInput,
-    setSuccesfulTxHash,
-  } = useGetRepaySectionContext();
+  const { setCurrentStep, loan, setPaidTokenInput, setSuccesfulTxHash } =
+    useGetRepaySectionContext();
 
   const [tokenValue, setTokenValue] = useState<TokenInputType>({
     token: loan.lendingToken,
@@ -53,6 +48,12 @@ const PayLoan: React.FC = () => {
   const principalTokenLogo = principalTokenMetadata?.logo;
 
   const collateral = loan.collateral[0];
+
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    collateral.collateralAddress
+  );
+
+  const collateralImageURL = collateralTokenMetadata?.logo;
 
   const onTokenInputChange = (value: TokenInputType) => {
     setTokenValue(value);
