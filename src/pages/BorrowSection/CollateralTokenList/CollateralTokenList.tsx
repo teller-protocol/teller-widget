@@ -97,6 +97,7 @@ const CollateralTokenList: React.FC = () => {
               items={selectOptions}
               value={tokenTypeListView}
               onChange={setTokenTypeListView}
+              displayIndex={tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 ? 1 : 0}
             />
           )}
           </div>
