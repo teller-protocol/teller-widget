@@ -16,6 +16,8 @@ export type GlobalPropsContextType = {
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
   singleWhitelistedToken?: string;
+  showPoolSection?: boolean;
+  showRepaySection?: boolean;
 };
 
 interface GlobalPropsContextProps {
@@ -29,6 +31,8 @@ interface GlobalPropsContextProps {
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
   singleWhitelistedToken?: string;
+  showPoolSection?: boolean;
+  showRepaySection?: boolean;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -44,6 +48,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   buttonTextColorPrimary = undefined,
   subgraphApiKey,
   singleWhitelistedToken,
+  showPoolSection = false,
+  showRepaySection = true,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -90,6 +96,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         buttonTextColorPrimary,
         subgraphApiKey,
         singleWhitelistedToken,
+        showPoolSection,
+        showRepaySection,
       }}
     >
       {children}
