@@ -248,6 +248,7 @@ export const useGetRolloverableCommitments = (
       };
       void fetchConvertedCommitments();
     } else {
+      setRawCommitments(commitments);
       setIsRawCommitmentsLoading(false);
     }
 
