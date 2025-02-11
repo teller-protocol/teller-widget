@@ -37,6 +37,8 @@ interface BaseWidgetProps {
   showChainSwitch?: boolean;
   singleWhitelistedToken?: string;
   showPrincipalTokenBorrowList?: boolean;
+  showPoolSection?: boolean;
+  showRepaySection?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -73,6 +75,8 @@ const Widget: React.FC<WidgetProps> = ({
   showChainSwitch = true,
   singleWhitelistedToken,
   showPrincipalTokenBorrowList,
+  showPoolSection = false,
+  showRepaySection = true,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -120,7 +124,11 @@ const Widget: React.FC<WidgetProps> = ({
                   welcomeScreenParagraph={welcomeScreenParagraph}
                 />
               ) : (
-                <ModalContent showModalByDefault={showModalByDefault} />
+                <ModalContent 
+                  showModalByDefault={showModalByDefault} 
+                  showPoolSection={showPoolSection} 
+                  showRepaySection={showRepaySection} 
+                />
               )}
             </Modal>
              {!isEmbedded && (

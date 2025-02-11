@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAlchemy } from "./useAlchemy";
 import { TokenMetadataResponse } from "alchemy-sdk";
 import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
+import generic_token from "../assets/generic_token-icon.svg";
 
 export const useGetTokenMetadata = (
   tokenAddress: string,
@@ -19,7 +20,9 @@ export const useGetTokenMetadata = (
     void (async () => {
       await alchemy.core.getTokenMetadata(tokenAddress).then((metadata) => {
         const logo =
-          metadata?.logo ?? getTokenImageFromTokenList(tokenAddress) ?? "";
+          metadata?.logo ??
+          getTokenImageFromTokenList(tokenAddress) ??
+          generic_token;
         setTokenMetadata({ ...metadata, logo });
         onSuccess && metadata && onSuccess?.(metadata.logo);
         setIsLoading(false);

@@ -31,7 +31,7 @@ const RenderComponent: React.FC = () => {
         />
       ),
     }),
-    []
+    [bidId, setCurrentStep]
   );
 
   useEffect(() => {

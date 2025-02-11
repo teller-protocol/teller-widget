@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import coinClatter from "../../../assets/coin-vector-shiny.svg";
+import uniswapLogo from "../../../assets/uniswap-logo-black.svg";
 import dollarSignSvg from "../../../assets/dollar-sign-money.svg";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
@@ -33,7 +33,7 @@ const selectOptions = [
     value: BORROW_TOKEN_TYPE_ENUM.ERC20,
     content: (
       <img
-        src={coinClatter}
+        src={uniswapLogo}
         style={{ width: "17px", height: "21px", verticalAlign: "middle" }}
       />
     ),

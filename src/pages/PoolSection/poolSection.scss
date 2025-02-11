@@ -1,8 +1,11 @@
 @import "../../tokens.scss";
 
-.repay-section {
+.pool-section {
   margin-top: $s-normal;
+  padding: 1rem;
+  background-color: white;
   border-radius: $border-radius;
-  overflow: auto;
   height: 100%;
+  overflow: auto;
+  position: relative;
 }
