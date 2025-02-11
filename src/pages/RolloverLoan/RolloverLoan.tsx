@@ -9,8 +9,8 @@ import DataField from "../../components/DataField";
 import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";
 import LoanLink from "../../components/LoanLink";
-import { useGetRolloverableCommitments } from "../../hooks/queries/useGetRolloverableCommitments";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import { useGetRolloverableCommitments } from "../../hooks/queries/useGetRolloverableCommitments";
 import { useChainTerms } from "../../hooks/useChainTerms";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "../../hooks/useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import {
@@ -24,6 +24,7 @@ import {
 } from "../RepaySection/RepaySectionContext";
 import "./rolloverLoan.scss";
 
+import { DropdownOption } from "../../components/Dropdown/Dropdown";
 import TokenInput, {
   TokenInputType,
 } from "../../components/TokenInput/TokenInput";
@@ -36,15 +37,19 @@ import {
   formatTimestampToShortDate,
 } from "../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
+import { useChainTermsLiquidityPools } from "../../hooks/useChainTermsLiquidityPools";
 import useDebounce from "../../hooks/useDebounce";
 import { useGetCommitmentMax } from "../../hooks/useGetCommitmentMax";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import useRolloverLoan from "../../hooks/useRolloverLoan";
+import { useGetMaxPrincipalPerCollateralLenderGroup } from "../../hooks/useGetMaxPrincipalPerCollateralLenderGroup";
+import { AddressStringType } from "../../types/addressStringType";
+import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 
 type RolloverData = {
   dueDate: string;
   loanAmount: ReactNode;
-  apr: string;
+  apr: ReactNode;
   collateral?: ReactNode;
   payNow?: ReactNode;
 };
@@ -113,37 +118,75 @@ const RolloverLoan: React.FC = () => {
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
 
-  const loanCollateral = loan.collateral[0];
-
-  const principalTokenIcon = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
-
-  const chainTerms = useChainTerms();
-
-  const { filteredCommitments, isLoading: rolloverableCommitmentsLoading } =
-    useGetRolloverableCommitments(
-      collateralTokenAddress,
-      loan.lendingToken.address
-    );
-
-  const marketIds = Object.keys(filteredCommitments);
-
-  const dropdownOptions = useMemo(
-    () =>
-      (chainTerms?.dropdownOptions ?? []).filter((option) => {
-        return marketIds.includes(option.value);
-      }),
-    [chainTerms?.dropdownOptions, marketIds]
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    collateralTokenAddress
   );
 
-  const [duration, setDuration] = useState(dropdownOptions[0]);
+  const collateralTokenIcon = collateralTokenMetadata?.logo;
+
+  const loanCollateral = loan.collateral[0];
+
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    loan.lendingToken.address
+  );
+
+  const principalTokenIcon = principalTokenMetadata?.logo;
+
+  const chainTerms = useChainTerms();
+  const chainTermsLenderGroups = useChainTermsLiquidityPools();
+  const {
+    filteredCommitments = new Map(),
+    isLoading: rolloverableCommitmentsLoading,
+  } = useGetRolloverableCommitments(
+    collateralTokenAddress,
+    loan.lendingToken.address,
+    loan
+  );
+  const marketIds = Array.from(
+    filteredCommitments.size > 0 ? Array.from(filteredCommitments.keys()) : []
+  );
+  const dropdownOptions = useMemo(() => {
+    if (rolloverableCommitmentsLoading) return [];
+
+    const combinedOptions = [
+      ...(chainTermsLenderGroups?.dropdownOptions ?? []),
+      ...(chainTerms?.dropdownOptions ?? []),
+    ];
+    const result = marketIds.reduce<DropdownOption<string>[]>(
+      (acc, marketId) => {
+        const option = combinedOptions.find((option) => {
+          return option.value.toString() === marketId.toString();
+        });
+        if (option && !acc.find((item) => item.label === option.label)) {
+          acc.push(option);
+        }
+        return acc;
+      },
+      []
+    );
+
+    return result;
+  }, [
+    chainTerms?.dropdownOptions,
+    chainTermsLenderGroups?.dropdownOptions,
+    marketIds,
+    rolloverableCommitmentsLoading,
+  ]);
+  const [duration, setDuration] = useState<DropdownOption>();
 
   useEffect(() => {
-    !duration && setDuration(dropdownOptions[0]);
-  }, [dropdownOptions, duration]);
+    if (!dropdownOptions[0]?.value || duration) return;
+    const defaultDuration = dropdownOptions.find(
+      (option) => option.value === loan?.marketplaceId
+    );
+    setDuration(defaultDuration ?? dropdownOptions[0]);
+  }, [loan?.marketplaceId, dropdownOptions, duration]);
 
-  const commitment = filteredCommitments[duration?.value];
+  const commitment = filteredCommitments?.get(duration?.value ?? "");
 
   const commitmentCollateral = commitment?.collateralToken;
+
+  const isLenderGroup = commitment?.isLenderGroup;
 
   const chainId = useChainId();
 
@@ -186,38 +229,53 @@ const RolloverLoan: React.FC = () => {
   let defaultLoanAmountLender;
 
   if (isSameLender) {
-    maxLoanAmountFromLender = bigIntMin(
-      BigInt(totalOwedBI) + BigInt(commitment?.committedAmount),
-      BigInt(commitment?.maxPrincipal ?? 0) -
-        BigInt(commitment?.acceptedPrincipal ?? 0)
-    );
+    if (isLenderGroup) {
+      maxLoanAmountFromLender =
+        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount);
+    } else {
+      maxLoanAmountFromLender = bigIntMin(
+        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount),
+        BigInt(commitment?.maxPrincipal ?? 0) -
+          BigInt(commitment?.acceptedPrincipal ?? 0)
+      );
+    }
 
     defaultLoanAmountLender = bigIntMin(totalOwedBI, maxLoanAmountFromLender);
   } else {
     maxLoanAmountFromLender = defaultLoanAmountLender = totalOwedBI;
   }
 
-  const lenderCommitmentForwarder = isCommitmentFromLCFAlpha
+  const maxPrincipalPerCollateralLenderGroup =
+    useGetMaxPrincipalPerCollateralLenderGroup(commitment);
+
+  const lenderCommitmentForwarder = isLenderGroup
+    ? commitment?.lenderAddress ?? "0x"
+    : isCommitmentFromLCFAlpha
     ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
     : SupportedContractsEnum.LenderCommitmentForwarderStaging;
 
   const requiredCollateralArgs = useCallback(
-    (loanAmount?: bigint) => [
-      loanAmount,
-      maxPrincipalPerCollateral,
-      1,
-      ...(isCommitmentFromLCFAlpha
-        ? ""
+    (loanAmount?: bigint) =>
+      isLenderGroup
+        ? [loanAmount, maxPrincipalPerCollateralLenderGroup]
         : [
-            commitment?.collateralToken?.address,
-            commitment?.principalTokenAddress,
-          ]),
-    ],
+            loanAmount,
+            maxPrincipalPerCollateral,
+            1,
+            ...(isCommitmentFromLCFAlpha
+              ? ""
+              : [
+                  commitment?.collateralToken?.address,
+                  commitment?.principalTokenAddress,
+                ]),
+          ],
     [
       commitment?.collateralToken?.address,
       commitment?.principalTokenAddress,
       isCommitmentFromLCFAlpha,
+      isLenderGroup,
       maxPrincipalPerCollateral,
+      maxPrincipalPerCollateralLenderGroup,
     ]
   );
 
@@ -228,7 +286,8 @@ const RolloverLoan: React.FC = () => {
     lenderCommitmentForwarder,
     "getRequiredCollateral",
     requiredCollateralArgs(defaultLoanAmountLender),
-    !isSameLender
+    !isSameLender,
+    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
   );
 
   const {
@@ -238,7 +297,8 @@ const RolloverLoan: React.FC = () => {
     lenderCommitmentForwarder,
     "getRequiredCollateral",
     requiredCollateralArgs(maxLoanAmountFromLender),
-    !isSameLender
+    !isSameLender,
+    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
   );
 
   const {
@@ -256,13 +316,12 @@ const RolloverLoan: React.FC = () => {
     isRollover: true,
     collateralTokenDecimals: loanCollateral?.token.decimals ?? 0,
     loanAmount: isSameLender ? totalOwedBI : BigInt(0),
+    isSameLender,
   });
-
   const defaultCollateralValueAmount = bigIntMin(
     BigInt(loanCollateral?.amount),
     maxCollateralWithWalletBalance
   );
-
   const defaultCollateralValue = useMemo(
     () => ({
       token: {
@@ -291,31 +350,27 @@ const RolloverLoan: React.FC = () => {
   );
 
   useEffect(() => {
-    if (
-      (isSameLender && !requiredCollateralDefaultLoan) ||
-      !maxCollateralWithWalletBalance ||
-      collateralValue.valueBI
-    ) {
-      return;
-    }
-
-    if (
-      (isSameLender &&
-        (requiredCollateralDefaultLoan ?? 0) > BigInt(0) &&
-        collateralValue.valueBI === BigInt(0)) ||
-      (maxCollateralWithWalletBalance > BigInt(0) &&
-        collateralValue.valueBI === BigInt(0))
-    ) {
-      setCollateralValue(defaultCollateralValue);
-    }
+    setCollateralValue({
+      token: {
+        address: loanCollateral?.collateralAddress,
+        decimals: loanCollateral?.token.decimals,
+        symbol: loanCollateral?.token.symbol,
+      },
+      valueBI: defaultCollateralValueAmount,
+      value: Number(
+        formatUnits(
+          BigInt(defaultCollateralValueAmount),
+          loanCollateral?.token.decimals
+        )
+      ),
+    });
   }, [
     requiredCollateralDefaultLoan,
     maxCollateralWithWalletBalance,
-    collateralValue,
-    defaultCollateralValue,
-    isSameLender,
-    duration,
-    collateralValue.valueBI,
+    defaultCollateralValueAmount,
+    loanCollateral?.collateralAddress,
+    loanCollateral?.token.decimals,
+    loanCollateral?.token.symbol,
   ]);
 
   const collateralAmountDebounced = useDebounce(collateralValue, 250);
@@ -336,7 +391,25 @@ const RolloverLoan: React.FC = () => {
     isRollover: true,
     collateralTokenDecimals: loanCollateral?.token.decimals ?? 0,
     returnCalculatedLoanAmount: true,
+    isSameLender,
+    loanAmount: isSameLender && isLenderGroup ? totalOwedBI : BigInt(0),
   });
+  const {
+    data: minInterestRateLenderGroups,
+    isLoading: minInterestRateLenderGroupsLoading,
+  } = useReadContract(
+    commitment?.lenderAddress as AddressStringType,
+    "getMinInterestRate",
+    [
+      isSameLender
+        ? BigInt(maxLoanAmount ?? 0) - BigInt(totalOwedBI ?? 0) > 0n
+          ? BigInt(maxLoanAmount ?? 0) - BigInt(totalOwedBI ?? 0)
+          : 0n
+        : BigInt(maxLoanAmount ?? 0),
+    ],
+    !isLenderGroup,
+    ContractType.LenderGroups
+  );
 
   const currentValues: RolloverData = useMemo(
     () => ({
@@ -374,7 +447,18 @@ const RolloverLoan: React.FC = () => {
 
   const nextValues: RolloverData = useMemo(
     () => ({
-      apr: `${+(commitment?.minAPY ?? 0) / 100}%`,
+      apr: (
+        <>
+          <Loader
+            loading={!isLenderGroup || !minInterestRateLenderGroupsLoading}
+            height={16}
+            isSkeleton
+          />
+          {+(isLenderGroup ? minInterestRateLenderGroups : commitment?.minAPY) /
+            100}
+          %
+        </>
+      ),
       dueDate: nextDueDate,
       loanAmount: (
         <>
@@ -387,24 +471,27 @@ const RolloverLoan: React.FC = () => {
       collateral: (
         <TokenInput
           onChange={(token) => setCollateralValue(token)}
-          imageUrl={collateralImageURL}
+          imageUrl={collateralTokenIcon}
           tokenValue={collateralValue}
           min
           minAmount={defaultCollateralValue.valueBI}
           key={commitment?.id}
-          maxAmount={Number(formattedMaxCollateral)}
+          maxAmount={maxCollateralWithWalletBalance}
         />
       ),
     }),
     [
-      collateralImageURL,
+      collateralTokenIcon,
       collateralValue,
       commitment?.id,
       commitment?.minAPY,
       defaultCollateralValue.valueBI,
-      formattedMaxCollateral,
+      isLenderGroup,
       loan.lendingToken.decimals,
+      maxCollateralWithWalletBalance,
       maxLoanAmount,
+      minInterestRateLenderGroups,
+      minInterestRateLenderGroupsLoading,
       nextDueDate,
       principalTokenIcon,
     ]
@@ -422,7 +509,6 @@ const RolloverLoan: React.FC = () => {
       isInputMoreThanMaxCollateral,
       maxLoanAmount
     );
-
   const marketplaceFee = +(commitment?.marketplace?.marketplaceFeePercent ?? 0);
   const totalFeePercent =
     10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
@@ -449,7 +535,7 @@ const RolloverLoan: React.FC = () => {
         <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
         <LoanLink loan={loan} />
       </div>
-      <h2>Extend cash advance</h2>
+      <h3></h3>
       {rolloverableCommitmentsLoading || !commitment ? (
         <Loader height={55} isSkeleton />
       ) : (
@@ -457,7 +543,7 @@ const RolloverLoan: React.FC = () => {
           options={dropdownOptions}
           selectedOption={duration}
           onChange={setDuration}
-          label="Duration"
+          label="Extend"
           readonly={dropdownOptions.length === 1}
         />
       )}

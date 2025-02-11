@@ -12,7 +12,7 @@ import {
 
 export const usePayLoan = (
   loan: Loan,
-  amount: number,
+  amount: bigint,
   onSuccessTx?: (data: any) => void
 ) => {
   {
@@ -47,27 +47,35 @@ export const usePayLoan = (
     const nextDueDate =
       nextDueDateData < cachedNow ? cachedNow : nextDueDateData;
 
-    const { data: currentDueData, error: currentDueDataError }: any =
-      useReadContract(SupportedContractsEnum.TellerV2, `calculateAmountDue`, [
-        loan.bidId,
-        future1Hour,
-      ]);
-    const currentAmountDueBI =
-      currentDueData?.interest && currentDueData?.principal
-        ? BigInt(currentDueData.interest) + BigInt(currentDueData.principal)
-        : BigInt(0);
+    const {
+      data: currentDueData,
+      error: currentDueDataError,
+      isFetched: currentDueDataIsFetched,
+    }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateAmountDue`,
+      [loan.bidId, future1Hour]
+    );
+
+    const currentAmountDueBI = currentDueDataIsFetched
+      ? BigInt(currentDueData.interest) + BigInt(currentDueData.principal)
+      : BigInt(0);
 
     const currentAmountDueNum = formatUnits(
       currentAmountDueBI,
       loan.lendingToken.decimals
     );
 
-    const { data: futureDueData, error: futureDueDataError }: any =
-      useReadContract(SupportedContractsEnum.TellerV2, `calculateAmountDue`, [
-        loan.bidId,
-        nextDueDate,
-      ]);
-    const futureAmountDueBI = !!futureDueData
+    const {
+      data: futureDueData,
+      error: futureDueDataError,
+      isFetched: futureDueDataIsFetched,
+    }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateAmountDue`,
+      [loan.bidId, nextDueDate]
+    );
+    const futureAmountDueBI = futureDueDataIsFetched
       ? BigInt(futureDueData.interest) + BigInt(futureDueData.principal)
       : BigInt(0);
 
@@ -76,15 +84,18 @@ export const usePayLoan = (
       loan.lendingToken.decimals
     );
 
-    const { data: totalOwedData, error: totalOwedDataError }: any =
-      useReadContract(
-        SupportedContractsEnum.TellerV2,
-        `calculateAmountOwed`,
-        [loan.bidId, loan.nextDueDate],
-        !loan.nextDueDate
-      );
+    const {
+      data: totalOwedData,
+      error: totalOwedDataError,
+      isFetched: totalOwedDataIsFetched,
+    }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateAmountOwed`,
+      [loan.bidId, loan.nextDueDate],
+      !loan.nextDueDate
+    );
 
-    const totalOwedBI = !!totalOwedData
+    const totalOwedBI = totalOwedDataIsFetched
       ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
       : BigInt(0);
 
@@ -101,9 +112,9 @@ export const usePayLoan = (
       formatUnits(BigInt(walletBalance.data ?? 0), loan.lendingToken.decimals)
     );
 
-    const amountBI = amount
-      ? parseUnits(amount.toString(), loan.lendingToken.decimals)
-      : 0;
+    const amountBI = amount;
+
+    const amountNum = formatUnits(amountBI, loan.lendingToken.decimals);
 
     const repayLoanFull = useMemo(() => {
       return amountBI && amountBI >= (totalOwedBI * BigInt(100)) / BigInt(98);
@@ -125,7 +136,7 @@ export const usePayLoan = (
     const transactions = useMemo(() => {
       let id = 0;
       const steps: any[] = [];
-      if (!amount || !amountBI)
+      if (!amountNum || !amountBI)
         return [
           {
             buttonLabel: "Pay",
@@ -183,7 +194,7 @@ export const usePayLoan = (
           contractName: SupportedContractsEnum.TellerV2,
           functionName: "repayLoan",
           args: [loan.bidId, amountBI],
-          buttonLabel: `Pay ${amount} ${loan.lendingToken.symbol}`,
+          buttonLabel: `Pay ${amountNum} ${loan.lendingToken.symbol}`,
           loadingButtonLabel: "Paying...",
           errorMessage,
           id,
@@ -193,7 +204,7 @@ export const usePayLoan = (
       }
       return steps;
     }, [
-      amount,
+      amountNum,
       amountBI,
       walletBalance?.data,
       currentAmountDueBI,
@@ -213,12 +224,14 @@ export const usePayLoan = (
         formattedWalletBalance,
         transactions,
         totalOwedNum,
+        currentAmountDueBI,
         currentAmountDueNum,
       };
     }, [
       formattedWalletBalance,
       transactions,
       totalOwedNum,
+      currentAmountDueBI,
       currentAmountDueNum,
     ]);
   }

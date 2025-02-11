@@ -15,6 +15,7 @@ import { useContracts } from "../../../hooks/useContracts";
 import { SupportedContractsEnum } from "../../../hooks/useReadContract";
 import "./borrowConfirmation.scss";
 import { useChainData } from "../../../hooks/useChainData";
+import { normalizeChainName } from "../../../constants/chains";
 
 const LabelWithIcon = ({ label }: { label: string }) => (
   <div className="label-with-icon">
@@ -40,14 +41,14 @@ const BorrowConfirmation = () => {
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[1]["principalAmount"],
+      successfulLoanParams.args?.[1]["principalAmount"] ?? 0n,
       principalToken?.decimals ?? 0
     )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args[1]["collateralAmount"],
+      successfulLoanParams.args?.[1]["collateralAmount"] ?? 0n,
       collateralToken?.decimals ?? 0
     )
   );
@@ -105,7 +106,9 @@ const BorrowConfirmation = () => {
             </Button>
             <Button isFullWidth variant="secondary">
               <a
-                href={`https://app.teller.org/${chainName?.toLocaleLowerCase()}/loan/${bidId}`}
+                href={`https://app.teller.org/${normalizeChainName(
+                  chainName
+                )}/loan/${bidId}`}
                 target="_blank"
                 rel="noreferrer"
               >

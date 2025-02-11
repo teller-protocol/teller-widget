@@ -4,6 +4,7 @@ import { useGraphURL } from "../useGraphURL";
 import { useQuery } from "@tanstack/react-query";
 import { useForwarderAddresses } from "../useForwarderAddresses";
 import { Address } from "viem";
+import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "./useGetCommitmentsForCollateralTokensFromLiquidityPools";
 
 export type SubgraphTokenType = {
   imageUri?: string | undefined;
@@ -40,6 +41,8 @@ export type CommitmentType = {
   marketplace?: {
     marketplaceFeePercent: string;
   };
+  isLenderGroup?: boolean;
+  collateralRatio?: number;
 };
 
 export const useGetCommitmentsForCollateralToken = (
@@ -136,6 +139,13 @@ export const useGetCommitmentsForCollateralToken = (
     isLoading: boolean;
     error: string;
   };
+
+  const {
+    data: lenderGroupsCommitments,
+    isLoading: lenderGroupsCommitmentsLoading,
+  } = useGetCommitmentsForCollateralTokensFromLiquidityPools(
+    collateralTokenAddress || ""
+  );
 
   if (error) console.error("commitmentsForCollateralToken Query error", error);
 

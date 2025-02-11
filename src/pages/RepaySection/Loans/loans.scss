@@ -10,7 +10,7 @@
 
 .loans {
   &-table {
-    border: 1px solid $border-color;
+    border: 0px solid $border-color-secondary;
     background: white;
     font-family: "Roboto", sans-serif;
     border-radius: $border-radius;
@@ -93,6 +93,10 @@
           width: 17px;
           height: 17px;
           border-radius: 50%;
+
+          &:first-child {
+            z-index: 10;
+          }
 
           &:nth-child(2) {
             margin-left: -5px;

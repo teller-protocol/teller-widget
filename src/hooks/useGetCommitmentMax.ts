@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+
 import { erc20Abi, formatUnits } from "viem";
 import {
   useAccount,
@@ -20,7 +21,7 @@ import {
   useReadContract,
 } from "./useReadContract";
 import { parseBigInt } from "../helpers/parseBigInt";
-
+import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 interface Result {
   maxLoanAmount: bigint;
   maxCollateral: bigint;
@@ -36,6 +37,7 @@ interface Args {
   collateralTokenDecimals?: number;
   returnCalculatedLoanAmount?: boolean;
   loanAmount?: bigint;
+  isSameLender?: boolean;
 }
 
 export const useGetCommitmentMax = ({
@@ -45,11 +47,26 @@ export const useGetCommitmentMax = ({
   isRollover,
   returnCalculatedLoanAmount,
   loanAmount,
+  isSameLender,
 }: Args): Result => {
+  const isLenderGroup = commitment?.isLenderGroup;
   const availableLenderBalance = useBalance({
     token: commitment?.principalTokenAddress,
     address: commitment?.lenderAddress,
   });
+
+  const { data: principalAmountAvailableToBorrow } = useReadContract<bigint>(
+    commitment?.lenderAddress ?? "0x",
+    "getPrincipalAmountAvailableToBorrow",
+    [],
+    !isLenderGroup,
+    ContractType.LenderGroups
+  );
+
+  let lenderGroupAmount = principalAmountAvailableToBorrow ?? 0n;
+  if (isSameLender) {
+    lenderGroupAmount = lenderGroupAmount + BigInt(loanAmount ?? 0);
+  }
 
   const contracts = useContracts();
 
@@ -72,21 +89,27 @@ export const useGetCommitmentMax = ({
 
   const { maxPrincipalPerCollateral, isCommitmentFromLCFAlpha } =
     useGetMaxPrincipalPerCollateralFromLCFAlpha(commitment);
-  const minAmount = useMemo(
-    () =>
-      bigIntMin(
-        parseBigInt(availableLenderBalance?.data?.value ?? 0) +
-          parseBigInt(loanAmount ?? 0),
-        parseBigInt(availableLenderAllowance?.data ?? 0),
-        parseBigInt(commitment?.committedAmount ?? 0) + BigInt(loanAmount ?? 0)
-      ),
-    [
-      availableLenderAllowance?.data,
-      availableLenderBalance?.data?.value,
-      commitment?.committedAmount,
-      loanAmount,
-    ]
-  );
+
+  const maxPrincipalPerCollateralLenderGroup =
+    useGetMaxPrincipalPerCollateralLenderGroup(commitment);
+  const minAmount = useMemo(() => {
+    return isLenderGroup
+      ? lenderGroupAmount
+      : bigIntMin(
+          parseBigInt(availableLenderBalance?.data?.value ?? 0) +
+            parseBigInt(loanAmount ?? 0),
+          parseBigInt(availableLenderAllowance?.data ?? 0),
+          parseBigInt(commitment?.committedAmount ?? 0) +
+            BigInt(loanAmount ?? 0)
+        );
+  }, [
+    availableLenderAllowance?.data,
+    availableLenderBalance?.data?.value,
+    commitment?.committedAmount,
+    isLenderGroup,
+    lenderGroupAmount,
+    loanAmount,
+  ]);
 
   const { data: principalTokenDecimals } = useReadContract(
     commitment?.principalTokenAddress,
@@ -109,47 +132,48 @@ export const useGetCommitmentMax = ({
   //     ? requestedCollateral
   //     : colBal?.value ?? BigInt(0);
 
-  const collateralBalance = requestedCollateral
-    ? requestedCollateral
-    : colBal?.value ?? BigInt(0);
+  const collateralBalance =
+    isRollover && requestedCollateral
+      ? requestedCollateral
+      : colBal?.value ?? BigInt(0);
 
-  const requiredCollateralArgs = [
-    minAmount,
-    maxPrincipalPerCollateral,
-    CommitmentCollateralType[
-      collateralType as keyof typeof CommitmentCollateralType
-    ],
-    ...(isCommitmentFromLCFAlpha
-      ? []
-      : [
-          commitment?.collateralToken?.address,
-          commitment?.principalTokenAddress,
-        ]),
-  ];
+  const requiredCollateralArgs = isLenderGroup
+    ? [minAmount, maxPrincipalPerCollateralLenderGroup]
+    : [
+        minAmount,
+        maxPrincipalPerCollateral,
+        CommitmentCollateralType[
+          collateralType as keyof typeof CommitmentCollateralType
+        ],
+        ...(isCommitmentFromLCFAlpha
+          ? []
+          : [
+              commitment?.collateralToken?.address,
+              commitment?.principalTokenAddress,
+            ]),
+      ];
+
+  const forwarderAddress = isLenderGroup
+    ? commitment?.lenderAddress ?? "0x"
+    : isCommitmentFromLCFAlpha
+    ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
+    : isRollover
+    ? SupportedContractsEnum.LenderCommitmentForwarderStaging
+    : SupportedContractsEnum.LenderCommitmentForwarder;
+
   const { data: requiredCollateral = BigInt(0), isLoading } =
     useReadContract<bigint>(
-      isCommitmentFromLCFAlpha
-        ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-        : isRollover
-        ? SupportedContractsEnum.LenderCommitmentForwarderStaging
-        : SupportedContractsEnum.LenderCommitmentForwarder,
+      forwarderAddress,
       "getRequiredCollateral",
       requiredCollateralArgs,
-      requiredCollateralArgs.some((arg) => !arg)
+      requiredCollateralArgs.some((arg) => !arg),
+      isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
     );
-
   const maxCollateral = useMemo(() => {
     const amount =
       (requiredCollateral ?? BigInt(0)) > collateralBalance
         ? BigInt(collateralBalance)
         : requiredCollateral;
-
-    /*     if (isNative) {
-      const minGas = parseUnits("10", "gwei").mul(1_500_000);
-      const tenPercent = amount.mul(10).div(100);
-      const amountToSubstract = tenPercent.gt(minGas) ? tenPercent : minGas;
-      amount = amount.sub(amountToSubstract);
-    } */
     return amount;
   }, [collateralBalance, /* isNative, */ requiredCollateral]);
 
@@ -164,11 +188,16 @@ export const useGetCommitmentMax = ({
     )
       return BigInt(0);
     const calculatedAmount =
-      (collateralAmount * parseBigInt(maxPrincipalPerCollateral ?? 0)) /
+      (collateralAmount *
+        parseBigInt(
+          isLenderGroup
+            ? maxPrincipalPerCollateralLenderGroup
+            : maxPrincipalPerCollateral ?? 0
+        )) /
       BigInt(
         Math.pow(
           10,
-          isCommitmentFromLCFAlpha
+          isCommitmentFromLCFAlpha || isLenderGroup
             ? 18
             : principalTokenDecimals + +collateralTokenDecimals
         )
@@ -186,7 +215,9 @@ export const useGetCommitmentMax = ({
     collateralAmount,
     collateralTokenDecimals,
     isCommitmentFromLCFAlpha,
+    isLenderGroup,
     maxPrincipalPerCollateral,
+    maxPrincipalPerCollateralLenderGroup,
     minAmount,
     principalTokenDecimals,
     returnCalculatedLoanAmount,

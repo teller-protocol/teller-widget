@@ -41,7 +41,6 @@ const CollateralTokenList: React.FC = () => {
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
-
   return (
     <div className="collateral-token-list">
       {isSupportedChain ? (

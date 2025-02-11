@@ -1,0 +1,60 @@
+@import "../../tokens.scss";
+
+.pool-row {
+  border: 0.5px solid $border-color-secondary;
+  border-radius: $border-radius;
+  display: flex;
+  padding: $s-small $s-normal;
+  align-items: center;
+  margin-bottom: $s-small;
+
+  &:hover {
+    cursor: pointer;
+    background-color: $border-color-background;
+  }
+
+  .token-balance-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+
+    .paragraph {
+      line-height: 18px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .token-logo {
+    margin-right: $s-small;
+  }
+
+  .pool-liquidity-apr {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .token-logos {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 72px; // Reserve space for the overlapping token images
+  }
+
+  .token-logos img {
+    position: absolute;
+  }
+
+  .token-logos img:first-child {
+    left: 0;
+    z-index: 2; // Bring the first logo to the front
+  }
+
+  .token-logos img:last-child {
+    left: 16px; // Adjust to overlap the first logo
+    z-index: 1;
+  }
+
+
+}

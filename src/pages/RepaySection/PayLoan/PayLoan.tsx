@@ -17,15 +17,11 @@ import {
   useGetRepaySectionContext,
 } from "../RepaySectionContext";
 import "./payLoan.scss";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 
 const PayLoan: React.FC = () => {
-  const {
-    setCurrentStep,
-    loan,
-    collateralImageURL,
-    setPaidTokenInput,
-    setSuccesfulTxHash,
-  } = useGetRepaySectionContext();
+  const { setCurrentStep, loan, setPaidTokenInput, setSuccesfulTxHash } =
+    useGetRepaySectionContext();
 
   const [tokenValue, setTokenValue] = useState<TokenInputType>({
     token: loan.lendingToken,
@@ -38,12 +34,26 @@ const PayLoan: React.FC = () => {
     setCurrentStep(RepaySectionSteps.CONFIRMATION);
   };
 
-  const { transactions, formattedWalletBalance, currentAmountDueNum } =
-    usePayLoan(loan, tokenValue.value ?? 0, onSuccessfulTx);
+  const {
+    transactions,
+    formattedWalletBalance,
+    currentAmountDueBI,
+    currentAmountDueNum,
+  } = usePayLoan(loan, tokenValue.valueBI ?? BigInt(0), onSuccessfulTx);
 
-  const principalTokenLogo = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    loan.lendingToken.address
+  );
+
+  const principalTokenLogo = principalTokenMetadata?.logo;
 
   const collateral = loan.collateral[0];
+
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    collateral.collateralAddress
+  );
+
+  const collateralImageURL = collateralTokenMetadata?.logo;
 
   const onTokenInputChange = (value: TokenInputType) => {
     setTokenValue(value);
@@ -56,18 +66,17 @@ const PayLoan: React.FC = () => {
         <BackButton onClick={() => setCurrentStep(RepaySectionSteps.LOANS)} />
         <LoanLink loan={loan} />
       </div>
-      <h2>Repay cash advance</h2>
       <TokenInput
         imageUrl={principalTokenLogo}
         label={
           <div className="pay-loan-token-input">
-            Amount
+            Repay
             <div className="wallet-amount">
               My wallet: {formattedWalletBalance} {loan.lendingToken.symbol}{" "}
             </div>
           </div>
         }
-        maxAmount={Number(currentAmountDueNum)}
+        maxAmount={currentAmountDueBI}
         tokenValue={tokenValue}
         onChange={onTokenInputChange}
         limitToMax

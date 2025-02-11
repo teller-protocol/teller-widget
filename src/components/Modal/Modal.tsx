@@ -93,7 +93,7 @@ const Modal: React.FC<ModalProps> = ({
               aria-labelledby="modal-headline"
             >
               <div className="modal-container-content-inner">
-                {showChainSwitch &&(
+                {showChainSwitch && (
                   <div className="modal-content-title">
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
@@ -131,7 +131,15 @@ const Modal: React.FC<ModalProps> = ({
           </div>
         </div>
       ),
-    [children, handleClose, isWelcomeScreen, showModal, tellerLogo]
+    [
+      children,
+      handleClose,
+      isEmbedded,
+      isWelcomeScreen,
+      showChainSwitch,
+      showModal,
+      tellerLogo,
+    ]
   );
 
   if (typeof document !== "undefined") {

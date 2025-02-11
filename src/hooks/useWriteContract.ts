@@ -14,13 +14,14 @@ export enum ContractType {
   Teller = "Teller",
   ERC20 = "ERC20",
   External = "External",
+  LenderGroups = "LenderCommitmentGroupBeacon",
 }
 
 interface UseWriteContractArgs {
   contractType?: ContractType;
   functionName?: string;
   args?: any[];
-  contractName?: string;
+  contractName: string;
   skip?: boolean;
   onTransactionReceipt?: (data: any) => void;
 }
@@ -35,17 +36,19 @@ export const useWriteContract = ({
   const contracts = useContracts();
   const chainId = useChainId();
   const mapContractTypeToAbi = {
-    [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
-    [ContractType.External]:externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
+    [ContractType.Teller]: contracts[contractName]?.abi,
+    [ContractType.External]:
+      externalContracts[chainId]["contracts"][contractName]?.abi,
     [ContractType.ERC20]: erc20Abi,
+    [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
   };
 
   const abi = mapContractTypeToAbi[contractType];
   const isTellerContract = contractType === ContractType.Teller;
-
   const contractAddress = isTellerContract
     ? contracts[contractName ?? ""]?.address
-    : externalContracts[chainId]["contracts"][contractName ?? ""]?.address || contractName;
+    : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
+      contractName;
 
   const {
     data: simulatedData,
@@ -58,6 +61,9 @@ export const useWriteContract = ({
     args,
     query: {
       enabled: !skip,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   });
 
@@ -76,12 +82,7 @@ export const useWriteContract = ({
     hash: data,
   });
 
-  const isError = simulatedError || writeError;
   const error = simulatedError || writeError;
-
-  if (isError) {
-    console.log("error: ", error);
-  }
 
   return useMemo(
     () => ({
@@ -90,11 +91,12 @@ export const useWriteContract = ({
       error,
       isConfirmed,
       successData,
-      isError,
       simulatedData,
       isSimulationLoading,
       isPending,
       isConfirming,
+      simulatedError,
+      writeError,
     }),
     [
       writeContract,
@@ -102,11 +104,12 @@ export const useWriteContract = ({
       error,
       isConfirmed,
       successData,
-      isError,
       simulatedData,
       isSimulationLoading,
       isPending,
       isConfirming,
-    ],
+      simulatedError,
+      writeError,
+    ]
   );
 };

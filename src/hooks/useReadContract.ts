@@ -8,6 +8,7 @@ import externalContracts from "../constants/externalContracts";
 export enum SupportedContractsEnum {
   "TellerV2" = "TellerV2",
   "FlashRolloverLoan" = "FlashRolloverLoan",
+  "FlashRolloverLoanWidget" = "FlashRolloverLoanWidget",
   "MarketRegistry" = "MarketRegistry",
   "LenderCommitmentForwarder" = "LenderCommitmentForwarder",
   "LenderCommitmentForwarderStaging" = "LenderCommitmentForwarderStaging",
@@ -16,12 +17,15 @@ export enum SupportedContractsEnum {
   "RolloverForWidget" = "RolloverForWidget",
   "MarketLiquidityRewards" = "MarketLiquidityRewards",
   "CollateralManager" = "CollateralManager",
+  "LenderGroups" = "LenderCommitmentGroupBeacon",
+  "SmartCommitmentForwarder" = "SmartCommitmentForwarder",
 }
 
 export enum ContractType {
   Teller = "Teller",
   ERC20 = "ERC20",
   External = "External",
+  LenderGroups = "LenderCommitmentGroupBeacon",
 }
 
 export const useReadContract = <T = any>(
@@ -40,16 +44,16 @@ export const useReadContract = <T = any>(
       [ContractType.External]:
         externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
+      [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
     }),
-    [contractName, contracts]
+    [chainId, contractName, contracts]
   );
-
   const address =
     contractType === ContractType.Teller
       ? contracts[contractName ?? ""]?.address
       : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
         contractName;
-  const { data, error, isLoading, refetch, isRefetching } =
+  const { data, error, isLoading, refetch, isRefetching, isFetched } =
     useWagmiReadContract({
       address,
       abi: mapAbi[contractType],
@@ -58,6 +62,9 @@ export const useReadContract = <T = any>(
       chainId: chainId,
       query: {
         enabled: !skipRun,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
       },
     });
 
@@ -68,6 +75,7 @@ export const useReadContract = <T = any>(
       isLoading,
       refetch,
       isRefetching,
+      isFetched,
     };
-  }, [data, error, isLoading, refetch, isRefetching]);
+  }, [data, error, isLoading, refetch, isRefetching, isFetched]);
 };

@@ -2,10 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
-import DataField from "../../../components/DataField";
 import TokenInput from "../../../components/TokenInput";
-import Tooltip from "../../../components/Tooltip";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
+import Tooltip from "../../../components/Tooltip";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
@@ -20,41 +19,49 @@ import "./opportunityDetails.scss";
 
 import { formatUnits, parseUnits } from "viem";
 
-import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
-import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
-import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import Button from "../../../components/Button";
+import TransactionButton from "../../../components/TransactionButton";
+import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
+import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
+import { useContracts } from "../../../hooks/useContracts";
+import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
+import { useAccount, useBalance } from "wagmi";
 
 const OpportunityDetails = () => {
-  const { setCurrentStep, selectedOpportunity, selectedCollateralToken } =
-    useGetBorrowSectionContext();
+  const {
+    setCurrentStep,
+    selectedOpportunity,
+    selectedCollateralToken,
+    setSuccessLoanHash,
+    setSuccessfulLoanParams,
+    maxCollateral: maxCollateralFromContext,
+  } = useGetBorrowSectionContext();
+  const { address } = useAccount();
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
+
+  const isLenderGroup = selectedOpportunity.isLenderGroup;
 
   const isWhitelistedTokenAndUserHasNoBalance =
     whitelistedToken && Number(selectedCollateralToken?.balance) === 0;
 
   const [collateralTokenValue, setCollateralTokenValue] =
-    useState<TokenInputType>({
-      token: selectedOpportunity.collateralToken,
-      value: Number(
-        Number(selectedCollateralToken?.balance) > 0
-          ? selectedCollateralToken?.balance
-          : 1
-      ),
-      valueBI:
-        selectedCollateralToken?.balanceBigInt ?? 0n > BigInt(0)
-          ? selectedCollateralToken?.balanceBigInt
-          : BigInt(parseUnits("1", selectedCollateralToken?.decimals ?? 0)),
-    });
+    useState<TokenInputType>({});
+
+  const collateralWalletBalance = useBalance({
+    token: selectedCollateralToken?.address,
+    address,
+  });
 
   const {
-    displayedPrincipal,
+    displayedPrincipal: displayedPrincipalFromLCFa,
     isLoading,
-    maxCollateral,
-    maxLoanAmount,
-    maxLoanAmountNumber,
+    maxCollateral: maxCollateralFromLCFa,
+    maxLoanAmount: maxLoanAmountFromLCFa,
+    maxLoanAmountNumber: maxLoanAmountNumberFromLCFa,
   } = useGetCommitmentMax({
     collateralTokenDecimals: selectedCollateralToken?.decimals,
     commitment: selectedOpportunity,
@@ -62,32 +69,60 @@ const OpportunityDetails = () => {
     returnCalculatedLoanAmount: true,
   });
 
+  const { contracts } = useContracts();
+
+  const liquidityPoolsCommitmentMax = useLiquidityPoolsCommitmentMax({
+    lenderGroupCommitment: selectedOpportunity,
+    collateralAmount: collateralTokenValue.valueBI,
+    skip: !isLenderGroup,
+  });
+
+  const maxCollateral = isLenderGroup
+    ? liquidityPoolsCommitmentMax.maxCollateral
+    : maxCollateralFromLCFa;
+
+  const maxLoanAmount = isLenderGroup
+    ? liquidityPoolsCommitmentMax.maxLoanAmount
+    : maxLoanAmountFromLCFa;
+
+  const maxLoanAmountNumber = isLenderGroup
+    ? liquidityPoolsCommitmentMax.maxLoanAmountNumber
+    : maxLoanAmountNumberFromLCFa;
+
+  const displayedPrincipal = isLenderGroup
+    ? liquidityPoolsCommitmentMax.maxLoanAmount
+    : displayedPrincipalFromLCFa;
+
   useEffect(() => {
     if (isWhitelistedTokenAndUserHasNoBalance) {
-      return;
+      setCollateralTokenValue({
+        token: selectedCollateralToken,
+        value: 1,
+        valueBI: parseUnits("1", selectedCollateralToken?.decimals ?? 0),
+      });
     }
 
     if (!staticMaxCollateral && maxCollateral) {
       setStaticMaxCollateral(maxCollateral);
     }
 
-    setCollateralTokenValue((prev) => {
-      if (prev.valueBI === maxCollateral) {
-        return prev;
-      }
-      return {
-        ...prev,
-        valueBI: maxCollateral,
+    if (staticMaxCollateral && collateralTokenValue.valueBI === undefined) {
+      setCollateralTokenValue({
+        token: selectedCollateralToken,
         value: Number(
-          formatUnits(maxCollateral, selectedCollateralToken?.decimals ?? 0)
+          formatUnits(
+            staticMaxCollateral ?? 0n,
+            selectedCollateralToken?.decimals ?? 0
+          )
         ),
-      };
-    });
+        valueBI: staticMaxCollateral ?? 0n,
+      });
+    }
   }, [
     collateralTokenValue,
     isWhitelistedTokenAndUserHasNoBalance,
     maxCollateral,
-    selectedCollateralToken?.decimals,
+    selectedCollateralToken,
     staticMaxCollateral,
   ]);
 
@@ -129,6 +164,41 @@ const OpportunityDetails = () => {
       ),
     [selectedOpportunity, maxLoanAmountNumber]
   );
+
+  const lenderGroupTransactions = useBorrowFromPool({
+    skip: !isLenderGroup,
+    commitmentPoolAddress: selectedOpportunity?.lenderAddress ?? "0x",
+    principalAmount: maxLoanAmount.toString(),
+    collateralAmount: (collateralTokenValue.valueBI ?? 0).toString(),
+    collateralTokenAddress: collateralTokenValue.token?.address ?? "0x",
+    loanDuration: selectedOpportunity?.maxDuration?.toString(),
+    marketId: selectedOpportunity?.marketplaceId,
+    onSuccess: (receipt: any) => {
+      // match the structure of a succesful loan from a LCFa so it works with the confirmation screen
+      const loanParams = {
+        args: [
+          {},
+          {
+            principalAmount: maxLoanAmount,
+            collateralAmount: collateralTokenValue.valueBI,
+          },
+        ],
+      };
+
+      setCurrentStep(BorrowSectionSteps.SUCCESS);
+      setSuccessLoanHash(receipt);
+      setSuccessfulLoanParams(loanParams);
+    },
+  });
+
+  const isCollateralMoreThanBalance =
+    (collateralWalletBalance?.data?.value ?? 0n) <
+    (collateralTokenValue.valueBI ?? 0n);
+
+  const isCollateralMoreThanMax =
+    liquidityPoolsCommitmentMax.maxAvailableCollateralInPool <
+    (collateralTokenValue.valueBI ?? 0n);
+
   return (
     <div className="opportunity-details">
       <BackButton
@@ -164,7 +234,7 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        maxAmount={Number(selectedCollateralToken?.balance ?? 0)}
+        maxAmount={staticMaxCollateral}
         imageUrl={selectedCollateralToken?.logo || ""}
         sublabelUpper={`Max: ${numberWithCommasAndDecimals(
           formatUnits(
@@ -259,6 +329,18 @@ const OpportunityDetails = () => {
           label="Accept terms"
           onClick={() => setCurrentStep(BorrowSectionSteps.ACCEPT_TERMS)}
           isFullWidth
+        />
+      ) : isLenderGroup ? (
+        <TransactionButton
+          transactions={lenderGroupTransactions}
+          isButtonDisabled={
+            isCollateralMoreThanBalance || isCollateralMoreThanMax
+          }
+          buttonDisabledMessage={
+            isCollateralMoreThanMax
+              ? "Insufficient liquidity"
+              : "Insufficient collateral"
+          }
         />
       ) : (
         <AcceptCommitmentButton
