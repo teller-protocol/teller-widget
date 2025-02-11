@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import uniswapLogo from "../../../assets/uniswap-logo-black.svg";
+import percentSignSvg from "../../../assets/percent-sharp.svg";
 import dollarSignSvg from "../../../assets/dollar-sign-money.svg";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
@@ -33,8 +33,8 @@ const selectOptions = [
     value: BORROW_TOKEN_TYPE_ENUM.ERC20,
     content: (
       <img
-        src={uniswapLogo}
-        style={{ width: "17px", height: "21px", verticalAlign: "middle" }}
+        src={percentSignSvg}
+        style={{ width: "12.5px", height: "12.5px", verticalAlign: "middle" }}
       />
     ),
   },
