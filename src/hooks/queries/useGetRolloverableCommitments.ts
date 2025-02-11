@@ -62,7 +62,7 @@ const combineCommitments = (
 ) => {
   const commitmentsWithLCF69 = [];
   const modifiedCommitments = [...(commitments ?? [])];
-  for (let i = 0; i < modifiedCommitments.length; i++) {
+  for (let i = 0; i < modifiedCommitments?.length; i++) {
     if (
       modifiedCommitments[i]?.maxPrincipalPerCollateralAmount?.endsWith("69")
     ) {
@@ -207,7 +207,7 @@ export const useGetRolloverableCommitments = (
   useEffect(() => {
     const controller = new AbortController();
 
-    if (convertedLenderGroupsRolloverableCommitments.length > 0) {
+    if (convertedLenderGroupsRolloverableCommitments?.length > 0) {
       controller.abort();
       return;
     }
@@ -258,7 +258,7 @@ export const useGetRolloverableCommitments = (
   }, [
     lenderGroupsRolloverableCommitments?.groupPoolMetrics,
     convertCommitment,
-    convertedLenderGroupsRolloverableCommitments.length,
+    convertedLenderGroupsRolloverableCommitments?.length,
     convertedLenderGroupsRolloverableCommitments,
     commitments,
   ]);
@@ -295,7 +295,7 @@ export const useGetRolloverableCommitments = (
 
         if (isCancelled) return;
 
-        if (results.length === 0) {
+        if (results?.length === 0) {
           setIsLoading(false);
           return;
         }
@@ -328,7 +328,7 @@ export const useGetRolloverableCommitments = (
               const acc = await accPromise;
               const bestCommitment = await Promise.all(
                 commitments.map(async (current) => {
-                  if (commitments.length === 1) return current;
+                  if (commitments?.length === 1) return current;
                   const isSameLender =
                     loan?.lenderAddress?.toLowerCase() ===
                     current?.lenderAddress?.toLowerCase();
@@ -362,9 +362,9 @@ export const useGetRolloverableCommitments = (
           )
           .then((result) => {
             const marketIds = Array.from(result.keys());
-            if (isCancelled || !marketIds.length) return;
+            if (isCancelled || !marketIds?.length) return;
             setFilteredCommitments((prev: CommitmentMap) => {
-              if (prev.size === marketIds.length) return prev;
+              if (prev.size === marketIds?.length) return prev;
               return result;
             });
             return result;
@@ -395,6 +395,6 @@ export const useGetRolloverableCommitments = (
   return {
     filteredCommitments,
     isLoading: isLoading || isQueryLoading || isRawCommitmentsLoading,
-    hasRolloverableCommitments: rawCommitments.length > 0,
+    hasRolloverableCommitments: rawCommitments?.length > 0,
   };
 };
