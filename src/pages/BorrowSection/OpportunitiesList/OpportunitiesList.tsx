@@ -58,6 +58,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
 
+  const tokenIsWhitelistedAndBalanceIs0 =
+    isWhitelistedToken(opportunity.collateralToken?.address) &&
+    selectedCollateralToken?.balanceBigInt === 0n;
+
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
@@ -71,23 +75,23 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
       : BigInt(0)
   );
-
   const lcfaCommitmentMax = useGetCommitmentMax({
     commitment: opportunity,
     requestedCollateral: collateralAmount,
     collateralTokenDecimals: opportunity.collateralToken?.decimals,
+    isRollover: true,
   });
 
   const lenderGroupCommitmentMax = useLiquidityPoolsCommitmentMax({
     lenderGroupCommitment: opportunity,
     collateralAmount: collateralAmount,
     skip: !isLiquidityPool,
+    tokenIsWhitelistedAndBalanceIs0,
   });
 
   const commitmentMax = isLiquidityPool
     ? lenderGroupCommitmentMax
     : lcfaCommitmentMax;
-
   useEffect(() => {
     setMaxCollateral(commitmentMax.maxCollateral);
   }, [commitmentMax.maxCollateral, setMaxCollateral]);
@@ -280,11 +284,8 @@ const OpportunitiesList: React.FC = () => {
                 />
               </div>
             ) : (
-              data.commitments.map((commitment) => (
-                <OpportunityListItem
-                  opportunity={commitment}
-                  key={commitment.id}
-                />
+              data.commitments.map((commitment, index) => (
+                <OpportunityListItem opportunity={commitment} key={index} />
               ))
             )}
           </>

@@ -9,10 +9,12 @@ export const useLiquidityPoolsCommitmentMax = ({
   lenderGroupCommitment,
   collateralAmount,
   skip,
+  tokenIsWhitelistedAndBalanceIs0,
 }: {
   lenderGroupCommitment?: CommitmentType;
   collateralAmount?: bigint;
   skip?: boolean;
+  tokenIsWhitelistedAndBalanceIs0?: boolean;
 }) => {
   const { address } = useAccount();
   const poolId = lenderGroupCommitment?.lenderAddress;
@@ -21,6 +23,10 @@ export const useLiquidityPoolsCommitmentMax = ({
 
   const { data: principalTokenData } = useToken({
     address: principalAddress,
+  });
+
+  const { data: collateralTokenData } = useToken({
+    address: collateralAddress,
   });
 
   const { data: maxLoanAmountFromContract } = useReadContract(
@@ -103,10 +109,12 @@ export const useLiquidityPoolsCommitmentMax = ({
     token: collateralAddress,
     address,
   });
-  const maxCollateral = bigIntMin(
-    collateralWalletBalance?.value ?? BigInt(0),
-    maxAvailableCollateral ?? BigInt(0)
-  );
+  const maxCollateral = tokenIsWhitelistedAndBalanceIs0
+    ? parseUnits("1", collateralTokenData?.decimals)
+    : bigIntMin(
+        collateralWalletBalance?.value ?? BigInt(0),
+        maxAvailableCollateral ?? BigInt(0)
+      );
 
   const maxLoanAmount =
     requiredPrincipalAmount > 0
