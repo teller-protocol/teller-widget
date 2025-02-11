@@ -76,12 +76,13 @@ const TransactionButton = ({
     data,
     error,
     isConfirmed,
-    isError,
     isPending,
     isSimulationLoading,
     successData,
     writeContract,
     simulatedData,
+    simulatedError,
+    writeError,
   } = useWriteContract({
     contractName: currentStep?.contractName,
     functionName: currentStep?.functionName,
@@ -112,7 +113,7 @@ const TransactionButton = ({
     [currentStep, onSuccess, setCurrentStepID]
   );
 
-  if (isError) {
+  if (simulatedError || writeError) {
     console.error("Error writing contract", error);
   }
 
@@ -156,7 +157,7 @@ const TransactionButton = ({
               currentStep?.isStepDisabled ||
               !!currentStep?.errorMessage ||
               isConfirming ||
-              !!isError
+              !!simulatedError
             }
           >
             {(isPending || customTxLoading || isConfirming) &&
@@ -175,6 +176,7 @@ const TransactionButton = ({
       isButtonDisabled,
       isConfirming,
       isDisabled,
+      simulatedError,
       isLastStep,
       isLoading,
       isPending,

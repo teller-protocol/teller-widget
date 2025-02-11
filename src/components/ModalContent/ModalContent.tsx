@@ -13,43 +13,38 @@ enum WIDGET_ACTION_ENUM {
   POOL = "POOL",
 }
 
-const selectOptions = [
-  { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
-];
-
 interface ModalContentProps {
   showModalByDefault?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
 }
 
-const ModalContent: React.FC<ModalContentProps> = ({ showModalByDefault, showPoolSection, showRepaySection }) => {
+const ModalContent: React.FC<ModalContentProps> = ({
+  showModalByDefault,
+  showPoolSection,
+  showRepaySection,
+}) => {
   const [widgetAction, setWidgetAction] = useState(WIDGET_ACTION_ENUM.BORROW);
   const [key, setKey] = useState(0);
 
-  showPoolSection
-    ? !selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.POOL) &&
-      selectOptions.push({ value: WIDGET_ACTION_ENUM.POOL, content: "Pools" })
-    : selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.POOL) &&
-      selectOptions.splice(selectOptions.findIndex(option => option.value === WIDGET_ACTION_ENUM.POOL), 1);
-
-  showRepaySection
-    ? !selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.REPAY) &&
-      selectOptions.push({ value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" })
-    : selectOptions.some(option => option.value === WIDGET_ACTION_ENUM.REPAY) &&
-      selectOptions.splice(selectOptions.findIndex(option => option.value === WIDGET_ACTION_ENUM.REPAY), 1);
-
+  const selectOptions = [
+    { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
+    ...(showRepaySection
+      ? [{ value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" }]
+      : []),
+    ...(showPoolSection
+      ? [{ value: WIDGET_ACTION_ENUM.POOL, content: "Pools" }]
+      : []),
+  ];
 
   const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
-    if (action === widgetAction && action === WIDGET_ACTION_ENUM.BORROW) {
-      setKey(prev => prev + 1);
-    }
+    setKey((prev) => prev + 1);
     setWidgetAction(action);
   };
 
   const mapOptionToComponent = {
     [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection key={key} />,
-    [WIDGET_ACTION_ENUM.REPAY]: <RepaySection />,
+    [WIDGET_ACTION_ENUM.REPAY]: <RepaySection key={key} />,
     [WIDGET_ACTION_ENUM.POOL]: <PoolSection />,
   };
 

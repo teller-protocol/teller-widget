@@ -44,6 +44,7 @@ import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
 import useRolloverLoan from "../../hooks/useRolloverLoan";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "../../hooks/useGetMaxPrincipalPerCollateralLenderGroup";
 import { AddressStringType } from "../../types/addressStringType";
+import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 
 type RolloverData = {
   dueDate: string;
@@ -117,9 +118,19 @@ const RolloverLoan: React.FC = () => {
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
 
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    collateralTokenAddress
+  );
+
+  const collateralTokenIcon = collateralTokenMetadata?.logo;
+
   const loanCollateral = loan.collateral[0];
 
-  const principalTokenIcon = SUPPORTED_TOKEN_LOGOS[loan.lendingToken.symbol];
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    loan.lendingToken.address
+  );
+
+  const principalTokenIcon = principalTokenMetadata?.logo;
 
   const chainTerms = useChainTerms();
   const chainTermsLenderGroups = useChainTermsLiquidityPools();
@@ -338,7 +349,6 @@ const RolloverLoan: React.FC = () => {
     defaultCollateralValue
   );
 
-
   useEffect(() => {
     setCollateralValue({
       token: {
@@ -461,24 +471,24 @@ const RolloverLoan: React.FC = () => {
       collateral: (
         <TokenInput
           onChange={(token) => setCollateralValue(token)}
-          imageUrl={collateralImageURL}
+          imageUrl={collateralTokenIcon}
           tokenValue={collateralValue}
           min
           minAmount={defaultCollateralValue.valueBI}
           key={commitment?.id}
-          maxAmount={Number(formattedMaxCollateral)}
+          maxAmount={maxCollateralWithWalletBalance}
         />
       ),
     }),
     [
-      collateralImageURL,
+      collateralTokenIcon,
       collateralValue,
       commitment?.id,
       commitment?.minAPY,
       defaultCollateralValue.valueBI,
-      formattedMaxCollateral,
       isLenderGroup,
       loan.lendingToken.decimals,
+      maxCollateralWithWalletBalance,
       maxLoanAmount,
       minInterestRateLenderGroups,
       minInterestRateLenderGroupsLoading,

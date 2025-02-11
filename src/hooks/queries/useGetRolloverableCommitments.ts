@@ -61,7 +61,7 @@ const combineCommitments = (
   lenderGroupsRolloverableCommitments?: any
 ) => {
   const commitmentsWithLCF69 = [];
-  const modifiedCommitments = [...commitments];
+  const modifiedCommitments = [...(commitments ?? [])];
   for (let i = 0; i < modifiedCommitments.length; i++) {
     if (
       modifiedCommitments[i]?.maxPrincipalPerCollateralAmount?.endsWith("69")
@@ -213,7 +213,7 @@ export const useGetRolloverableCommitments = (
     }
 
     if (lenderGroupsRolloverableCommitments?.groupPoolMetrics?.length) {
-      setIsLoading(true);
+      setIsRawCommitmentsLoading(true);
 
       const fetchConvertedCommitments = async () => {
         try {
@@ -231,21 +231,15 @@ export const useGetRolloverableCommitments = (
                 return null;
               }
             })
-          )
-            .then((commitments) => {
-              const validCommitments = commitments.filter((item) => !!item);
-              setConvertedLenderGroupsRolloverableCommitments(
-                validCommitments as any
-              );
-            })
-            .finally(() => {
-              const combinedCommitments = combineCommitments(
-                commitments,
-                convertedLenderGroupsRolloverableCommitments
-              );
-              setRawCommitments(combinedCommitments);
-              setIsRawCommitmentsLoading(false);
-            });
+          ).then((poolCommitments) => {
+            const validCommitments = poolCommitments.filter((item) => !!item);
+            const combinedCommitments = combineCommitments(
+              commitments,
+              validCommitments
+            );
+            setRawCommitments(combinedCommitments);
+            setIsRawCommitmentsLoading(false);
+          });
         } catch (error) {
           console.error("Error fetching converted commitments:", error);
           setIsRawCommitmentsLoading(false);
@@ -272,7 +266,7 @@ export const useGetRolloverableCommitments = (
     let isCancelled = false;
 
     if (
-      (!commitments && !isLenderGroupsRolloverableCommitmentsLoading) ||
+      (!rawCommitments && !isLenderGroupsRolloverableCommitmentsLoading) ||
       !loan
     ) {
       setIsLoading(false);
@@ -287,10 +281,7 @@ export const useGetRolloverableCommitments = (
     void (async () => {
       try {
         const results = await Promise.all(
-          combineCommitments(
-            commitments,
-            convertedLenderGroupsRolloverableCommitments
-          )
+          rawCommitments
             .map(async (commitment) => {
               const minBalance = await getMinimumBalance(commitment);
               if (minBalance < 0) {
@@ -397,6 +388,7 @@ export const useGetRolloverableCommitments = (
     getMinimumBalance,
     isLenderGroupsRolloverableCommitmentsLoading,
     loan,
+    rawCommitments,
   ]);
 
   return {
