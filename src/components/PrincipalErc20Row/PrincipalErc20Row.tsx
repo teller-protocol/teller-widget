@@ -34,7 +34,8 @@ const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
           </span>
         </div>
         <span className="section-sub-title">
-          Borrow: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
+          Borrow up to: {numberWithCommasAndDecimals(token.balance)}{" "}
+          {token.symbol}
         </span>
       </div>
     </div>
