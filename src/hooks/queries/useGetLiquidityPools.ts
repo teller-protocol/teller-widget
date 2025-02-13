@@ -15,7 +15,11 @@ export const useGetLiquidityPools = () => {
     () => gql`
       query groupLiquidityPools {
         groupPoolMetrics(
-          where: ${singleWhitelistedToken ? `{ collateral_token_address: "${singleWhitelistedToken.toLocaleLowerCase()}" }` : "{}"}
+          where: ${
+            singleWhitelistedToken
+              ? `{ collateral_token_address: "${singleWhitelistedToken.toLocaleLowerCase()}" }`
+              : "{}"
+          }
           orderBy: principal_token_address
           orderDirection: asc
         ) {
@@ -39,27 +43,32 @@ export const useGetLiquidityPools = () => {
         }
       }
     `,
-    []
+    [singleWhitelistedToken]
   );
 
   const { data: blockedPools } = useQuery({
     queryKey: ["blockedPools", chainId],
     queryFn: async () => {
-      const response = await fetch(`https://xyon-xymz-1ofj.n7d.xano.io/api:x0wU2WHq/no_show_pools_by_network?network_id=${chainId}`);
+      const response = await fetch(
+        `https://xyon-xymz-1ofj.n7d.xano.io/api:x0wU2WHq/no_show_pools_by_network?network_id=${chainId}`
+      );
       const data = await response.json();
       return data.map((pool: any) => pool.pool_id.toLowerCase());
-    }
+    },
   });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
-      const response = await request(graphURL, poolCommitmentsDashboard) as { 
-        groupPoolMetrics: LenderGroupsPoolMetrics[] 
+      const response = (await request(graphURL, poolCommitmentsDashboard)) as {
+        groupPoolMetrics: LenderGroupsPoolMetrics[];
       };
 
-      const filteredPools = blockedPools?.length 
-        ? response.groupPoolMetrics.filter(pool => !blockedPools.includes(pool.group_pool_address.toLowerCase()))
+      const filteredPools = blockedPools?.length
+        ? response.groupPoolMetrics.filter(
+            (pool) =>
+              !blockedPools.includes(pool.group_pool_address.toLowerCase())
+          )
         : response.groupPoolMetrics;
 
       return filteredPools;

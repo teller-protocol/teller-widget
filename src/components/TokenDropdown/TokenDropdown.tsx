@@ -59,12 +59,8 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const {
-    setSelectedCollateralToken,
-    setSelectedPrincipalErc20Token,
-    setSelectedErc20Apy,
-    uniswapDataMap,
-  } = useGetBorrowSectionContext();
+  const { setSelectedCollateralToken, setSelectedPrincipalErc20Token } =
+    useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
   const { tokenTypeListView } = useGetBorrowSectionContext();
@@ -75,9 +71,6 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
       setSelectedCollateralToken(token);
     } else {
       setSelectedPrincipalErc20Token(token);
-      const uniswapData = uniswapDataMap[token.address];
-      const apy = uniswapData?.apy ?? "...";
-      setSelectedErc20Apy(apy);
     }
     setIsOpen(false);
   };

@@ -66,7 +66,6 @@ export type BorrowSectionContextType = {
   uniswapDataMap: Record<string, UniswapData>;
   setUniswapDataMap: (data: Record<string, UniswapData>) => void;
   selectedErc20Apy: string;
-  setSelectedErc20Apy: (apy: string) => void;
 };
 
 interface BorrowSectionContextProps {
@@ -115,11 +114,11 @@ export const BorrowSectionContextProvider: React.FC<
         .filter((commitment) => commitment?.principalToken?.address)
         .reduce((acc, commitment) => {
           const address = commitment?.principalToken.address.toLowerCase();
-          const currentAmount = acc.get(address) || BigInt(0);
+          const currentAmount = acc.get(address ?? "") || BigInt(0);
           const committedAmount = commitment?.committedAmount
             ? BigInt(commitment.committedAmount.toString())
             : BigInt(0);
-          acc.set(address, currentAmount + committedAmount);
+          acc.set(address ?? "", currentAmount + committedAmount);
           return acc;
         }, new Map<string, bigint>());
 
@@ -206,6 +205,14 @@ export const BorrowSectionContextProvider: React.FC<
         : BORROW_TOKEN_TYPE_ENUM.STABLE
     );
 
+  useEffect(() => {
+    if (selectedPrincipalErc20Token) {
+      const uniswapData = uniswapDataMap[selectedPrincipalErc20Token.address];
+      const apy = uniswapData?.apy ?? "...";
+      setSelectedErc20Apy(apy);
+    }
+  }, [selectedPrincipalErc20Token, uniswapDataMap]);
+
   return (
     <BorrowSectionContext.Provider
       value={{
@@ -235,7 +242,6 @@ export const BorrowSectionContextProvider: React.FC<
         uniswapDataMap,
         setUniswapDataMap,
         selectedErc20Apy,
-        setSelectedErc20Apy,
       }}
     >
       {children}

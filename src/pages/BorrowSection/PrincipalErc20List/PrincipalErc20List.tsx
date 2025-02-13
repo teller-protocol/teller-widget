@@ -19,9 +19,13 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({
     uniswapDataMap, // Get uniswapDataMap here
     setCurrentStep,
     setSelectedPrincipalErc20Token,
-    setSelectedErc20Apy,
     erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
+
+  console.log(
+    "TCL ~ PrincipalErc20List.tsx:25 ~ uniswapDataMap:",
+    uniswapDataMap
+  );
 
   const filteredTokens = principalErc20Tokens.filter((token) =>
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
@@ -30,7 +34,6 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({
   const onPrincipalErc20TokenSelected = (token: UserToken, apy: string) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedPrincipalErc20Token(token);
-    setSelectedErc20Apy(apy);
   };
 
   return (
