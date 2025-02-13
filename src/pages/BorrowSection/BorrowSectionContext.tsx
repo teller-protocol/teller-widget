@@ -64,8 +64,8 @@ export type BorrowSectionContextType = {
   setPrincipalErc20Tokens: (tokens: UserToken[]) => void;
   erc20sWithCommitmentsLoading: boolean;
   uniswapDataMap: Record<string, UniswapData>;
-  setUniswapDataMap: (data: Record<string, UniswapData>) => void;
   selectedErc20Apy: string;
+  setSelectedErc20Apy: (apy: string) => void;
 };
 
 interface BorrowSectionContextProps {

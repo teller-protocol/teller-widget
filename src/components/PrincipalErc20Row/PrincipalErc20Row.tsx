@@ -6,19 +6,23 @@ import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import DataPill from "../../components/DataPill";
 import "./principalErc20Row.scss";
+import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
+import Loader from "../Loader";
 
 interface PrincipalErc20TokenSelectProps {
   token: UserToken;
-  apy: string; // Accept APY as a prop
   onClick?: (token: UserToken) => void;
 }
 
 const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
   token,
-  apy,
   onClick,
 }) => {
+  const { uniswapDataMap } = useGetBorrowSectionContext();
   const logoUrl = token.logo || defaultTokenImage;
+
+  const uniswapData = uniswapDataMap[token.address];
+  const apy = uniswapData?.apy ?? "";
 
   return (
     <div className="principal-erc20-token-row" onClick={() => onClick?.(token)}>
@@ -27,15 +31,18 @@ const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
         <div className="symbol-data-row">
           <span className="paragraph">{token.symbol}</span>
           <span style={{ fontSize: "11px", padding: "2px 5px" }}>
-            <DataPill
-              label={`${apy}% APY`}
-              logo="https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
-            />
+            {!apy ? (
+              <Loader isSkeleton height={19} />
+            ) : (
+              <DataPill
+                label={`${apy}% APY`}
+                logo="https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+              />
+            )}
           </span>
         </div>
         <span className="section-sub-title">
-          Available: {numberWithCommasAndDecimals(token.balance)}{" "}
-          {token.symbol}
+          Available: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
         </span>
       </div>
     </div>

@@ -16,22 +16,16 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({
 }) => {
   const {
     principalErc20Tokens,
-    uniswapDataMap, // Get uniswapDataMap here
     setCurrentStep,
     setSelectedPrincipalErc20Token,
     erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
 
-  console.log(
-    "TCL ~ PrincipalErc20List.tsx:25 ~ uniswapDataMap:",
-    uniswapDataMap
-  );
-
   const filteredTokens = principalErc20Tokens.filter((token) =>
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const onPrincipalErc20TokenSelected = (token: UserToken, apy: string) => {
+  const onPrincipalErc20TokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedPrincipalErc20Token(token);
   };
@@ -62,20 +56,13 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({
       {erc20Loading ? (
         <Loader />
       ) : (
-        filteredTokens.map((token) => {
-          // Retrieve APY from the uniswapDataMap based on token address
-          const uniswapData = uniswapDataMap[token.address];
-          const apy = uniswapData?.apy ?? "...";
-
-          return (
-            <PrincipalErc20TokenRow
-              key={token.address}
-              token={token}
-              apy={apy} // Pass APY as a prop
-              onClick={() => onPrincipalErc20TokenSelected(token, apy)}
-            />
-          );
-        })
+        filteredTokens.map((token) => (
+          <PrincipalErc20TokenRow
+            key={token.address}
+            token={token}
+            onClick={() => onPrincipalErc20TokenSelected(token)}
+          />
+        ))
       )}
     </div>
   );
