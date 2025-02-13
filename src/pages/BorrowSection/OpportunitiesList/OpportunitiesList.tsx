@@ -5,9 +5,7 @@ import {
   CommitmentType,
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
-import {
-  useGetCommitmentsForErc20TokensByPrincipalToken,
-} from "../../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { useGetCommitmentsForErc20TokensByPrincipalToken } from "../../../hooks/queries/useGetCommitmentsForErc20Tokens";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -50,7 +48,12 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
     <div className="opportunity-list-item-data-label section-sub-title">
       {label}
     </div>
-    <div className="opportunity-list-item-data-value" style={{ color: valueTextColor || 'inherit' }}>{value}</div>
+    <div
+      className="opportunity-list-item-data-value"
+      style={{ color: valueTextColor || "inherit" }}
+    >
+      {value}
+    </div>
   </div>
 );
 
@@ -76,9 +79,11 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const isLiquidityPool = opportunity.isLenderGroup;
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
-  const matchingCollateralToken = !isStableView 
-    ? tokensWithCommitments.find(token => 
-        token.address.toLowerCase() === opportunity.collateralToken?.address?.toLowerCase()
+  const matchingCollateralToken = !isStableView
+    ? tokensWithCommitments.find(
+        (token) =>
+          token.address.toLowerCase() ===
+          opportunity.collateralToken?.address?.toLowerCase()
       )
     : selectedCollateralToken;
 
@@ -87,8 +92,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
-    (matchingCollateralToken?.balanceBigInt ?? 0) > 0 
-      ? matchingCollateralToken?.balanceBigInt 
+    (matchingCollateralToken?.balanceBigInt ?? 0) > 0
+      ? matchingCollateralToken?.balanceBigInt
       : defaultAmount
   );
 
@@ -177,7 +182,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         borrow{" "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
-          logo={displayLoanAmountData.token}
+          logo={displayLoanAmountData.token ?? ""}
         />
         <img src={caret} />
       </div>
@@ -185,34 +190,39 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         {aprLoading ? (
           <Loader isSkeleton height={16} />
         ) : (
-      <>
-        <OpportunityListDataItem
-          label="Interest"
-          value={`${(
-            (Number(apr) / 100) *
-            (Number(opportunity.maxDuration) / 86400 / 365)
-          ).toFixed(2)} %`}
-        />
-        <OpportunityListDataItem
-          label="Duration"
-          value={`${Number(opportunity.maxDuration) / 86400} days`}
-        />
-        {!isStableView && (
-        <OpportunityListDataItem
-          label="Est. loan to uni ROI:"
-          value={
-            parseFloat(selectedErc20Apy) - 
-            (apr / 100 + (totalFeePercent / 100) * (365 / (Number(opportunity.maxDuration) / 86400)))
-            < 0 
-              ? "-" 
-              : `+ ${(parseFloat(selectedErc20Apy) - ((apr / 100) + ((totalFeePercent / 100) * (365 / (Number(opportunity.maxDuration) / 86400))))).toFixed(2)} %`
-          }
-          valueTextColor={"#3D8974"}
-        />
-
-        )}
-      </>
-
+          <>
+            <OpportunityListDataItem
+              label="Interest"
+              value={`${(
+                (Number(apr) / 100) *
+                (Number(opportunity.maxDuration) / 86400 / 365)
+              ).toFixed(2)} %`}
+            />
+            <OpportunityListDataItem
+              label="Duration"
+              value={`${Number(opportunity.maxDuration) / 86400} days`}
+            />
+            {!isStableView && (
+              <OpportunityListDataItem
+                label="Est. loan to uni ROI:"
+                value={
+                  parseFloat(selectedErc20Apy) -
+                    (apr / 100 +
+                      (totalFeePercent / 100) *
+                        (365 / (Number(opportunity.maxDuration) / 86400))) <
+                  0
+                    ? "-"
+                    : `+ ${(
+                        parseFloat(selectedErc20Apy) -
+                        (apr / 100 +
+                          (totalFeePercent / 100) *
+                            (365 / (Number(opportunity.maxDuration) / 86400)))
+                      ).toFixed(2)} %`
+                }
+                valueTextColor={"#3D8974"}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
@@ -232,25 +242,23 @@ const OpportunitiesList: React.FC = () => {
   } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
-  const {
-    data: lcfaCommitments,
-    isLoading: isLcfaLoading,
-  } = useGetCommitmentsForCollateralToken(
-    selectedCollateralToken?.address,
-    userAddress
-  );
+  const { data: lcfaCommitments, isLoading: isLcfaLoading } =
+    useGetCommitmentsForCollateralToken(
+      selectedCollateralToken?.address,
+      userAddress
+    );
 
-  const {
-    data: lenderGroupsCommitments,
-    isLoading: isLenderGroupsLoading,
-  } = useGetCommitmentsForCollateralTokensFromLiquidityPools(
-    selectedCollateralToken?.address
-  );
+  const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
+    useGetCommitmentsForCollateralTokensFromLiquidityPools(
+      selectedCollateralToken?.address ?? ""
+    );
 
   const {
     erc20sWithCommitments: erc20sWithCommitments,
     isLoading: isErc20Loading,
-  } = useGetCommitmentsForErc20TokensByPrincipalToken(selectedPrincipalErc20Token?.address);
+  } = useGetCommitmentsForErc20TokensByPrincipalToken(
+    selectedPrincipalErc20Token?.address
+  );
 
   const data = useMemo(() => {
     if (isStableView) {
@@ -278,25 +286,23 @@ const OpportunitiesList: React.FC = () => {
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
-  
+
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">
-        {isStableView ? (
-          selectedCollateralToken && (
-            <TokenDropdown
-              tokens={tokensWithCommitments}
-              selectedToken={selectedCollateralToken}
-            />
-          )
-        ) : (
-          selectedPrincipalErc20Token && (
-            <TokenDropdown
-              tokens={principalErc20Tokens}
-              selectedToken={selectedPrincipalErc20Token}
-            />
-          )
-        )}
+        {isStableView
+          ? selectedCollateralToken && (
+              <TokenDropdown
+                tokens={tokensWithCommitments}
+                selectedToken={selectedCollateralToken}
+              />
+            )
+          : selectedPrincipalErc20Token && (
+              <TokenDropdown
+                tokens={principalErc20Tokens}
+                selectedToken={selectedPrincipalErc20Token}
+              />
+            )}
       </div>
       {data && (
         <div className="opportunities-list-body">
@@ -304,10 +310,14 @@ const OpportunitiesList: React.FC = () => {
             <div className="opp-pill-row">
               My opportunities
               {!isStableView && (
-                <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
+                <span
+                  style={{ fontSize: "11px", padding: "2px 5px !important" }}
+                >
                   <DataPill
                     label={`${selectedErc20Apy}% APY`}
-                    logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
+                    logo={
+                      "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+                    }
                   />
                 </span>
               )}
@@ -339,7 +349,11 @@ const OpportunitiesList: React.FC = () => {
                         justifyContent: "center",
                       }}
                     >
-                      Deploy ${isStableView ? selectedCollateralToken?.symbol : selectedPrincipalErc20Token?.symbol} pool
+                      Deploy $
+                      {isStableView
+                        ? selectedCollateralToken?.symbol
+                        : selectedPrincipalErc20Token?.symbol}{" "}
+                      pool
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"

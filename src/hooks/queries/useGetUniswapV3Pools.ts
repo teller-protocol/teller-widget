@@ -113,11 +113,10 @@ export const useGetUniswapV3LiquidityPools = ({
     queryKey: ["poolDayDatas", poolId, daysAgoTimestamp],
     queryFn: async () => {
       if (!poolId) return null;
-      const response = (await request(
-        graphURL || "",
-        getPoolDayDatasQuery,
-        { poolId, dateGt: daysAgoTimestamp }
-      )) as { poolDayDatas: { date: number; feesUSD: string }[] };
+      const response = (await request(graphURL || "", getPoolDayDatasQuery, {
+        poolId,
+        dateGt: daysAgoTimestamp,
+      })) as { poolDayDatas: { date: number; feesUSD: string }[] };
       return response.poolDayDatas;
     },
     enabled: !!poolId,
@@ -139,9 +138,9 @@ export const useGetUniswapV3LiquidityPools = ({
   }
 
   return {
-    bestPool: bestPoolQuery.data,         // The best pool object (or null)
-    poolDayDatas: poolDayDatasQuery.data,   // Array of poolDayDatas for the pool
-    aggregatedFeesUSD,                      // Total feesUSD over the previous period (excluding today)
+    bestPool: bestPoolQuery.data, // The best pool object (or null)
+    poolDayDatas: poolDayDatasQuery.data, // Array of poolDayDatas for the pool
+    aggregatedFeesUSD, // Total feesUSD over the previous period (excluding today)
     isLoading: bestPoolQuery.isLoading || poolDayDatasQuery.isLoading,
     error: bestPoolQuery.error || poolDayDatasQuery.error,
   };

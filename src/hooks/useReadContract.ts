@@ -56,6 +56,7 @@ export const useReadContract = <T = any>(
       ? contracts[contractName ?? ""]?.address
       : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
         contractName;
+
   const { data, error, isLoading, refetch, isRefetching, isFetched } =
     useWagmiReadContract({
       address,

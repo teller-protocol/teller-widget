@@ -2,27 +2,26 @@
 
 import React, {
   createContext,
-  useContext,
-  useState,
-  useEffect,
   ReactNode,
   useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
+import { formatUnits } from "viem";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { useGetCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { useAlchemy } from "../../hooks/useAlchemy";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenList";
-import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
-import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useGetCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
-import { formatUnits } from "viem";
 
 // Import your existing Uniswap hooks
+import { useChainId } from "wagmi";
 import { useGetUniswapV3LiquidityPools } from "../../hooks/queries/useGetUniswapV3Pools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/useUniswapV3PoolUSDValue";
 
-// -------------------------------------------------------------------
-// Define the type for Uniswap data (including computed APY).
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
   aggregatedFeesUSD: string;
@@ -30,8 +29,6 @@ export type UniswapData = {
   apy: string;
 };
 
-// -------------------------------------------------------------------
-// Define the borrow section steps.
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
   SELECT_OPPORTUNITY,
@@ -41,8 +38,6 @@ export enum BorrowSectionSteps {
   ADD_TO_CALENDAR,
 }
 
-// -------------------------------------------------------------------
-// Define the context type.
 export type BorrowSectionContextType = {
   currentStep: BorrowSectionSteps;
   setCurrentStep: (step: BorrowSectionSteps) => void;
@@ -77,17 +72,15 @@ interface BorrowSectionContextProps {
   children: ReactNode;
 }
 
-// Create the context.
 const BorrowSectionContext = createContext<BorrowSectionContextType>(
   {} as BorrowSectionContextType
 );
 
-// -------------------------------------------------------------------
-// Provider component.
-export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> = ({
-  children,
-}) => {
-  const { singleWhitelistedToken, chainId } = useGetGlobalPropsContext();
+export const BorrowSectionContextProvider: React.FC<
+  BorrowSectionContextProps
+> = ({ children }) => {
+  const { singleWhitelistedToken } = useGetGlobalPropsContext();
+  const chainId = useChainId();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
     singleWhitelistedToken
@@ -104,12 +97,12 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
 
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
-  const {
-    erc20sWithCommitments,
-    isLoading: erc20sWithCommitmentsLoading,
-  } = useGetCommitmentsForErc20Tokens();
+  const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } =
+    useGetCommitmentsForErc20Tokens();
 
-  const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>([]);
+  const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>(
+    []
+  );
   const alchemy = useAlchemy();
 
   // Fetch token metadata based on commitments.
@@ -149,7 +142,10 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
               decimals: metadata.decimals || 18,
             } as UserToken;
           } catch (error) {
-            console.error(`Error fetching metadata for token ${address}:`, error);
+            console.error(
+              `Error fetching metadata for token ${address}:`,
+              error
+            );
             return null;
           }
         })
@@ -163,7 +159,9 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
 
   // -------------------------------------------------------------------
   // State to hold Uniswap data.
-  const [uniswapDataMap, setUniswapDataMap] = useState<Record<string, UniswapData>>({});
+  const [uniswapDataMap, setUniswapDataMap] = useState<
+    Record<string, UniswapData>
+  >({});
 
   // Clear stored Uniswap data when chain or tokens change.
   useEffect(() => {
@@ -196,9 +194,8 @@ export const BorrowSectionContextProvider: React.FC<BorrowSectionContextProps> =
   const [successfulLoanParams, setSuccessfulLoanParams] = useState<any>({});
   const [bidId, setBidId] = useState<string>("");
   const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
-  const [tokenTypeListView, setTokenTypeListView] = useState<BORROW_TOKEN_TYPE_ENUM>(
-    BORROW_TOKEN_TYPE_ENUM.STABLE
-  );
+  const [tokenTypeListView, setTokenTypeListView] =
+    useState<BORROW_TOKEN_TYPE_ENUM>(BORROW_TOKEN_TYPE_ENUM.STABLE);
 
   return (
     <BorrowSectionContext.Provider
@@ -253,7 +250,10 @@ interface UniswapDataFetcherProps {
   onData: (data: UniswapData) => void;
 }
 
-const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({ token, onData }) => {
+const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({
+  token,
+  onData,
+}) => {
   const {
     bestPool,
     aggregatedFeesUSD,
@@ -279,19 +279,22 @@ const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({ token, onData }
       const fees = parseFloat(aggregatedFeesUSD);
       const apy =
         totalUSDValue && totalUSDValue > 0
-          ? (((fees / totalUSDValue) * (365 / 30)) * 100).toFixed(0)
+          ? ((fees / totalUSDValue) * (365 / 30) * 100).toFixed(0)
           : "0";
       onData({ bestPool, aggregatedFeesUSD, totalUSDValue, apy });
     }
   }, [
+    aggregatedFeesUSD,
+    bestPool,
     isLiquidityLoading,
+    isPoolValueLoading,
+    onData,
+    totalUSDValue,
   ]);
 
   return null;
 };
 
-// -------------------------------------------------------------------
-// Custom hook to access the context.
 export const useGetBorrowSectionContext = () => {
   const context = useContext(BorrowSectionContext);
   if (!context) {

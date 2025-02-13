@@ -11,7 +11,9 @@ import TokenLogo from "../../../components/TokenLogo";
 import Loader from "../../../components/Loader";
 import "../../../components/PrincipalErc20Row/principalErc20Row.scss";
 
-const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = "" }) => {
+const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({
+  searchQuery = "",
+}) => {
   const {
     principalErc20Tokens,
     uniswapDataMap, // Get uniswapDataMap here
@@ -48,7 +50,7 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({ searchQuery = 
           size={32}
         />
         <div className="token-balance-info">
-          <span className="paragraph">Borrow {'>'} Earn APY</span>
+          <span className="paragraph">Borrow {">"} Earn APY</span>
           <span className="section-sub-title" style={{ fontSize: "9px" }}>
             Source liquidity to pool on Uniswap
           </span>

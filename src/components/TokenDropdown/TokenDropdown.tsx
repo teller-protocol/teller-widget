@@ -30,13 +30,23 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   const { tokenTypeListView } = useGetBorrowSectionContext();
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
+  const subtitleData = isStableView
+    ? {
+        title: "Balance",
+        value: Number(token?.balance).toFixed(3),
+      }
+    : {
+        title: "Available",
+        value: numberWithCommasAndDecimals(token?.balance),
+      };
+
   return (
     <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
       <TokenLogo logoUrl={logoUrl} size={32} />
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {isStableView ? "Balance" : "Available"}: {isStableView ? Number(token?.balance).toFixed(3) : numberWithCommasAndDecimals(token?.balance)}  {token?.symbol}
+          {subtitleData.title}: {subtitleData.value} {token?.symbol}
         </div>
       </div>
     </div>
@@ -49,11 +59,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { 
-    setSelectedCollateralToken, 
+  const {
+    setSelectedCollateralToken,
     setSelectedPrincipalErc20Token,
     setSelectedErc20Apy,
-    uniswapDataMap
+    uniswapDataMap,
   } = useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
@@ -72,13 +82,10 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     setIsOpen(false);
   };
 
-
   const ref = useOutsideClick(() => {
     setIsOpen(false);
     setSearchQuery("");
   });
-
-  
 
   const sortedTokens = [
     ...tokens
@@ -100,7 +107,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   return (
     <div className="token-dropdown" ref={ref}>
       <div
-        className={cx("token-dropdown--row-container", isOpen && "opened", singleWhitelistedToken && "disabled")}
+        className={cx(
+          "token-dropdown--row-container",
+          isOpen && "opened",
+          singleWhitelistedToken && "disabled"
+        )}
         onClick={() => !singleWhitelistedToken && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
@@ -110,17 +121,17 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           </div>
         )}
       </div>
-          {isOpen && (
-            <div className="token-dropdown--tokens">
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Select collateral for deposit"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="token-dropdown--search"
-                />
-              </div>
+      {isOpen && (
+        <div className="token-dropdown--tokens">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Select collateral for deposit"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="token-dropdown--search"
+            />
+          </div>
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}

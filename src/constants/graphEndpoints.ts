@@ -11,7 +11,10 @@ export const getGraphEndpointWithKey = (apiKey: string, chainId: number) => {
   return GRAPH_ENDPOINTS[chainId];
 };
 
-export const getUniswapV3GraphEndpointWithKey = (apiKey: string, chainId: number) => {
+export const getUniswapV3GraphEndpointWithKey = (
+  apiKey: string,
+  chainId: number
+) => {
   const GRAPH_ENDPOINTS: { [chainId: number]: string | undefined } = {
     [mainnet.id]: `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV`,
     [polygon.id]: `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/3hCPRGf4z88VC5rsBKU5AA9FBBq5nF3jbKJG7VZCbhjm`,

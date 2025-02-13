@@ -48,18 +48,20 @@ const OpportunityDetails = () => {
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
-  
+
   const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
-  const matchingCollateralToken = !isStableView 
-    ? tokensWithCommitments.find(token => 
-        token.address.toLowerCase() === selectedOpportunity?.collateralToken?.address?.toLowerCase()
+  const matchingCollateralToken = !isStableView
+    ? tokensWithCommitments.find(
+        (token) =>
+          token.address.toLowerCase() ===
+          selectedOpportunity?.collateralToken?.address?.toLowerCase()
       )
     : selectedCollateralToken;
 
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     selectedOpportunity.principalToken?.address ?? ""
   );
-  
+
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
@@ -138,6 +140,7 @@ const OpportunityDetails = () => {
   }, [
     collateralTokenValue,
     isWhitelistedTokenAndUserHasNoBalance,
+    matchingCollateralToken,
     maxCollateral,
     selectedCollateralToken,
     selectedPrincipalErc20Token,
@@ -169,7 +172,8 @@ const OpportunityDetails = () => {
     (referralFee ?? 0);
 
   const totalFees = (maxLoanAmountNumber * totalFeePercent) / 10000;
-  const loanMinusFees = (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
+  const loanMinusFees =
+    (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
 
   const payPerLoan = useMemo(
     () =>
@@ -227,11 +231,18 @@ const OpportunityDetails = () => {
           onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
         />
         {!isStableView && (
-          <span style={{fontSize: "11px", padding: "2px 5px !important",}}>
+          <span style={{ fontSize: "11px", padding: "2px 5px !important" }}>
             <DataPill
               label={`${selectedErc20Apy}% APY`}
-              logo={"https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"}
-              linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(chainName)?.replace(/-one/g, '')}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
+              logo={
+                "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+              }
+              linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(
+                chainName
+              )?.replace(
+                /-one/g,
+                ""
+              )}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
             />
           </span>
         )}
@@ -242,7 +253,11 @@ const OpportunityDetails = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             Deposit
             <Tooltip
-              description={`Deposit ${matchingCollateralToken?.symbol} to borrow ${selectedOpportunity?.principalToken?.symbol} for ${convertSecondsToDays(
+              description={`Deposit ${
+                matchingCollateralToken?.symbol
+              } to borrow ${
+                selectedOpportunity?.principalToken?.symbol
+              } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
               )} days${isStableView ? "—extend anytime via rollover" : ""}.`}
               icon={
@@ -288,7 +303,9 @@ const OpportunityDetails = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             Borrow
             <Tooltip
-              description={`Borrow ${selectedOpportunity?.principalToken?.symbol} for ${convertSecondsToDays(
+              description={`Borrow ${
+                selectedOpportunity?.principalToken?.symbol
+              } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
               )} days${isStableView ? "—extend anytime via rollover" : ""}.`}
               icon={
@@ -311,7 +328,9 @@ const OpportunityDetails = () => {
         imageUrl={principalTokenMetadata?.logo || ""}
         sublabelUpper={
           <span>
-            Duration: {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))} days
+            Duration:{" "}
+            {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
+            days
             {isStableView && (
               <>
                 {" • Rollover: "}
@@ -343,16 +362,26 @@ const OpportunityDetails = () => {
         readonly
       />
       <div className="section-title fee-details">
-        Interest: {payPerLoan}{" "}
-        {selectedOpportunity.principalToken?.symbol} • Fees:{" "}
-        {numberWithCommasAndDecimals(totalFees)}{" "}
+        Interest: {payPerLoan} {selectedOpportunity.principalToken?.symbol} •
+        Fees: {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
       {!isStableView && (
-      <div className="section-title fee-details" style={{ margin: "0", color: "#3D8974" || 'inherit', }}>
-        Est. earned on uni: +{numberWithCommasAndDecimals(loanMinusFees * (parseFloat(selectedErc20Apy)/100) * (convertSecondsToDays(Number(selectedOpportunity?.maxDuration) / 365)))}{" "}
-        {selectedOpportunity.principalToken?.symbol}
-      </div>)}
+        <div
+          className="section-title fee-details"
+          style={{ margin: "0", color: "#3D8974" }}
+        >
+          Est. earned on uni: +
+          {numberWithCommasAndDecimals(
+            loanMinusFees *
+              (parseFloat(selectedErc20Apy) / 100) *
+              convertSecondsToDays(
+                Number(selectedOpportunity?.maxDuration) / 365
+              )
+          )}{" "}
+          {selectedOpportunity.principalToken?.symbol}
+        </div>
+      )}
 
       {isNewBorrower ? (
         <Button

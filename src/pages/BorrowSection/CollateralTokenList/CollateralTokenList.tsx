@@ -40,7 +40,6 @@ const selectOptions = [
   },
 ];
 
-
 const CollateralTokenList: React.FC = () => {
   const {
     setCurrentStep,
@@ -53,7 +52,8 @@ const CollateralTokenList: React.FC = () => {
   const { showPrincipalTokenBorrowList } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const { tokenTypeListView, setTokenTypeListView } = useGetBorrowSectionContext();
+  const { tokenTypeListView, setTokenTypeListView } =
+    useGetBorrowSectionContext();
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
@@ -82,44 +82,44 @@ const CollateralTokenList: React.FC = () => {
       {isSupportedChain ? (
         <div>
           <div className="search-and-buttons">
-          <input
-            type="text"
-            placeholder={
-              tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 
-              ? "Tokens to borrow" : "Collateral for loan"
-            }
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="token-search-input"
-          />
-          {showPrincipalTokenBorrowList &&(
-            <SelectButtons
-              items={selectOptions}
-              value={tokenTypeListView}
-              onChange={setTokenTypeListView}
+            <input
+              type="text"
+              placeholder={
+                tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20
+                  ? "Tokens to borrow"
+                  : "Collateral for loan"
+              }
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="token-search-input"
             />
-          )}
+            {showPrincipalTokenBorrowList && (
+              <SelectButtons
+                items={selectOptions}
+                value={tokenTypeListView}
+                onChange={setTokenTypeListView}
+              />
+            )}
           </div>
-          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 && showPrincipalTokenBorrowList ? (
-              erc20Loading ? (
-                <Loader />
-              ) : (
-                <PrincipalErc20List searchQuery={searchQuery} />
-              )
-            ) : (
-            loading ? (
+          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 &&
+          showPrincipalTokenBorrowList ? (
+            erc20Loading ? (
               <Loader />
-            ) : filteredAndSortedTokens.length > 0 ? (
-              filteredAndSortedTokens.map((token) => (
-                <CollateralTokenRow
-                  token={token}
-                  onClick={() => onCollateralTokenSelected(token)}
-                  key={token.address.toString()}
-                />
-              ))
             ) : (
-              <div className="section-title">No tokens available</div>
+              <PrincipalErc20List searchQuery={searchQuery} />
             )
+          ) : loading ? (
+            <Loader />
+          ) : filteredAndSortedTokens.length > 0 ? (
+            filteredAndSortedTokens.map((token) => (
+              <CollateralTokenRow
+                token={token}
+                onClick={() => onCollateralTokenSelected(token)}
+                key={token.address.toString()}
+              />
+            ))
+          ) : (
+            <div className="section-title">No tokens available</div>
           )}
         </div>
       ) : (

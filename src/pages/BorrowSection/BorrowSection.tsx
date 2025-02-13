@@ -19,8 +19,13 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 const RenderComponent: React.FC = () => {
   const { whitelistedChainTokens, singleWhitelistedToken, userTokens } =
     useGetGlobalPropsContext();
-  const { currentStep, setCurrentStep, bidId, setSelectedCollateralToken, setSelectedPrincipalErc20Token } =
-    useGetBorrowSectionContext();
+  const {
+    currentStep,
+    setCurrentStep,
+    bidId,
+    setSelectedCollateralToken,
+    setSelectedPrincipalErc20Token,
+  } = useGetBorrowSectionContext();
   const chainId = useChainId();
 
   const tokenAddress = singleWhitelistedToken?.toLowerCase() || "";
@@ -58,7 +63,7 @@ const RenderComponent: React.FC = () => {
         balanceBigInt: balanceBigInt,
         decimals: tokenMetadata.decimals || 18,
       });
-      
+
       setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     }
   }, [
@@ -68,6 +73,7 @@ const RenderComponent: React.FC = () => {
     setSelectedCollateralToken,
     setSelectedPrincipalErc20Token,
     setCurrentStep,
+    userTokens,
   ]);
 
   const mapStepToComponent = useMemo(

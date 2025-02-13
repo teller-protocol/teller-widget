@@ -1,10 +1,15 @@
 // useUniswapV3PoolUSDValue.ts
-import { useReadContract, ContractType } from "./useReadContract";
+import {
+  useReadContract,
+  ContractType,
+  SupportedContractsEnum,
+} from "./useReadContract";
 import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
 import { useChainId } from "wagmi";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { getUniswapV3GraphEndpointWithKey } from "../constants/graphEndpoints";
+import { Address } from "viem";
 
 export interface UseUniswapV3PoolUSDValueParams {
   /** The Uniswap V3 pool address */
@@ -32,21 +37,41 @@ export const useUniswapV3PoolUSDValue = ({
     data: token0Address,
     isLoading: token0AddrLoading,
     error: token0AddrError,
-  } = useReadContract(poolAddress, "token0", [], false, ContractType.UNIV3POOL);
+  } = useReadContract(
+    poolAddress,
+    "token0",
+    [],
+    false,
+    ContractType.UNIV3POOL
+  ) as {
+    data: Address;
+    isLoading: boolean;
+    error: Error | null;
+  };
 
   const {
     data: token1Address,
     isLoading: token1AddrLoading,
     error: token1AddrError,
-  } = useReadContract(poolAddress, "token1", [], false, ContractType.UNIV3POOL);
+  } = useReadContract(
+    poolAddress,
+    "token1",
+    [],
+    false,
+    ContractType.UNIV3POOL
+  ) as {
+    data: Address;
+    isLoading: boolean;
+    error: Error | null;
+  };
 
   // Keep the "0x" prefix; simply convert to lowercase.
   const token0AddressLower = token0Address
-    ? (token0Address as string).toLowerCase()
-    : "";
+    ? (token0Address.toLowerCase() as Address)
+    : undefined;
   const token1AddressLower = token1Address
-    ? (token1Address as string).toLowerCase()
-    : "";
+    ? (token1Address.toLowerCase() as Address)
+    : undefined;
 
   // 2. Get token balances held by the pool.
   // (We assume that token0AddressLower and token1AddressLower already include the "0x" prefix.)
@@ -58,7 +83,7 @@ export const useUniswapV3PoolUSDValue = ({
     token0AddressLower,
     "balanceOf",
     [poolAddress],
-    false,
+    !token0AddressLower,
     ContractType.ERC20
   );
 
@@ -70,14 +95,17 @@ export const useUniswapV3PoolUSDValue = ({
     token1AddressLower,
     "balanceOf",
     [poolAddress],
-    false,
+    !token1AddressLower,
     ContractType.ERC20
   );
 
   // 3. Setup subgraph queries to fetch derived ETH values.
   const chainId = useChainId();
   const { subgraphApiKey } = useGetGlobalPropsContext();
-  const UNISWAP_V3_SUBGRAPH_URL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId);
+  const UNISWAP_V3_SUBGRAPH_URL = getUniswapV3GraphEndpointWithKey(
+    subgraphApiKey,
+    chainId
+  );
 
   // GraphQL query to get the token's derived ETH value.
   const GET_TOKEN_DERIVED_ETH = gql`
@@ -89,11 +117,17 @@ export const useUniswapV3PoolUSDValue = ({
   `;
 
   // Fetch function with logging and error handling.
-  const fetchTokenDerivedETH = async (tokenId: string): Promise<string | null> => {
+  const fetchTokenDerivedETH = async (
+    tokenId: string
+  ): Promise<string | null> => {
     try {
-      const data = await request(UNISWAP_V3_SUBGRAPH_URL!, GET_TOKEN_DERIVED_ETH, {
-        tokenId,
-      });
+      const data = await request(
+        UNISWAP_V3_SUBGRAPH_URL!,
+        GET_TOKEN_DERIVED_ETH,
+        {
+          tokenId,
+        }
+      );
       if (!data || !data.token) {
         console.warn("Token not found in subgraph for", tokenId);
         return null;
@@ -112,7 +146,7 @@ export const useUniswapV3PoolUSDValue = ({
     error: token0DerivedError,
   } = useQuery({
     queryKey: ["token-derived-eth", token0AddressLower],
-    queryFn: () => fetchTokenDerivedETH(token0AddressLower),
+    queryFn: () => fetchTokenDerivedETH(token0AddressLower ?? ""),
     enabled: !!token0AddressLower,
   });
 
@@ -123,7 +157,7 @@ export const useUniswapV3PoolUSDValue = ({
     error: token1DerivedError,
   } = useQuery({
     queryKey: ["token-derived-eth", token1AddressLower],
-    queryFn: () => fetchTokenDerivedETH(token1AddressLower),
+    queryFn: () => fetchTokenDerivedETH(token1AddressLower ?? ""),
     enabled: !!token1AddressLower,
   });
 
@@ -139,7 +173,10 @@ export const useUniswapV3PoolUSDValue = ({
 
   const fetchEthPriceUSD = async (): Promise<number | null> => {
     try {
-      const data = await request(UNISWAP_V3_SUBGRAPH_URL!, GET_ETH_PRICE_USD);
+      const data = (await request(
+        UNISWAP_V3_SUBGRAPH_URL!,
+        GET_ETH_PRICE_USD
+      )) as any;
       if (!data || !data.bundle) {
         console.warn("ETH price not found in subgraph");
         return null;
@@ -181,7 +218,7 @@ export const useUniswapV3PoolUSDValue = ({
   ) {
     const value0 = parseFloat(token0Balance.toString()) * token0USDPrice;
     const value1 = parseFloat(token1Balance.toString()) * token1USDPrice;
-    totalUSDValue = (value0 + value1)/(10**18);
+    totalUSDValue = (value0 + value1) / 10 ** 18;
   }
 
   const isLoading =
@@ -190,7 +227,7 @@ export const useUniswapV3PoolUSDValue = ({
     token0BalLoading ||
     token1BalLoading ||
     token0DerivedLoading ||
-    token1DerivedLoading || 
+    token1DerivedLoading ||
     ethPriceLoading;
   const error =
     token0AddrError ||
