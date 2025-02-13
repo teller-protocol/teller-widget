@@ -21,6 +21,7 @@ import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenLis
 import { useChainId } from "wagmi";
 import { useGetUniswapV3LiquidityPools } from "../../hooks/queries/useGetUniswapV3Pools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/useUniswapV3PoolUSDValue";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -187,15 +188,23 @@ export const BorrowSectionContextProvider: React.FC<
     []
   );
 
-  // Other state values.
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
   const [successLoanHash, setSuccessLoanHash] = useState<string>("");
   const [successfulLoanParams, setSuccessfulLoanParams] = useState<any>({});
   const [bidId, setBidId] = useState<string>("");
   const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
+
+  const storedTokenTypeListView = getItemFromLocalStorage(
+    "tokenTypeListView"
+  ) as BORROW_TOKEN_TYPE_ENUM;
+
   const [tokenTypeListView, setTokenTypeListView] =
-    useState<BORROW_TOKEN_TYPE_ENUM>(BORROW_TOKEN_TYPE_ENUM.STABLE);
+    useState<BORROW_TOKEN_TYPE_ENUM>(
+      !!storedTokenTypeListView
+        ? storedTokenTypeListView
+        : BORROW_TOKEN_TYPE_ENUM.STABLE
+    );
 
   return (
     <BorrowSectionContext.Provider

@@ -13,6 +13,7 @@ import {
 } from "../BorrowSectionContext";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import "./collateralTokenList.scss";
+import { setItemInLocalStorage } from "../../../helpers/localStorageUtils";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -54,6 +55,11 @@ const CollateralTokenList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { tokenTypeListView, setTokenTypeListView } =
     useGetBorrowSectionContext();
+
+  const handleTokenTypeListViewChange = (value: BORROW_TOKEN_TYPE_ENUM) => {
+    setTokenTypeListView(value);
+    setItemInLocalStorage("tokenTypeListView", value);
+  };
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
@@ -97,7 +103,7 @@ const CollateralTokenList: React.FC = () => {
               <SelectButtons
                 items={selectOptions}
                 value={tokenTypeListView}
-                onChange={setTokenTypeListView}
+                onChange={handleTokenTypeListViewChange}
               />
             )}
           </div>
