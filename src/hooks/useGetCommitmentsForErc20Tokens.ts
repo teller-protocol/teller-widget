@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { useChainId } from "wagmi";
 import { supportedPrincipalTokens, TOKEN_ADDRESSES } from "../constants/tokens";
@@ -11,25 +11,29 @@ export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
 
-  const { liquidityPools: liquidityPools, isLoading: liquidityPoolsLoading } =
-    useGetLiquidityPools();
-
+  const {
+    liquidityPools: liquidityPools,
+    isLoading: liquidityPoolsLoading,
+    isFetched: liquidityPoolsFetched,
+  } = useGetLiquidityPools();
   const alchemy = useAlchemy();
 
   const [isLoading, setIsLoading] = useState<boolean>(
     liquidityPoolsLoading || true
   );
 
-  const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>(
-    []
-  );
+  const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<any[]>([]);
+  const [convertedCommitments, setConvertedCommitments] = useState<any[]>([]);
 
   const chainTokenAddresses = supportedPrincipalTokens
     .map((token: string) => TOKEN_ADDRESSES[chainId]?.[token])
     .filter((token: string) => typeof token === "string");
 
   useEffect(() => {
-    if (liquidityPoolsLoading) {
+    if (
+      liquidityPoolsLoading ||
+      (liquidityPoolsFetched && principalErc20Tokens.length > 0)
+    ) {
       return;
     }
 
@@ -49,6 +53,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
       const convertedCommitments = await Promise.all(
         filteredPools.map(convertCommitment)
       );
+      setConvertedCommitments(convertedCommitments);
       return convertedCommitments;
     })()
       .then(async (convertedCommitments) => {
@@ -111,11 +116,24 @@ export const useGetCommitmentsForErc20Tokens = () => {
     chainTokenAddresses,
     convertCommitment,
     liquidityPoolsLoading,
-    alchemy?.core,
+    liquidityPoolsFetched,
+    principalErc20Tokens.length,
   ]);
+
+  const getCommitmentsForErc20TokensByPrincipalToken = useCallback(
+    (principalTokenAddress?: string) => {
+      return convertedCommitments.filter(
+        (commitment) =>
+          commitment?.principalToken?.address?.toLowerCase() ===
+          principalTokenAddress?.toLowerCase()
+      );
+    },
+    [convertedCommitments]
+  );
 
   return {
     principalErc20Tokens,
     isLoading,
+    getCommitmentsForErc20TokensByPrincipalToken,
   };
 };

@@ -5,7 +5,7 @@ import {
   CommitmentType,
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
-import { useGetCommitmentsForErc20TokensByPrincipalToken } from "../../../hooks/queries/useGetCommitmentsForErc20Tokens";
+import { useGetCommitmentsForErc20Tokens } from "../../../hooks/useGetCommitmentsForErc20Tokens";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -254,9 +254,11 @@ const OpportunitiesList: React.FC = () => {
     );
 
   const {
-    erc20sWithCommitments: erc20sWithCommitments,
     isLoading: isErc20Loading,
-  } = useGetCommitmentsForErc20TokensByPrincipalToken(
+    getCommitmentsForErc20TokensByPrincipalToken,
+  } = useGetCommitmentsForErc20Tokens();
+
+  const erc20sWithCommitments = getCommitmentsForErc20TokensByPrincipalToken(
     selectedPrincipalErc20Token?.address
   );
 

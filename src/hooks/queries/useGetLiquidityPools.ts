@@ -57,7 +57,7 @@ export const useGetLiquidityPools = () => {
     },
   });
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, isFetched } = useQuery({
     queryKey: ["allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
       const response = (await request(graphURL, poolCommitmentsDashboard)) as {
@@ -77,5 +77,5 @@ export const useGetLiquidityPools = () => {
 
   if (error) console.error("allLiquidityPools Query error", error);
 
-  return { liquidityPools: data || [], isLoading };
+  return { liquidityPools: data || [], isLoading, isFetched };
 };
