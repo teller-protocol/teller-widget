@@ -94,7 +94,10 @@ const OpportunityDetails = () => {
     : displayedPrincipalFromLCFa;
 
   useEffect(() => {
-    if (isWhitelistedTokenAndUserHasNoBalance) {
+    if (
+      isWhitelistedTokenAndUserHasNoBalance &&
+      collateralTokenValue.valueBI === undefined
+    ) {
       setCollateralTokenValue({
         token: selectedCollateralToken,
         value: 1,
