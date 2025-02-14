@@ -8,20 +8,18 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { formatUnits } from "viem";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
-import { useGetCommitmentsForErc20Tokens } from "../../hooks/queries/useGetCommitmentsForErc20Tokens";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
-import { useAlchemy } from "../../hooks/useAlchemy";
+import { useGetCommitmentsForErc20Tokens } from "../../hooks/useGetCommitmentsForErc20Tokens";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenList";
 
 // Import your existing Uniswap hooks
 import { useChainId } from "wagmi";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 import { useGetUniswapV3LiquidityPools } from "../../hooks/queries/useGetUniswapV3Pools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/useUniswapV3PoolUSDValue";
-import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -97,65 +95,9 @@ export const BorrowSectionContextProvider: React.FC<
 
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
-  const { erc20sWithCommitments, isLoading: erc20sWithCommitmentsLoading } =
+
+  const { principalErc20Tokens, isLoading: erc20sWithCommitmentsLoading } =
     useGetCommitmentsForErc20Tokens();
-
-  const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<UserToken[]>(
-    []
-  );
-  const alchemy = useAlchemy();
-
-  // Fetch token metadata based on commitments.
-  useEffect(() => {
-    async function fetchTokenMetadata() {
-      if (!erc20sWithCommitments?.length || !alchemy) return;
-
-      const tokenCommitmentMap = erc20sWithCommitments
-        .filter((commitment) => commitment?.principalToken?.address)
-        .reduce((acc, commitment) => {
-          const address = commitment?.principalToken.address.toLowerCase();
-          const currentAmount = acc.get(address ?? "") || BigInt(0);
-          const committedAmount = commitment?.committedAmount
-            ? BigInt(commitment.committedAmount.toString())
-            : BigInt(0);
-          acc.set(address ?? "", currentAmount + committedAmount);
-          return acc;
-        }, new Map<string, bigint>());
-
-      const uniqueAddresses = [...tokenCommitmentMap.keys()];
-
-      const tokensWithMetadata = await Promise.all(
-        uniqueAddresses.map(async (address) => {
-          try {
-            const metadata = await alchemy.core.getTokenMetadata(address);
-            const aggregatedBalance = formatUnits(
-              tokenCommitmentMap.get(address) || BigInt(0),
-              metadata.decimals || 18
-            );
-            return {
-              address: address as `0x${string}`,
-              name: metadata.name || "",
-              symbol: metadata.symbol || "",
-              logo: metadata.logo || "",
-              balance: aggregatedBalance || "0",
-              balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
-              decimals: metadata.decimals || 18,
-            } as UserToken;
-          } catch (error) {
-            console.error(
-              `Error fetching metadata for token ${address}:`,
-              error
-            );
-            return null;
-          }
-        })
-      );
-      setPrincipalErc20Tokens(
-        tokensWithMetadata.filter((token): token is UserToken => token !== null)
-      );
-    }
-    void fetchTokenMetadata();
-  }, [erc20sWithCommitments, alchemy]);
 
   // -------------------------------------------------------------------
   // State to hold Uniswap data.
@@ -237,10 +179,8 @@ export const BorrowSectionContextProvider: React.FC<
         maxCollateral,
         setMaxCollateral,
         principalErc20Tokens,
-        setPrincipalErc20Tokens,
         erc20sWithCommitmentsLoading,
         uniswapDataMap,
-        setUniswapDataMap,
         selectedErc20Apy,
       }}
     >

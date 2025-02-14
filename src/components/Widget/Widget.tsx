@@ -11,7 +11,7 @@ import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export type WhitelistedTokens = {
   [chainId: string]: string[];
@@ -124,14 +124,14 @@ const Widget: React.FC<WidgetProps> = ({
                   welcomeScreenParagraph={welcomeScreenParagraph}
                 />
               ) : (
-                <ModalContent 
-                  showModalByDefault={showModalByDefault} 
-                  showPoolSection={showPoolSection} 
-                  showRepaySection={showRepaySection} 
+                <ModalContent
+                  showModalByDefault={showModalByDefault}
+                  showPoolSection={showPoolSection}
+                  showRepaySection={showRepaySection}
                 />
               )}
             </Modal>
-             {!isEmbedded && (
+            {!isEmbedded && (
               <Button
                 label={buttonLabel}
                 onClick={() => setShowModal(true)}
