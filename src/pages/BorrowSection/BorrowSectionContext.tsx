@@ -85,7 +85,8 @@ export const BorrowSectionContextProvider: React.FC<
   );
 
   const { getPoolUSDValue, isLoading } = useUniswapV3PoolUSDValue();
-  const { fetchPoolData, isLoading: isFetchingPoolData } = useGetUniswapPools();
+  const { fetchPoolData: fetchUniswapPoolData, isLoading: isFetchingPoolData } =
+    useGetUniswapPools();
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
     useState<UserToken>();
@@ -115,7 +116,7 @@ export const BorrowSectionContextProvider: React.FC<
     (async () => {
       await Promise.all(
         principalErc20Tokens.map(async (token) => {
-          const data = await fetchPoolData({
+          const data = await fetchUniswapPoolData({
             tokenAddress: token.address,
             days: 30,
           });
@@ -146,7 +147,7 @@ export const BorrowSectionContextProvider: React.FC<
         })
       );
     })().catch(console.error);
-  }, [fetchPoolData, getPoolUSDValue, principalErc20Tokens]);
+  }, [fetchUniswapPoolData, getPoolUSDValue, principalErc20Tokens, chainId]);
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);

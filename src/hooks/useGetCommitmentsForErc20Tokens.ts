@@ -30,6 +30,11 @@ export const useGetCommitmentsForErc20Tokens = () => {
     .filter((token: string) => typeof token === "string");
 
   useEffect(() => {
+    setPrincipalErc20Tokens([]);
+    setIsLoading(true);
+  }, [chainId]);
+
+  useEffect(() => {
     if (
       liquidityPoolsLoading ||
       (liquidityPoolsFetched && principalErc20Tokens.length > 0)
@@ -118,6 +123,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
     liquidityPoolsLoading,
     liquidityPoolsFetched,
     principalErc20Tokens.length,
+    chainId,
   ]);
 
   const getCommitmentsForErc20TokensByPrincipalToken = useCallback(
