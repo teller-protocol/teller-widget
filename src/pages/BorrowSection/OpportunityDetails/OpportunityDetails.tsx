@@ -117,8 +117,15 @@ const OpportunityDetails = () => {
     : displayedPrincipalFromLCFa;
 
   useEffect(() => {
-    if (isWhitelistedTokenAndUserHasNoBalance) {
-      return;
+    if (
+      isWhitelistedTokenAndUserHasNoBalance &&
+      collateralTokenValue.valueBI === undefined
+    ) {
+      setCollateralTokenValue({
+        token: selectedCollateralToken,
+        value: 1,
+        valueBI: parseUnits("1", selectedCollateralToken?.decimals ?? 0),
+      });
     }
 
     if (!staticMaxCollateral && maxCollateral) {

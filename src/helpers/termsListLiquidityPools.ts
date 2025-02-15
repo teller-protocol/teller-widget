@@ -1,4 +1,4 @@
-import { SupportedChainId } from "constants/chains";
+import { SupportedChainId } from "../constants/chains";
 import * as dayjs from "dayjs";
 import duration, { DurationUnitType } from "dayjs/plugin/duration";
 import { arbitrum, base } from "viem/chains";
@@ -39,7 +39,7 @@ const chainToPoolDuration: Record<
     { poolId: 44, time: 120, unit: "days" },
   ],
   [mainnet.id]: [
-    { poolId: 28, time: 3, unit: "day" },
+    { poolId: 28, time: 3, unit: "days" },
     { poolId: 25, time: 7, unit: "days" },
     { poolId: 26, time: 30, unit: "days" },
     { poolId: 27, time: 120, unit: "days" },

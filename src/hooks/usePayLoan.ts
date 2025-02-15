@@ -47,27 +47,35 @@ export const usePayLoan = (
     const nextDueDate =
       nextDueDateData < cachedNow ? cachedNow : nextDueDateData;
 
-    const { data: currentDueData, error: currentDueDataError }: any =
-      useReadContract(SupportedContractsEnum.TellerV2, `calculateAmountDue`, [
-        loan.bidId,
-        future1Hour,
-      ]);
-    const currentAmountDueBI =
-      currentDueData?.interest && currentDueData?.principal
-        ? BigInt(currentDueData.interest) + BigInt(currentDueData.principal)
-        : BigInt(0);
+    const {
+      data: currentDueData,
+      error: currentDueDataError,
+      isFetched: currentDueDataIsFetched,
+    }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateAmountDue`,
+      [loan.bidId, future1Hour]
+    );
+
+    const currentAmountDueBI = currentDueDataIsFetched
+      ? BigInt(currentDueData.interest) + BigInt(currentDueData.principal)
+      : BigInt(0);
 
     const currentAmountDueNum = formatUnits(
       currentAmountDueBI,
       loan.lendingToken.decimals
     );
 
-    const { data: futureDueData, error: futureDueDataError }: any =
-      useReadContract(SupportedContractsEnum.TellerV2, `calculateAmountDue`, [
-        loan.bidId,
-        nextDueDate,
-      ]);
-    const futureAmountDueBI = !!futureDueData
+    const {
+      data: futureDueData,
+      error: futureDueDataError,
+      isFetched: futureDueDataIsFetched,
+    }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateAmountDue`,
+      [loan.bidId, nextDueDate]
+    );
+    const futureAmountDueBI = futureDueDataIsFetched
       ? BigInt(futureDueData.interest) + BigInt(futureDueData.principal)
       : BigInt(0);
 
@@ -76,15 +84,18 @@ export const usePayLoan = (
       loan.lendingToken.decimals
     );
 
-    const { data: totalOwedData, error: totalOwedDataError }: any =
-      useReadContract(
-        SupportedContractsEnum.TellerV2,
-        `calculateAmountOwed`,
-        [loan.bidId, loan.nextDueDate],
-        !loan.nextDueDate
-      );
+    const {
+      data: totalOwedData,
+      error: totalOwedDataError,
+      isFetched: totalOwedDataIsFetched,
+    }: any = useReadContract(
+      SupportedContractsEnum.TellerV2,
+      `calculateAmountOwed`,
+      [loan.bidId, loan.nextDueDate],
+      !loan.nextDueDate
+    );
 
-    const totalOwedBI = !!totalOwedData
+    const totalOwedBI = totalOwedDataIsFetched
       ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
       : BigInt(0);
 
@@ -136,12 +147,6 @@ export const usePayLoan = (
       let errorMessage =
         amountBI > BigInt(walletBalance?.data) ? "Insufficient funds." : "";
 
-      console.log(
-        "TCL ~ usePayLoan.ts:140 ~ transactions ~ currentAmountDueBI:",
-        currentAmountDueBI,
-        "amountBI:",
-        amountBI
-      );
       if (currentAmountDueBI > amountBI) {
         errorMessage = `Please select amount bigger than ${currentAmountDueNum}`;
       }

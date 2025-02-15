@@ -51,10 +51,10 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
       collateralTokenAddress,
     ],
     queryFn: async () => {
-      const rawCommitments = await request(
+      const rawCommitments = (await request(
         graphURL,
         collateralTokenCommitmentsDashboard
-      );
+      )) as any;
       const commitments = await Promise.all(
         rawCommitments.groupPoolMetrics.map(convertCommitment)
       );

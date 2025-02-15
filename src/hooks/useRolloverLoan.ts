@@ -350,7 +350,10 @@ const useRolloverLoan = (
     ],
   });
 
-  const isError27 = rolloverLoanError?.message.includes("27");
+  const isError27 = rolloverLoanError?.message
+    .split(":")[1]
+    .toString()
+    .includes("27");
 
   const transactions = useMemo(() => {
     let id = 0;

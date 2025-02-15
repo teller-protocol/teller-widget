@@ -28,6 +28,7 @@ import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPools
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
+import { AddressStringType } from "../../../types/addressStringType";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -72,6 +73,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
 
+  const tokenIsWhitelistedAndBalanceIs0 =
+    isWhitelistedToken(opportunity.collateralToken?.address) &&
+    selectedCollateralToken?.balanceBigInt === 0n;
+
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
@@ -96,23 +101,23 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       ? matchingCollateralToken?.balanceBigInt
       : defaultAmount
   );
-
   const lcfaCommitmentMax = useGetCommitmentMax({
     commitment: opportunity,
     requestedCollateral: collateralAmount,
     collateralTokenDecimals: opportunity.collateralToken?.decimals,
+    isRollover: true,
   });
 
   const lenderGroupCommitmentMax = useLiquidityPoolsCommitmentMax({
-    lenderGroupCommitment: opportunity,
+    lenderGroupCommitment: opportunity as any,
     collateralAmount: collateralAmount,
     skip: !isLiquidityPool,
+    tokenIsWhitelistedAndBalanceIs0,
   });
 
   const commitmentMax = isLiquidityPool
     ? lenderGroupCommitmentMax
     : lcfaCommitmentMax;
-
   useEffect(() => {
     setMaxCollateral(commitmentMax.maxCollateral);
   }, [commitmentMax.maxCollateral, setMaxCollateral]);
@@ -250,7 +255,7 @@ const OpportunitiesList: React.FC = () => {
 
   const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
     useGetCommitmentsForCollateralTokensFromLiquidityPools(
-      selectedCollateralToken?.address ?? ""
+      selectedCollateralToken?.address as AddressStringType
     );
 
   const {
@@ -385,11 +390,8 @@ const OpportunitiesList: React.FC = () => {
                 />
               </div>
             ) : (
-              data.commitments.map((commitment) => (
-                <OpportunityListItem
-                  opportunity={commitment}
-                  key={commitment.id}
-                />
+              data.commitments.map((commitment, index) => (
+                <OpportunityListItem opportunity={commitment} key={index} />
               ))
             )}
           </>
