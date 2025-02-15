@@ -107,11 +107,6 @@ export const BorrowSectionContextProvider: React.FC<
     Record<string, UniswapData>
   >({});
 
-  // Clear stored Uniswap data when chain or tokens change.
-  useEffect(() => {
-    setUniswapDataMap({});
-  }, [chainId, principalErc20Tokens]);
-
   useEffect(() => {
     (async () => {
       await Promise.all(
