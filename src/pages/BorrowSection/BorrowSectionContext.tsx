@@ -18,8 +18,8 @@ import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenLis
 // Import your existing Uniswap hooks
 import { useChainId } from "wagmi";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
-import { useGetUniswapV3LiquidityPools } from "../../hooks/queries/useGetUniswapV3Pools";
-import { useUniswapV3PoolUSDValue } from "../../hooks/useUniswapV3PoolUSDValue";
+import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
+import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -59,11 +59,9 @@ export type BorrowSectionContextType = {
   maxCollateral: bigint;
   setMaxCollateral: (maxCollateral: bigint) => void;
   principalErc20Tokens: UserToken[];
-  setPrincipalErc20Tokens: (tokens: UserToken[]) => void;
   erc20sWithCommitmentsLoading: boolean;
   uniswapDataMap: Record<string, UniswapData>;
   selectedErc20Apy: string;
-  setSelectedErc20Apy: (apy: string) => void;
 };
 
 interface BorrowSectionContextProps {
@@ -85,6 +83,9 @@ export const BorrowSectionContextProvider: React.FC<
       ? BorrowSectionSteps.SELECT_OPPORTUNITY
       : BorrowSectionSteps.SELECT_TOKEN
   );
+
+  const { getPoolUSDValue, isLoading } = useUniswapV3PoolUSDValue();
+  const { fetchPoolData, isLoading: isFetchingPoolData } = useGetUniswapPools();
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
     useState<UserToken>();
@@ -110,24 +111,42 @@ export const BorrowSectionContextProvider: React.FC<
     setUniswapDataMap({});
   }, [chainId, principalErc20Tokens]);
 
-  // Memoized callback to update Uniswap data only when data actually changes.
-  const handleOnData = useCallback(
-    (tokenAddress: string, data: UniswapData) => {
-      setUniswapDataMap((prev) => {
-        const prevData = prev[tokenAddress];
-        if (
-          prevData &&
-          prevData.apy === data.apy &&
-          prevData.aggregatedFeesUSD === data.aggregatedFeesUSD &&
-          prevData.totalUSDValue === data.totalUSDValue
-        ) {
-          return prev;
-        }
-        return { ...prev, [tokenAddress]: data };
-      });
-    },
-    []
-  );
+  useEffect(() => {
+    (async () => {
+      await Promise.all(
+        principalErc20Tokens.map(async (token) => {
+          const data = await fetchPoolData({
+            tokenAddress: token.address,
+            days: 30,
+          });
+          const bestPool = data.bestPool;
+          const poolUSDValue = await getPoolUSDValue({
+            poolAddress: bestPool?.id || "",
+          });
+
+          const totalUSDValue = poolUSDValue.totalUSDValue;
+
+          const fees = parseFloat(data.aggregatedFeesUSD);
+          const apy =
+            totalUSDValue && totalUSDValue > 0
+              ? ((fees / totalUSDValue) * (365 / 30) * 100).toFixed(0)
+              : "0";
+
+          setUniswapDataMap((prev) => {
+            return {
+              ...prev,
+              [token.address]: {
+                bestPool,
+                aggregatedFeesUSD: data.aggregatedFeesUSD,
+                totalUSDValue,
+                apy,
+              },
+            };
+          });
+        })
+      );
+    })().catch(console.error);
+  }, [fetchPoolData, getPoolUSDValue, principalErc20Tokens]);
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
@@ -186,68 +205,8 @@ export const BorrowSectionContextProvider: React.FC<
     >
       {children}
       {/* For each principal token, render a helper component to fetch its Uniswap data */}
-      {principalErc20Tokens.map((token) => (
-        <UniswapDataFetcher
-          key={token.address}
-          token={token}
-          onData={(data) => handleOnData(token.address, data)}
-        />
-      ))}
     </BorrowSectionContext.Provider>
   );
-};
-
-// -------------------------------------------------------------------
-// Helper component that uses the existing Uniswap hooks for a given token.
-// It computes the APY and calls the provided onData callback.
-interface UniswapDataFetcherProps {
-  token: UserToken;
-  onData: (data: UniswapData) => void;
-}
-
-const UniswapDataFetcher: React.FC<UniswapDataFetcherProps> = ({
-  token,
-  onData,
-}) => {
-  const {
-    bestPool,
-    aggregatedFeesUSD,
-    isLoading: isLiquidityLoading,
-  } = useGetUniswapV3LiquidityPools({
-    tokenAddress: token.address,
-    days: 30,
-  });
-
-  const { totalUSDValue, isLoading: isPoolValueLoading } =
-    useUniswapV3PoolUSDValue({
-      poolAddress: bestPool?.id || "",
-    });
-
-  useEffect(() => {
-    if (
-      !isLiquidityLoading &&
-      !isPoolValueLoading &&
-      bestPool &&
-      aggregatedFeesUSD != null &&
-      totalUSDValue != null
-    ) {
-      const fees = parseFloat(aggregatedFeesUSD);
-      const apy =
-        totalUSDValue && totalUSDValue > 0
-          ? ((fees / totalUSDValue) * (365 / 30) * 100).toFixed(0)
-          : "0";
-      onData({ bestPool, aggregatedFeesUSD, totalUSDValue, apy });
-    }
-  }, [
-    aggregatedFeesUSD,
-    bestPool,
-    isLiquidityLoading,
-    isPoolValueLoading,
-    onData,
-    totalUSDValue,
-  ]);
-
-  return null;
 };
 
 export const useGetBorrowSectionContext = () => {
