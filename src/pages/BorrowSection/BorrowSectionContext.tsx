@@ -75,7 +75,8 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
 export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
-  const { singleWhitelistedToken } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken, showPrincipalTokenBorrowList } =
+    useGetGlobalPropsContext();
   const chainId = useChainId();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
@@ -157,7 +158,7 @@ export const BorrowSectionContextProvider: React.FC<
 
   const [tokenTypeListView, setTokenTypeListView] =
     useState<BORROW_TOKEN_TYPE_ENUM>(
-      !!storedTokenTypeListView
+      showPrincipalTokenBorrowList
         ? storedTokenTypeListView
         : BORROW_TOKEN_TYPE_ENUM.STABLE
     );
