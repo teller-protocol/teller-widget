@@ -83,7 +83,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const tokenIsWhitelistedAndBalanceIs0 =
     (!isStableView
       ? isWhitelistedToken(opportunity.collateralToken?.address)
-      : true) && !collateralTokenBalance;
+      : true) &&
+    (!collateralTokenBalance || collateralTokenBalance.value === 0n);
 
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
