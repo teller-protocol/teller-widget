@@ -14,21 +14,20 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
-import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
 import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
-import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
-import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
+import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -65,24 +64,30 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setCurrentStep,
     setSelectedOpportunity,
     selectedCollateralToken,
-    selectedPrincipalErc20Token,
     setMaxCollateral,
     tokensWithCommitments,
     tokenTypeListView,
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
+  const { address: userAddress } = useAccount();
+
+  const { data: collateralTokenBalance } = useBalance({
+    address: userAddress,
+    token: opportunity.collateralToken?.address,
+  });
+
+  const isLiquidityPool = opportunity.isLenderGroup;
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
   const tokenIsWhitelistedAndBalanceIs0 =
-    isWhitelistedToken(opportunity.collateralToken?.address) &&
-    selectedCollateralToken?.balanceBigInt === 0n;
+    (!isStableView
+      ? isWhitelistedToken(opportunity.collateralToken?.address)
+      : true) && !collateralTokenBalance;
 
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
-
-  const isLiquidityPool = opportunity.isLenderGroup;
-  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
