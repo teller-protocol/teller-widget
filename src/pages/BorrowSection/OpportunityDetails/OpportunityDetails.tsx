@@ -68,8 +68,16 @@ const OpportunityDetails = () => {
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
 
-  const isWhitelistedTokenAndUserHasNoBalance =
-    whitelistedToken && Number(matchingCollateralToken?.balance) === 0;
+  const { data: collateralTokenBalance } = useBalance({
+    address,
+    token: selectedOpportunity.collateralToken?.address,
+  });
+
+  const tokenIsWhitelistedAndBalanceIs0 =
+    (!isStableView
+      ? isWhitelistedToken(selectedOpportunity.collateralToken?.address)
+      : true) &&
+    (!collateralTokenBalance || collateralTokenBalance.value === 0n);
 
   const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({});
@@ -98,6 +106,7 @@ const OpportunityDetails = () => {
     lenderGroupCommitment: selectedOpportunity,
     collateralAmount: collateralTokenValue.valueBI,
     skip: !isLenderGroup,
+    tokenIsWhitelistedAndBalanceIs0,
   });
 
   const maxCollateral = isLenderGroup
@@ -118,13 +127,16 @@ const OpportunityDetails = () => {
 
   useEffect(() => {
     if (
-      isWhitelistedTokenAndUserHasNoBalance &&
+      tokenIsWhitelistedAndBalanceIs0 &&
       collateralTokenValue.valueBI === undefined
     ) {
       setCollateralTokenValue({
-        token: selectedCollateralToken,
+        token: selectedCollateralToken ?? matchingCollateralToken,
         value: 1,
-        valueBI: parseUnits("1", selectedCollateralToken?.decimals ?? 0),
+        valueBI: parseUnits(
+          "1",
+          selectedOpportunity?.collateralToken?.decimals ?? 18
+        ),
       });
     }
 
@@ -146,12 +158,13 @@ const OpportunityDetails = () => {
     }
   }, [
     collateralTokenValue,
-    isWhitelistedTokenAndUserHasNoBalance,
+    tokenIsWhitelistedAndBalanceIs0,
     matchingCollateralToken,
     maxCollateral,
     selectedCollateralToken,
     selectedPrincipalErc20Token,
     staticMaxCollateral,
+    selectedOpportunity?.collateralToken?.decimals,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();
