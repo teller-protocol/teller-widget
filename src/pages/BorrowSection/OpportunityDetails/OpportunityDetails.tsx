@@ -81,11 +81,20 @@ const OpportunityDetails = () => {
 
   const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({});
+  console.log(
+    "TCL ~ OpportunityDetails.tsx:84 ~ OpportunityDetails ~ collateralTokenValue:",
+    collateralTokenValue
+  );
 
   const collateralWalletBalance = useBalance({
     token: matchingCollateralToken?.address,
     address,
   });
+
+  console.log(
+    "TCL ~ OpportunityDetails.tsx:93 ~ OpportunityDetails ~ collateralWalletBalance:",
+    collateralWalletBalance
+  );
 
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
@@ -108,6 +117,18 @@ const OpportunityDetails = () => {
     skip: !isLenderGroup,
     tokenIsWhitelistedAndBalanceIs0,
   });
+
+  console.log(
+    "col check",
+    !!(
+      collateralWalletBalance.data?.value &&
+      collateralWalletBalance.data?.value > 0n
+    ),
+    !!(
+      collateralWalletBalance.data?.value &&
+      collateralWalletBalance.data?.value > 0n
+    ) && collateralTokenValue.valueBI === undefined
+  );
 
   const maxCollateral = isLenderGroup
     ? liquidityPoolsCommitmentMax.maxCollateral
@@ -140,7 +161,14 @@ const OpportunityDetails = () => {
       });
     }
 
-    if (!staticMaxCollateral && maxCollateral) {
+    if (
+      !!(
+        collateralWalletBalance.data?.value &&
+        collateralWalletBalance.data?.value > 0n
+      ) &&
+      !staticMaxCollateral &&
+      maxCollateral
+    ) {
       setStaticMaxCollateral(maxCollateral);
     }
 
@@ -165,6 +193,7 @@ const OpportunityDetails = () => {
     selectedPrincipalErc20Token,
     staticMaxCollateral,
     selectedOpportunity?.collateralToken?.decimals,
+    collateralWalletBalance.data?.value,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();
