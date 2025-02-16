@@ -11,7 +11,7 @@ import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export type WhitelistedTokens = {
   [chainId: string]: string[];
@@ -36,6 +36,7 @@ interface BaseWidgetProps {
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
   singleWhitelistedToken?: string;
+  showPrincipalTokenBorrowList?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
 }
@@ -73,6 +74,7 @@ const Widget: React.FC<WidgetProps> = ({
   isEmbedded = false,
   showChainSwitch = true,
   singleWhitelistedToken,
+  showPrincipalTokenBorrowList,
   showPoolSection = false,
   showRepaySection = true,
 }) => {
@@ -101,6 +103,7 @@ const Widget: React.FC<WidgetProps> = ({
           buttonTextColorPrimary={buttonTextColorPrimary}
           subgraphApiKey={subgraphApiKey}
           singleWhitelistedToken={singleWhitelistedToken}
+          showPrincipalTokenBorrowList={showPrincipalTokenBorrowList}
         >
           <div className="teller-widget">
             <Modal
@@ -121,14 +124,14 @@ const Widget: React.FC<WidgetProps> = ({
                   welcomeScreenParagraph={welcomeScreenParagraph}
                 />
               ) : (
-                <ModalContent 
-                  showModalByDefault={showModalByDefault} 
-                  showPoolSection={showPoolSection} 
-                  showRepaySection={showRepaySection} 
+                <ModalContent
+                  showModalByDefault={showModalByDefault}
+                  showPoolSection={showPoolSection}
+                  showRepaySection={showRepaySection}
                 />
               )}
             </Modal>
-             {!isEmbedded && (
+            {!isEmbedded && (
               <Button
                 label={buttonLabel}
                 onClick={() => setShowModal(true)}

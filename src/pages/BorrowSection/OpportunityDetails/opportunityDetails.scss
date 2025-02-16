@@ -1,9 +1,6 @@
 @import "../../../tokens.scss";
 
 .opportunity-details {
-  .back-button {
-    margin-bottom: $s-large;
-  }
 
   .separator {
     margin: $s-normal 0;
@@ -30,5 +27,12 @@
     padding: 0.5rem 1rem;
     line-height: 24px;
     font-size: 13px;
+  }
+
+  .back-pill-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $s-large;
   }
 }

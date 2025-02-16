@@ -5,6 +5,7 @@ import {
   CommitmentType,
   useGetCommitmentsForCollateralToken,
 } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { useGetCommitmentsForErc20Tokens } from "../../../hooks/useGetCommitmentsForErc20Tokens";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -13,19 +14,20 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
-import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
 import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
 import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
-import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
+import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -34,17 +36,24 @@ interface OpportunityListItemProps {
 interface OpportunityListDataItemProps {
   label: string;
   value: React.ReactNode;
+  valueTextColor?: string;
 }
 
 const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
   label,
   value,
+  valueTextColor,
 }) => (
   <div className="opportunity-list-item-data">
     <div className="opportunity-list-item-data-label section-sub-title">
       {label}
     </div>
-    <div className="opportunity-list-item-data-value">{value}</div>
+    <div
+      className="opportunity-list-item-data-value"
+      style={{ color: valueTextColor || "inherit" }}
+    >
+      {value}
+    </div>
   </div>
 );
 
@@ -56,25 +65,47 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setSelectedOpportunity,
     selectedCollateralToken,
     setMaxCollateral,
+    tokensWithCommitments,
+    tokenTypeListView,
+    selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
+  const { address: userAddress } = useAccount();
+
+  const { data: collateralTokenBalance } = useBalance({
+    address: userAddress,
+    token: opportunity.collateralToken?.address,
+  });
+
+  const isLiquidityPool = opportunity.isLenderGroup;
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
 
   const tokenIsWhitelistedAndBalanceIs0 =
-    isWhitelistedToken(opportunity.collateralToken?.address) &&
-    selectedCollateralToken?.balanceBigInt === 0n;
+    (!isStableView
+      ? isWhitelistedToken(opportunity.collateralToken?.address)
+      : true) &&
+    (!collateralTokenBalance || collateralTokenBalance.value === 0n);
 
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
 
-  const isLiquidityPool = opportunity.isLenderGroup;
+  const matchingCollateralToken = !isStableView
+    ? tokensWithCommitments.find(
+        (token) =>
+          token.address.toLowerCase() ===
+          opportunity.collateralToken?.address?.toLowerCase()
+      )
+    : selectedCollateralToken;
+
+  const defaultAmount = isWhitelistedToken(opportunity.collateralToken?.address)
+    ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
+    : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
-    (selectedCollateralToken?.balanceBigInt ?? 0) > 0
-      ? selectedCollateralToken?.balanceBigInt
-      : isWhitelistedToken(opportunity.collateralToken?.address)
-      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
-      : BigInt(0)
+    (matchingCollateralToken?.balanceBigInt ?? 0) > 0
+      ? matchingCollateralToken?.balanceBigInt
+      : defaultAmount
   );
   const lcfaCommitmentMax = useGetCommitmentMax({
     commitment: opportunity,
@@ -143,6 +174,14 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const apr = isLiquidityPool ? liquidityPoolApr : opportunity.minAPY;
 
+  const { protocolFeePercent } = useGetProtocolFee();
+  const { referralFee } = useGetGlobalPropsContext();
+
+  const totalFeePercent =
+    protocolFeePercent +
+    +(opportunity?.marketplace?.marketplaceFeePercent ?? 0) +
+    (referralFee ?? 0);
+
   return (
     <div className="opportunity-list-item" onClick={handleOnOpportunityClick}>
       <div className="paragraph opportunity-list-item-header">
@@ -151,7 +190,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayCollateralAmountData.formattedAmount}
           logo={displayCollateralAmountData.token}
         />{" "}
-        to borrow{" "}
+        borrow{" "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token ?? ""}
@@ -174,6 +213,26 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               label="Duration"
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
+            {!isStableView && (
+              <OpportunityListDataItem
+                label="Est. loan to uni ROI:"
+                value={
+                  parseFloat(selectedErc20Apy) -
+                    (apr / 100 +
+                      (totalFeePercent / 100) *
+                        (365 / (Number(opportunity.maxDuration) / 86400))) <
+                  0
+                    ? "-"
+                    : `+ ${(
+                        parseFloat(selectedErc20Apy) -
+                        (apr / 100 +
+                          (totalFeePercent / 100) *
+                            (365 / (Number(opportunity.maxDuration) / 86400)))
+                      ).toFixed(2)} %`
+                }
+                valueTextColor={"#3D8974"}
+              />
+            )}
           </>
         )}
       </div>
@@ -182,9 +241,18 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 };
 
 const OpportunitiesList: React.FC = () => {
-  const { selectedCollateralToken, tokensWithCommitments } =
-    useGetBorrowSectionContext();
   const { address: userAddress } = useAccount();
+
+  const {
+    tokenTypeListView,
+    selectedCollateralToken,
+    selectedPrincipalErc20Token,
+    tokensWithCommitments,
+    principalErc20Tokens,
+    selectedErc20Apy,
+  } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
       selectedCollateralToken?.address,
@@ -196,38 +264,77 @@ const OpportunitiesList: React.FC = () => {
       selectedCollateralToken?.address as AddressStringType
     );
 
+  const {
+    isLoading: isErc20Loading,
+    getCommitmentsForErc20TokensByPrincipalToken,
+  } = useGetCommitmentsForErc20Tokens();
+
+  const erc20sWithCommitments = getCommitmentsForErc20TokensByPrincipalToken(
+    selectedPrincipalErc20Token?.address
+  );
+
   const data = useMemo(() => {
-    if (lcfaCommitments && lenderGroupsCommitments) {
+    if (isStableView) {
+      if (lcfaCommitments && lenderGroupsCommitments) {
+        return {
+          commitments: [
+            ...lcfaCommitments.commitments,
+            ...lenderGroupsCommitments,
+          ],
+        };
+      }
+      return { commitments: [] };
+    } else {
       return {
-        commitments: [
-          ...lcfaCommitments.commitments,
-          ...lenderGroupsCommitments,
-        ],
+        commitments: erc20sWithCommitments || [],
       };
     }
-    return {
-      commitments: [],
-    };
-  }, [lcfaCommitments, lenderGroupsCommitments]);
+  }, [
+    isStableView,
+    lcfaCommitments,
+    lenderGroupsCommitments,
+    erc20sWithCommitments,
+  ]);
 
-  const isLoading = isLcfaLoading || isLenderGroupsLoading;
+  const isLoading = isStableView
+    ? isLcfaLoading || isLenderGroupsLoading
+    : isErc20Loading;
 
   return (
     <div className="opportunities-list">
       <div className="opportunities-list-header">
-        {selectedCollateralToken && (
-          <>
-            <TokenDropdown
-              tokens={tokensWithCommitments}
-              selectedToken={selectedCollateralToken}
-            />
-          </>
-        )}
+        {isStableView
+          ? selectedCollateralToken && (
+              <TokenDropdown
+                tokens={tokensWithCommitments}
+                selectedToken={selectedCollateralToken}
+              />
+            )
+          : selectedPrincipalErc20Token && (
+              <TokenDropdown
+                tokens={principalErc20Tokens}
+                selectedToken={selectedPrincipalErc20Token}
+              />
+            )}
       </div>
       {data && (
         <div className="opportunities-list-body">
           <div className="paragraph opportunities-sub-title">
-            My opportunities
+            <div className="opp-pill-row">
+              My opportunities
+              {!isStableView && (
+                <span
+                  style={{ fontSize: "11px", padding: "2px 5px !important" }}
+                >
+                  <DataPill
+                    label={`${selectedErc20Apy}% APY`}
+                    logo={
+                      "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+                    }
+                  />
+                </span>
+              )}
+            </div>
           </div>
           <>
             {isLoading ? (
@@ -255,7 +362,11 @@ const OpportunitiesList: React.FC = () => {
                         justifyContent: "center",
                       }}
                     >
-                      Deploy ${selectedCollateralToken?.symbol} pool
+                      Deploy $
+                      {isStableView
+                        ? selectedCollateralToken?.symbol
+                        : selectedPrincipalErc20Token?.symbol}{" "}
+                      pool
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"

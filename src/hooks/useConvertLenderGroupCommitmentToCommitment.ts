@@ -16,7 +16,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
 
   const convertCommitment = useCallback(
     async (lenderGroupCommitment: LenderGroupsPoolMetrics) => {
-      const totalAvailable = await readContract(config, {
+      const totalAvailable = (await readContract(config, {
         address: lenderGroupCommitment?.group_pool_address as AddressStringType,
         functionName: "getPrincipalAmountAvailableToBorrow",
         abi: contracts[SupportedContractsEnum.LenderGroups].abi,
@@ -25,7 +25,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
       }).catch((res) => {
         console.error("Error fetching totalAvailable", res);
         return BigInt(0);
-      });
+      })) as bigint;
 
       const marketplaceFee = await readContract(config, {
         address: contracts[SupportedContractsEnum.MarketRegistry].address,
