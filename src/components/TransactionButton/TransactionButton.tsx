@@ -84,7 +84,7 @@ const TransactionButton = ({
     simulatedError,
     writeError,
   } = useWriteContract({
-    contractName: currentStep?.contractName,
+    contractName: currentStep?.contractName ?? "",
     functionName: currentStep?.functionName,
     args: currentStep?.args,
     contractType: currentStep?.contractType,

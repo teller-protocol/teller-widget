@@ -5,10 +5,14 @@ import BackButton from "../../../components/BackButton";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import Tooltip from "../../../components/Tooltip";
+import DataPill from "../../../components/DataPill";
+import { normalizeChainName } from "../../../constants/chains";
+import { useChainData } from "../../../hooks/useChainData";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -26,6 +30,7 @@ import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
 import { useContracts } from "../../../hooks/useContracts";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
+import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import { useAccount, useBalance } from "wagmi";
 
@@ -34,27 +39,62 @@ const OpportunityDetails = () => {
     setCurrentStep,
     selectedOpportunity,
     selectedCollateralToken,
+    selectedPrincipalErc20Token,
     setSuccessLoanHash,
     setSuccessfulLoanParams,
     maxCollateral: maxCollateralFromContext,
+    tokensWithCommitments,
+    tokenTypeListView,
+    selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
+
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const matchingCollateralToken = !isStableView
+    ? tokensWithCommitments.find(
+        (token) =>
+          token.address.toLowerCase() ===
+          selectedOpportunity?.collateralToken?.address?.toLowerCase()
+      )
+    : selectedCollateralToken;
+
+  const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
+    selectedOpportunity.principalToken?.address ?? ""
+  );
+
   const { isWhitelistedToken } = useGetGlobalPropsContext();
-  const whitelistedToken = isWhitelistedToken(selectedCollateralToken?.address);
+  const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
 
-  const isWhitelistedTokenAndUserHasNoBalance =
-    whitelistedToken && Number(selectedCollateralToken?.balance) === 0;
+  const { data: collateralTokenBalance } = useBalance({
+    address,
+    token: selectedOpportunity.collateralToken?.address,
+  });
+
+  const tokenIsWhitelistedAndBalanceIs0 =
+    (!isStableView
+      ? isWhitelistedToken(selectedOpportunity.collateralToken?.address)
+      : true) &&
+    (!collateralTokenBalance || collateralTokenBalance.value === 0n);
 
   const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({});
+  console.log(
+    "TCL ~ OpportunityDetails.tsx:84 ~ OpportunityDetails ~ collateralTokenValue:",
+    collateralTokenValue
+  );
 
   const collateralWalletBalance = useBalance({
-    token: selectedCollateralToken?.address,
+    token: matchingCollateralToken?.address,
     address,
   });
+
+  console.log(
+    "TCL ~ OpportunityDetails.tsx:93 ~ OpportunityDetails ~ collateralWalletBalance:",
+    collateralWalletBalance
+  );
 
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
@@ -63,7 +103,7 @@ const OpportunityDetails = () => {
     maxLoanAmount: maxLoanAmountFromLCFa,
     maxLoanAmountNumber: maxLoanAmountNumberFromLCFa,
   } = useGetCommitmentMax({
-    collateralTokenDecimals: selectedCollateralToken?.decimals,
+    collateralTokenDecimals: matchingCollateralToken?.decimals,
     commitment: selectedOpportunity,
     requestedCollateral: collateralTokenValue.valueBI,
     returnCalculatedLoanAmount: true,
@@ -75,7 +115,20 @@ const OpportunityDetails = () => {
     lenderGroupCommitment: selectedOpportunity,
     collateralAmount: collateralTokenValue.valueBI,
     skip: !isLenderGroup,
+    tokenIsWhitelistedAndBalanceIs0,
   });
+
+  console.log(
+    "col check",
+    !!(
+      collateralWalletBalance.data?.value &&
+      collateralWalletBalance.data?.value > 0n
+    ),
+    !!(
+      collateralWalletBalance.data?.value &&
+      collateralWalletBalance.data?.value > 0n
+    ) && collateralTokenValue.valueBI === undefined
+  );
 
   const maxCollateral = isLenderGroup
     ? liquidityPoolsCommitmentMax.maxCollateral
@@ -94,25 +147,38 @@ const OpportunityDetails = () => {
     : displayedPrincipalFromLCFa;
 
   useEffect(() => {
-    if (isWhitelistedTokenAndUserHasNoBalance) {
+    if (
+      tokenIsWhitelistedAndBalanceIs0 &&
+      collateralTokenValue.valueBI === undefined
+    ) {
       setCollateralTokenValue({
-        token: selectedCollateralToken,
+        token: selectedCollateralToken ?? matchingCollateralToken,
         value: 1,
-        valueBI: parseUnits("1", selectedCollateralToken?.decimals ?? 0),
+        valueBI: parseUnits(
+          "1",
+          selectedOpportunity?.collateralToken?.decimals ?? 18
+        ),
       });
     }
 
-    if (!staticMaxCollateral && maxCollateral) {
+    if (
+      !!(
+        collateralWalletBalance.data?.value &&
+        collateralWalletBalance.data?.value > 0n
+      ) &&
+      !staticMaxCollateral &&
+      maxCollateral
+    ) {
       setStaticMaxCollateral(maxCollateral);
     }
 
     if (staticMaxCollateral && collateralTokenValue.valueBI === undefined) {
       setCollateralTokenValue({
-        token: selectedCollateralToken,
+        token: matchingCollateralToken,
         value: Number(
           formatUnits(
             staticMaxCollateral ?? 0n,
-            selectedCollateralToken?.decimals ?? 0
+            matchingCollateralToken?.decimals ?? 0
           )
         ),
         valueBI: staticMaxCollateral ?? 0n,
@@ -120,10 +186,14 @@ const OpportunityDetails = () => {
     }
   }, [
     collateralTokenValue,
-    isWhitelistedTokenAndUserHasNoBalance,
+    tokenIsWhitelistedAndBalanceIs0,
+    matchingCollateralToken,
     maxCollateral,
     selectedCollateralToken,
+    selectedPrincipalErc20Token,
     staticMaxCollateral,
+    selectedOpportunity?.collateralToken?.decimals,
+    collateralWalletBalance.data?.value,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();
@@ -151,6 +221,8 @@ const OpportunityDetails = () => {
     (referralFee ?? 0);
 
   const totalFees = (maxLoanAmountNumber * totalFeePercent) / 10000;
+  const loanMinusFees =
+    (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
 
   const payPerLoan = useMemo(
     () =>
@@ -160,10 +232,12 @@ const OpportunityDetails = () => {
           (convertSecondsToDays(
             Number(selectedOpportunity?.maxDuration ?? 0)
           ) ?? 0),
-        3
+        2
       ),
     [selectedOpportunity, maxLoanAmountNumber]
   );
+
+  const { chainName } = useChainData();
 
   const lenderGroupTransactions = useBorrowFromPool({
     skip: !isLenderGroup,
@@ -201,22 +275,40 @@ const OpportunityDetails = () => {
 
   return (
     <div className="opportunity-details">
-      <BackButton
-        onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
-      />
+      <div className="back-pill-row">
+        <BackButton
+          onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
+        />
+        {!isStableView && (
+          <span style={{ fontSize: "11px", padding: "2px 5px !important" }}>
+            <DataPill
+              label={`${selectedErc20Apy}% APY`}
+              logo={
+                "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+              }
+              linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(
+                chainName
+              )?.replace(
+                /-one/g,
+                ""
+              )}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
+            />
+          </span>
+        )}
+      </div>
       <TokenInput
         tokenValue={collateralTokenValue}
         label={
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             Deposit
             <Tooltip
-              description={`Deposit $${
-                selectedCollateralToken?.symbol
-              } to borrow $${
+              description={`Deposit ${
+                matchingCollateralToken?.symbol
+              } to borrow ${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
-              )} days—extend anytime via rollover.`}
+              )} days${isStableView ? "—extend anytime via rollover" : ""}.`}
               icon={
                 <svg
                   width="14"
@@ -235,13 +327,13 @@ const OpportunityDetails = () => {
           </div>
         }
         maxAmount={staticMaxCollateral}
-        imageUrl={selectedCollateralToken?.logo || ""}
+        imageUrl={matchingCollateralToken?.logo || ""}
         sublabelUpper={`Max: ${numberWithCommasAndDecimals(
           formatUnits(
             staticMaxCollateral ?? 0n,
-            selectedCollateralToken?.decimals ?? 0
+            matchingCollateralToken?.decimals ?? 0
           )
-        )} ${selectedCollateralToken?.symbol}`}
+        )} ${matchingCollateralToken?.symbol}`}
         onChange={setCollateralTokenValue}
       />
       <img src={separatorWithCaret} className="separator" />
@@ -260,11 +352,11 @@ const OpportunityDetails = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             Borrow
             <Tooltip
-              description={`Borrow $${
+              description={`Borrow ${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
-              )} days—extend anytime via rollover.`}
+              )} days${isStableView ? "—extend anytime via rollover" : ""}.`}
               icon={
                 <svg
                   width="14"
@@ -282,47 +374,63 @@ const OpportunityDetails = () => {
             />
           </div>
         }
-        imageUrl={
-          SUPPORTED_TOKEN_LOGOS[
-            selectedOpportunity.principalToken?.symbol ?? ""
-          ]
-        }
+        imageUrl={principalTokenMetadata?.logo || ""}
         sublabelUpper={
           <span>
             Duration:{" "}
             {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
-            days • Rollover:{" "}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              overflow="visible"
-              x="0px"
-              y="0px"
-              width="12"
-              height="12"
-              viewBox="0 0 50 50"
-              className="rollover-svg"
-            >
-              <g transform="translate(0, 9)">
-                <path
-                  className="outer"
-                  d="M 25 2 C 12.317 2 2 12.317 2 25 C 2 37.683 12.317 48 25 48 C 37.683 48 48 37.683 48 25 C 48 20.44 46.660281 16.189328 44.363281 12.611328 L 42.994141 14.228516 C 44.889141 17.382516 46 21.06 46 25 C 46 36.579 36.579 46 25 46 C 13.421 46 4 36.579 4 25 C 4 13.421 13.421 4 25 4 C 30.443 4 35.393906 6.0997656 39.128906 9.5097656 L 40.4375 7.9648438 C 36.3525 4.2598437 30.935 2 25 2 z"
-                ></path>
-                <path
-                  className="check"
-                  d="M 43.236328 7.7539062 L 23.914062 30.554688 L 15.78125 22.96875 L 14.417969 24.431641 L 24.083984 33.447266 L 44.763672 9.046875 L 43.236328 7.7539062 z"
-                ></path>
-              </g>
-            </svg>
+            days
+            {isStableView && (
+              <>
+                {" • Rollover: "}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  overflow="visible"
+                  x="0px"
+                  y="0px"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 50 50"
+                  className="rollover-svg"
+                >
+                  <g transform="translate(0, 9)">
+                    <path
+                      className="outer"
+                      d="M 25 2 C 12.317 2 2 12.317 2 25 C 2 37.683 12.317 48 25 48 C 37.683 48 48 37.683 48 25 C 48 20.44 46.660281 16.189328 44.363281 12.611328 L 42.994141 14.228516 C 44.889141 17.382516 46 21.06 46 25 C 46 36.579 36.579 46 25 46 C 13.421 46 4 36.579 4 25 C 4 13.421 13.421 4 25 4 C 30.443 4 35.393906 6.0997656 39.128906 9.5097656 L 40.4375 7.9648438 C 36.3525 4.2598437 30.935 2 25 2 z"
+                    ></path>
+                    <path
+                      className="check"
+                      d="M 43.236328 7.7539062 L 23.914062 30.554688 L 15.78125 22.96875 L 14.417969 24.431641 L 24.083984 33.447266 L 44.763672 9.046875 L 43.236328 7.7539062 z"
+                    ></path>
+                  </g>
+                </svg>
+              </>
+            )}
           </span>
         }
         readonly
       />
       <div className="section-title fee-details">
-        Interest: {numberWithCommasAndDecimals(payPerLoan)}{" "}
-        {selectedOpportunity.principalToken?.symbol} • Fees:{" "}
-        {numberWithCommasAndDecimals(totalFees)}{" "}
+        Interest: {payPerLoan} {selectedOpportunity.principalToken?.symbol} •
+        Fees: {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
+      {!isStableView && (
+        <div
+          className="section-title fee-details"
+          style={{ margin: "0", color: "#3D8974" }}
+        >
+          Est. earned on uni: +
+          {numberWithCommasAndDecimals(
+            loanMinusFees *
+              (parseFloat(selectedErc20Apy) / 100) *
+              convertSecondsToDays(
+                Number(selectedOpportunity?.maxDuration) / 365
+              )
+          )}{" "}
+          {selectedOpportunity.principalToken?.symbol}
+        </div>
+      )}
 
       {isNewBorrower ? (
         <Button

@@ -27,7 +27,7 @@ export type SubgraphTokenType = {
 export type CommitmentType = {
   id: string;
   commitmentId?: string;
-  forwarderAddress?: Address;
+  forwarderAddress?: string;
   rolloverable?: boolean;
   minAPY?: string;
   principalTokenAddress?: Address;
@@ -333,11 +333,11 @@ export const useGetRolloverableCommitments = (
                     loan?.lenderAddress?.toLowerCase() ===
                     current?.lenderAddress?.toLowerCase();
                   const loanAmount: bigint = BigInt(loan?.principal);
-                  const maxCollateral = await calculateMaxCollateral(
+                  const maxCollateral = (await calculateMaxCollateral(
                     current,
                     isSameLender,
                     loanAmount
-                  );
+                  )) as string;
                   return BigInt(maxCollateral) >=
                     BigInt(loan?.collateral?.[0]?.amount)
                     ? current

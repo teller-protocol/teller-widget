@@ -1,12 +1,14 @@
 import { useState } from "react";
 import cx from "classnames";
 import { UserToken } from "../../hooks/useGetUserTokens";
+import { BORROW_TOKEN_TYPE_ENUM } from "../../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
+import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { Icon } from "@iconify/react";
 
 interface TokenDropdownProps {
@@ -25,13 +27,26 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
 }) => {
   const logoUrl = token?.logo ? token.logo : defaultTokenImage;
 
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
+  const subtitleData = isStableView
+    ? {
+        title: "Balance",
+        value: Number(token?.balance).toFixed(3),
+      }
+    : {
+        title: "Available",
+        value: numberWithCommasAndDecimals(token?.balance),
+      };
+
   return (
     <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
       <TokenLogo logoUrl={logoUrl} size={32} />
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          Balance: {Number(token?.balance).toFixed(3)} {token?.symbol}
+          {subtitleData.title}: {subtitleData.value} {token?.symbol}
         </div>
       </div>
     </div>
@@ -44,11 +59,19 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { setSelectedCollateralToken } = useGetBorrowSectionContext();
+  const { setSelectedCollateralToken, setSelectedPrincipalErc20Token } =
+    useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+
   const onTokenDropdownRowClick = (token: UserToken) => {
-    setSelectedCollateralToken(token);
+    if (isStableView) {
+      setSelectedCollateralToken(token);
+    } else {
+      setSelectedPrincipalErc20Token(token);
+    }
     setIsOpen(false);
   };
 
@@ -77,7 +100,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   return (
     <div className="token-dropdown" ref={ref}>
       <div
-        className={cx("token-dropdown--row-container", isOpen && "opened", singleWhitelistedToken && "disabled")}
+        className={cx(
+          "token-dropdown--row-container",
+          isOpen && "opened",
+          singleWhitelistedToken && "disabled"
+        )}
         onClick={() => !singleWhitelistedToken && setIsOpen(!isOpen)}
       >
         <TokenDropdownRow token={token} />
@@ -87,17 +114,17 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           </div>
         )}
       </div>
-          {isOpen && (
-            <div className="token-dropdown--tokens">
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Select collateral for deposit"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="token-dropdown--search"
-                />
-              </div>
+      {isOpen && (
+        <div className="token-dropdown--tokens">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Select collateral for deposit"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="token-dropdown--search"
+            />
+          </div>
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}

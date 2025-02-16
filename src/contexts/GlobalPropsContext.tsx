@@ -16,6 +16,7 @@ export type GlobalPropsContextType = {
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
   singleWhitelistedToken?: string;
+  showPrincipalTokenBorrowList?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
 };
@@ -31,6 +32,7 @@ interface GlobalPropsContextProps {
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
   singleWhitelistedToken?: string;
+  showPrincipalTokenBorrowList?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
 }
@@ -48,6 +50,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   buttonTextColorPrimary = undefined,
   subgraphApiKey,
   singleWhitelistedToken,
+  showPrincipalTokenBorrowList,
   showPoolSection = false,
   showRepaySection = true,
 }) => {
@@ -96,6 +99,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         buttonTextColorPrimary,
         subgraphApiKey,
         singleWhitelistedToken,
+        showPrincipalTokenBorrowList,
         showPoolSection,
         showRepaySection,
       }}
