@@ -9,13 +9,7 @@ import externalContracts from "../constants/externalContracts";
 import { useChainId } from "wagmi";
 
 import { useContracts } from "./useContracts";
-
-export enum ContractType {
-  Teller = "Teller",
-  ERC20 = "ERC20",
-  External = "External",
-  LenderGroups = "LenderCommitmentGroupBeacon",
-}
+import { ContractType } from "./useReadContract";
 
 interface UseWriteContractArgs {
   contractType?: ContractType;
@@ -41,6 +35,7 @@ export const useWriteContract = ({
       externalContracts[chainId]["contracts"][contractName]?.abi,
     [ContractType.ERC20]: erc20Abi,
     [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
+    [ContractType.UNIV3POOL]: contracts[contractName]?.abi,
   };
 
   const abi = mapContractTypeToAbi[contractType];

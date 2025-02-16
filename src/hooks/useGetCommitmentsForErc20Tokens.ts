@@ -79,19 +79,19 @@ export const useGetCommitmentsForErc20Tokens = () => {
         const tokensWithMetadata = await Promise.all(
           uniqueAddresses.map(async (address) => {
             try {
-              const metadata = await alchemy.core.getTokenMetadata(address);
+              const metadata = await alchemy?.core.getTokenMetadata(address);
               const aggregatedBalance = formatUnits(
                 tokenCommitmentMap.get(address) || BigInt(0),
-                metadata.decimals || 18
+                metadata?.decimals || 18
               );
               return {
                 address: address as `0x${string}`,
-                name: metadata.name || "",
-                symbol: metadata.symbol || "",
-                logo: metadata.logo || "",
+                name: metadata?.name || "",
+                symbol: metadata?.symbol || "",
+                logo: metadata?.logo || "",
                 balance: aggregatedBalance || "0",
                 balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
-                decimals: metadata.decimals || 18,
+                decimals: metadata?.decimals || 18,
               } as UserToken;
             } catch (error) {
               console.error(

@@ -20,6 +20,7 @@ import { useChainId } from "wagmi";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
+import { Address } from "viem";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -118,7 +119,7 @@ export const BorrowSectionContextProvider: React.FC<
           });
           const bestPool = data.bestPool;
           const poolUSDValue = await getPoolUSDValue({
-            poolAddress: bestPool?.id || "",
+            poolAddress: bestPool?.id as Address,
           });
 
           const totalUSDValue = poolUSDValue.totalUSDValue;
