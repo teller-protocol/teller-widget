@@ -117,7 +117,9 @@ export const useLiquidityPoolsCommitmentMax = ({
       );
 
   const maxLoanAmount =
-    requiredPrincipalAmount > 0
+    requiredPrincipalAmount === 0n
+      ? 0n
+      : requiredPrincipalAmount > 0
       ? requiredPrincipalAmount
       : maxLoanAmountFromContract;
 
