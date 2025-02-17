@@ -160,7 +160,7 @@ export const BorrowSectionContextProvider: React.FC<
   const [tokenTypeListView, setTokenTypeListView] =
     useState<BORROW_TOKEN_TYPE_ENUM>(
       showPrincipalTokenBorrowList
-        ? storedTokenTypeListView
+        ? storedTokenTypeListView || BORROW_TOKEN_TYPE_ENUM.STABLE
         : BORROW_TOKEN_TYPE_ENUM.STABLE
     );
 
