@@ -416,10 +416,7 @@ const OpportunityDetails = () => {
         {selectedOpportunity.principalToken?.symbol}
       </div>
       {!isStableView && (
-        <div
-          className="section-title fee-details"
-          style={{ margin: "0", color: "#3D8974" }}
-        >
+        <div className="section-title fee-details" style={{ color: "#3D8974" }}>
           Est. earned on uni: +
           {numberWithCommasAndDecimals(
             loanMinusFees *
