@@ -1,8 +1,6 @@
 @import "../../tokens.scss";
 
 .dropdown {
-  position: relative;
-
   &--row-container {
     display: flex;
     border-radius: $border-radius;
