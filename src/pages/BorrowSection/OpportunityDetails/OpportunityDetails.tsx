@@ -81,20 +81,11 @@ const OpportunityDetails = () => {
 
   const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({});
-  console.log(
-    "TCL ~ OpportunityDetails.tsx:84 ~ OpportunityDetails ~ collateralTokenValue:",
-    collateralTokenValue
-  );
 
   const collateralWalletBalance = useBalance({
     token: matchingCollateralToken?.address,
     address,
   });
-
-  console.log(
-    "TCL ~ OpportunityDetails.tsx:93 ~ OpportunityDetails ~ collateralWalletBalance:",
-    collateralWalletBalance
-  );
 
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
