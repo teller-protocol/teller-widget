@@ -6,16 +6,21 @@ import { useGetLiquidityPools } from "./queries/useGetLiquidityPools";
 import { useAlchemy } from "./useAlchemy";
 import { useConvertLenderGroupCommitmentToCommitment } from "./useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "./useGetUserTokens";
+import { useGetBorrowSectionContext } from "../pages/BorrowSection/BorrowSectionContext";
+import { BORROW_TOKEN_TYPE_ENUM } from "../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
 
 export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
+  const { tokenTypeListView } = useGetBorrowSectionContext();
+  const skip = tokenTypeListView !== BORROW_TOKEN_TYPE_ENUM.ERC20;
 
   const {
     liquidityPools: liquidityPools,
     isLoading: liquidityPoolsLoading,
     isFetched: liquidityPoolsFetched,
   } = useGetLiquidityPools();
+
   const alchemy = useAlchemy();
 
   const [isLoading, setIsLoading] = useState<boolean>(
@@ -37,7 +42,8 @@ export const useGetCommitmentsForErc20Tokens = () => {
   useEffect(() => {
     if (
       liquidityPoolsLoading ||
-      (liquidityPoolsFetched && principalErc20Tokens.length > 0)
+      (liquidityPoolsFetched && principalErc20Tokens.length > 0) ||
+      skip
     ) {
       return;
     }
@@ -124,6 +130,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
     liquidityPoolsFetched,
     principalErc20Tokens.length,
     chainId,
+    skip,
   ]);
 
   const getCommitmentsForErc20TokensByPrincipalToken = useCallback(
