@@ -267,7 +267,7 @@ const OpportunitiesList: React.FC = () => {
   const {
     isLoading: isErc20Loading,
     getCommitmentsForErc20TokensByPrincipalToken,
-  } = useGetCommitmentsForErc20Tokens();
+  } = useGetCommitmentsForErc20Tokens(tokenTypeListView);
 
   const erc20sWithCommitments = getCommitmentsForErc20TokensByPrincipalToken(
     selectedPrincipalErc20Token?.address
