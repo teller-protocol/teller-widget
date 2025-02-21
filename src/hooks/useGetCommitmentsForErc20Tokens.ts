@@ -9,10 +9,11 @@ import { UserToken } from "./useGetUserTokens";
 import { useGetBorrowSectionContext } from "../pages/BorrowSection/BorrowSectionContext";
 import { BORROW_TOKEN_TYPE_ENUM } from "../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
 
-export const useGetCommitmentsForErc20Tokens = () => {
+export const useGetCommitmentsForErc20Tokens = (
+  tokenTypeListView: BORROW_TOKEN_TYPE_ENUM
+) => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
-  const { tokenTypeListView } = useGetBorrowSectionContext();
   const skip = tokenTypeListView !== BORROW_TOKEN_TYPE_ENUM.ERC20;
 
   const {

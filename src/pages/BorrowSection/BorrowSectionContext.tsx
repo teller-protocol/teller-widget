@@ -97,11 +97,22 @@ export const BorrowSectionContextProvider: React.FC<
   useState<UserToken>();
   const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("-");
 
+  const storedTokenTypeListView = getItemFromLocalStorage(
+    "tokenTypeListView"
+  ) as BORROW_TOKEN_TYPE_ENUM;
+
+  const [tokenTypeListView, setTokenTypeListView] =
+    useState<BORROW_TOKEN_TYPE_ENUM>(
+      showPrincipalTokenBorrowList
+        ? storedTokenTypeListView || BORROW_TOKEN_TYPE_ENUM.STABLE
+        : BORROW_TOKEN_TYPE_ENUM.STABLE
+    );
+
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
 
   const { principalErc20Tokens, isLoading: erc20sWithCommitmentsLoading } =
-    useGetCommitmentsForErc20Tokens();
+    useGetCommitmentsForErc20Tokens(tokenTypeListView);
 
   // -------------------------------------------------------------------
   // State to hold Uniswap data.
@@ -152,17 +163,6 @@ export const BorrowSectionContextProvider: React.FC<
   const [successfulLoanParams, setSuccessfulLoanParams] = useState<any>({});
   const [bidId, setBidId] = useState<string>("");
   const [maxCollateral, setMaxCollateral] = useState<bigint>(0n);
-
-  const storedTokenTypeListView = getItemFromLocalStorage(
-    "tokenTypeListView"
-  ) as BORROW_TOKEN_TYPE_ENUM;
-
-  const [tokenTypeListView, setTokenTypeListView] =
-    useState<BORROW_TOKEN_TYPE_ENUM>(
-      showPrincipalTokenBorrowList
-        ? storedTokenTypeListView || BORROW_TOKEN_TYPE_ENUM.STABLE
-        : BORROW_TOKEN_TYPE_ENUM.STABLE
-    );
 
   useEffect(() => {
     if (selectedPrincipalErc20Token) {
