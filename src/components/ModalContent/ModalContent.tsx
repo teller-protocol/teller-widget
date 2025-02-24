@@ -30,7 +30,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const selectOptions = [
     { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
     ...(showRepaySection
-      ? [{ value: WIDGET_ACTION_ENUM.REPAY, content: "Repay" }]
+      ? [{ value: WIDGET_ACTION_ENUM.REPAY, content: "My loans" }]
       : []),
     ...(showPoolSection
       ? [{ value: WIDGET_ACTION_ENUM.POOL, content: "Pools" }]

@@ -321,7 +321,6 @@ const OpportunitiesList: React.FC = () => {
         <div className="opportunities-list-body">
           <div className="paragraph opportunities-sub-title">
             <div className="opp-pill-row">
-              My opportunities
               {!isStableView && (
                 <span
                   style={{ fontSize: "11px", padding: "2px 5px !important" }}
