@@ -323,7 +323,11 @@ const OpportunitiesList: React.FC = () => {
             <div className="opp-pill-row">
               {!isStableView && (
                 <span
-                  style={{ fontSize: "11px", padding: "2px 5px !important" }}
+                  style={{
+                    fontSize: "11px",
+                    padding: "2px 5px !important",
+                    marginLeft: "auto",
+                  }}
                 >
                   <DataPill
                     label={`${selectedErc20Apy}% APY`}
