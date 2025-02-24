@@ -44,12 +44,12 @@ const OpportunityDetails = () => {
     setSuccessfulLoanParams,
     maxCollateral: maxCollateralFromContext,
     tokensWithCommitments,
-    tokenTypeListView,
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
 
-  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
         (token) =>
@@ -108,18 +108,6 @@ const OpportunityDetails = () => {
     skip: !isLenderGroup,
     tokenIsWhitelistedAndBalanceIs0,
   });
-
-  console.log(
-    "col check",
-    !!(
-      collateralWalletBalance.data?.value &&
-      collateralWalletBalance.data?.value > 0n
-    ),
-    !!(
-      collateralWalletBalance.data?.value &&
-      collateralWalletBalance.data?.value > 0n
-    ) && collateralTokenValue.valueBI === undefined
-  );
 
   const maxCollateral = isLenderGroup
     ? liquidityPoolsCommitmentMax.maxCollateral
@@ -271,7 +259,12 @@ const OpportunityDetails = () => {
           onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
         />
         {!isStableView && (
-          <span style={{ fontSize: "11px", padding: "2px 5px !important" }}>
+          <span
+            style={{
+              fontSize: "11px",
+              padding: "2px 5px !important",
+            }}
+          >
             <DataPill
               label={`${selectedErc20Apy}% APY`}
               logo={
