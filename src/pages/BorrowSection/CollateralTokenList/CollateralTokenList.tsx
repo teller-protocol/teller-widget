@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import uniswapLogoBlackSvg from "../../../assets/uniswap-logo-black.svg";
-import dollarSignSvg from "../../../assets/dollar-sign-money.svg";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
-import SelectButtons from "../../../components/SelectButtons";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
@@ -11,35 +9,12 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
-import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import "./collateralTokenList.scss";
-import { setItemInLocalStorage } from "../../../helpers/localStorageUtils";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
   ERC20 = "ERC20",
 }
-
-const selectOptions = [
-  {
-    value: BORROW_TOKEN_TYPE_ENUM.STABLE,
-    content: (
-      <img
-        src={dollarSignSvg}
-        style={{ width: "12.5px", height: "12.5px", verticalAlign: "middle" }}
-      />
-    ),
-  },
-  {
-    value: BORROW_TOKEN_TYPE_ENUM.ERC20,
-    content: (
-      <img
-        src={uniswapLogoBlackSvg}
-        style={{ width: "12.5px", height: "12.5px", verticalAlign: "middle" }}
-      />
-    ),
-  },
-];
 
 const CollateralTokenList: React.FC = () => {
   const {
@@ -50,16 +25,10 @@ const CollateralTokenList: React.FC = () => {
     erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
 
-  const { showPrincipalTokenBorrowList } = useGetGlobalPropsContext();
+  const { isStrategiesSection } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const { tokenTypeListView, setTokenTypeListView } =
-    useGetBorrowSectionContext();
 
-  const handleTokenTypeListViewChange = (value: BORROW_TOKEN_TYPE_ENUM) => {
-    setTokenTypeListView(value);
-    setItemInLocalStorage("tokenTypeListView", value);
-  };
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
@@ -91,24 +60,14 @@ const CollateralTokenList: React.FC = () => {
             <input
               type="text"
               placeholder={
-                tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20
-                  ? "Tokens to borrow"
-                  : "Collateral for loan"
+                isStrategiesSection ? "Tokens to borrow" : "Collateral for loan"
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="token-search-input"
             />
-            {showPrincipalTokenBorrowList && (
-              <SelectButtons
-                items={selectOptions}
-                value={tokenTypeListView}
-                onChange={handleTokenTypeListViewChange}
-              />
-            )}
           </div>
-          {tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.ERC20 &&
-          showPrincipalTokenBorrowList ? (
+          {isStrategiesSection ? (
             erc20Loading ? (
               <Loader />
             ) : (

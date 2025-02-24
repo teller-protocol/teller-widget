@@ -66,7 +66,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     selectedCollateralToken,
     setMaxCollateral,
     tokensWithCommitments,
-    tokenTypeListView,
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
@@ -77,8 +76,9 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     token: opportunity.collateralToken?.address,
   });
 
+  const { isStrategiesSection } = useGetGlobalPropsContext();
   const isLiquidityPool = opportunity.isLenderGroup;
-  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const isStableView = !isStrategiesSection;
 
   const tokenIsWhitelistedAndBalanceIs0 =
     (!isStableView
@@ -244,14 +244,14 @@ const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
 
   const {
-    tokenTypeListView,
     selectedCollateralToken,
     selectedPrincipalErc20Token,
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
-  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const isStableView = !isStrategiesSection;
 
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
@@ -267,7 +267,7 @@ const OpportunitiesList: React.FC = () => {
   const {
     isLoading: isErc20Loading,
     getCommitmentsForErc20TokensByPrincipalToken,
-  } = useGetCommitmentsForErc20Tokens(tokenTypeListView);
+  } = useGetCommitmentsForErc20Tokens();
 
   const erc20sWithCommitments = getCommitmentsForErc20TokensByPrincipalToken(
     selectedPrincipalErc20Token?.address

@@ -4,6 +4,13 @@ import { useChainId } from "wagmi";
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
 
+export enum WIDGET_ACTION_ENUM {
+  BORROW = "BORROW",
+  REPAY = "REPAY",
+  POOL = "POOL",
+  STRATEGIES = "STRATEGIES",
+}
+
 export type GlobalPropsContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
@@ -16,9 +23,11 @@ export type GlobalPropsContextType = {
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
   singleWhitelistedToken?: string;
-  showPrincipalTokenBorrowList?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  widgetAction?: WIDGET_ACTION_ENUM;
+  setWidgetAction: (action: WIDGET_ACTION_ENUM) => void;
+  isStrategiesSection: boolean;
 };
 
 interface GlobalPropsContextProps {
@@ -32,7 +41,6 @@ interface GlobalPropsContextProps {
   buttonTextColorPrimary?: string;
   subgraphApiKey: string;
   singleWhitelistedToken?: string;
-  showPrincipalTokenBorrowList?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
 }
@@ -50,7 +58,6 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   buttonTextColorPrimary = undefined,
   subgraphApiKey,
   singleWhitelistedToken,
-  showPrincipalTokenBorrowList,
   showPoolSection = false,
   showRepaySection = true,
 }) => {
@@ -66,6 +73,11 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     whitelistedChainTokens,
     showOnlyWhiteListedTokens
   );
+
+  const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(
+    WIDGET_ACTION_ENUM.BORROW
+  );
+  const isStrategiesSection = widgetAction === WIDGET_ACTION_ENUM.STRATEGIES;
 
   useEffect(() => {
     let mounted = true;
@@ -99,9 +111,11 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         buttonTextColorPrimary,
         subgraphApiKey,
         singleWhitelistedToken,
-        showPrincipalTokenBorrowList,
         showPoolSection,
         showRepaySection,
+        widgetAction,
+        setWidgetAction,
+        isStrategiesSection,
       }}
     >
       {children}

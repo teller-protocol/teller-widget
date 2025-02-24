@@ -36,7 +36,7 @@ interface BaseWidgetProps {
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
   singleWhitelistedToken?: string;
-  showPrincipalTokenBorrowList?: boolean;
+  showStrategiesSection?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
 }
@@ -74,7 +74,7 @@ const Widget: React.FC<WidgetProps> = ({
   isEmbedded = false,
   showChainSwitch = true,
   singleWhitelistedToken,
-  showPrincipalTokenBorrowList,
+  showStrategiesSection,
   showPoolSection = false,
   showRepaySection = true,
 }) => {
@@ -103,7 +103,6 @@ const Widget: React.FC<WidgetProps> = ({
           buttonTextColorPrimary={buttonTextColorPrimary}
           subgraphApiKey={subgraphApiKey}
           singleWhitelistedToken={singleWhitelistedToken}
-          showPrincipalTokenBorrowList={showPrincipalTokenBorrowList}
         >
           <div className="teller-widget">
             <Modal
@@ -128,6 +127,7 @@ const Widget: React.FC<WidgetProps> = ({
                   showModalByDefault={showModalByDefault}
                   showPoolSection={showPoolSection}
                   showRepaySection={showRepaySection}
+                  showStrategiesSection={showStrategiesSection}
                 />
               )}
             </Modal>

@@ -1,9 +1,7 @@
-import React from 'react';
+import React from "react";
 import PoolList from "./PoolList";
 import "./poolSection.scss";
-import {
-  PoolSectionContextProvider,
-} from "./PoolSectionContext";
+import { PoolSectionContextProvider } from "./PoolSectionContext";
 import { useChainId } from "wagmi";
 
 const PoolSection: React.FC = () => {
@@ -11,7 +9,7 @@ const PoolSection: React.FC = () => {
   return (
     <PoolSectionContextProvider>
       <div className="pool-section">
-        <PoolList  key={chainId} />
+        <PoolList key={chainId} />
       </div>
     </PoolSectionContextProvider>
   );
