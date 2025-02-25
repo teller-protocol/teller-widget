@@ -6,7 +6,10 @@ import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import {
+  useGetGlobalPropsContext,
+  WIDGET_ACTION_ENUM,
+} from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { Icon } from "@iconify/react";
@@ -27,10 +30,9 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
 }) => {
   const logoUrl = token?.logo ? token.logo : defaultTokenImage;
 
-  const { tokenTypeListView } = useGetBorrowSectionContext();
-  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const { isStrategiesSection } = useGetGlobalPropsContext();
 
-  const subtitleData = isStableView
+  const subtitleData = !isStrategiesSection
     ? {
         title: "Balance",
         value: Number(token?.balance).toFixed(3),
@@ -63,11 +65,10 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     useGetBorrowSectionContext();
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
 
-  const { tokenTypeListView } = useGetBorrowSectionContext();
-  const isStableView = tokenTypeListView === BORROW_TOKEN_TYPE_ENUM.STABLE;
+  const { isStrategiesSection } = useGetGlobalPropsContext();
 
   const onTokenDropdownRowClick = (token: UserToken) => {
-    if (isStableView) {
+    if (!isStrategiesSection) {
       setSelectedCollateralToken(token);
     } else {
       setSelectedPrincipalErc20Token(token);

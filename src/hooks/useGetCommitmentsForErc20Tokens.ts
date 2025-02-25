@@ -2,19 +2,17 @@ import { useCallback, useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { useChainId } from "wagmi";
 import { supportedPrincipalTokens, TOKEN_ADDRESSES } from "../constants/tokens";
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetLiquidityPools } from "./queries/useGetLiquidityPools";
 import { useAlchemy } from "./useAlchemy";
 import { useConvertLenderGroupCommitmentToCommitment } from "./useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "./useGetUserTokens";
-import { useGetBorrowSectionContext } from "../pages/BorrowSection/BorrowSectionContext";
-import { BORROW_TOKEN_TYPE_ENUM } from "../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
 
-export const useGetCommitmentsForErc20Tokens = (
-  tokenTypeListView: BORROW_TOKEN_TYPE_ENUM
-) => {
+export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
-  const skip = tokenTypeListView !== BORROW_TOKEN_TYPE_ENUM.ERC20;
+  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const skip = !isStrategiesSection;
 
   const {
     liquidityPools: liquidityPools,

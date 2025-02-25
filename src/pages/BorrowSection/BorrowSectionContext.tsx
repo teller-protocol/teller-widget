@@ -8,7 +8,10 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import {
+  useGetGlobalPropsContext,
+  WIDGET_ACTION_ENUM,
+} from "../../contexts/GlobalPropsContext";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { useGetCommitmentsForErc20Tokens } from "../../hooks/useGetCommitmentsForErc20Tokens";
@@ -49,8 +52,6 @@ export type BorrowSectionContextType = {
   tokensWithCommitmentsLoading: boolean;
   selectedOpportunity: CommitmentType;
   setSelectedOpportunity: (commitmentType: CommitmentType) => void;
-  tokenTypeListView: BORROW_TOKEN_TYPE_ENUM;
-  setTokenTypeListView: (view: BORROW_TOKEN_TYPE_ENUM) => void;
   successLoanHash?: string;
   setSuccessLoanHash: (hash: string) => void;
   successfulLoanParams: any;
@@ -76,9 +77,10 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
 export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
-  const { singleWhitelistedToken, showPrincipalTokenBorrowList } =
-    useGetGlobalPropsContext();
+  const { singleWhitelistedToken } = useGetGlobalPropsContext();
   const chainId = useChainId();
+
+  const { widgetAction } = useGetGlobalPropsContext();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
     singleWhitelistedToken
@@ -97,22 +99,11 @@ export const BorrowSectionContextProvider: React.FC<
   useState<UserToken>();
   const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("-");
 
-  const storedTokenTypeListView = getItemFromLocalStorage(
-    "tokenTypeListView"
-  ) as BORROW_TOKEN_TYPE_ENUM;
-
-  const [tokenTypeListView, setTokenTypeListView] =
-    useState<BORROW_TOKEN_TYPE_ENUM>(
-      showPrincipalTokenBorrowList
-        ? storedTokenTypeListView || BORROW_TOKEN_TYPE_ENUM.STABLE
-        : BORROW_TOKEN_TYPE_ENUM.STABLE
-    );
-
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
 
   const { principalErc20Tokens, isLoading: erc20sWithCommitmentsLoading } =
-    useGetCommitmentsForErc20Tokens(tokenTypeListView);
+    useGetCommitmentsForErc20Tokens();
 
   // -------------------------------------------------------------------
   // State to hold Uniswap data.
@@ -185,8 +176,6 @@ export const BorrowSectionContextProvider: React.FC<
         tokensWithCommitmentsLoading,
         selectedOpportunity,
         setSelectedOpportunity,
-        tokenTypeListView,
-        setTokenTypeListView,
         successfulLoanParams,
         setSuccessfulLoanParams,
         successLoanHash,
