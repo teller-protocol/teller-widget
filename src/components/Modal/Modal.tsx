@@ -10,6 +10,10 @@ import { Icon } from "@iconify/react";
 import { ReactNode, useCallback, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom";
 import ChainSwitch from "../ChainSwitch";
+import {
+  useGetGlobalPropsContext,
+  WIDGET_ACTION_ENUM,
+} from "../../contexts/GlobalPropsContext";
 
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
@@ -59,6 +63,18 @@ const Modal: React.FC<ModalProps> = ({
 
   const tellerLogo = useLightLogo ? tellerLight : tellerDark;
 
+  const { widgetAction } = useGetGlobalPropsContext();
+
+  const mapWidgetActionToTitle = useMemo(
+    () => ({
+      [WIDGET_ACTION_ENUM.BORROW]: "Borrow",
+      [WIDGET_ACTION_ENUM.REPAY]: "My Loans",
+      [WIDGET_ACTION_ENUM.POOL]: "Pools",
+      [WIDGET_ACTION_ENUM.STRATEGIES]: "Strategies",
+    }),
+    []
+  );
+
   const node = useMemo(
     () =>
       (showModal || isEmbedded) && (
@@ -97,7 +113,13 @@ const Modal: React.FC<ModalProps> = ({
                   <div className="modal-content-title">
                     {!isWelcomeScreen && (
                       <div className="title-chain-container">
-                        <div className="modal-title">Cash Advance</div>
+                        <div className="modal-title">
+                          {
+                            mapWidgetActionToTitle[
+                              widgetAction as WIDGET_ACTION_ENUM
+                            ]
+                          }
+                        </div>
                         <ChainSwitch />
                       </div>
                     )}
@@ -136,9 +158,11 @@ const Modal: React.FC<ModalProps> = ({
       handleClose,
       isEmbedded,
       isWelcomeScreen,
+      mapWidgetActionToTitle,
       showChainSwitch,
       showModal,
       tellerLogo,
+      widgetAction,
     ]
   );
 

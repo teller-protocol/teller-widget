@@ -33,7 +33,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       ? [{ value: WIDGET_ACTION_ENUM.STRATEGIES, content: "Strategies" }]
       : []),
     ...(showRepaySection
-      ? [{ value: WIDGET_ACTION_ENUM.REPAY, content: "My loans" }]
+      ? [{ value: WIDGET_ACTION_ENUM.REPAY, content: "My Loans" }]
       : []),
     ...(showPoolSection
       ? [{ value: WIDGET_ACTION_ENUM.POOL, content: "Pools" }]
