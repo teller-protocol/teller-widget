@@ -1,6 +1,6 @@
 import { useAccount, useChainId } from "wagmi";
 import { useAlchemy } from "./useAlchemy";
-import { TokenBalanceType } from 'alchemy-sdk';
+import { TokenBalanceType } from "alchemy-sdk";
 import { useEffect, useState } from "react";
 import { Address, formatUnits, parseUnits } from "viem";
 import { WhitelistedTokens } from "../components/Widget/Widget";
@@ -58,7 +58,7 @@ export const useGetUserTokens = (
             (balance) =>
               balance.contractAddress.toLowerCase() === appToken.toLowerCase()
           );
-          if (tokenBalanceFromUserIndex > 0) {
+          if (tokenBalanceFromUserIndex >= 0) {
             const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
             nonZeroBalances.splice(tokenBalanceFromUserIndex, 1);
             return {
