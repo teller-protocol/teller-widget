@@ -418,6 +418,7 @@ const OpportunityDetails = () => {
           label="Accept terms"
           onClick={() => setCurrentStep(BorrowSectionSteps.ACCEPT_TERMS)}
           isFullWidth
+          useTransactionButtonContext
         />
       ) : isLenderGroup ? (
         <TransactionButton
