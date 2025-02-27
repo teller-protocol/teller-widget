@@ -10,6 +10,7 @@ import { waitForTransactionReceipt } from "wagmi/actions";
 import { ContractType } from "../../hooks/useReadContract";
 import { useWriteContract } from "../../hooks/useWriteContract";
 import Button from "../Button";
+import { useTransactionButton } from "../../contexts/TransactionButtonContext";
 
 import { config } from "../../helpers/createWagmiConfig";
 
@@ -53,20 +54,13 @@ const TransactionButton = ({
   isLoading,
 }: TransactionButtonProps) => {
   const [currentStepID, setCurrentStepID] = useState(0);
-
   const [isConfirming, setIsConfirming] = useState(false);
+  const { setTransactionButtonPresent } = useTransactionButton();
 
   useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent("teller-widget-transaction-button-present")
-    );
-
-    return () => {
-      window.dispatchEvent(
-        new CustomEvent("teller-widget-transaction-button-removed")
-      );
-    };
-  }, []);
+    setTransactionButtonPresent(true);
+    return () => setTransactionButtonPresent(false);
+  }, [setTransactionButtonPresent]);
 
   const steps = useMemo(() => transactions.flat(), [transactions]);
 

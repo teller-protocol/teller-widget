@@ -10,6 +10,7 @@ import ModalContent from "../ModalContent";
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
+import { TransactionButtonProvider } from "../../contexts/TransactionButtonContext";
 
 export const queryClient = new QueryClient();
 
@@ -123,12 +124,14 @@ const Widget: React.FC<WidgetProps> = ({
                   welcomeScreenParagraph={welcomeScreenParagraph}
                 />
               ) : (
-                <ModalContent
-                  showModalByDefault={showModalByDefault}
-                  showPoolSection={showPoolSection}
-                  showRepaySection={showRepaySection}
-                  showStrategiesSection={showStrategiesSection}
-                />
+                <TransactionButtonProvider>
+                  <ModalContent
+                    showModalByDefault={showModalByDefault}
+                    showPoolSection={showPoolSection}
+                    showRepaySection={showRepaySection}
+                    showStrategiesSection={showStrategiesSection}
+                  />
+                </TransactionButtonProvider>
               )}
             </Modal>
             {!isEmbedded && (

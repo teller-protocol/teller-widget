@@ -11,6 +11,7 @@ import {
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
 import useIsMobile from "../../hooks/useIsMobile";
+import { useTransactionButton } from "../../contexts/TransactionButtonContext";
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
@@ -27,9 +28,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
 }) => {
   const { widgetAction, setWidgetAction } = useGetGlobalPropsContext();
   const [key, setKey] = useState(0);
-
-  const [hideNavBar, setHideNavBar] = useState(false);
   const isMobile = useIsMobile();
+  const { isTransactionButtonPresent } = useTransactionButton();
+
+  const hideNavBar = isMobile && isTransactionButtonPresent;
 
   const selectOptions = [
     { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
@@ -64,36 +66,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
   useEffect(() => {
     if (!isConnected && !showModalByDefault) connect({ connector: injected() });
   }, [connect, isConnected, showModalByDefault]);
-
-  useEffect(() => {
-    const handleTransactionButtonPresent = () => {
-      isMobile && setHideNavBar(true);
-    };
-
-    const handleTransactionButtonRemoved = () => {
-      setHideNavBar(false);
-    };
-
-    window.addEventListener(
-      "teller-widget-transaction-button-present",
-      handleTransactionButtonPresent
-    );
-    window.addEventListener(
-      "teller-widget-transaction-button-removed",
-      handleTransactionButtonRemoved
-    );
-
-    return () => {
-      window.removeEventListener(
-        "teller-widget-transaction-button-present",
-        handleTransactionButtonPresent
-      );
-      window.removeEventListener(
-        "teller-widget-transaction-button-removed",
-        handleTransactionButtonRemoved
-      );
-    };
-  }, [isMobile]);
 
   return (
     <>
