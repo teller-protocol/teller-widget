@@ -38,9 +38,11 @@ const Button: React.FC<ButtonProps> = ({
   const { setTransactionButtonPresent } = useTransactionButton();
 
   useEffect(() => {
-    setTransactionButtonPresent(true);
-    return () => setTransactionButtonPresent(false);
-  }, [setTransactionButtonPresent]);
+    if (useTransactionButtonContext) {
+      setTransactionButtonPresent(true);
+      return () => setTransactionButtonPresent(false);
+    }
+  }, [setTransactionButtonPresent, useTransactionButtonContext]);
 
   const customStyle: CustomCSSProperties = {
     "--button-primary-color": buttonColorPrimary,
