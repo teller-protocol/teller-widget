@@ -22,17 +22,6 @@ interface CustomCSSProperties extends React.CSSProperties {
   "--button-primary-text-color"?: string;
 }
 
-const WrappedButton = ({ children }: { children: React.ReactNode }) => {
-  const { setTransactionButtonPresent } = useTransactionButton();
-
-  useEffect(() => {
-    setTransactionButtonPresent(true);
-    return () => setTransactionButtonPresent(false);
-  }, [setTransactionButtonPresent]);
-
-  return <>{children}</>;
-};
-
 const Button: React.FC<ButtonProps> = ({
   onClick = () => null,
   disabled = false,
@@ -45,6 +34,13 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   const { buttonColorPrimary, buttonTextColorPrimary } =
     useGetGlobalPropsContext();
+
+  const { setTransactionButtonPresent } = useTransactionButton();
+
+  useEffect(() => {
+    setTransactionButtonPresent(true);
+    return () => setTransactionButtonPresent(false);
+  }, [setTransactionButtonPresent]);
 
   const customStyle: CustomCSSProperties = {
     "--button-primary-color": buttonColorPrimary,
@@ -68,13 +64,7 @@ const Button: React.FC<ButtonProps> = ({
     </button>
   );
 
-  return useTransactionButtonContext ? (
-    <TransactionButtonProvider>
-      <WrappedButton>{Button}</WrappedButton>
-    </TransactionButtonProvider>
-  ) : (
-    Button
-  );
+  return Button;
 };
 
 export default Button;

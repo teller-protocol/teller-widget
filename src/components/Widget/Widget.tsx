@@ -105,44 +105,44 @@ const Widget: React.FC<WidgetProps> = ({
           subgraphApiKey={subgraphApiKey}
           singleWhitelistedToken={singleWhitelistedToken}
         >
-          <div className="teller-widget">
-            <Modal
-              {...(!isEmbedded && {
-                closeModal: () => setShowModal(false),
-                showModal,
-              })}
-              isWelcomeScreen={showWelcomeScreen}
-              useLightLogo={useLightLogo}
-              isEmbedded={isEmbedded}
-              showChainSwitch={showChainSwitch}
-            >
-              {showWelcomeScreen ? (
-                <WelcomeScreen
-                  onClick={() => setShowWelcomeScreen(false)}
-                  welcomeScreenLogo={welcomeScreenLogo}
-                  welcomeScreenTitle={welcomeScreenTitle}
-                  welcomeScreenParagraph={welcomeScreenParagraph}
-                />
-              ) : (
-                <TransactionButtonProvider>
+          <TransactionButtonProvider>
+            <div className="teller-widget">
+              <Modal
+                {...(!isEmbedded && {
+                  closeModal: () => setShowModal(false),
+                  showModal,
+                })}
+                isWelcomeScreen={showWelcomeScreen}
+                useLightLogo={useLightLogo}
+                isEmbedded={isEmbedded}
+                showChainSwitch={showChainSwitch}
+              >
+                {showWelcomeScreen ? (
+                  <WelcomeScreen
+                    onClick={() => setShowWelcomeScreen(false)}
+                    welcomeScreenLogo={welcomeScreenLogo}
+                    welcomeScreenTitle={welcomeScreenTitle}
+                    welcomeScreenParagraph={welcomeScreenParagraph}
+                  />
+                ) : (
                   <ModalContent
                     showModalByDefault={showModalByDefault}
                     showPoolSection={showPoolSection}
                     showRepaySection={showRepaySection}
                     showStrategiesSection={showStrategiesSection}
                   />
-                </TransactionButtonProvider>
+                )}
+              </Modal>
+              {!isEmbedded && (
+                <Button
+                  label={buttonLabel}
+                  onClick={() => setShowModal(true)}
+                  className={buttonClassName}
+                  variant={isBareButton ? "bare" : "primary"}
+                />
               )}
-            </Modal>
-            {!isEmbedded && (
-              <Button
-                label={buttonLabel}
-                onClick={() => setShowModal(true)}
-                className={buttonClassName}
-                variant={isBareButton ? "bare" : "primary"}
-              />
-            )}
-          </div>
+            </div>
+          </TransactionButtonProvider>
         </GlobalContextProvider>
       </QueryClientProvider>
     </WagmiProvider>
