@@ -424,12 +424,14 @@ const OpportunityDetails = () => {
         <TransactionButton
           transactions={lenderGroupTransactions}
           isButtonDisabled={
-            isCollateralMoreThanBalance || isCollateralMoreThanMax
+            !address || isCollateralMoreThanBalance || isCollateralMoreThanMax
           }
           buttonDisabledMessage={
-            isCollateralMoreThanMax
-              ? "Insufficient liquidity"
-              : "Insufficient collateral"
+            address
+              ? isCollateralMoreThanMax
+                ? "Insufficient liquidity"
+                : "Insufficient collateral"
+              : ""
           }
         />
       ) : (
