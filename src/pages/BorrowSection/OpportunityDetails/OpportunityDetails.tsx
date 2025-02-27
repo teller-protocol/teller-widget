@@ -418,17 +418,20 @@ const OpportunityDetails = () => {
           label="Accept terms"
           onClick={() => setCurrentStep(BorrowSectionSteps.ACCEPT_TERMS)}
           isFullWidth
+          useTransactionButtonContext
         />
       ) : isLenderGroup ? (
         <TransactionButton
           transactions={lenderGroupTransactions}
           isButtonDisabled={
-            isCollateralMoreThanBalance || isCollateralMoreThanMax
+            !address || isCollateralMoreThanBalance || isCollateralMoreThanMax
           }
           buttonDisabledMessage={
-            isCollateralMoreThanMax
-              ? "Insufficient liquidity"
-              : "Insufficient collateral"
+            address
+              ? isCollateralMoreThanMax
+                ? "Insufficient liquidity"
+                : "Insufficient collateral"
+              : ""
           }
         />
       ) : (

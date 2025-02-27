@@ -65,7 +65,17 @@ export const useBorrowFromPool = ({
     !collateralTokenAddress || skip,
     ContractType.ERC20
   );
+
   if (skip) return transactions;
+
+  if (!address) {
+    transactions.push({
+      buttonLabel: "Please connect wallet to continue",
+      isStepDisabled: true,
+    });
+    return transactions;
+  }
+
   if (BigInt(collateralAllowance?.data ?? 0) < BigInt(collateralAmount)) {
     transactions.push({
       contractName: collateralTokenAddress as AddressStringType,

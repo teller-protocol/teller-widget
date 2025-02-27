@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
@@ -10,6 +10,8 @@ import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
+import useIsMobile from "../../hooks/useIsMobile";
+import { useTransactionButton } from "../../contexts/TransactionButtonContext";
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
@@ -26,6 +28,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
 }) => {
   const { widgetAction, setWidgetAction } = useGetGlobalPropsContext();
   const [key, setKey] = useState(0);
+  const isMobile = useIsMobile();
+  const { isTransactionButtonPresent } = useTransactionButton();
+
+  const hideNavBar = isMobile && isTransactionButtonPresent;
 
   const selectOptions = [
     { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
@@ -63,11 +69,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
   return (
     <>
-      <SelectButtons
-        items={selectOptions}
-        value={widgetAction ?? ""}
-        onChange={handleWidgetAction}
-      />
+      {!hideNavBar && (
+        <SelectButtons
+          items={selectOptions}
+          value={widgetAction ?? ""}
+          onChange={handleWidgetAction}
+        />
+      )}
       {mapOptionToComponent[widgetAction as WIDGET_ACTION_ENUM]}
     </>
   );
