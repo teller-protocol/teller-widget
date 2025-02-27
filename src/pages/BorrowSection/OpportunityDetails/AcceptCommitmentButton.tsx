@@ -181,8 +181,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     steps.push(row301);
     if (!hasAddedExtension.isLoading && !hasAddedExtension.data) {
       row301.push({
-        buttonLabel: "Enable Widget",
-        loadingButtonLabel: "Enabling widget...",
+        buttonLabel: "Enable Borrowing",
+        loadingButtonLabel: "Enabling borrowing...",
         contractName: lcfContractName,
         functionName: "addExtension",
         args: [lrfAddress],

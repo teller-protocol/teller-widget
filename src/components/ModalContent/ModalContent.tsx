@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
@@ -10,6 +10,7 @@ import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
+import useIsMobile from "../../hooks/useIsMobile";
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
@@ -26,6 +27,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
 }) => {
   const { widgetAction, setWidgetAction } = useGetGlobalPropsContext();
   const [key, setKey] = useState(0);
+
+  const [hideNavBar, setHideNavBar] = useState(false);
+  const isMobile = useIsMobile();
 
   const selectOptions = [
     { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },
@@ -61,13 +65,45 @@ const ModalContent: React.FC<ModalContentProps> = ({
     if (!isConnected && !showModalByDefault) connect({ connector: injected() });
   }, [connect, isConnected, showModalByDefault]);
 
+  useEffect(() => {
+    const handleTransactionButtonPresent = () => {
+      isMobile && setHideNavBar(true);
+    };
+
+    const handleTransactionButtonRemoved = () => {
+      setHideNavBar(false);
+    };
+
+    window.addEventListener(
+      "teller-widget-transaction-button-present",
+      handleTransactionButtonPresent
+    );
+    window.addEventListener(
+      "teller-widget-transaction-button-removed",
+      handleTransactionButtonRemoved
+    );
+
+    return () => {
+      window.removeEventListener(
+        "teller-widget-transaction-button-present",
+        handleTransactionButtonPresent
+      );
+      window.removeEventListener(
+        "teller-widget-transaction-button-removed",
+        handleTransactionButtonRemoved
+      );
+    };
+  }, [isMobile]);
+
   return (
     <>
-      <SelectButtons
-        items={selectOptions}
-        value={widgetAction ?? ""}
-        onChange={handleWidgetAction}
-      />
+      {!hideNavBar && (
+        <SelectButtons
+          items={selectOptions}
+          value={widgetAction ?? ""}
+          onChange={handleWidgetAction}
+        />
+      )}
       {mapOptionToComponent[widgetAction as WIDGET_ACTION_ENUM]}
     </>
   );

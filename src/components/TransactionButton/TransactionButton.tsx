@@ -1,4 +1,11 @@
-import { Fragment, ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  Fragment,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { ContractType } from "../../hooks/useReadContract";
 import { useWriteContract } from "../../hooks/useWriteContract";
@@ -48,6 +55,18 @@ const TransactionButton = ({
   const [currentStepID, setCurrentStepID] = useState(0);
 
   const [isConfirming, setIsConfirming] = useState(false);
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("teller-widget-transaction-button-present")
+    );
+
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("teller-widget-transaction-button-removed")
+      );
+    };
+  }, []);
 
   const steps = useMemo(() => transactions.flat(), [transactions]);
 

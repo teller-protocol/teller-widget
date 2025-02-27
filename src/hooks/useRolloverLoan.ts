@@ -352,7 +352,7 @@ const useRolloverLoan = (
 
   const isError27 = rolloverLoanError?.message
     .split(":")[1]
-    .toString()
+    ?.toString()
     .includes("27");
 
   const transactions = useMemo(() => {
