@@ -42,12 +42,12 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
     } else {
       if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
         return {
-          title: "Long",
+          title: "Long with",
           value: Number(token?.balance).toFixed(3),
         };
       } else if (strategyAction === STRATEGY_ACTION_ENUM.SHORT) {
         return {
-          title: "Short",
+          title: "Short up to",
           value: numberWithCommasAndDecimals(token?.balance),
         };
       } else if (strategyAction === STRATEGY_ACTION_ENUM.FARM) {
@@ -71,7 +71,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {subtitleData.title}: {subtitleData.value} {token?.symbol}
+          {subtitleData.title}: {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
         </div>
       </div>
     </div>

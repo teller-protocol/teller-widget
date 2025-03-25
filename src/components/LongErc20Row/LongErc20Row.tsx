@@ -1,6 +1,7 @@
 import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
+import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 
 import "./longErc20Row.scss";
 
@@ -21,7 +22,7 @@ const LongErc20TokenRow: React.FC<LongErc20TokenSelectProps> = ({
       <div className="token-balance-info">
         <span className="paragraph">{token?.symbol}</span>
         <span className="section-sub-title">
-          Long: {Number(token?.balance).toFixed(3)} {token?.symbol}
+          Long with: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
           {/* somehow change to the amount of tokens to long */}
         </span>
       </div>

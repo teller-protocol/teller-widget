@@ -42,7 +42,7 @@ const ShortErc20TokenRow: React.FC<ShortErc20TokenSelectProps> = ({
           </span>*/}
         </div>
         <span className="section-sub-title">
-          Short: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
+          Short up to: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
         </span>
       </div>
     </div>
