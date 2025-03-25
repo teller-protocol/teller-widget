@@ -9,7 +9,10 @@ import DataPill from "../../../components/DataPill";
 import { normalizeChainName } from "../../../constants/chains";
 import { useChainData } from "../../../hooks/useChainData";
 import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
-import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
+import { 
+  useGetGlobalPropsContext, 
+  STRATEGY_ACTION_ENUM 
+} from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
@@ -48,10 +51,10 @@ const OpportunityDetails = () => {
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
 
-  const strategyTypes = ["long", "short", "farm"]
-  const strategyType = strategyTypes[0]
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
-  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const strategyType = strategyAction
+
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
@@ -256,9 +259,9 @@ const OpportunityDetails = () => {
     (collateralTokenValue.valueBI ?? 0n);
 
   const actionVerb =
-    strategyType === "short"
+    strategyAction === STRATEGY_ACTION_ENUM.SHORT
       ? "Short"
-      : strategyType === "long"
+      : strategyAction === STRATEGY_ACTION_ENUM.LONG
       ? "Borrow"
       : "Borrow";
 
@@ -268,7 +271,7 @@ const OpportunityDetails = () => {
         <BackButton
           onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
         />
-        {!isStableView && strategyType === "farm" && (
+        {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
           <span
             style={{
               fontSize: "11px",
@@ -374,7 +377,7 @@ const OpportunityDetails = () => {
             Duration:{" "}
             {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
             days
-            {(isStableView || strategyType === "long") && (
+            {(isStableView || strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
               <>
                 {" • Rollover: "}
                 <svg
@@ -408,7 +411,7 @@ const OpportunityDetails = () => {
       
 
       
-      {strategyType === "long" && (
+      {strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div>
           <img src={separatorWithCaret} className="separator" />
           <TokenInput
@@ -453,7 +456,7 @@ const OpportunityDetails = () => {
       
       {!isStableView && (
         <div className="section-title fee-details" style={{ color: "#3D8974" }}>
-          {strategyType === "farm" ? (
+          {strategyAction === STRATEGY_ACTION_ENUM.FARM ? (
             <>
               Est. earned on uni: +{" "}
               {numberWithCommasAndDecimals(
@@ -465,7 +468,7 @@ const OpportunityDetails = () => {
               )}{" "}
               {selectedOpportunity.principalToken?.symbol}
             </>
-          ) : strategyType === "short" ? (
+          ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
             <>
               Also receive: 0.2 WETH{" "}
               {selectedOpportunity.principalToken?.symbol}

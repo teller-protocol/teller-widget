@@ -18,7 +18,10 @@ import { useAccount, useBalance } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
-import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
+import { 
+  useGetGlobalPropsContext, 
+  STRATEGY_ACTION_ENUM 
+} from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
 import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
@@ -76,13 +79,12 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     token: opportunity.collateralToken?.address,
   });
 
-  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
   const isLiquidityPool = opportunity.isLenderGroup;
   
-  const strategyTypes = ["long", "short", "farm"]
-  const strategyType = strategyTypes[0] // TEMP MAKE DYNAMIC LATER
+  const strategyType = strategyAction
 
-  const isStableView = !isStrategiesSection || strategyType === "long";
+  const isStableView = !isStrategiesSection || strategyType === STRATEGY_ACTION_ENUM.LONG;
 
   const tokenIsWhitelistedAndBalanceIs0 =
     (!isStableView
@@ -194,18 +196,18 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayCollateralAmountData.formattedAmount}
           logo={displayCollateralAmountData.token}
         />{" "}
-        {strategyType === "short"
+        {strategyAction === STRATEGY_ACTION_ENUM.SHORT
           ? " to short "
-          : strategyType === "long"
+          : strategyAction === STRATEGY_ACTION_ENUM.LONG
           ? "borrow "
           : "borrow "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token ?? ""}
         />
-        {strategyType != "long" && <img src={caret} />}
+        {strategyAction != STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
       </div>
-      {strategyType === "long" && (
+      {strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div className="paragraph opportunity-list-item-header">
           + auto-swap{" "}
           <DataPill
@@ -236,9 +238,9 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               label="Duration"
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
-            {(!isStableView || strategyType === "long") && (
+            {(!isStableView || strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
               <>
-                {strategyType === "farm" ? (
+                {strategyAction === STRATEGY_ACTION_ENUM.FARM ? (
                   <OpportunityListDataItem
                     label="Est. loan to uni ROI:"
                     value={
@@ -257,7 +259,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                     }
                     valueTextColor={"#3D8974"}
                   />
-                ) : strategyType === "short" ? (
+                ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
                 <OpportunityListDataItem
                   label="Also receive:"
                   value={
@@ -265,7 +267,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                   }
                   valueTextColor={"#3D8974"}
                 />
-                ) : strategyType === "long" ? (
+                ) : strategyAction === STRATEGY_ACTION_ENUM.LONG ? (
                   <OpportunityListDataItem
                     label="Long & Receive:"
                     value={
@@ -293,12 +295,11 @@ const OpportunitiesList: React.FC = () => {
     principalErc20Tokens,
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
-  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
   
-  const strategyTypes = ["long", "short", "farm"]
-  const strategyType = strategyTypes[0] // TEMP MAKE DYNAMIC LATER
+  const strategyType = strategyAction
 
-  const isStableView = !isStrategiesSection || strategyType === "long";
+  const isStableView = !isStrategiesSection || strategyType === STRATEGY_ACTION_ENUM.LONG;
 
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
@@ -368,7 +369,7 @@ const OpportunitiesList: React.FC = () => {
         <div className="opportunities-list-body">
           <div className="paragraph opportunities-sub-title">
             <div className="opp-pill-row">
-              {!isStableView && strategyType === "farm" && (
+              {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
                 <span
                   style={{
                     fontSize: "11px",

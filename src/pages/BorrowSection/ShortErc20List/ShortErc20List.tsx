@@ -32,27 +32,6 @@ const ShortErc20List: React.FC<{ searchQuery?: string }> = ({
 
   return (
     <div className="short-erc20-list">
-      <div
-        className="short-erc20-token-row"
-        style={{
-          border: "none",
-          backgroundColor: "rgba(190, 190, 190, 0.1)",
-          pointerEvents: "none",
-        }}
-      >
-        <TokenLogo
-          logoUrl={
-            "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
-          }
-          size={32}
-        />
-        <div className="token-balance-info">
-          <span className="paragraph">Borrow {">"} Short</span>
-          <span className="section-sub-title" style={{ fontSize: "9px" }}>
-            Source liquidity to pool on Uniswap
-          </span>
-        </div>
-      </div>
       {erc20Loading ? (
         <Loader />
       ) : (
