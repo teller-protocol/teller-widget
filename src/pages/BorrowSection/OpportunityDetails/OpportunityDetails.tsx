@@ -49,7 +49,7 @@ const OpportunityDetails = () => {
   const { address } = useAccount();
 
   const strategyTypes = ["long", "short", "farm"]
-  const strategyType = strategyTypes[1]
+  const strategyType = strategyTypes[0]
 
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const isStableView = !isStrategiesSection;
@@ -259,7 +259,7 @@ const OpportunityDetails = () => {
     strategyType === "short"
       ? "Short"
       : strategyType === "long"
-      ? "Long"
+      ? "Borrow"
       : "Borrow";
 
   return (
@@ -374,7 +374,7 @@ const OpportunityDetails = () => {
             Duration:{" "}
             {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
             days
-            {isStableView && (
+            {(isStableView || strategyType === "long") && (
               <>
                 {" • Rollover: "}
                 <svg
@@ -404,11 +404,53 @@ const OpportunityDetails = () => {
         }
         readonly
       />
+      
+      
+
+      
+      {strategyType === "long" && (
+        <div>
+          <img src={separatorWithCaret} className="separator" />
+          <TokenInput
+            tokenValue={collateralTokenValue}
+            label={
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                {"Long "}
+                <Tooltip
+                  description={`Long & receive ${
+                    matchingCollateralToken?.symbol
+                  } for ${convertSecondsToDays(
+                    Number(selectedOpportunity?.maxDuration)
+                  )} days${isStableView ? "—extend anytime via rollover" : ""}.`}
+                  icon={
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="tooltip-svg"
+                      style={{ position: "relative", top: "1px" }}
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                      <path d="M12 16v-4" strokeWidth="2" />
+                      <circle cx="12" cy="8" r="1" />
+                    </svg>
+                  }
+                />
+              </div>
+            }
+            imageUrl={matchingCollateralToken?.logo || ""}
+            readonly
+          />
+        </div>
+      )}
+
       <div className="section-title fee-details">
         Interest: {payPerLoan} {selectedOpportunity.principalToken?.symbol} •
         Fees: {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
+      
       {!isStableView && (
         <div className="section-title fee-details" style={{ color: "#3D8974" }}>
           {strategyType === "farm" ? (

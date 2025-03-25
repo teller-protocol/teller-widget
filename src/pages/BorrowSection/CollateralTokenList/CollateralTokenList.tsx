@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
+import LongErc20TokenRow from "../../../components/LongErc20Row";
 import Loader from "../../../components/Loader";
 import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { UserToken } from "../../../hooks/useGetUserTokens";
@@ -65,30 +66,49 @@ const CollateralTokenList: React.FC = () => {
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
-          <div className="select-button-list">
-            <SelectButtons
-              items={[{value: "LONG",  content: "Long ↗️"}, {value: "SHORT",  content: "Short ↘️"}, {value: "FARM",  content: "Farm 🚜"}]}
-              value={""}
-              onChange={handleWidgetAction}
-            />
-          </div>
-          <div className="search-and-buttons">
-            <input
-              type="text"
-              placeholder={
-                isStrategiesSection ? "Tokens to borrow" : "Collateral for loan"
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="token-search-input"
-            />
-          </div>
+          {isStrategiesSection && (
+            <div className="select-button-list">
+              <SelectButtons
+                items={[
+                  { value: "LONG", content: "Long ↗️" },
+                  { value: "SHORT", content: "Short ↘️" },
+                  { value: "FARM", content: "Farm 🚜" }
+                ]}
+                value={"LONG"}
+                onChange={handleWidgetAction}
+              />
+            </div>
+          )}
+          {!isStrategiesSection && (
+            <div className="search-and-buttons">
+              <input
+                type="text"
+                placeholder={
+                  isStrategiesSection ? "Tokens to borrow" : "Collateral to deposit for loan"
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="token-search-input"
+              />
+            </div>
+          )}
           {isStrategiesSection ? (
             erc20Loading ? (
               <Loader />
             ) : (
               /*<PrincipalErc20List searchQuery={searchQuery} />*/
-              <ShortErc20List searchQuery={searchQuery} />
+              /*<ShortErc20List searchQuery={searchQuery} />*/
+              filteredAndSortedTokens.length > 0 ? (
+                filteredAndSortedTokens.map((token) => (
+                  <LongErc20TokenRow
+                    token={token}
+                    onClick={() => onCollateralTokenSelected(token)}
+                    key={token.address.toString()}
+                  />
+                ))
+              ) : (
+                <div className="section-title">No tokens available</div>
+              )
             )
           ) : loading ? (
             <Loader />
