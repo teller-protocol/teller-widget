@@ -207,7 +207,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         />
         {strategyAction != STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
       </div>
-      {strategyAction === STRATEGY_ACTION_ENUM.LONG && (
+      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
         <div className="paragraph opportunity-list-item-header">
           + auto-swap{" "}
           <DataPill
@@ -267,7 +267,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                   }
                   valueTextColor={"#3D8974"}
                 />
-                ) : strategyAction === STRATEGY_ACTION_ENUM.LONG ? (
+                ) : (isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) ? (
                   <OpportunityListDataItem
                     label="Long & Receive:"
                     value={

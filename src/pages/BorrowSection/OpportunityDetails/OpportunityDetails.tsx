@@ -411,7 +411,7 @@ const OpportunityDetails = () => {
       
 
       
-      {strategyAction === STRATEGY_ACTION_ENUM.LONG && (
+      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
         <div>
           <img src={separatorWithCaret} className="separator" />
           <TokenInput
