@@ -20,8 +20,8 @@
     "react-dom": "^18.2.0",
     "react-tooltip": "4.4.3",
     "typescript": "^5.4.3",
-    "viem": "2.x",
-    "wagmi": "^2.5.7"
+    "viem": "^2.23.15",
+    "wagmi": "^2.14.15"
   },
   "devDependencies": {
     "@parcel/watcher": "^2.4.1",
