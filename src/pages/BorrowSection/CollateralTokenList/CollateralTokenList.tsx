@@ -5,11 +5,13 @@ import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
+import ShortErc20List from "../../../pages/BorrowSection/ShortErc20List";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
+import SelectButtons from "../../../components/SelectButtons";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -30,6 +32,8 @@ const CollateralTokenList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const isSupportedChain = useIsSupportedChain();
+
+  const [key, setKey] = useState(0);
 
   const onCollateralTokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
@@ -52,10 +56,22 @@ const CollateralTokenList: React.FC = () => {
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
+
+  const handleWidgetAction = () => {
+    setKey((prev) => prev + 1);
+  };
+  
   return (
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
+          <div className="select-button-list">
+            <SelectButtons
+              items={[{value: "LONG",  content: "Long ↗️"}, {value: "SHORT",  content: "Short ↘️"}, {value: "FARM",  content: "Farm 🚜"}]}
+              value={""}
+              onChange={handleWidgetAction}
+            />
+          </div>
           <div className="search-and-buttons">
             <input
               type="text"
@@ -71,7 +87,8 @@ const CollateralTokenList: React.FC = () => {
             erc20Loading ? (
               <Loader />
             ) : (
-              <PrincipalErc20List searchQuery={searchQuery} />
+              /*<PrincipalErc20List searchQuery={searchQuery} />*/
+              <ShortErc20List searchQuery={searchQuery} />
             )
           ) : loading ? (
             <Loader />

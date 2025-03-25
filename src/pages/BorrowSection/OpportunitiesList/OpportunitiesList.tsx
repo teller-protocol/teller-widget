@@ -79,6 +79,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const isLiquidityPool = opportunity.isLenderGroup;
   const isStableView = !isStrategiesSection;
+  const strategyTypes = ["long", "short", "farm"]
+  const strategyType = strategyTypes[1] // TEMP MAKE DYNAMIC LATER
 
   const tokenIsWhitelistedAndBalanceIs0 =
     (!isStableView
@@ -190,7 +192,11 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayCollateralAmountData.formattedAmount}
           logo={displayCollateralAmountData.token}
         />{" "}
-        borrow{" "}
+        {strategyType === "short"
+          ? " to short "
+          : strategyType === "long"
+          ? "to long "
+          : "borrow "}
         <DataPill
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token ?? ""}
@@ -214,24 +220,36 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
             {!isStableView && (
-              <OpportunityListDataItem
-                label="Est. loan to uni ROI:"
-                value={
-                  parseFloat(selectedErc20Apy) -
-                    (apr / 100 +
-                      (totalFeePercent / 100) *
-                        (365 / (Number(opportunity.maxDuration) / 86400))) <
-                  0
-                    ? "-"
-                    : `+ ${(
-                        parseFloat(selectedErc20Apy) -
+              <>
+                {strategyType === "farm" ? (
+                  <OpportunityListDataItem
+                    label="Est. loan to uni ROI:"
+                    value={
+                      parseFloat(selectedErc20Apy) -
                         (apr / 100 +
                           (totalFeePercent / 100) *
-                            (365 / (Number(opportunity.maxDuration) / 86400)))
-                      ).toFixed(2)} %`
-                }
-                valueTextColor={"#3D8974"}
-              />
+                            (365 / (Number(opportunity.maxDuration) / 86400))) <
+                      0
+                        ? "-"
+                        : `+ ${(
+                            parseFloat(selectedErc20Apy) -
+                            (apr / 100 +
+                              (totalFeePercent / 100) *
+                                (365 / (Number(opportunity.maxDuration) / 86400)))
+                          ).toFixed(2)} %`
+                    }
+                    valueTextColor={"#3D8974"}
+                  />
+                ) : strategyType === "short" ? (
+                <OpportunityListDataItem
+                  label="Also receive:"
+                  value={
+                    `0.2 WETH`
+                  }
+                  valueTextColor={"#3D8974"}
+                />
+                ) : null}
+              </>
             )}
           </>
         )}
@@ -252,6 +270,8 @@ const OpportunitiesList: React.FC = () => {
   } = useGetBorrowSectionContext();
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const isStableView = !isStrategiesSection;
+  const strategyTypes = ["long", "short", "farm"]
+  const strategyType = strategyTypes[1] // TEMP MAKE DYNAMIC LATER
 
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
@@ -321,7 +341,7 @@ const OpportunitiesList: React.FC = () => {
         <div className="opportunities-list-body">
           <div className="paragraph opportunities-sub-title">
             <div className="opp-pill-row">
-              {!isStableView && (
+              {!isStableView && strategyType === "farm" && (
                 <span
                   style={{
                     fontSize: "11px",

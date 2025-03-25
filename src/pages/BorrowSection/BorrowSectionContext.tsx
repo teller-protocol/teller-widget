@@ -48,6 +48,8 @@ export type BorrowSectionContextType = {
   setSelectedCollateralToken: (token: UserToken) => void;
   selectedPrincipalErc20Token?: UserToken;
   setSelectedPrincipalErc20Token: (token: UserToken) => void;
+  selectedShortErc20Token?: UserToken;
+  setSelectedShortErc20Token: (token: UserToken) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
   selectedOpportunity: CommitmentType;
@@ -95,6 +97,8 @@ export const BorrowSectionContextProvider: React.FC<
   const [selectedCollateralToken, setSelectedCollateralToken] =
     useState<UserToken>();
   const [selectedPrincipalErc20Token, setSelectedPrincipalErc20Token] =
+    useState<UserToken>();
+  const [selectedShortErc20Token, setSelectedShortErc20Token] =
     useState<UserToken>();
   useState<UserToken>();
   const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("-");
@@ -172,6 +176,8 @@ export const BorrowSectionContextProvider: React.FC<
         setSelectedCollateralToken,
         selectedPrincipalErc20Token,
         setSelectedPrincipalErc20Token,
+        selectedShortErc20Token,
+        setSelectedShortErc20Token,
         tokensWithCommitments,
         tokensWithCommitmentsLoading,
         selectedOpportunity,

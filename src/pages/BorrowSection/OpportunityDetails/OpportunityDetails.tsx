@@ -48,6 +48,9 @@ const OpportunityDetails = () => {
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
 
+  const strategyTypes = ["long", "short", "farm"]
+  const strategyType = strategyTypes[1]
+
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
@@ -252,13 +255,20 @@ const OpportunityDetails = () => {
     liquidityPoolsCommitmentMax.maxAvailableCollateralInPool <
     (collateralTokenValue.valueBI ?? 0n);
 
+  const actionVerb =
+    strategyType === "short"
+      ? "Short"
+      : strategyType === "long"
+      ? "Long"
+      : "Borrow";
+
   return (
     <div className="opportunity-details">
       <div className="back-pill-row">
         <BackButton
           onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
         />
-        {!isStableView && (
+        {!isStableView && strategyType === "farm" && (
           <span
             style={{
               fontSize: "11px",
@@ -288,7 +298,7 @@ const OpportunityDetails = () => {
             <Tooltip
               description={`Deposit ${
                 matchingCollateralToken?.symbol
-              } to borrow ${
+              } to ${actionVerb} ${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
@@ -334,9 +344,9 @@ const OpportunityDetails = () => {
         }}
         label={
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            Borrow
+            {actionVerb}{" "}
             <Tooltip
-              description={`Borrow ${
+              description={`${actionVerb} ${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
@@ -401,15 +411,24 @@ const OpportunityDetails = () => {
       </div>
       {!isStableView && (
         <div className="section-title fee-details" style={{ color: "#3D8974" }}>
-          Est. earned on uni: +
-          {numberWithCommasAndDecimals(
-            loanMinusFees *
-              (parseFloat(selectedErc20Apy) / 100) *
-              convertSecondsToDays(
-                Number(selectedOpportunity?.maxDuration) / 365
-              )
-          )}{" "}
-          {selectedOpportunity.principalToken?.symbol}
+          {strategyType === "farm" ? (
+            <>
+              Est. earned on uni: +{" "}
+              {numberWithCommasAndDecimals(
+                loanMinusFees *
+                  (parseFloat(selectedErc20Apy) / 100) *
+                  convertSecondsToDays(
+                    Number(selectedOpportunity?.maxDuration) / 365
+                  )
+              )}{" "}
+              {selectedOpportunity.principalToken?.symbol}
+            </>
+          ) : strategyType === "short" ? (
+            <>
+              Also receive: 0.2 WETH{" "}
+              {selectedOpportunity.principalToken?.symbol}
+            </>
+          ) : null}
         </div>
       )}
 
