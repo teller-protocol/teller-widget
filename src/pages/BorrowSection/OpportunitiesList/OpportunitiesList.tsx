@@ -28,6 +28,7 @@ import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
 import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
+import { useGetTokenImageFromTokenList } from "../../../hooks/useGetTokenImageFromTokenList";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -81,7 +82,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const isStableView = !isStrategiesSection;
 
   const tokenIsWhitelistedAndBalanceIs0 =
-    (!isStableView
+    (isStableView
       ? isWhitelistedToken(opportunity.collateralToken?.address)
       : true) &&
     (!collateralTokenBalance || collateralTokenBalance.value === 0n);
@@ -89,6 +90,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
+
+  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
 
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
@@ -120,7 +123,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     skip: !isLiquidityPool,
     tokenIsWhitelistedAndBalanceIs0,
   });
-
+  
   const commitmentMax = isLiquidityPool
     ? lenderGroupCommitmentMax
     : lcfaCommitmentMax;
@@ -143,9 +146,14 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         )
       ).toFixed(2)
     ),
-    token: userTokens.find(
-      (token) => token.address === opportunity.collateralToken?.address
-    )?.logo,
+    token:
+      userTokens.find(
+        (token) =>
+          token.address?.toLowerCase() ===
+          opportunity.collateralToken?.address?.toLowerCase()
+      )?.logo ??
+      getTokenImageFromTokenList(opportunity.collateralToken?.address ?? "") ??
+      "",
   };
 
   const displayLoanAmountData = {
