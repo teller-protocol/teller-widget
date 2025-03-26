@@ -51,7 +51,6 @@ const OpportunityDetails = () => {
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
-    // at this point, we have to get the user's balance
     ? tokensWithCommitments.find(
         (token) =>
           token.address.toLowerCase() ===
