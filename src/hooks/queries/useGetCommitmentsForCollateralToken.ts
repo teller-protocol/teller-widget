@@ -14,6 +14,7 @@ export type SubgraphTokenType = {
   symbol?: string;
   address: Address;
   decimals?: number;
+  logo?: string;
 };
 
 export type CommitmentType = {
