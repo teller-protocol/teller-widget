@@ -51,16 +51,33 @@ const OpportunityDetails = () => {
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
-    ? tokensWithCommitments.find(
-        (token) =>
-          token.address.toLowerCase() ===
-          selectedOpportunity?.collateralToken?.address?.toLowerCase()
-      )
+    ? selectedOpportunity?.collateralToken
     : selectedCollateralToken;
 
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     selectedOpportunity.principalToken?.address ?? ""
   );
+
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    selectedOpportunity.collateralToken?.address ?? ""
+  );
+
+  if (
+    !isStableView &&
+    collateralTokenMetadata &&
+    matchingCollateralToken &&
+    !('logo' in matchingCollateralToken)
+  ) {
+    type TokenKey = keyof typeof collateralTokenMetadata;
+
+    const token = matchingCollateralToken as Record<string, any>;
+
+    for (const key of Object.keys(collateralTokenMetadata) as TokenKey[]) {
+      if (!(key in token)) {
+        token[key] = collateralTokenMetadata[key];
+      }
+    }
+  }
 
   const { isWhitelistedToken } = useGetGlobalPropsContext();
   const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
@@ -74,7 +91,7 @@ const OpportunityDetails = () => {
   });
 
   const tokenIsWhitelistedAndBalanceIs0 =
-    (!isStableView
+    (isStableView
       ? isWhitelistedToken(selectedOpportunity.collateralToken?.address)
       : true) &&
     (!collateralTokenBalance || collateralTokenBalance.value === 0n);
@@ -87,6 +104,23 @@ const OpportunityDetails = () => {
     address,
   });
 
+  if (!isStableView && matchingCollateralToken && !('balance' in matchingCollateralToken)) {
+    const balanceMetadata = 
+      {
+        "balance":Number(BigInt(collateralWalletBalance?.data?.value ?? 0n)).toString(),
+        "balanceBigInt": collateralWalletBalance?.data?.value,
+      }
+    type TokenKey = keyof typeof balanceMetadata;
+
+    const token = matchingCollateralToken as Record<string, any>;
+
+    for (const key of Object.keys(balanceMetadata) as TokenKey[]) {
+      if (!(key in token)) {
+        token[key] = balanceMetadata[key];
+      }
+    }
+  }
+  
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
     isLoading,
