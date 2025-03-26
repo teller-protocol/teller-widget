@@ -7,12 +7,14 @@ import { useGetLiquidityPools } from "./queries/useGetLiquidityPools";
 import { useAlchemy } from "./useAlchemy";
 import { useConvertLenderGroupCommitmentToCommitment } from "./useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "./useGetUserTokens";
+import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
 
 export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const skip = !isStrategiesSection;
+  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
 
   const {
     liquidityPools: liquidityPools,
@@ -93,7 +95,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
                 address: address as `0x${string}`,
                 name: metadata?.name || "",
                 symbol: metadata?.symbol || "",
-                logo: metadata?.logo || "",
+                logo: metadata?.logo ?? getTokenImageFromTokenList(address) ?? "",
                 balance: aggregatedBalance || "0",
                 balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
                 decimals: metadata?.decimals || 18,
