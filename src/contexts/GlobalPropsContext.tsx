@@ -65,7 +65,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   const chainId = useChainId();
 
   const whitelistedChainTokens = useMemo(
-    () => whitelistedTokens?.[chainId] ?? [],
+    () => whitelistedTokens?.[chainId].map(token => token.toLowerCase()) ?? [],
     [whitelistedTokens, chainId]
   );
 
