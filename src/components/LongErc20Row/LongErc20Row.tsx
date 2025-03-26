@@ -23,7 +23,6 @@ const LongErc20TokenRow: React.FC<LongErc20TokenSelectProps> = ({
         <span className="paragraph">{token?.symbol}</span>
         <span className="section-sub-title">
           Long with: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
-          {/* somehow change to the amount of tokens to long */}
         </span>
       </div>
     </div>
