@@ -6,7 +6,6 @@ import { TransactionStepConfig } from "../components/TransactionButton/Transacti
 import { useContracts } from "./useContracts";
 import { useMemo } from "react";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
-import { lrfAddressMap } from "../constants/lrfAddresses";
 
 export const useBorrowFromPool = ({
   commitmentPoolAddress,
