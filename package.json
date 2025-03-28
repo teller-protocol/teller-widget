@@ -1,6 +1,6 @@
 {
   "name": "@teller-protocol/teller-widget",
-  "version": "1.9.16",
+  "version": "1.9.17",
   "main": "lib/cjs/index.cjs",
   "module": "lib/index.js",
   "types": "lib/index.d.ts",
