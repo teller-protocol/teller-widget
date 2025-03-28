@@ -1,10 +1,12 @@
-import { useAccount, useToken } from "wagmi";
-
+import { useAccount, useChainId, useToken } from "wagmi";
 import { AddressStringType } from "../types/addressStringType";
 import { ContractType, useReadContract } from "./useReadContract";
 import { SupportedContractsEnum } from "./useReadContract";
 import { TransactionStepConfig } from "../components/TransactionButton/TransactionButton";
 import { useContracts } from "./useContracts";
+import { useMemo } from "react";
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import { lrfAddressMap } from "../constants/lrfAddresses";
 
 export const useBorrowFromPool = ({
   commitmentPoolAddress,
@@ -27,16 +29,28 @@ export const useBorrowFromPool = ({
 }) => {
   const transactions: TransactionStepConfig[] = [];
   const { address } = useAccount();
+  
+  const { referralFee, referralAddress } = useGetGlobalPropsContext();
+  const referralFeeAmount = (BigInt(referralFee ?? 0) * BigInt(principalAmount ?? 0)) / BigInt(10000);
 
   const contracts = useContracts();
 
-  const SMART_COMMITMENT_FORWARDER_POLYGON_ADDRESS =
+  const SMART_COMMITMENT_FORWARDER_ADDRESS =
     contracts[SupportedContractsEnum.SmartCommitmentForwarder].address;
+  const LOAN_REFERRAL_ADDRESS =
+    contracts[SupportedContractsEnum.LoanReferralForwarder].address;
 
   const { data: hasApprovedForwarder } = useReadContract<boolean>(
     SupportedContractsEnum.TellerV2,
     "hasApprovedMarketForwarder",
-    [marketId, SMART_COMMITMENT_FORWARDER_POLYGON_ADDRESS, address],
+    [marketId, SMART_COMMITMENT_FORWARDER_ADDRESS, address],
+    !marketId || skip
+  );
+
+  const hasAddedExtension = useReadContract<boolean>(
+    SupportedContractsEnum.SmartCommitmentForwarder,
+    "hasExtension",
+    [address, LOAN_REFERRAL_ADDRESS],
     !marketId || skip
   );
 
@@ -87,28 +101,57 @@ export const useBorrowFromPool = ({
     });
   }
 
+  const acceptCommitmentArgs: any = useMemo(
+    () => ({
+      commitmentId: 0,
+      smartCommitmentAddress: commitmentPoolAddress,
+      principalAmount: BigInt(principalAmount),
+      collateralAmount: BigInt(collateralAmount),
+      collateralTokenId: 0,
+      collateralTokenAddress: collateralTokenAddress,
+      interestRate: minInterestRate,
+      loanDuration: loanDuration,
+      merkleProof: [],
+    }),
+    [
+      commitmentPoolAddress,
+      principalAmount,
+      collateralAmount,
+      collateralTokenAddress,
+      minInterestRate,
+      loanDuration,
+    ]
+  );
+
   if (!hasApprovedForwarder) {
     transactions.push({
       contractName: SupportedContractsEnum.TellerV2,
       functionName: "approveMarketForwarder",
-      args: [marketId, SMART_COMMITMENT_FORWARDER_POLYGON_ADDRESS],
+      args: [marketId, SMART_COMMITMENT_FORWARDER_ADDRESS],
       buttonLabel: `Approve Teller`,
       loadingButtonLabel: `Approving teller...`,
     });
   }
 
+  if (!hasAddedExtension.isLoading && !hasAddedExtension.data) {
+    transactions.push({
+      buttonLabel: "Enable Borrowing",
+      loadingButtonLabel: "Enabling borrowing...",
+      contractName: SupportedContractsEnum.SmartCommitmentForwarder,
+      functionName: "addExtension",
+      args: [LOAN_REFERRAL_ADDRESS],
+    });
+  }
+
   transactions.push({
-    contractName: SupportedContractsEnum.SmartCommitmentForwarder,
-    functionName: "acceptSmartCommitmentWithRecipient",
+    contractName: SupportedContractsEnum.LoanReferralForwarder,
+    functionName: "acceptCommitmentWithReferral",
     args: [
-      commitmentPoolAddress,
-      BigInt(principalAmount),
-      BigInt(collateralAmount),
-      BigInt(0),
-      collateralTokenAddress,
+      SMART_COMMITMENT_FORWARDER_ADDRESS,
+      acceptCommitmentArgs,
       address,
-      minInterestRate,
-      loanDuration,
+      referralFeeAmount,
+      referralAddress,
     ],
     buttonLabel: `Deposit & Borrow`,
     loadingButtonLabel: `Borrowing...`,
