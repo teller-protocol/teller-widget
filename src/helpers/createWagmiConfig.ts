@@ -12,9 +12,8 @@ import {
   mantle,
   manta,
   mode,
-  Chain,
 } from "wagmi/chains";
-import { walletConnect } from "wagmi/connectors";
+import { walletConnect, safe } from "wagmi/connectors";
 
 import { ALCHEMY_API_KEY } from "../constants/global";
 
@@ -55,5 +54,6 @@ export const config = createConfig({
     walletConnect({
       projectId: "1c82ac0d6e7e111ef9f9476c00f3c0fa",
     }),
+    safe(),
   ],
 });
