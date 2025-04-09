@@ -20,6 +20,7 @@ export enum SupportedContractsEnum {
   "CollateralManager" = "CollateralManager",
   "LenderGroups" = "LenderCommitmentGroupBeacon",
   "SmartCommitmentForwarder" = "SmartCommitmentForwarder",
+  "BorrowSwap" = "BorrowSwap",
 }
 
 export enum ContractType {

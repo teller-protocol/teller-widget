@@ -35,6 +35,7 @@ import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
+import { BorrowSwapButton } from "./BorrowSwapButton";
 import { useAccount, useBalance } from "wagmi";
 
 const OpportunityDetails = () => {
@@ -265,6 +266,10 @@ const OpportunityDetails = () => {
       ? "Borrow"
       : "Borrow";
 
+  // if STRATEGY_ACTION_ENUM is LONG or SHORT
+  // create and import hook to call borrowswap contract and call getExactInput 
+  // hook returns both generateSwapPath and quoteExactInput
+
   return (
     <div className="opportunity-details">
       <div className="back-pill-row">
@@ -410,7 +415,7 @@ const OpportunityDetails = () => {
       
       
 
-      
+      {/* UPDATE LONG BY PASSING IN QUOTE EXACT INPUT */}
       {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
         <div>
           <img src={separatorWithCaret} className="separator" />
@@ -505,6 +510,14 @@ const OpportunityDetails = () => {
           principalToken={maxLoanAmount}
         />
       )}
+      {/* do another conditional if LONG or SHORT,
+          <BorrowSwapButton
+            collateralToken={collateralTokenValue}
+            commitment={selectedOpportunity}
+            principalToken={maxLoanAmount}
+            principalTokenAddress={selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}
+          />
+      */}
     </div>
   );
 };

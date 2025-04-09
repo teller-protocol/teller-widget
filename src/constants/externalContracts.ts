@@ -11,6 +11,7 @@ import WMATIC_ABI from "../contracts/WMATIC_ABI.json";
 import LCF_ALPHA_ABI from "../contracts/LCF_ALPHA_ABI.json";
 import LRF_ABI from "../contracts/LRF_ABI.json";
 import RFW_ABI from "../contracts/RFW_ABI.json";
+import BORROW_SWAP_ABI from "../contracts/BORROW_SWAP_ABI.json";
 import { erc20Abi } from "viem";
 import {
   LCF_ALPHA_ARBITRUM_ADDRESS,
@@ -30,6 +31,7 @@ import {
   RFW_MAINNET_ADDRESS,
   RFW_POLYGON_ADDRESS, 
 } from "./rfwAddress";
+import { BORROW_SWAP_POLYGON_ADDRESS } from "./borrowSwapAddresses"
 
 interface NetworkContract {
   address: string;
@@ -101,6 +103,10 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
       RolloverForWidget: {
         address: RFW_POLYGON_ADDRESS,
         abi: RFW_ABI,
+      },
+      BorrowSwap: {
+        address: BORROW_SWAP_POLYGON_ADDRESS,
+        abi: BORROW_SWAP_ABI,
       },
     },
   },
