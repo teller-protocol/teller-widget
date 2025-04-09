@@ -24,6 +24,7 @@ import {
 interface Props {
   commitment?: CommitmentType;
   principalToken?: bigint;
+  principalTokenAddress?: AddressStringType;
   collateralToken?: TokenInputType;
 
   onSuccess?: (bidId?: string, txHash?: string) => void;
@@ -32,6 +33,7 @@ interface Props {
 export const AcceptCommitmentButton: React.FC<Props> = ({
   commitment,
   principalToken,
+  principalTokenAddress,
   collateralToken,
 }) => {
   const { address } = useAccount();
@@ -207,8 +209,8 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
     const step3Args = [
       commitmentForwarderAddress,
-      // principal token address
-      // 0, // additional input amount
+      principalTokenAddress,
+      0, // additional input amount
       // swap args
       acceptCommitmentArgs,
     ];
