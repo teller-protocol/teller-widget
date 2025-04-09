@@ -500,6 +500,15 @@ const OpportunityDetails = () => {
           isFullWidth
           useTransactionButtonContext
         />
+      ) : (strategyAction === STRATEGY_ACTION_ENUM.LONG || strategyAction === STRATEGY_ACTION_ENUM.SHORT) ? (
+        <BorrowSwapButton
+          collateralToken={collateralTokenValue}
+          commitment={selectedOpportunity}
+          principalToken={maxLoanAmount}
+          principalTokenAddress={selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}
+          borrowSwapPaths={borrowSwapPaths}
+          borrowQuoteExactInput={borrowQuoteExactInput}
+        />
       ) : isLenderGroup ? (
         <TransactionButton
           transactions={lenderGroupTransactions}
@@ -521,14 +530,6 @@ const OpportunityDetails = () => {
           principalToken={maxLoanAmount}
         />
       )}
-      {/* do another conditional if LONG or SHORT,
-          <BorrowSwapButton
-            collateralToken={collateralTokenValue}
-            commitment={selectedOpportunity}
-            principalToken={maxLoanAmount}
-            principalTokenAddress={selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}
-          />
-      */}
     </div>
   );
 };

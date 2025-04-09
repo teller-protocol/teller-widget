@@ -26,15 +26,19 @@ interface Props {
   principalToken?: bigint;
   principalTokenAddress?: AddressStringType;
   collateralToken?: TokenInputType;
+  borrowSwapPaths?: [];
+  borrowQuoteExactInput?: bigint;
 
   onSuccess?: (bidId?: string, txHash?: string) => void;
 }
 
-export const AcceptCommitmentButton: React.FC<Props> = ({
+export const BorrowSwapButton: React.FC<Props> = ({
   commitment,
   principalToken,
   principalTokenAddress,
   collateralToken,
+  borrowSwapPaths,
+  borrowQuoteExactInput,
 }) => {
   const { address } = useAccount();
 
@@ -66,14 +70,18 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
 
   const commitmentForwarderAddress = commitment?.forwarderAddress;
 
-  const lcfContractName = isCommitmentFromLCFAlpha
-    ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-    : SupportedContractsEnum.LenderCommitmentForwarderStaging;
+  const lcfContractName = commitment?.isLenderGroup
+    ? SupportedContractsEnum.SmartCommitmentForwarder
+    : SupportedContractsEnum.LenderCommitmentForwarderAlpha;
+
+  console.log("commitment", commitment)
 
   const acceptCommitmentArgs: any = useMemo(
     () => ({
       commitmentId: commitment?.id,
-      smartCommitmentAddress: "0x0000000000000000000000000000000000000000",
+      smartCommitmentAddress: commitment?.isLenderGroup
+        ? commitment?.lenderAddress
+        : "0x0000000000000000000000000000000000000000",
       principalAmount: principalToken,
       collateralAmount: collateralToken?.valueBI,
       collateralTokenId: 0,
@@ -91,6 +99,15 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       collateralToken?.valueBI,
     ]
   );
+
+  const swapArgs = useMemo(() => {
+    if (!borrowSwapPaths || !borrowQuoteExactInput) return undefined;
+
+    return {
+      swapPaths: borrowSwapPaths,
+      amountOutMinimum: borrowQuoteExactInput * 95n / 100n,
+    };
+  }, [borrowSwapPaths, borrowQuoteExactInput]);
 
   const hasApprovedForwarder = useReadContract<boolean>(
     SupportedContractsEnum.TellerV2,
@@ -210,10 +227,13 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     const step3Args = [
       commitmentForwarderAddress,
       principalTokenAddress,
-      0, // additional input amount
-      // swap args
+      0,
+      swapArgs,
       acceptCommitmentArgs,
     ];
+
+    console.log("step3Args", step3Args)
+    console.log("step3FunctionName", step3FunctionName)
 
     if (!isLoadingTransactionInfo)
       row4.push({
