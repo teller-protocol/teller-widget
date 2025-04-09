@@ -24,9 +24,9 @@ import {
 interface Props {
   commitment?: CommitmentType;
   principalToken?: bigint;
-  principalTokenAddress?: AddressStringType;
+  principalTokenAddress?: string;
   collateralToken?: TokenInputType;
-  borrowSwapPaths?: [];
+  borrowSwapPaths?: { poolFee: number; tokenOut: string; }[];
   borrowQuoteExactInput?: bigint;
 
   onSuccess?: (bidId?: string, txHash?: string) => void;

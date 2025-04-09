@@ -1,4 +1,3 @@
-import { AddressStringType } from "../types/addressStringType";
 import { ContractType, useReadContract, SupportedContractsEnum } from "./useReadContract";
 import { useMemo } from "react";
 
@@ -28,7 +27,7 @@ export const useGetBorrowSwapData = ({
   const borrowSwapPaths = useReadContract<string>(
     SupportedContractsEnum.BorrowSwap,
     "generateSwapPath",
-    isReady ? [principalTokenAddress, swapPath] : undefined,
+    isReady ? [principalTokenAddress, swapPath] : [],
     false,
     ContractType.External
   );
@@ -38,7 +37,7 @@ export const useGetBorrowSwapData = ({
     "quoteExactInput",
     isReady
       ? [principalTokenAddress, BigInt(principalAmount), swapPath]
-      : undefined,
+      : [],
     false,
     ContractType.External
   );

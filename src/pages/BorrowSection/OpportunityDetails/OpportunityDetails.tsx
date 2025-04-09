@@ -39,6 +39,7 @@ import { BorrowSwapButton } from "./BorrowSwapButton";
 import { useAccount, useBalance } from "wagmi";
 
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
+import Loader from "../../../components/Loader/Loader";
 
 const OpportunityDetails = () => {
   const {
@@ -278,6 +279,8 @@ const OpportunityDetails = () => {
     collateralTokenAddress: collateralTokenValue?.token?.address,
   });
 
+  const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
+
   console.log("borrowSwapPaths", borrowSwapPaths);
   console.log("borrowQuoteExactInput", borrowQuoteExactInput);
 
@@ -501,14 +504,18 @@ const OpportunityDetails = () => {
           useTransactionButtonContext
         />
       ) : (strategyAction === STRATEGY_ACTION_ENUM.LONG || strategyAction === STRATEGY_ACTION_ENUM.SHORT) ? (
-        <BorrowSwapButton
-          collateralToken={collateralTokenValue}
-          commitment={selectedOpportunity}
-          principalToken={maxLoanAmount}
-          principalTokenAddress={selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}
-          borrowSwapPaths={borrowSwapPaths}
-          borrowQuoteExactInput={borrowQuoteExactInput}
-        />
+          isLoadingBorrowSwap ? (
+            <Loader isSkeleton height={40} />
+          ) : (
+            <BorrowSwapButton
+              collateralToken={collateralTokenValue}
+              commitment={selectedOpportunity}
+              principalToken={maxLoanAmount}
+              principalTokenAddress={selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}
+              borrowSwapPaths={borrowSwapPaths}
+              borrowQuoteExactInput={borrowQuoteExactInput}
+            />
+          )
       ) : isLenderGroup ? (
         <TransactionButton
           transactions={lenderGroupTransactions}
