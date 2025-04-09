@@ -1,27 +1,34 @@
 import { AddressStringType } from "../types/addressStringType";
 import { ContractType, useReadContract, SupportedContractsEnum } from "./useReadContract";
-import { useMemo } from "react"
+import { useMemo } from "react";
 
 export const useGetBorrowSwapData = ({
   principalTokenAddress,
   principalAmount,
   collateralTokenAddress,
 }: {
-  principalTokenAddress: string;
-  principalAmount: number;
-  collateralTokenAddress: string;
+  principalTokenAddress?: string;
+  principalAmount?: string;
+  collateralTokenAddress?: string;
 }) => {
+  const isReady =
+    !!principalTokenAddress && !!principalAmount && !!collateralTokenAddress;
 
-  // using principal tokens & collateral token, query uniswap api to find highest TVL pool path and get that pool fee
+  const swapPath = [
+    {
+      poolFee: 500,
+      tokenOut: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    },
+    {
+      poolFee: 10000,
+      tokenOut: "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
+    },
+  ];
 
-  console.log("principalTokenAddress", principalTokenAddress);
-  console.log("principalAmount", principalAmount);
-  console.log("collateralTokenAddress", collateralTokenAddress);
-  
-  const borrowSwapPaths = useReadContract<bigint>(
+  const borrowSwapPaths = useReadContract<string>(
     SupportedContractsEnum.BorrowSwap,
     "generateSwapPath",
-    [principalTokenAddress, [(500, "0xa374094527e1673a86de625aa59517c5de346d32"),(10000, "0x692ac1e363ae34b6b489148152b12e2785a3d8d6")] ], // create example swap
+    isReady ? [principalTokenAddress, swapPath] : undefined,
     false,
     ContractType.External
   );
@@ -29,22 +36,18 @@ export const useGetBorrowSwapData = ({
   const borrowQuoteExactInput = useReadContract<bigint>(
     SupportedContractsEnum.BorrowSwap,
     "quoteExactInput",
-    [principalTokenAddress, principalAmount, borrowSwapPaths],
+    isReady
+      ? [principalTokenAddress, BigInt(principalAmount), swapPath]
+      : undefined,
     false,
     ContractType.External
   );
 
-  console.log("borrowSwapPaths", borrowSwapPaths);
-  console.log("borrowQuoteExactInput", borrowQuoteExactInput);
-  
   return useMemo(
     () => ({
-      borrowSwapPaths,
-      borrowQuoteExactInput,
+      borrowSwapPaths: swapPath,
+      borrowQuoteExactInput: borrowQuoteExactInput.data,
     }),
-    [
-      borrowSwapPaths,
-      borrowQuoteExactInput,
-    ]
+    [borrowSwapPaths, borrowQuoteExactInput]
   );
 };

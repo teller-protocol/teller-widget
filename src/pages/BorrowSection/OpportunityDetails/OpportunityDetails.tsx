@@ -272,14 +272,14 @@ const OpportunityDetails = () => {
   // create and import hook to call borrowswap contract and call getExactInput 
   // hook returns both generateSwapPath and quoteExactInput
 
-  const {
-    borrowSwapPaths,
-    borrowQuoteExactInput
-  } = useGetBorrowSwapData({
-    principalTokenAddress: selectedOpportunity.principalToken?.address as AddressStringType,
-    principalAmount: maxLoanAmount,
-    collateralTokenAddress: collateralTokenValue.token?.address as AddressStringType,
+  const { borrowSwapPaths, borrowQuoteExactInput } = useGetBorrowSwapData({
+    principalTokenAddress: selectedOpportunity?.principalToken?.address,
+    principalAmount: maxLoanAmount?.toString(),
+    collateralTokenAddress: collateralTokenValue?.token?.address,
   });
+
+  console.log("borrowSwapPaths", borrowSwapPaths);
+  console.log("borrowQuoteExactInput", borrowQuoteExactInput);
 
   return (
     <div className="opportunity-details">
