@@ -38,6 +38,8 @@ import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import { BorrowSwapButton } from "./BorrowSwapButton";
 import { useAccount, useBalance } from "wagmi";
 
+import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
+
 const OpportunityDetails = () => {
   const {
     setCurrentStep,
@@ -269,6 +271,15 @@ const OpportunityDetails = () => {
   // if STRATEGY_ACTION_ENUM is LONG or SHORT
   // create and import hook to call borrowswap contract and call getExactInput 
   // hook returns both generateSwapPath and quoteExactInput
+
+  const {
+    borrowSwapPaths,
+    borrowQuoteExactInput
+  } = useGetBorrowSwapData({
+    principalTokenAddress: selectedOpportunity.principalToken?.address as AddressStringType,
+    principalAmount: maxLoanAmount,
+    collateralTokenAddress: collateralTokenValue.token?.address as AddressStringType,
+  });
 
   return (
     <div className="opportunity-details">
