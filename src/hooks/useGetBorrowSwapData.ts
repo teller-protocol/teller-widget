@@ -1,5 +1,5 @@
 import { ContractType, useReadContract, SupportedContractsEnum } from "./useReadContract";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useBestUniswapV3Route } from "./queries/useGetUniswapRoutes";
 
 export const useGetBorrowSwapData = ({
@@ -23,16 +23,21 @@ export const useGetBorrowSwapData = ({
   console.log("swapRoute", swapRoute)
   console.log("liquidityInsufficient", liquidityInsufficient)
 
-  const swapPath = [
-    {
-      poolFee: 100,
-      tokenOut: "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
-    },
-    {
-      poolFee: 10000,
-      tokenOut: "0x362d0401ed74db25219b6d02ac1791cfe3542d68",
-    },
-  ];
+  const [swapPath, setSwapPath] = useState<
+    { tokenOut: string; poolFee: number }[]
+  >([]);
+
+  // Dynamically transform swapRoute to swapPath when swapRoute is ready
+  useEffect(() => {
+    if (!swapRoute || swapRoute.length === 0) return;
+
+    const path = swapRoute.map((pool) => ({
+      tokenOut: pool[0],
+      poolFee: pool[2],
+    }));
+
+    setSwapPath(path);
+  }, [swapRoute]);
 
   /*
    {

@@ -52,6 +52,7 @@ const OpportunityDetails = () => {
     maxCollateral: maxCollateralFromContext,
     tokensWithCommitments,
     selectedErc20Apy,
+    selectedSwapToken,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
 
@@ -273,10 +274,12 @@ const OpportunityDetails = () => {
   // create and import hook to call borrowswap contract and call getExactInput 
   // hook returns both generateSwapPath and quoteExactInput
 
+  console.log("selectedSwapToken", selectedSwapToken)
+
   const { borrowSwapPaths, borrowQuoteExactInput } = useGetBorrowSwapData({
     principalTokenAddress: selectedOpportunity?.principalToken?.address,
     principalAmount: maxLoanAmount?.toString(),
-    collateralTokenAddress: collateralTokenValue?.token?.address,
+    collateralTokenAddress: selectedSwapToken?.address,
   });
 
   const [borrowSwapTokenInput, setBorrowSwapTokenInput] = useState<TokenInputType>();
