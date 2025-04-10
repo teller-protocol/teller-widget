@@ -16,6 +16,7 @@ const UNISWAP_V3_POOLS_BY_TOKEN_QUERY = gql`
       where: { or: [{ token0: $token }, { token1: $token }] }
       orderBy: totalValueLockedUSD
       orderDirection: desc
+      first: 1
     ) {
       id
       totalValueLockedUSD
@@ -37,6 +38,7 @@ const UNISWAP_V3_POOLS_BY_PAIR_QUERY = gql`
       }
       orderBy: totalValueLockedUSD
       orderDirection: desc
+      first: 1
     ) {
       id
       totalValueLockedUSD
@@ -76,9 +78,6 @@ export const useBestUniswapV3Route = (
       const tempCollateralToken = isCollateralWETH
         ? principalTokenAddress
         : collateralTokenAddress
-      const tempPrincipalToken = isCollateralWETH
-        ? collateralTokenAddress
-        : principalTokenAddress
 
       // Step 1: Get pools involving the collateral token
       const { pools: collateralPools } = await request<PoolsResponse>(
@@ -89,6 +88,8 @@ export const useBestUniswapV3Route = (
 
       const firstCollateralPool = collateralPools?.[0]
       if (!firstCollateralPool) return
+
+      console.log("firstCollateralPool", firstCollateralPool)
       
       const collateralLiquidity = parseFloat(firstCollateralPool.totalValueLockedUSD || '0')
 
@@ -120,32 +121,26 @@ export const useBestUniswapV3Route = (
           ? firstCollateralPool.token1.id
           : firstCollateralPool.token0.id
 
-      // Query all pools involving the principal token
-      const { pools: principalTokenPools } = await request<PoolsResponse>(
+      const { pools: principalPools } = await request<PoolsResponse>(
         graphURL,
-        UNISWAP_V3_POOLS_BY_TOKEN_QUERY,
-        { token: principalTokenAddress.toLowerCase() }
+        UNISWAP_V3_POOLS_BY_PAIR_QUERY,
+        {
+          token0: principalTokenAddress.toLowerCase(),
+          token1: intermediaryToken.toLowerCase(),
+        }
       )
 
-      // Find the first pool that also contains the intermediary token
-      const firstPrincipalPool = principalTokenPools.find(
-        (pool) =>
-          pool.token0.id.toLowerCase() === intermediaryToken.toLowerCase() ||
-          pool.token1.id.toLowerCase() === intermediaryToken.toLowerCase()
-      )
+      console.log("principalPools", principalPools)
 
+      const firstPrincipalPool = principalPools?.[0]
       if (!firstPrincipalPool) return
+
+      console.log("firstPrincipalPool", firstPrincipalPool)
 
       const principalLiquidity = parseFloat(firstPrincipalPool.totalValueLockedUSD || '0')
 
-      // tokenOut is the token that is NOT the principal
-      const tokenOut2 =
-        firstPrincipalPool.token0.id.toLowerCase() === principalTokenAddress.toLowerCase()
-          ? firstPrincipalPool.token1.id
-          : firstPrincipalPool.token0.id
-
       const pool2 = [
-        tokenOut2,
+        intermediaryToken,
         firstPrincipalPool.token0.id.toLowerCase() === intermediaryToken.toLowerCase(),
         Number(firstPrincipalPool.feeTier),
         Number(firstPrincipalPool.token0.decimals),
@@ -162,6 +157,6 @@ export const useBestUniswapV3Route = (
 
     getRoute()
   }, [principalTokenAddress, collateralTokenAddress, chainId, graphURL])
-
+  console.log("route", route)
   return route
 }

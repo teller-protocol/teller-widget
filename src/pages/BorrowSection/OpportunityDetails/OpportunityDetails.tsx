@@ -303,7 +303,15 @@ const OpportunityDetails = () => {
     <div className="opportunity-details">
       <div className="back-pill-row">
         <BackButton
-          onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
+          onClick={() => {
+            if (isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+              // go to SWAP TOKENS route
+              setCurrentStep(BorrowSectionSteps.SELECT_SWAP_TOKEN);
+            } else {
+              // fallback: go back to SELECT_OPPORTUNITY
+              setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+            }
+          }}
         />
         {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
           <span

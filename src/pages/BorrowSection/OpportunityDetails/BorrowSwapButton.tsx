@@ -74,8 +74,6 @@ export const BorrowSwapButton: React.FC<Props> = ({
     ? SupportedContractsEnum.SmartCommitmentForwarder
     : SupportedContractsEnum.LenderCommitmentForwarderAlpha;
 
-  console.log("commitment", commitment)
-
   const acceptCommitmentArgs: any = useMemo(
     () => ({
       commitmentId: commitment?.id,
@@ -231,9 +229,6 @@ export const BorrowSwapButton: React.FC<Props> = ({
       swapArgs,
       acceptCommitmentArgs,
     ];
-
-    console.log("step3Args", step3Args)
-    console.log("step3FunctionName", step3FunctionName)
 
     if (!isLoadingTransactionInfo)
       row4.push({
