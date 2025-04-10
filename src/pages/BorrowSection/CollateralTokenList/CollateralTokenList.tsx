@@ -10,6 +10,7 @@ import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
 import ShortErc20List from "../../../pages/BorrowSection/ShortErc20List";
+import SwapTokenList from "../../../pages/BorrowSection/SwapTokenList";
 
 import {
   BorrowSectionSteps,
@@ -105,17 +106,7 @@ const CollateralTokenList: React.FC = () => {
             ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
               <ShortErc20List searchQuery={searchQuery} />
             ) : (
-              filteredAndSortedTokens.length > 0 ? (
-                filteredAndSortedTokens.map((token) => (
-                  <LongErc20TokenRow
-                    token={token}
-                    onClick={() => onCollateralTokenSelected(token)}
-                    key={token.address.toString()}
-                  />
-                ))
-              ) : (
-                <div className="section-title">No tokens available</div>
-              )
+              <SwapTokenList />
             )
           ) : loading ? (
             <Loader />

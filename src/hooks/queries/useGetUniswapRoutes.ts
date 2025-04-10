@@ -89,8 +89,7 @@ export const useBestUniswapV3Route = (
 
       const firstCollateralPool = collateralPools?.[0]
       if (!firstCollateralPool) return
-
-      console.log("firstCollateralPool", firstCollateralPool)
+      
       const collateralLiquidity = parseFloat(firstCollateralPool.totalValueLockedUSD || '0')
 
       const isDirectRoute =
