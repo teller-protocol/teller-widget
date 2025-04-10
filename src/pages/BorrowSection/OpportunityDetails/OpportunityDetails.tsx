@@ -283,14 +283,13 @@ const OpportunityDetails = () => {
   const [borrowSwapTokenInput, setBorrowSwapTokenInput] = useState<TokenInputType>();
 
   useEffect(() => {
-    if (!borrowQuoteExactInput || !matchingCollateralToken?.decimals) return;
 
     setBorrowSwapTokenInput({
       token: selectedSwapToken,
       value: Number(
         formatUnits(
-          borrowQuoteExactInput,
-          selectedSwapToken?.decimals
+          borrowQuoteExactInput ?? 0n,
+          selectedSwapToken?.decimals ?? 18
         )
       ),
       valueBI: borrowQuoteExactInput,
@@ -453,11 +452,11 @@ const OpportunityDetails = () => {
       
 
       {/* UPDATE LONG BY PASSING IN QUOTE EXACT INPUT */}
-      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && borrowSwapTokenInput) && (
+      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
         <div>
           <img src={separatorWithCaret} className="separator" />
           <TokenInput
-            tokenValue={borrowSwapTokenInput as TokenInputType}
+            tokenValue={(borrowSwapTokenInput as TokenInputType) ?? 0}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                 {"Long "}
