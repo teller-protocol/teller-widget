@@ -24,19 +24,6 @@ export const useGetBorrowSwapData = ({
       tokenOut: pool[0],
     }));
   }, [swapRoute]);
-  
-  
-  /*const swapPath = 
-   [
-     {
-       poolFee: 100,
-       tokenOut: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-     },
-     {
-       poolFee: 10000,
-       tokenOut: "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
-     },
-   ]*/
 
   const isReady =
     !!principalTokenAddress &&

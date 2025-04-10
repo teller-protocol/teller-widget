@@ -274,10 +274,15 @@ const OpportunityDetails = () => {
   // create and import hook to call borrowswap contract and call getExactInput 
   // hook returns both generateSwapPath and quoteExactInput
 
+  const finalStrategyToken =
+    strategyAction === STRATEGY_ACTION_ENUM.SHORT
+      ? matchingCollateralToken
+      : selectedSwapToken;
+
   const { borrowSwapPaths, borrowQuoteExactInput } = useGetBorrowSwapData({
     principalTokenAddress: selectedOpportunity?.principalToken?.address,
     principalAmount: maxLoanAmount?.toString(),
-    finalTokenAddress: selectedSwapToken?.address,
+    finalTokenAddress: finalStrategyToken?.address,
   });
 
   const [borrowSwapTokenInput, setBorrowSwapTokenInput] = useState<TokenInputType>();
@@ -285,11 +290,11 @@ const OpportunityDetails = () => {
   useEffect(() => {
 
     setBorrowSwapTokenInput({
-      token: selectedSwapToken,
+      token: finalStrategyToken,
       value: Number(
         formatUnits(
           borrowQuoteExactInput ?? 0n,
-          selectedSwapToken?.decimals ?? 18
+          finalStrategyToken?.decimals ?? 18
         )
       ),
       valueBI: borrowQuoteExactInput,
@@ -511,8 +516,7 @@ const OpportunityDetails = () => {
             </>
           ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
             <>
-              Also receive: 0.2 WETH{" "}
-              {selectedOpportunity.principalToken?.symbol}
+              Also receive: {borrowSwapTokenInput?.value?.toFixed(2)} {selectedOpportunity.collateralToken?.symbol}
             </>
           ) : null}
         </div>
