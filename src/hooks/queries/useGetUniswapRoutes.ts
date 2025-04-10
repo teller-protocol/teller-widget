@@ -97,9 +97,9 @@ export const useBestUniswapV3Route = (
           firstCollateralPool.token1.id.toLowerCase() === principalTokenAddress.toLowerCase()) ||
         (firstCollateralPool.token0.id.toLowerCase() === principalTokenAddress.toLowerCase() &&
           firstCollateralPool.token1.id.toLowerCase() === collateralTokenAddress.toLowerCase())
-
+      
       const pool1 = [
-        firstCollateralPool.id,
+        collateralTokenAddress,
         firstCollateralPool.token0.id.toLowerCase() === collateralTokenAddress.toLowerCase(),
         Number(firstCollateralPool.feeTier),
         Number(firstCollateralPool.token0.decimals),
@@ -120,22 +120,32 @@ export const useBestUniswapV3Route = (
           ? firstCollateralPool.token1.id
           : firstCollateralPool.token0.id
 
-      const { pools: principalPools } = await request<PoolsResponse>(
+      // Query all pools involving the principal token
+      const { pools: principalTokenPools } = await request<PoolsResponse>(
         graphURL,
-        UNISWAP_V3_POOLS_BY_PAIR_QUERY,
-        {
-          token0: principalTokenAddress.toLowerCase(),
-          token1: intermediaryToken.toLowerCase(),
-        }
+        UNISWAP_V3_POOLS_BY_TOKEN_QUERY,
+        { token: principalTokenAddress.toLowerCase() }
       )
 
-      const firstPrincipalPool = principalPools?.[0]
+      // Find the first pool that also contains the intermediary token
+      const firstPrincipalPool = principalTokenPools.find(
+        (pool) =>
+          pool.token0.id.toLowerCase() === intermediaryToken.toLowerCase() ||
+          pool.token1.id.toLowerCase() === intermediaryToken.toLowerCase()
+      )
+
       if (!firstPrincipalPool) return
 
       const principalLiquidity = parseFloat(firstPrincipalPool.totalValueLockedUSD || '0')
 
+      // tokenOut is the token that is NOT the principal
+      const tokenOut2 =
+        firstPrincipalPool.token0.id.toLowerCase() === principalTokenAddress.toLowerCase()
+          ? firstPrincipalPool.token1.id
+          : firstPrincipalPool.token0.id
+
       const pool2 = [
-        intermediaryToken.toLowerCase(),
+        tokenOut2,
         firstPrincipalPool.token0.id.toLowerCase() === intermediaryToken.toLowerCase(),
         Number(firstPrincipalPool.feeTier),
         Number(firstPrincipalPool.token0.decimals),

@@ -17,38 +17,33 @@ export const useGetBorrowSwapData = ({
     collateralTokenAddress
   )
 
-  const isReady =
-    !!principalTokenAddress && !!principalAmount && !!collateralTokenAddress && !!swapRoute;
-
-  console.log("swapRoute", swapRoute)
-  console.log("liquidityInsufficient", liquidityInsufficient)
-
-  const [swapPath, setSwapPath] = useState<
-    { tokenOut: string; poolFee: number }[]
-  >([]);
-
-  // Dynamically transform swapRoute to swapPath when swapRoute is ready
-  useEffect(() => {
-    if (!swapRoute || swapRoute.length === 0) return;
-
-    const path = swapRoute.map((pool) => ({
-      tokenOut: pool[0],
+  const swapPath = useMemo(() => {
+    if (!swapRoute || swapRoute.length === 0) return [];
+    return swapRoute.map((pool) => ({
       poolFee: pool[2],
+      tokenOut: pool[0],
     }));
-
-    setSwapPath(path);
   }, [swapRoute]);
+  
+  
+  /*const swapPath = 
+   [
+     {
+       poolFee: 100,
+       tokenOut: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+     },
+     {
+       poolFee: 10000,
+       tokenOut: "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
+     },
+   ]*/
 
-  /*
-   {
-     poolFee: 500,
-     tokenOut: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
-   },
-   {
-     poolFee: 10000,
-     tokenOut: "0x692ac1e363ae34b6b489148152b12e2785a3d8d6",
-   },
-   */
+  const isReady =
+    !!principalTokenAddress &&
+    !!principalAmount &&
+    !!collateralTokenAddress &&
+    swapPath.length > 0;
+   
 
   const borrowSwapPaths = useReadContract<string>(
     SupportedContractsEnum.BorrowSwap,
@@ -67,16 +62,6 @@ export const useGetBorrowSwapData = ({
     false,
     ContractType.External
   );
-
-  useEffect(() => {
-    console.log("Inputs:", {
-      principalTokenAddress,
-      principalAmount,
-      collateralTokenAddress,
-      swapRoute,
-      swapPath
-    });
-  }, [principalTokenAddress, principalAmount, collateralTokenAddress, swapRoute]);
 
   return useMemo(
     () => ({

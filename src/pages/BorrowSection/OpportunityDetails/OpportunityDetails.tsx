@@ -274,8 +274,6 @@ const OpportunityDetails = () => {
   // create and import hook to call borrowswap contract and call getExactInput 
   // hook returns both generateSwapPath and quoteExactInput
 
-  console.log("selectedSwapToken", selectedSwapToken)
-
   const { borrowSwapPaths, borrowQuoteExactInput } = useGetBorrowSwapData({
     principalTokenAddress: selectedOpportunity?.principalToken?.address,
     principalAmount: maxLoanAmount?.toString(),
@@ -288,11 +286,11 @@ const OpportunityDetails = () => {
     if (!borrowQuoteExactInput || !matchingCollateralToken?.decimals) return;
 
     setBorrowSwapTokenInput({
-      token: matchingCollateralToken,
+      token: selectedSwapToken,
       value: Number(
         formatUnits(
           borrowQuoteExactInput,
-          matchingCollateralToken.decimals
+          selectedSwapToken?.decimals
         )
       ),
       valueBI: borrowQuoteExactInput,
@@ -300,9 +298,6 @@ const OpportunityDetails = () => {
   }, [borrowQuoteExactInput, collateralTokenValue?.token?.address, matchingCollateralToken?.decimals]);
 
   const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
-
-  console.log("borrowSwapPaths", borrowSwapPaths);
-  console.log("borrowQuoteExactInput", borrowQuoteExactInput);
 
   return (
     <div className="opportunity-details">
@@ -460,7 +455,7 @@ const OpportunityDetails = () => {
                 {"Long "}
                 <Tooltip
                   description={`Long & receive ${
-                    matchingCollateralToken?.symbol
+                    selectedSwapToken?.symbol
                   } for ${convertSecondsToDays(
                     Number(selectedOpportunity?.maxDuration)
                   )} days${isStableView ? "—extend anytime via rollover" : ""}.`}
@@ -481,7 +476,7 @@ const OpportunityDetails = () => {
                 />
               </div>
             }
-            imageUrl={matchingCollateralToken?.logo || ""}
+            imageUrl={selectedSwapToken?.logo || ""}
             readonly
           />
         </div>
