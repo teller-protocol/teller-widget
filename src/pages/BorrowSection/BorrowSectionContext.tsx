@@ -34,6 +34,7 @@ export type UniswapData = {
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
+  SELECT_SWAP_TOKEN,
   SELECT_OPPORTUNITY,
   OPPORTUNITY_DETAILS,
   ACCEPT_TERMS,
@@ -50,6 +51,8 @@ export type BorrowSectionContextType = {
   setSelectedPrincipalErc20Token: (token: UserToken) => void;
   selectedLongErc20Token?: UserToken;
   setSelectedLongErc20Token: (token: UserToken) => void;
+  selectedSwapToken?: UserToken;
+  setSelectedSwapToken: (token: UserToken | undefined) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
   selectedOpportunity: CommitmentType;
@@ -98,6 +101,7 @@ export const BorrowSectionContextProvider: React.FC<
     useState<UserToken>();
   const [selectedPrincipalErc20Token, setSelectedPrincipalErc20Token] =
     useState<UserToken>();
+  const [selectedSwapToken, setSelectedSwapToken] = useState<UserToken | undefined>();
   
   useState<UserToken>();
   const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("-");
@@ -175,6 +179,8 @@ export const BorrowSectionContextProvider: React.FC<
         setSelectedCollateralToken,
         selectedPrincipalErc20Token,
         setSelectedPrincipalErc20Token,
+        selectedSwapToken,
+        setSelectedSwapToken,
         tokensWithCommitments,
         tokensWithCommitmentsLoading,
         selectedOpportunity,

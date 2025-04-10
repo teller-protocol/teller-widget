@@ -31,6 +31,8 @@ const CollateralTokenList: React.FC = () => {
     tokensWithCommitmentsLoading: loading,
     tokensWithCommitments,
     erc20sWithCommitmentsLoading: erc20Loading,
+    setSelectedSwapToken,
+    selectedSwapToken,
   } = useGetBorrowSectionContext();
 
   const { isStrategiesSection, strategyAction, setStrategyAction } = useGetGlobalPropsContext();
@@ -66,6 +68,9 @@ const CollateralTokenList: React.FC = () => {
   const handleStrategyAction = (action: STRATEGY_ACTION_ENUM) => {
     setKey((prev) => prev + 1);
     setStrategyAction(action);
+
+    // Reset selected swap token when switching strategies
+    setSelectedSwapToken(undefined);
   };
   
   return (
@@ -105,8 +110,33 @@ const CollateralTokenList: React.FC = () => {
               <PrincipalErc20List searchQuery={searchQuery} />
             ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
               <ShortErc20List searchQuery={searchQuery} />
-            ) : (
+            ) : strategyAction === STRATEGY_ACTION_ENUM.LONG && !selectedSwapToken ? (
               <SwapTokenList />
+            ) : (
+              <>
+                <div className="search-and-buttons">
+                  <input
+                    type="text"
+                    placeholder="Collateral to deposit for loan"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="token-search-input"
+                  />
+                </div>
+                {loading ? (
+                  <Loader />
+                ) : filteredAndSortedTokens.length > 0 ? (
+                  filteredAndSortedTokens.map((token) => (
+                    <CollateralTokenRow
+                      token={token}
+                      onClick={() => onCollateralTokenSelected(token)}
+                      key={token.address.toString()}
+                    />
+                  ))
+                ) : (
+                  <div className="section-title">No tokens available</div>
+                )}
+              </>
             )
           ) : loading ? (
             <Loader />

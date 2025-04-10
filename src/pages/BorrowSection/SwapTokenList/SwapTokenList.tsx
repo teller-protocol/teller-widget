@@ -7,6 +7,7 @@ import { UserToken } from "../../../hooks/useGetUserTokens";
 import "./swapTokenList.scss";
 import { useChainId } from "wagmi";
 import { useGetTokenList } from "../../../hooks/queries/useGetTokenList";
+import { AddressStringType } from "../../../types/addressStringType";
 
 const SwapTokenList: React.FC = () => {
   const {
@@ -20,7 +21,7 @@ const SwapTokenList: React.FC = () => {
   const isSupportedChain = useIsSupportedChain();
 
   const onSwapTokenSelected = (token: UserToken) => {
-    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     setSelectedSwapToken(token);
   };
 
@@ -34,12 +35,13 @@ const SwapTokenList: React.FC = () => {
   const additionalTokens: UserToken[] = uniswapTokens
     .filter((token) => !userTokenAddresses.has(token.address.toLowerCase()))
     .map((token) => ({
-      address: token.address,
+      address: token.address as AddressStringType,
       name: token.name,
       symbol: token.symbol,
       decimals: token.decimals,
       logo: token.logoURI,
-      balance: "0", // since these are not user tokens
+      balance: "0",
+      balanceBigInt: 0n,
     }));
 
   const mergedTokens = [...tokensWithCommitments, ...additionalTokens];

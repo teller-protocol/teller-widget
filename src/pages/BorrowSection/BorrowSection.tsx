@@ -9,6 +9,7 @@ import {
   useGetBorrowSectionContext,
 } from "./BorrowSectionContext";
 import CollateralTokenList from "./CollateralTokenList";
+import SwapTokenList from "./SwapTokenList";
 import OpportunitiesList from "./OpportunitiesList";
 import OpportunityDetails from "./OpportunityDetails";
 import "./borrowSection.scss";
@@ -79,6 +80,7 @@ const RenderComponent: React.FC = () => {
   const mapStepToComponent = useMemo(
     () => ({
       [BorrowSectionSteps.SELECT_TOKEN]: <CollateralTokenList />,
+      [BorrowSectionSteps.SELECT_SWAP_TOKEN]: <SwapTokenList />,
       [BorrowSectionSteps.SELECT_OPPORTUNITY]: <OpportunitiesList />,
       [BorrowSectionSteps.OPPORTUNITY_DETAILS]: <OpportunityDetails />,
       [BorrowSectionSteps.ACCEPT_TERMS]: <BorrowerTerms />,
