@@ -51,112 +51,118 @@ const UNISWAP_V3_POOLS_BY_PAIR_QUERY = gql`
 
 const UNIV3_LIQUIDITY_MIN = 500
 
+// In-memory route cache
+const routeCache = new Map<string, { pools: any[]; liquidityInsufficient: boolean }>();
+
 export const useBestUniswapV3Route = (
   principalTokenAddress?: string,
-  collateralTokenAddress?: string
+  finalTokenAddress?: string
 ) => {
-  const chainId = useChainId()
-  const { subgraphApiKey } = useGetGlobalPropsContext()
-  const graphURL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId)
+  const chainId = useChainId();
+  const { subgraphApiKey } = useGetGlobalPropsContext();
+  const graphURL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId);
 
   const [route, setRoute] = useState<{
-    pools: any[]
-    liquidityInsufficient: boolean
+    pools: any[];
+    liquidityInsufficient: boolean;
   }>({
     pools: [],
     liquidityInsufficient: true,
-  })
+  });
 
   useEffect(() => {
     const getRoute = async () => {
-      if (!principalTokenAddress || !collateralTokenAddress || !graphURL) return
+      if (!principalTokenAddress || !finalTokenAddress || !graphURL || !chainId) return;
 
-      const isCollateralWETH =
-        collateralTokenAddress.toLowerCase() ===
-        TOKEN_ADDRESSES[chainId ?? 1]['WETH'].toLowerCase()
+      const cacheKey = `${chainId}-${principalTokenAddress.toLowerCase()}-${finalTokenAddress.toLowerCase()}`;
+      const cached = routeCache.get(cacheKey);
 
-      const tempCollateralToken = isCollateralWETH
-        ? principalTokenAddress
-        : collateralTokenAddress
-
-      // Step 1: Get pools involving the collateral token
-      const { pools: collateralPools } = await request<PoolsResponse>(
-        graphURL,
-        UNISWAP_V3_POOLS_BY_TOKEN_QUERY,
-        { token: tempCollateralToken.toLowerCase() }
-      )
-
-      const firstCollateralPool = collateralPools?.[0]
-      if (!firstCollateralPool) return
-
-      console.log("firstCollateralPool", firstCollateralPool)
-      
-      const collateralLiquidity = parseFloat(firstCollateralPool.totalValueLockedUSD || '0')
-
-      const isDirectRoute =
-        (firstCollateralPool.token0.id.toLowerCase() === collateralTokenAddress.toLowerCase() &&
-          firstCollateralPool.token1.id.toLowerCase() === principalTokenAddress.toLowerCase()) ||
-        (firstCollateralPool.token0.id.toLowerCase() === principalTokenAddress.toLowerCase() &&
-          firstCollateralPool.token1.id.toLowerCase() === collateralTokenAddress.toLowerCase())
-      
-      const pool1 = [
-        collateralTokenAddress,
-        firstCollateralPool.token0.id.toLowerCase() === collateralTokenAddress.toLowerCase(),
-        Number(firstCollateralPool.feeTier),
-        Number(firstCollateralPool.token0.decimals),
-        Number(firstCollateralPool.token1.decimals),
-      ]
-
-      if (isDirectRoute) {
-        setRoute({
-          pools: [pool1],
-          liquidityInsufficient: collateralLiquidity < UNIV3_LIQUIDITY_MIN,
-        })
-        return
+      if (cached) {
+        setRoute(cached);
+        return;
       }
+      
+      try {
+        // Step 1: Get pools involving the collateral token
+        const { pools: collateralPools } = await request<PoolsResponse>(
+          graphURL,
+          UNISWAP_V3_POOLS_BY_TOKEN_QUERY,
+          { token: finalTokenAddress.toLowerCase() }
+        );
 
-      // Step 2: Use intermediary token
-      const intermediaryToken =
-        firstCollateralPool.token0.id.toLowerCase() === collateralTokenAddress.toLowerCase()
-          ? firstCollateralPool.token1.id
-          : firstCollateralPool.token0.id
+        const firstCollateralPool = collateralPools?.[0];
+        if (!firstCollateralPool) return;
 
-      const { pools: principalPools } = await request<PoolsResponse>(
-        graphURL,
-        UNISWAP_V3_POOLS_BY_PAIR_QUERY,
-        {
-          token0: principalTokenAddress.toLowerCase(),
-          token1: intermediaryToken.toLowerCase(),
+        const collateralLiquidity = parseFloat(firstCollateralPool.totalValueLockedUSD || '0');
+
+        const isDirectRoute =
+          (firstCollateralPool.token0.id.toLowerCase() === finalTokenAddress.toLowerCase() &&
+            firstCollateralPool.token1.id.toLowerCase() === principalTokenAddress.toLowerCase()) ||
+          (firstCollateralPool.token0.id.toLowerCase() === principalTokenAddress.toLowerCase() &&
+            firstCollateralPool.token1.id.toLowerCase() === finalTokenAddress.toLowerCase());
+
+        const pool1 = [
+          finalTokenAddress,
+          firstCollateralPool.token0.id.toLowerCase() === finalTokenAddress.toLowerCase(),
+          Number(firstCollateralPool.feeTier),
+          Number(firstCollateralPool.token0.decimals),
+          Number(firstCollateralPool.token1.decimals),
+        ];
+
+        if (isDirectRoute) {
+          const result = {
+            pools: [pool1],
+            liquidityInsufficient: collateralLiquidity < UNIV3_LIQUIDITY_MIN,
+          };
+          routeCache.set(cacheKey, result);
+          setRoute(result);
+          return;
         }
-      )
 
-      console.log("principalPools", principalPools)
+        // Step 2: Use intermediary token
+        const intermediaryToken =
+          firstCollateralPool.token0.id.toLowerCase() === finalTokenAddress.toLowerCase()
+            ? firstCollateralPool.token1.id
+            : firstCollateralPool.token0.id;
 
-      const firstPrincipalPool = principalPools?.[0]
-      if (!firstPrincipalPool) return
+        const { pools: principalPools } = await request<PoolsResponse>(
+          graphURL,
+          UNISWAP_V3_POOLS_BY_PAIR_QUERY,
+          {
+            token0: principalTokenAddress.toLowerCase(),
+            token1: intermediaryToken.toLowerCase(),
+          }
+        );
 
-      console.log("firstPrincipalPool", firstPrincipalPool)
+        const firstPrincipalPool = principalPools?.[0];
+        if (!firstPrincipalPool) return;
 
-      const principalLiquidity = parseFloat(firstPrincipalPool.totalValueLockedUSD || '0')
+        const principalLiquidity = parseFloat(firstPrincipalPool.totalValueLockedUSD || '0');
 
-      const pool2 = [
-        intermediaryToken,
-        firstPrincipalPool.token0.id.toLowerCase() === intermediaryToken.toLowerCase(),
-        Number(firstPrincipalPool.feeTier),
-        Number(firstPrincipalPool.token0.decimals),
-        Number(firstPrincipalPool.token1.decimals),
-      ]
+        const pool2 = [
+          intermediaryToken,
+          firstPrincipalPool.token0.id.toLowerCase() === intermediaryToken.toLowerCase(),
+          Number(firstPrincipalPool.feeTier),
+          Number(firstPrincipalPool.token0.decimals),
+          Number(firstPrincipalPool.token1.decimals),
+        ];
 
-      setRoute({
-        pools: [pool2, pool1],
-        liquidityInsufficient:
-          collateralLiquidity < UNIV3_LIQUIDITY_MIN ||
-          principalLiquidity < UNIV3_LIQUIDITY_MIN,
-      })
-    }
+        const result = {
+          pools: [pool2, pool1],
+          liquidityInsufficient:
+            collateralLiquidity < UNIV3_LIQUIDITY_MIN ||
+            principalLiquidity < UNIV3_LIQUIDITY_MIN,
+        };
 
-    getRoute()
-  }, [principalTokenAddress, collateralTokenAddress, chainId, graphURL])
-  console.log("route", route)
-  return route
-}
+        routeCache.set(cacheKey, result);
+        setRoute(result);
+      } catch (err) {
+        console.error("Uniswap route fetch failed", err);
+      }
+    };
+
+    getRoute();
+  }, [principalTokenAddress, finalTokenAddress, chainId, graphURL]);
+
+  return route;
+};

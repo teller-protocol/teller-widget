@@ -5,16 +5,16 @@ import { useBestUniswapV3Route } from "./queries/useGetUniswapRoutes";
 export const useGetBorrowSwapData = ({
   principalTokenAddress,
   principalAmount,
-  collateralTokenAddress,
+  finalTokenAddress,
 }: {
   principalTokenAddress?: string;
   principalAmount?: string;
-  collateralTokenAddress?: string;
+  finalTokenAddress?: string;
 }) => {
   // uniswap data
   const { pools: swapRoute, liquidityInsufficient } = useBestUniswapV3Route(
     principalTokenAddress,
-    collateralTokenAddress
+    finalTokenAddress
   )
 
   const swapPath = useMemo(() => {
@@ -41,7 +41,7 @@ export const useGetBorrowSwapData = ({
   const isReady =
     !!principalTokenAddress &&
     !!principalAmount &&
-    !!collateralTokenAddress &&
+    !!finalTokenAddress &&
     swapPath.length > 0;
    
 

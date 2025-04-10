@@ -277,7 +277,7 @@ const OpportunityDetails = () => {
   const { borrowSwapPaths, borrowQuoteExactInput } = useGetBorrowSwapData({
     principalTokenAddress: selectedOpportunity?.principalToken?.address,
     principalAmount: maxLoanAmount?.toString(),
-    collateralTokenAddress: selectedSwapToken?.address,
+    finalTokenAddress: selectedSwapToken?.address,
   });
 
   const [borrowSwapTokenInput, setBorrowSwapTokenInput] = useState<TokenInputType>();
