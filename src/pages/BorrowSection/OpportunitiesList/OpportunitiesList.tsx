@@ -349,8 +349,33 @@ const OpportunitiesList: React.FC = () => {
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
   
+  const { setSelectedOpportunity, setCurrentStep } = useGetBorrowSectionContext();
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
-  console.log("🔍 Sorted Commitments by Duration and Loan Amount:", sortedCommitments);
+
+  useEffect(() => {
+    const isLongStrategyActive =
+      isStrategiesSection &&
+      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
+      selectedCollateralToken &&
+      sortedCommitments.length > 0 &&
+      !isLoading;
+
+    if (isLongStrategyActive) {
+      const bestCommitment = sortedCommitments[0];
+      if (bestCommitment) {
+        setSelectedOpportunity(bestCommitment);
+        setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
+      }
+    }
+  }, [
+    isStrategiesSection,
+    strategyAction,
+    selectedCollateralToken,
+    sortedCommitments,
+    isLoading,
+    setSelectedOpportunity,
+    setCurrentStep,
+  ]);
 
   return (
     <div className="opportunities-list">

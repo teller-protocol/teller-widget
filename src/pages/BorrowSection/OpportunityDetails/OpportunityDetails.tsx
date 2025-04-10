@@ -520,7 +520,10 @@ const OpportunityDetails = () => {
           isFullWidth
           useTransactionButtonContext
         />
-      ) : (strategyAction === STRATEGY_ACTION_ENUM.LONG || strategyAction === STRATEGY_ACTION_ENUM.SHORT) ? (
+      ) : (isStrategiesSection && (
+            strategyAction === STRATEGY_ACTION_ENUM.LONG ||
+            strategyAction === STRATEGY_ACTION_ENUM.SHORT
+          )) ? (
           isLoadingBorrowSwap ? (
             <Loader isSkeleton height={40} />
           ) : (
