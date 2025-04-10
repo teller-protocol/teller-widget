@@ -31,6 +31,7 @@ import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
 import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
+import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -347,6 +348,9 @@ const OpportunitiesList: React.FC = () => {
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
+  
+  const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
+  console.log("🔍 Sorted Commitments by Duration and Loan Amount:", sortedCommitments);
 
   return (
     <div className="opportunities-list">
