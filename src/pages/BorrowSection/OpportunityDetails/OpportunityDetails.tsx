@@ -279,6 +279,23 @@ const OpportunityDetails = () => {
     collateralTokenAddress: collateralTokenValue?.token?.address,
   });
 
+  const [borrowSwapTokenInput, setBorrowSwapTokenInput] = useState<TokenInputType>();
+
+  useEffect(() => {
+    if (!borrowQuoteExactInput || !matchingCollateralToken?.decimals) return;
+
+    setBorrowSwapTokenInput({
+      token: matchingCollateralToken,
+      value: Number(
+        formatUnits(
+          borrowQuoteExactInput,
+          matchingCollateralToken.decimals
+        )
+      ),
+      valueBI: borrowQuoteExactInput,
+    });
+  }, [borrowQuoteExactInput, collateralTokenValue?.token?.address, matchingCollateralToken?.decimals]);
+
   const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
 
   console.log("borrowSwapPaths", borrowSwapPaths);
@@ -430,11 +447,11 @@ const OpportunityDetails = () => {
       
 
       {/* UPDATE LONG BY PASSING IN QUOTE EXACT INPUT */}
-      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
+      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && borrowSwapTokenInput) && (
         <div>
           <img src={separatorWithCaret} className="separator" />
           <TokenInput
-            tokenValue={collateralTokenValue}
+            tokenValue={borrowSwapTokenInput as TokenInputType}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                 {"Long "}
