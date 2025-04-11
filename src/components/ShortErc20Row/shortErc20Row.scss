@@ -1,0 +1,49 @@
+@import "../../tokens.scss";
+
+.short-erc20-token-row {
+  border: 0.5px solid $border-color-secondary;
+  border-radius: $border-radius;
+  display: flex;
+  padding: $s-small $s-normal;
+  align-items: center;
+  margin-bottom: $s-small;
+
+  &:hover {
+    cursor: pointer;
+    background-color: $border-color-background;
+  }
+
+  .token-balance-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+
+    .paragraph {
+      line-height: 18px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .token-logo {
+    margin-right: $s-small;
+  }
+
+  .symbol-data-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .skeleton-loader {
+      width: 90px;
+    }
+  }
+
+  .data-pill {
+    padding: 1px 5px !important;
+
+    .img {
+      height: 10px !important;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 @import "../../../tokens.scss";
 
-.collateral-token-list {
+.swap-token-list {
     .search-and-buttons {
       display: flex;
       gap: 12px;
@@ -44,7 +44,7 @@
     }
     border: 0.5px solid rgb(190, 190, 190) !important;
   }
-  
+
   .section-title {
     margin-bottom: $s-normal;
     text-align: center;

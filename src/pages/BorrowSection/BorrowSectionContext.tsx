@@ -24,6 +24,7 @@ import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
 import { Address } from "viem";
+import { TokenInputType } from "../../components/TokenInput/TokenInput";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -34,6 +35,7 @@ export type UniswapData = {
 
 export enum BorrowSectionSteps {
   SELECT_TOKEN,
+  SELECT_SWAP_TOKEN,
   SELECT_OPPORTUNITY,
   OPPORTUNITY_DETAILS,
   ACCEPT_TERMS,
@@ -48,6 +50,10 @@ export type BorrowSectionContextType = {
   setSelectedCollateralToken: (token: UserToken) => void;
   selectedPrincipalErc20Token?: UserToken;
   setSelectedPrincipalErc20Token: (token: UserToken) => void;
+  selectedLongErc20Token?: UserToken;
+  setSelectedLongErc20Token: (token: UserToken) => void;
+  selectedSwapToken?: UserToken;
+  setSelectedSwapToken: (token: UserToken | undefined) => void;
   tokensWithCommitments: UserToken[];
   tokensWithCommitmentsLoading: boolean;
   selectedOpportunity: CommitmentType;
@@ -64,6 +70,8 @@ export type BorrowSectionContextType = {
   erc20sWithCommitmentsLoading: boolean;
   uniswapDataMap: Record<string, UniswapData>;
   selectedErc20Apy: string;
+  borrowSwapTokenInput?: TokenInputType;
+  setBorrowSwapTokenInput?: (tokenInput: TokenInputType) => void;
 };
 
 interface BorrowSectionContextProps {
@@ -96,6 +104,11 @@ export const BorrowSectionContextProvider: React.FC<
     useState<UserToken>();
   const [selectedPrincipalErc20Token, setSelectedPrincipalErc20Token] =
     useState<UserToken>();
+  const [selectedSwapToken, setSelectedSwapToken] = useState<
+    UserToken | undefined
+  >();
+  const [borrowSwapTokenInput, setBorrowSwapTokenInput] =
+    useState<TokenInputType>();
   useState<UserToken>();
   const [selectedErc20Apy, setSelectedErc20Apy] = useState<string>("-");
 
@@ -172,6 +185,8 @@ export const BorrowSectionContextProvider: React.FC<
         setSelectedCollateralToken,
         selectedPrincipalErc20Token,
         setSelectedPrincipalErc20Token,
+        selectedSwapToken,
+        setSelectedSwapToken,
         tokensWithCommitments,
         tokensWithCommitmentsLoading,
         selectedOpportunity,
@@ -188,6 +203,8 @@ export const BorrowSectionContextProvider: React.FC<
         erc20sWithCommitmentsLoading,
         uniswapDataMap,
         selectedErc20Apy,
+        borrowSwapTokenInput,
+        setBorrowSwapTokenInput,
       }}
     >
       {children}

@@ -11,6 +11,12 @@ export enum WIDGET_ACTION_ENUM {
   STRATEGIES = "STRATEGIES",
 }
 
+export enum STRATEGY_ACTION_ENUM {
+  LONG = "LONG",
+  SHORT = "SHORT",
+  FARM = "FARM",
+}
+
 export type GlobalPropsContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
@@ -28,6 +34,8 @@ export type GlobalPropsContextType = {
   widgetAction?: WIDGET_ACTION_ENUM;
   setWidgetAction: (action: WIDGET_ACTION_ENUM) => void;
   isStrategiesSection: boolean;
+  strategyAction?: STRATEGY_ACTION_ENUM;
+  setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
 };
 
 interface GlobalPropsContextProps {
@@ -79,6 +87,10 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   );
   const isStrategiesSection = widgetAction === WIDGET_ACTION_ENUM.STRATEGIES;
 
+  const [strategyAction, setStrategyAction] = useState<STRATEGY_ACTION_ENUM>(
+    STRATEGY_ACTION_ENUM.LONG
+  );
+
   useEffect(() => {
     let mounted = true;
     if (_userTokens?.length > 0) return;
@@ -116,6 +128,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         widgetAction,
         setWidgetAction,
         isStrategiesSection,
+        strategyAction,
+        setStrategyAction,
       }}
     >
       {children}

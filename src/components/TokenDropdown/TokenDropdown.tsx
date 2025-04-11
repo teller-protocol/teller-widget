@@ -9,6 +9,7 @@ import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSect
 import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
+  STRATEGY_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
@@ -30,17 +31,38 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
 }) => {
   const logoUrl = token?.logo ? token.logo : defaultTokenImage;
 
-  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
-  const subtitleData = !isStrategiesSection
-    ? {
+  const subtitleData = (() => {
+    if (!isStrategiesSection) {
+      return {
         title: "Balance",
         value: Number(token?.balance).toFixed(3),
-      }
-    : {
-        title: "Available",
-        value: numberWithCommasAndDecimals(token?.balance),
       };
+    } else {
+      if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+        return {
+          title: "Long with",
+          value: Number(token?.balance).toFixed(3),
+        };
+      } else if (strategyAction === STRATEGY_ACTION_ENUM.SHORT) {
+        return {
+          title: "Short up to",
+          value: token?.balance,
+        };
+      } else if (strategyAction === STRATEGY_ACTION_ENUM.FARM) {
+        return {
+          title: "Farm up to",
+          value: token?.balance,
+        };
+      } else {
+        return {
+          title: "Balance",
+          value: Number(token?.balance).toFixed(3),
+        };
+      }
+    }
+  })();
 
   return (
     <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
@@ -48,7 +70,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {subtitleData.title}: {subtitleData.value} {token?.symbol}
+          {subtitleData.title}: {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
         </div>
       </div>
     </div>
@@ -63,7 +85,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const { setSelectedCollateralToken, setSelectedPrincipalErc20Token } =
     useGetBorrowSectionContext();
-  const { singleWhitelistedToken } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken, strategyAction } = useGetGlobalPropsContext();
 
   const { isStrategiesSection } = useGetGlobalPropsContext();
 
@@ -71,7 +93,11 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     if (!isStrategiesSection) {
       setSelectedCollateralToken(token);
     } else {
-      setSelectedPrincipalErc20Token(token);
+      if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+        setSelectedCollateralToken(token)
+      } else {
+        setSelectedPrincipalErc20Token(token);
+      }
     }
     setIsOpen(false);
   };
@@ -120,7 +146,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           <div className="search-container">
             <input
               type="text"
-              placeholder="Select collateral for deposit"
+              placeholder="Select token"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="token-dropdown--search"

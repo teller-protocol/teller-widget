@@ -7,6 +7,10 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
+import {
+  useGetGlobalPropsContext,
+  STRATEGY_ACTION_ENUM,
+} from "../../../contexts/GlobalPropsContext";
 
 import { Address, decodeEventLog, formatUnits } from "viem";
 import Loader from "../../../components/Loader";
@@ -31,7 +35,10 @@ const BorrowConfirmation = () => {
     bidId,
     setCurrentStep,
     successfulLoanParams,
+    selectedSwapToken,
+    borrowSwapTokenInput,
   } = useGetBorrowSectionContext();
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
   const contracts = useContracts();
 
   const { chainExplorerURL, chainName } = useChainData();
@@ -39,16 +46,31 @@ const BorrowConfirmation = () => {
   const principalToken = selectedOpportunity?.principalToken;
   const collateralToken = selectedOpportunity?.collateralToken;
 
+  const isLong = strategyAction === STRATEGY_ACTION_ENUM.LONG;
+  const isShort = strategyAction === STRATEGY_ACTION_ENUM.SHORT;
+  console.log("successfulLoanParams", successfulLoanParams);
+
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args?.[1]["principalAmount"] ?? 0n,
+      isShort
+        ? successfulLoanParams.args?.[4]["principalAmount"]
+        : successfulLoanParams.args?.[1]["principalAmount"] ?? 0n,
       principalToken?.decimals ?? 0
+    )
+  );
+
+  const formattedLongTokenAmount = numberWithCommasAndDecimals(
+    formatUnits(
+      borrowSwapTokenInput?.valueBI ?? 0n,
+      selectedSwapToken?.decimals ?? 0
     )
   );
 
   const formattedCollateralAmount = numberWithCommasAndDecimals(
     formatUnits(
-      successfulLoanParams.args?.[1]["collateralAmount"] ?? 0n,
+      isLong || isShort
+        ? successfulLoanParams.args?.[4]["collateralAmount"]
+        : successfulLoanParams.args?.[1]["collateralAmount"] ?? 0n,
       collateralToken?.decimals ?? 0
     )
   );
@@ -83,8 +105,14 @@ const BorrowConfirmation = () => {
       />
       {/*<img src={confirmationAsset} className="borrow-confirmation-main-image" />*/}
       <div className="borrow-confirmation-title">
-        Borrowed {formattedPrincipalAmount} {principalToken?.symbol} with{" "}
-        {formattedCollateralAmount} {collateralToken?.symbol} as collateral
+        {isStrategiesSection
+          ? isShort
+            ? `Shorted ${formattedPrincipalAmount} ${principalToken?.symbol}`
+            : isLong
+            ? `Longed ${formattedLongTokenAmount} ${selectedSwapToken?.symbol}`
+            : ""
+          : `Borrowed ${formattedPrincipalAmount} ${principalToken?.symbol}`}{" "}
+        with {formattedCollateralAmount} {collateralToken?.symbol} as collateral
       </div>
       <div className="borrow-confirmation-buttons">
         {!bidId ? (

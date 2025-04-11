@@ -2,16 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 
 import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
+import DataPill from "../../../components/DataPill";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import Tooltip from "../../../components/Tooltip";
-import DataPill from "../../../components/DataPill";
 import { normalizeChainName } from "../../../constants/chains";
-import { useChainData } from "../../../hooks/useChainData";
-import { SUPPORTED_TOKEN_LOGOS } from "../../../constants/tokens";
-import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
+import {
+  STRATEGY_ACTION_ENUM,
+  useGetGlobalPropsContext,
+} from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useChainData } from "../../../hooks/useChainData";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import {
   BorrowSectionSteps,
@@ -23,6 +25,7 @@ import "./opportunityDetails.scss";
 
 import { formatUnits, parseUnits } from "viem";
 
+import { useAccount, useBalance } from "wagmi";
 import Button from "../../../components/Button";
 import TransactionButton from "../../../components/TransactionButton";
 import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
@@ -30,9 +33,11 @@ import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
 import { useContracts } from "../../../hooks/useContracts";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
-import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
-import { useAccount, useBalance } from "wagmi";
+import { BorrowSwapButton } from "./BorrowSwapButton";
+
+import Loader from "../../../components/Loader/Loader";
+import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
 
 const OpportunityDetails = () => {
   const {
@@ -45,10 +50,16 @@ const OpportunityDetails = () => {
     maxCollateral: maxCollateralFromContext,
     tokensWithCommitments,
     selectedErc20Apy,
+    selectedSwapToken,
+    borrowSwapTokenInput,
+    setBorrowSwapTokenInput,
   } = useGetBorrowSectionContext();
   const { address } = useAccount();
 
-  const { isStrategiesSection } = useGetGlobalPropsContext();
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
+
+  const strategyType = strategyAction;
+
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
     ? selectedOpportunity?.collateralToken
@@ -66,7 +77,7 @@ const OpportunityDetails = () => {
     !isStableView &&
     collateralTokenMetadata &&
     matchingCollateralToken &&
-    !('logo' in matchingCollateralToken)
+    !("logo" in matchingCollateralToken)
   ) {
     type TokenKey = keyof typeof collateralTokenMetadata;
 
@@ -85,7 +96,11 @@ const OpportunityDetails = () => {
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
 
-  const { data: collateralTokenBalance } = useBalance({
+  const {
+    data: collateralTokenBalance,
+    isFetching,
+    isFetched,
+  } = useBalance({
     address,
     token: selectedOpportunity.collateralToken?.address,
   });
@@ -95,7 +110,6 @@ const OpportunityDetails = () => {
       ? isWhitelistedToken(selectedOpportunity.collateralToken?.address)
       : true) &&
     (!collateralTokenBalance || collateralTokenBalance.value === 0n);
-
   const [collateralTokenValue, setCollateralTokenValue] =
     useState<TokenInputType>({});
 
@@ -104,12 +118,17 @@ const OpportunityDetails = () => {
     address,
   });
 
-  if (!isStableView && matchingCollateralToken && !('balance' in matchingCollateralToken)) {
-    const balanceMetadata = 
-      {
-        "balance":Number(BigInt(collateralWalletBalance?.data?.value ?? 0n)).toString(),
-        "balanceBigInt": collateralWalletBalance?.data?.value,
-      }
+  if (
+    !isStableView &&
+    matchingCollateralToken &&
+    !("balance" in matchingCollateralToken)
+  ) {
+    const balanceMetadata = {
+      balance: Number(
+        BigInt(collateralWalletBalance?.data?.value ?? 0n)
+      ).toString(),
+      balanceBigInt: collateralWalletBalance?.data?.value,
+    };
     type TokenKey = keyof typeof balanceMetadata;
 
     const token = matchingCollateralToken as Record<string, any>;
@@ -120,7 +139,7 @@ const OpportunityDetails = () => {
       }
     }
   }
-  
+
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
     isLoading,
@@ -162,7 +181,8 @@ const OpportunityDetails = () => {
   useEffect(() => {
     if (
       tokenIsWhitelistedAndBalanceIs0 &&
-      collateralTokenValue.valueBI === undefined
+      collateralTokenValue.valueBI === undefined &&
+      isFetched
     ) {
       setCollateralTokenValue({
         token: selectedCollateralToken ?? matchingCollateralToken,
@@ -207,6 +227,7 @@ const OpportunityDetails = () => {
     staticMaxCollateral,
     selectedOpportunity?.collateralToken?.decimals,
     collateralWalletBalance.data?.value,
+    isFetched,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();
@@ -286,13 +307,67 @@ const OpportunityDetails = () => {
     liquidityPoolsCommitmentMax.maxAvailableCollateralInPool <
     (collateralTokenValue.valueBI ?? 0n);
 
+  const actionVerb =
+    strategyAction === STRATEGY_ACTION_ENUM.SHORT
+      ? "Short"
+      : strategyAction === STRATEGY_ACTION_ENUM.LONG
+      ? "Borrow"
+      : "Borrow";
+
+  // if STRATEGY_ACTION_ENUM is LONG or SHORT
+  // create and import hook to call borrowswap contract and call getExactInput
+  // hook returns both generateSwapPath and quoteExactInput
+
+  const finalStrategyToken =
+    strategyAction === STRATEGY_ACTION_ENUM.SHORT
+      ? matchingCollateralToken
+      : selectedSwapToken;
+
+  const { borrowSwapPaths, borrowQuoteExactInput } = useGetBorrowSwapData({
+    principalTokenAddress: selectedOpportunity?.principalToken?.address,
+    principalAmount: maxLoanAmount?.toString(),
+    finalTokenAddress: finalStrategyToken?.address,
+  });
+
+  useEffect(() => {
+    setBorrowSwapTokenInput?.({
+      token: finalStrategyToken,
+      value: Number(
+        formatUnits(
+          borrowQuoteExactInput ?? 0n,
+          finalStrategyToken?.decimals ?? 18
+        )
+      ),
+      valueBI: borrowQuoteExactInput,
+    });
+  }, [
+    borrowQuoteExactInput,
+    collateralTokenValue.token?.address,
+    finalStrategyToken,
+    matchingCollateralToken?.decimals,
+    setBorrowSwapTokenInput,
+  ]);
+
+  const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
+
   return (
     <div className="opportunity-details">
       <div className="back-pill-row">
         <BackButton
-          onClick={() => setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY)}
+          onClick={() => {
+            if (
+              isStrategiesSection &&
+              strategyAction === STRATEGY_ACTION_ENUM.LONG
+            ) {
+              // go to SWAP TOKENS route
+              setCurrentStep(BorrowSectionSteps.SELECT_SWAP_TOKEN);
+            } else {
+              // fallback: go back to SELECT_OPPORTUNITY
+              setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+            }
+          }}
         />
-        {!isStableView && (
+        {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
           <span
             style={{
               fontSize: "11px",
@@ -322,7 +397,7 @@ const OpportunityDetails = () => {
             <Tooltip
               description={`Deposit ${
                 matchingCollateralToken?.symbol
-              } to borrow ${
+              } to ${actionVerb} ${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
@@ -368,9 +443,9 @@ const OpportunityDetails = () => {
         }}
         label={
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            Borrow
+            {actionVerb}{" "}
             <Tooltip
-              description={`Borrow ${
+              description={`${actionVerb} ${
                 selectedOpportunity?.principalToken?.symbol
               } for ${convertSecondsToDays(
                 Number(selectedOpportunity?.maxDuration)
@@ -398,7 +473,7 @@ const OpportunityDetails = () => {
             Duration:{" "}
             {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
             days
-            {isStableView && (
+            {(isStableView || strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
               <>
                 {" • Rollover: "}
                 <svg
@@ -428,22 +503,74 @@ const OpportunityDetails = () => {
         }
         readonly
       />
+
+      {isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && (
+        <div>
+          <img src={separatorWithCaret} className="separator" />
+          <TokenInput
+            tokenValue={(borrowSwapTokenInput as TokenInputType) ?? 0}
+            label={
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                {"Long "}
+                <Tooltip
+                  description={`Long & receive ${
+                    selectedSwapToken?.symbol
+                  } for ${convertSecondsToDays(
+                    Number(selectedOpportunity?.maxDuration)
+                  )} days${
+                    isStableView ? "—extend anytime via rollover" : ""
+                  }.`}
+                  icon={
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="tooltip-svg"
+                      style={{ position: "relative", top: "1px" }}
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                      <path d="M12 16v-4" strokeWidth="2" />
+                      <circle cx="12" cy="8" r="1" />
+                    </svg>
+                  }
+                />
+              </div>
+            }
+            imageUrl={selectedSwapToken?.logo || ""}
+            readonly
+          />
+        </div>
+      )}
+
       <div className="section-title fee-details">
         Interest: {payPerLoan} {selectedOpportunity.principalToken?.symbol} •
         Fees: {numberWithCommasAndDecimals(totalFees)}{" "}
         {selectedOpportunity.principalToken?.symbol}
       </div>
+
       {!isStableView && (
         <div className="section-title fee-details" style={{ color: "#3D8974" }}>
-          Est. earned on uni: +
-          {numberWithCommasAndDecimals(
-            loanMinusFees *
-              (parseFloat(selectedErc20Apy) / 100) *
-              convertSecondsToDays(
-                Number(selectedOpportunity?.maxDuration) / 365
-              )
-          )}{" "}
-          {selectedOpportunity.principalToken?.symbol}
+          {strategyAction === STRATEGY_ACTION_ENUM.FARM ? (
+            <>
+              Est. earned on uni: +{" "}
+              {numberWithCommasAndDecimals(
+                loanMinusFees *
+                  (parseFloat(selectedErc20Apy) / 100) *
+                  convertSecondsToDays(
+                    Number(selectedOpportunity?.maxDuration) / 365
+                  )
+              )}{" "}
+              {selectedOpportunity.principalToken?.symbol}
+            </>
+          ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
+            <>
+              Also receive: {borrowSwapTokenInput?.value?.toFixed(2)}{" "}
+              {selectedOpportunity.collateralToken?.symbol}
+            </>
+          ) : null}
         </div>
       )}
 
@@ -454,6 +581,21 @@ const OpportunityDetails = () => {
           isFullWidth
           useTransactionButtonContext
         />
+      ) : isStrategiesSection &&
+        (strategyAction === STRATEGY_ACTION_ENUM.LONG ||
+          strategyAction === STRATEGY_ACTION_ENUM.SHORT) ? (
+        isLoadingBorrowSwap ? (
+          <Loader isSkeleton height={40} />
+        ) : (
+          <BorrowSwapButton
+            collateralToken={collateralTokenValue}
+            commitment={selectedOpportunity}
+            principalToken={maxLoanAmount}
+            principalTokenAddress={selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}
+            borrowSwapPaths={borrowSwapPaths}
+            borrowQuoteExactInput={borrowQuoteExactInput}
+          />
+        )
       ) : isLenderGroup ? (
         <TransactionButton
           transactions={lenderGroupTransactions}

@@ -28,8 +28,14 @@ import {
   RFW_ARBITRUM_ADDRESS,
   RFW_BASE_ADDRESS,
   RFW_MAINNET_ADDRESS,
-  RFW_POLYGON_ADDRESS, 
+  RFW_POLYGON_ADDRESS,
 } from "./rfwAddress";
+import {
+  BORROW_SWAP_POLYGON_ADDRESS,
+  BORROW_SWAP_ARBITRUM_ADDRESS,
+  BORROW_SWAP_BASE_ADDRESS,
+  BORROW_SWAP_MAINNET_ADDRESS,
+} from "./borrowSwapAddresses";
 
 interface NetworkContract {
   address: string;
@@ -135,8 +141,8 @@ for (const chainId in TOKEN_ADDRESSES) {
         token === "WMATIC"
           ? WMATIC_ABI
           : token === "WETH"
-            ? WETH_ABI
-            : erc20Abi,
+          ? WETH_ABI
+          : erc20Abi,
     };
   }
 }
