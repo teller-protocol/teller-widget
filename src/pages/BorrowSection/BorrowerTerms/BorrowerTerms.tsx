@@ -93,13 +93,12 @@ const BorrowerTerms: React.FC = () => {
         disabled={!allChecked}
       />
       <div className="paragraph">
-        Read more{" "}
         <a
           href="https://docs.teller.org/teller-lite/borrowing-on-teller"
           target="_blank"
           rel="noreferrer"
         >
-          here
+          Read more here
         </a>
       </div>
     </div>
