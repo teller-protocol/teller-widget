@@ -1,4 +1,8 @@
-import { ContractType, useReadContract, SupportedContractsEnum } from "./useReadContract";
+import {
+  ContractType,
+  useReadContract,
+  SupportedContractsEnum,
+} from "./useReadContract";
 import { useMemo, useEffect, useState } from "react";
 import { useBestUniswapV3Route } from "./queries/useGetUniswapRoutes";
 
@@ -15,7 +19,7 @@ export const useGetBorrowSwapData = ({
   const { pools: swapRoute, liquidityInsufficient } = useBestUniswapV3Route(
     principalTokenAddress,
     finalTokenAddress
-  )
+  );
 
   const swapPath = useMemo(() => {
     if (!swapRoute || swapRoute.length === 0) return [];
@@ -30,24 +34,19 @@ export const useGetBorrowSwapData = ({
     !!principalAmount &&
     !!finalTokenAddress &&
     swapPath.length > 0;
-   
 
   const borrowSwapPaths = useReadContract<string>(
     SupportedContractsEnum.BorrowSwap,
     "generateSwapPath",
     isReady ? [principalTokenAddress, swapPath] : [],
-    false,
-    ContractType.External
+    false
   );
 
   const borrowQuoteExactInput = useReadContract<bigint>(
     SupportedContractsEnum.BorrowSwap,
     "quoteExactInput",
-    isReady
-      ? [principalTokenAddress, BigInt(principalAmount), swapPath]
-      : [],
-    false,
-    ContractType.External
+    isReady ? [principalTokenAddress, BigInt(principalAmount), swapPath] : [],
+    false
   );
 
   return useMemo(

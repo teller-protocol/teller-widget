@@ -18,9 +18,9 @@ import { useAccount, useBalance } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
-import { 
-  useGetGlobalPropsContext, 
-  STRATEGY_ACTION_ENUM 
+import {
+  useGetGlobalPropsContext,
+  STRATEGY_ACTION_ENUM,
 } from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "../../../hooks/queries/useGetCommitmentsForCollateralTokensFromLiquidityPools";
@@ -83,10 +83,11 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
   const isLiquidityPool = opportunity.isLenderGroup;
-  
-  const strategyType = strategyAction
 
-  const isStableView = !isStrategiesSection || strategyType === STRATEGY_ACTION_ENUM.LONG;
+  const strategyType = strategyAction;
+
+  const isStableView =
+    !isStrategiesSection || strategyType === STRATEGY_ACTION_ENUM.LONG;
 
   const tokenIsWhitelistedAndBalanceIs0 =
     (isStableView
@@ -130,7 +131,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     skip: !isLiquidityPool,
     tokenIsWhitelistedAndBalanceIs0,
   });
-  
+
   const commitmentMax = isLiquidityPool
     ? lenderGroupCommitmentMax
     : lcfaCommitmentMax;
@@ -216,14 +217,14 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         />
         {strategyAction != STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
       </div>
-      {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
+      {isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div className="paragraph opportunity-list-item-header">
           + auto-swap{" "}
           <DataPill
             label={displayLoanAmountData.formattedAmount}
             logo={displayLoanAmountData.token ?? ""}
-          />
-          {" "}into{" "}
+          />{" "}
+          into{" "}
           <DataPill
             label={displayCollateralAmountData.formattedAmount}
             logo={displayCollateralAmountData.token ?? ""}
@@ -247,7 +248,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               label="Duration"
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
-            {(!isStableView || strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
+            {(!isStableView ||
+              strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
               <>
                 {strategyAction === STRATEGY_ACTION_ENUM.FARM ? (
                   <OpportunityListDataItem
@@ -263,20 +265,20 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                             parseFloat(selectedErc20Apy) -
                             (apr / 100 +
                               (totalFeePercent / 100) *
-                                (365 / (Number(opportunity.maxDuration) / 86400)))
+                                (365 /
+                                  (Number(opportunity.maxDuration) / 86400)))
                           ).toFixed(2)} %`
                     }
                     valueTextColor={"#3D8974"}
                   />
-                ) : (isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) ? (
+                ) : isStrategiesSection &&
+                  strategyAction === STRATEGY_ACTION_ENUM.LONG ? (
                   <OpportunityListDataItem
                     label="Long & Receive:"
-                    value={
-                      `1.11 LINK`
-                    }
+                    value={`1.11 LINK`}
                     valueTextColor={"#3D8974"}
                   />
-                  ) : null}
+                ) : null}
               </>
             )}
           </>
@@ -297,10 +299,11 @@ const OpportunitiesList: React.FC = () => {
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
-  
-  const strategyType = strategyAction
 
-  const isStableView = !isStrategiesSection || strategyType === STRATEGY_ACTION_ENUM.LONG;
+  const strategyType = strategyAction;
+
+  const isStableView =
+    !isStrategiesSection || strategyType === STRATEGY_ACTION_ENUM.LONG;
 
   const { data: lcfaCommitments, isLoading: isLcfaLoading } =
     useGetCommitmentsForCollateralToken(
@@ -348,8 +351,9 @@ const OpportunitiesList: React.FC = () => {
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
-  
-  const { setSelectedOpportunity, setCurrentStep } = useGetBorrowSectionContext();
+
+  const { setSelectedOpportunity, setCurrentStep } =
+    useGetBorrowSectionContext();
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
 
   useEffect(() => {
@@ -398,22 +402,23 @@ const OpportunitiesList: React.FC = () => {
         <div className="opportunities-list-body">
           <div className="paragraph opportunities-sub-title">
             <div className="opp-pill-row">
-              {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
-                <span
-                  style={{
-                    fontSize: "11px",
-                    padding: "2px 5px !important",
-                    marginLeft: "auto",
-                  }}
-                >
-                  <DataPill
-                    label={`${selectedErc20Apy}% APY`}
-                    logo={
-                      "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
-                    }
-                  />
-                </span>
-              )}
+              {!isStableView &&
+                strategyAction === STRATEGY_ACTION_ENUM.FARM && (
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 5px !important",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    <DataPill
+                      label={`${selectedErc20Apy}% APY`}
+                      logo={
+                        "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+                      }
+                    />
+                  </span>
+                )}
             </div>
           </div>
           <>

@@ -113,7 +113,7 @@ export const BorrowSwapButton: React.FC<Props> = ({
     [commitment?.marketplaceId, commitmentForwarderAddress, address],
     !commitment?.marketplaceId
   );
-  
+
   const hasAddedExtension = useReadContract<boolean>(
     lcfContractName,
     "hasExtension",
@@ -231,9 +231,7 @@ export const BorrowSwapButton: React.FC<Props> = ({
     ];
 
     const label =
-      strategyAction === STRATEGY_ACTION_ENUM.SHORT
-        ? "Short"
-        : "Long";
+      strategyAction === STRATEGY_ACTION_ENUM.SHORT ? "Short" : "Long";
 
     if (!isLoadingTransactionInfo)
       row4.push({
@@ -242,7 +240,6 @@ export const BorrowSwapButton: React.FC<Props> = ({
         contractName: SupportedContractsEnum.BorrowSwap,
         functionName: step3FunctionName,
         args: step3Args,
-        contractType: ContractType.External,
         onSuccess,
       });
 
@@ -257,10 +254,10 @@ export const BorrowSwapButton: React.FC<Props> = ({
     collateralAllowance.data,
     collateralToken,
     commitmentForwarderAddress,
+    principalTokenAddress,
+    swapArgs,
     acceptCommitmentArgs,
-    address,
-    referralFeeAmount,
-    referralAddress,
+    strategyAction,
     isLoadingTransactionInfo,
     onSuccess,
     principalToken,

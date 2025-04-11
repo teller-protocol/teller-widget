@@ -41,7 +41,7 @@
     "@storybook/react": "^7.6.17",
     "@storybook/react-webpack5": "^7.6.17",
     "@storybook/test": "^7.6.17",
-    "@teller-protocol/v2-contracts": "^3.1.30",
+    "@teller-protocol/v2-contracts": "^3.1.32",
     "@types/react": "^18.2.63",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.3.1",

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
-import { useGetBorrowSectionContext, BorrowSectionSteps } from "../BorrowSectionContext";
+import {
+  useGetBorrowSectionContext,
+  BorrowSectionSteps,
+} from "../BorrowSectionContext";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import "./swapTokenList.scss";
@@ -30,7 +33,9 @@ const SwapTokenList: React.FC = () => {
 
   const uniswapTokens = tokenList?.[chainId] || [];
 
-  const userTokenAddresses = new Set(tokensWithCommitments.map((t) => t.address.toLowerCase()));
+  const userTokenAddresses = new Set(
+    tokensWithCommitments.map((t) => t.address.toLowerCase())
+  );
 
   const additionalTokens: UserToken[] = uniswapTokens
     .filter((token) => !userTokenAddresses.has(token.address.toLowerCase()))
@@ -45,7 +50,12 @@ const SwapTokenList: React.FC = () => {
     }));
 
   const mergedTokens = Array.from(
-    new Map([...tokensWithCommitments, ...additionalTokens].map((t) => [t.address.toLowerCase(), t]))
+    new Map(
+      [...tokensWithCommitments, ...additionalTokens].map((t) => [
+        t.address.toLowerCase(),
+        t,
+      ])
+    )
   ).map(([, token]) => token);
 
   const filteredAndSortedTokens = [

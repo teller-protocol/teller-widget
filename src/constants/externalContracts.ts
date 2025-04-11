@@ -11,7 +11,6 @@ import WMATIC_ABI from "../contracts/WMATIC_ABI.json";
 import LCF_ALPHA_ABI from "../contracts/LCF_ALPHA_ABI.json";
 import LRF_ABI from "../contracts/LRF_ABI.json";
 import RFW_ABI from "../contracts/RFW_ABI.json";
-import BORROW_SWAP_ABI from "../contracts/BORROW_SWAP_ABI.json";
 import { erc20Abi } from "viem";
 import {
   LCF_ALPHA_ARBITRUM_ADDRESS,
@@ -29,14 +28,14 @@ import {
   RFW_ARBITRUM_ADDRESS,
   RFW_BASE_ADDRESS,
   RFW_MAINNET_ADDRESS,
-  RFW_POLYGON_ADDRESS, 
+  RFW_POLYGON_ADDRESS,
 } from "./rfwAddress";
-import { 
+import {
   BORROW_SWAP_POLYGON_ADDRESS,
   BORROW_SWAP_ARBITRUM_ADDRESS,
   BORROW_SWAP_BASE_ADDRESS,
   BORROW_SWAP_MAINNET_ADDRESS,
-} from "./borrowSwapAddresses"
+} from "./borrowSwapAddresses";
 
 interface NetworkContract {
   address: string;
@@ -62,10 +61,6 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: RFW_MAINNET_ADDRESS,
         abi: RFW_ABI,
       },
-      BorrowSwap: {
-        address: BORROW_SWAP_MAINNET_ADDRESS,
-        abi: BORROW_SWAP_ABI,
-      },
     },
   },
   [arbitrum.id]: {
@@ -81,10 +76,6 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
       RolloverForWidget: {
         address: RFW_ARBITRUM_ADDRESS,
         abi: RFW_ABI,
-      },
-      BorrowSwap: {
-        address: BORROW_SWAP_ARBITRUM_ADDRESS,
-        abi: BORROW_SWAP_ABI,
       },
     },
   },
@@ -117,10 +108,6 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: RFW_POLYGON_ADDRESS,
         abi: RFW_ABI,
       },
-      BorrowSwap: {
-        address: BORROW_SWAP_POLYGON_ADDRESS,
-        abi: BORROW_SWAP_ABI,
-      },
     },
   },
 
@@ -142,10 +129,6 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: RFW_BASE_ADDRESS,
         abi: RFW_ABI,
       },
-      BorrowSwap: {
-        address: BORROW_SWAP_BASE_ADDRESS,
-        abi: BORROW_SWAP_ABI,
-      },
     },
   },
 };
@@ -158,8 +141,8 @@ for (const chainId in TOKEN_ADDRESSES) {
         token === "WMATIC"
           ? WMATIC_ABI
           : token === "WETH"
-            ? WETH_ABI
-            : erc20Abi,
+          ? WETH_ABI
+          : erc20Abi,
     };
   }
 }
