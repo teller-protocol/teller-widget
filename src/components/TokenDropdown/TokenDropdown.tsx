@@ -48,15 +48,14 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       } else if (strategyAction === STRATEGY_ACTION_ENUM.SHORT) {
         return {
           title: "Short up to",
-          value: numberWithCommasAndDecimals(token?.balance),
+          value: token?.balance,
         };
       } else if (strategyAction === STRATEGY_ACTION_ENUM.FARM) {
         return {
-          title: "Farm",
-          value: numberWithCommasAndDecimals(token?.balance),
+          title: "Farm up to",
+          value: token?.balance,
         };
       } else {
-        // Fallback in case no matching strategyAction is found
         return {
           title: "Balance",
           value: Number(token?.balance).toFixed(3),
@@ -147,7 +146,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           <div className="search-container">
             <input
               type="text"
-              placeholder="Select collateral for deposit"
+              placeholder="Select token"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="token-dropdown--search"

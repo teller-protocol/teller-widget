@@ -42,7 +42,7 @@ const PrincipalErc20TokenRow: React.FC<PrincipalErc20TokenSelectProps> = ({
           </span>
         </div>
         <span className="section-sub-title">
-          Farm: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
+          Farm up to: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
         </span>
       </div>
     </div>
