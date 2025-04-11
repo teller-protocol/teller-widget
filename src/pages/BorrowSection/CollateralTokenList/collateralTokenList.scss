@@ -9,8 +9,8 @@
     }
 
     .select-button-list {
-      width: 100% !important;
-      display: flex !important;
+      width: 100%;
+      display: flex;
     }
 
   .token-search-input {
@@ -44,7 +44,7 @@
     }
     border: 0.5px solid rgb(190, 190, 190) !important;
   }
-  
+
   .section-title {
     margin-bottom: $s-normal;
     text-align: center;

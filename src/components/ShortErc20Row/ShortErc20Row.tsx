@@ -22,7 +22,6 @@ const ShortErc20TokenRow: React.FC<ShortErc20TokenSelectProps> = ({
   const logoUrl = token.logo || defaultTokenImage;
 
   const uniswapData = uniswapDataMap[token.address];
-  const apy = uniswapData?.apy ?? "";
 
   return (
     <div className="short-erc20-token-row" onClick={() => onClick?.(token)}>
@@ -30,19 +29,10 @@ const ShortErc20TokenRow: React.FC<ShortErc20TokenSelectProps> = ({
       <div className="token-balance-info">
         <div className="symbol-data-row">
           <span className="paragraph">{token.symbol}</span>
-          {/*<span style={{ fontSize: "11px", padding: "2px 5px" }}>
-            {!apy ? (
-              <Loader isSkeleton height={19} />
-            ) : (
-              <DataPill
-                label={`${apy}% APY`}
-                logo="https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
-              />
-            )}
-          </span>*/}
         </div>
         <span className="section-sub-title">
-          Short up to: {numberWithCommasAndDecimals(token.balance)} {token.symbol}
+          Short up to: {numberWithCommasAndDecimals(token.balance)}{" "}
+          {token.symbol}
         </span>
       </div>
     </div>

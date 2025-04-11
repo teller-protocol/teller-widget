@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import LongErc20TokenRow from "../../../components/LongErc20Row";
 import Loader from "../../../components/Loader";
-import { 
-  useGetGlobalPropsContext, 
-  STRATEGY_ACTION_ENUM 
+import {
+  useGetGlobalPropsContext,
+  STRATEGY_ACTION_ENUM,
 } from "../../../contexts/GlobalPropsContext";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
@@ -35,13 +35,12 @@ const CollateralTokenList: React.FC = () => {
     selectedSwapToken,
   } = useGetBorrowSectionContext();
 
-  const { isStrategiesSection, strategyAction, setStrategyAction } = useGetGlobalPropsContext();
+  const { isStrategiesSection, strategyAction, setStrategyAction } =
+    useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const isSupportedChain = useIsSupportedChain();
-
-  const [key, setKey] = useState(0);
 
   const onCollateralTokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
@@ -66,13 +65,12 @@ const CollateralTokenList: React.FC = () => {
   ];
 
   const handleStrategyAction = (action: STRATEGY_ACTION_ENUM) => {
-    setKey((prev) => prev + 1);
     setStrategyAction(action);
 
     // Reset selected swap token when switching strategies
     setSelectedSwapToken(undefined);
   };
-  
+
   return (
     <div className="collateral-token-list">
       {isSupportedChain ? (
@@ -83,7 +81,7 @@ const CollateralTokenList: React.FC = () => {
                 items={[
                   { value: STRATEGY_ACTION_ENUM.LONG, content: "Long ↗️" },
                   { value: STRATEGY_ACTION_ENUM.SHORT, content: "Short ↘️" },
-                  { value: STRATEGY_ACTION_ENUM.FARM, content: "Farm 🚜" }
+                  { value: STRATEGY_ACTION_ENUM.FARM, content: "Farm 🚜" },
                 ]}
                 value={strategyAction ?? ""}
                 onChange={handleStrategyAction}
@@ -95,7 +93,9 @@ const CollateralTokenList: React.FC = () => {
               <input
                 type="text"
                 placeholder={
-                  isStrategiesSection ? "Tokens to borrow" : "Collateral to deposit for loan"
+                  isStrategiesSection
+                    ? "Tokens to borrow"
+                    : "Collateral to deposit for loan"
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -110,7 +110,8 @@ const CollateralTokenList: React.FC = () => {
               <PrincipalErc20List searchQuery={searchQuery} />
             ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
               <ShortErc20List searchQuery={searchQuery} />
-            ) : strategyAction === STRATEGY_ACTION_ENUM.LONG && !selectedSwapToken ? (
+            ) : strategyAction === STRATEGY_ACTION_ENUM.LONG &&
+              !selectedSwapToken ? (
               <SwapTokenList />
             ) : (
               <>

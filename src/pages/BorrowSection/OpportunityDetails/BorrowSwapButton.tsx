@@ -1,14 +1,16 @@
 import { useCallback, useMemo } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import TransactionButton, {
   TransactionStepConfig,
 } from "../../../components/TransactionButton";
-import { useGetGlobalPropsContext, STRATEGY_ACTION_ENUM } from "../../../contexts/GlobalPropsContext";
+import {
+  STRATEGY_ACTION_ENUM,
+  useGetGlobalPropsContext,
+} from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
-import { borrowSwapAddressMap } from "../../../constants/borrowSwapAddresses";
 import { useContracts } from "../../../hooks/useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "../../../hooks/useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import {
@@ -26,7 +28,7 @@ interface Props {
   principalToken?: bigint;
   principalTokenAddress?: string;
   collateralToken?: TokenInputType;
-  borrowSwapPaths?: { poolFee: number; tokenOut: string; }[];
+  borrowSwapPaths?: { poolFee: number; tokenOut: string }[];
   borrowQuoteExactInput?: bigint;
 
   onSuccess?: (bidId?: string, txHash?: string) => void;
@@ -49,6 +51,7 @@ export const BorrowSwapButton: React.FC<Props> = ({
     setSuccessfulLoanParams,
     setBidId,
   } = useGetBorrowSectionContext();
+  const contracts = useContracts();
   const collateralTokenBalance = userTokens.find(
     (token) => token.address === collateralToken?.token?.address
   )?.balance;
@@ -58,15 +61,8 @@ export const BorrowSwapButton: React.FC<Props> = ({
 
   const isNotConnected = !address;
 
-  const chainId = useChainId();
   const { referralFee, referralAddress } = useGetGlobalPropsContext();
-  const borrowSwapAddress = borrowSwapAddressMap[chainId];
-
-  const referralFeeAmount =
-    (BigInt(referralFee ?? 0) * BigInt(principalToken ?? 0)) / BigInt(10000);
-
-  const { isCommitmentFromLCFAlpha, lcfAlphaAddress } =
-    useGetMaxPrincipalPerCollateralFromLCFAlpha(commitment);
+  const borrowSwapAddress = contracts.BorrowSwap.address;
 
   const commitmentForwarderAddress = commitment?.forwarderAddress;
 
@@ -90,6 +86,8 @@ export const BorrowSwapButton: React.FC<Props> = ({
     }),
     [
       commitment?.id,
+      commitment?.isLenderGroup,
+      commitment?.lenderAddress,
       commitment?.collateralToken?.address,
       commitment?.minAPY,
       commitment?.maxDuration,
@@ -103,7 +101,7 @@ export const BorrowSwapButton: React.FC<Props> = ({
 
     return {
       swapPaths: borrowSwapPaths,
-      amountOutMinimum: borrowQuoteExactInput * 95n / 100n,
+      amountOutMinimum: (borrowQuoteExactInput * 95n) / 100n,
     };
   }, [borrowSwapPaths, borrowQuoteExactInput]);
 
@@ -213,8 +211,6 @@ export const BorrowSwapButton: React.FC<Props> = ({
 
     const row4: TransactionStepConfig[] = [];
     steps.push(row4);
-
-    // update below to borrowswap
 
     const step3FunctionName = "borrowSwap";
 

@@ -30,12 +30,6 @@ import {
   RFW_MAINNET_ADDRESS,
   RFW_POLYGON_ADDRESS,
 } from "./rfwAddress";
-import {
-  BORROW_SWAP_POLYGON_ADDRESS,
-  BORROW_SWAP_ARBITRUM_ADDRESS,
-  BORROW_SWAP_BASE_ADDRESS,
-  BORROW_SWAP_MAINNET_ADDRESS,
-} from "./borrowSwapAddresses";
 
 interface NetworkContract {
   address: string;

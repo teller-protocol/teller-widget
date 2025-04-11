@@ -48,7 +48,6 @@ const BorrowConfirmation = () => {
 
   const isLong = strategyAction === STRATEGY_ACTION_ENUM.LONG;
   const isShort = strategyAction === STRATEGY_ACTION_ENUM.SHORT;
-  console.log("successfulLoanParams", successfulLoanParams);
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(

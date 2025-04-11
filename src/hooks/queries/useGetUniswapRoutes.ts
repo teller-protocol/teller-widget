@@ -21,11 +21,17 @@ const UNISWAP_V3_POOLS_BY_TOKEN_QUERY = gql`
       id
       totalValueLockedUSD
       feeTier
-      token0 { id decimals }
-      token1 { id decimals }
+      token0 {
+        id
+        decimals
+      }
+      token1 {
+        id
+        decimals
+      }
     }
   }
-`
+`;
 
 const UNISWAP_V3_POOLS_BY_PAIR_QUERY = gql`
   query PoolsByPair($token0: String!, $token1: String!) {
@@ -43,16 +49,25 @@ const UNISWAP_V3_POOLS_BY_PAIR_QUERY = gql`
       id
       totalValueLockedUSD
       feeTier
-      token0 { id decimals }
-      token1 { id decimals }
+      token0 {
+        id
+        decimals
+      }
+      token1 {
+        id
+        decimals
+      }
     }
   }
-`
+`;
 
-const UNIV3_LIQUIDITY_MIN = 10000
+const UNIV3_LIQUIDITY_MIN = 10000;
 
 // In-memory route cache
-const routeCache = new Map<string, { pools: any[]; liquidityInsufficient: boolean }>();
+const routeCache = new Map<
+  string,
+  { pools: any[]; liquidityInsufficient: boolean }
+>();
 
 export const useBestUniswapV3Route = (
   principalTokenAddress?: string,
@@ -72,7 +87,8 @@ export const useBestUniswapV3Route = (
 
   useEffect(() => {
     const getRoute = async () => {
-      if (!principalTokenAddress || !finalTokenAddress || !graphURL || !chainId) return;
+      if (!principalTokenAddress || !finalTokenAddress || !graphURL || !chainId)
+        return;
 
       const cacheKey = `${chainId}-${principalTokenAddress.toLowerCase()}-${finalTokenAddress.toLowerCase()}`;
       const cached = routeCache.get(cacheKey);
@@ -81,7 +97,7 @@ export const useBestUniswapV3Route = (
         setRoute(cached);
         return;
       }
-      
+
       try {
         // Step 1: Get pools involving the collateral token
         const { pools: collateralPools } = await request<PoolsResponse>(
@@ -93,17 +109,24 @@ export const useBestUniswapV3Route = (
         const firstCollateralPool = collateralPools?.[0];
         if (!firstCollateralPool) return;
 
-        const collateralLiquidity = parseFloat(firstCollateralPool.totalValueLockedUSD || '0');
+        const collateralLiquidity = parseFloat(
+          firstCollateralPool.totalValueLockedUSD || "0"
+        );
 
         const isDirectRoute =
-          (firstCollateralPool.token0.id.toLowerCase() === finalTokenAddress.toLowerCase() &&
-            firstCollateralPool.token1.id.toLowerCase() === principalTokenAddress.toLowerCase()) ||
-          (firstCollateralPool.token0.id.toLowerCase() === principalTokenAddress.toLowerCase() &&
-            firstCollateralPool.token1.id.toLowerCase() === finalTokenAddress.toLowerCase());
+          (firstCollateralPool.token0.id.toLowerCase() ===
+            finalTokenAddress.toLowerCase() &&
+            firstCollateralPool.token1.id.toLowerCase() ===
+              principalTokenAddress.toLowerCase()) ||
+          (firstCollateralPool.token0.id.toLowerCase() ===
+            principalTokenAddress.toLowerCase() &&
+            firstCollateralPool.token1.id.toLowerCase() ===
+              finalTokenAddress.toLowerCase());
 
         const pool1 = [
           finalTokenAddress,
-          firstCollateralPool.token0.id.toLowerCase() === finalTokenAddress.toLowerCase(),
+          firstCollateralPool.token0.id.toLowerCase() ===
+            finalTokenAddress.toLowerCase(),
           Number(firstCollateralPool.feeTier),
           Number(firstCollateralPool.token0.decimals),
           Number(firstCollateralPool.token1.decimals),
@@ -121,7 +144,8 @@ export const useBestUniswapV3Route = (
 
         // Step 2: Use intermediary token
         const intermediaryToken =
-          firstCollateralPool.token0.id.toLowerCase() === finalTokenAddress.toLowerCase()
+          firstCollateralPool.token0.id.toLowerCase() ===
+          finalTokenAddress.toLowerCase()
             ? firstCollateralPool.token1.id
             : firstCollateralPool.token0.id;
 
@@ -137,11 +161,14 @@ export const useBestUniswapV3Route = (
         const firstPrincipalPool = principalPools?.[0];
         if (!firstPrincipalPool) return;
 
-        const principalLiquidity = parseFloat(firstPrincipalPool.totalValueLockedUSD || '0');
+        const principalLiquidity = parseFloat(
+          firstPrincipalPool.totalValueLockedUSD || "0"
+        );
 
         const pool2 = [
           intermediaryToken,
-          firstPrincipalPool.token0.id.toLowerCase() === intermediaryToken.toLowerCase(),
+          firstPrincipalPool.token0.id.toLowerCase() ===
+            intermediaryToken.toLowerCase(),
           Number(firstPrincipalPool.feeTier),
           Number(firstPrincipalPool.token0.decimals),
           Number(firstPrincipalPool.token1.decimals),
@@ -161,7 +188,7 @@ export const useBestUniswapV3Route = (
       }
     };
 
-    getRoute();
+    void getRoute();
   }, [principalTokenAddress, finalTokenAddress, chainId, graphURL]);
 
   return route;
