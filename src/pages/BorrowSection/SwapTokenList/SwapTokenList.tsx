@@ -44,7 +44,9 @@ const SwapTokenList: React.FC = () => {
       balanceBigInt: 0n,
     }));
 
-  const mergedTokens = [...tokensWithCommitments, ...additionalTokens];
+  const mergedTokens = Array.from(
+    new Map([...tokensWithCommitments, ...additionalTokens].map((t) => [t.address.toLowerCase(), t]))
+  ).map(([, token]) => token);
 
   const filteredAndSortedTokens = [
     ...mergedTokens
