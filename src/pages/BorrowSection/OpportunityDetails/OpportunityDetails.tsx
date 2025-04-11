@@ -488,9 +488,6 @@ const OpportunityDetails = () => {
         readonly
       />
       
-      
-
-      {/* UPDATE LONG BY PASSING IN QUOTE EXACT INPUT */}
       {(isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
         <div>
           <img src={separatorWithCaret} className="separator" />

@@ -49,7 +49,7 @@ const UNISWAP_V3_POOLS_BY_PAIR_QUERY = gql`
   }
 `
 
-const UNIV3_LIQUIDITY_MIN = 500
+const UNIV3_LIQUIDITY_MIN = 10000
 
 // In-memory route cache
 const routeCache = new Map<string, { pools: any[]; liquidityInsufficient: boolean }>();

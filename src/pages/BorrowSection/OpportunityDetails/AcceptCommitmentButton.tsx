@@ -241,9 +241,6 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       referralAddress, // _rewardRecipient
     ];
 
-    // row4Info = {contract: xxx, function: xxx, args: [xxx, xxx, xxx]}}
-    // if strategyType == "long" or "short" then change contract, function, args
-
     if (!isLoadingTransactionInfo)
       row4.push({
         buttonLabel: <span>Deposit & Borrow</span>,
