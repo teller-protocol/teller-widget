@@ -31,7 +31,12 @@ import {
   RFW_MAINNET_ADDRESS,
   RFW_POLYGON_ADDRESS, 
 } from "./rfwAddress";
-import { BORROW_SWAP_POLYGON_ADDRESS } from "./borrowSwapAddresses"
+import { 
+  BORROW_SWAP_POLYGON_ADDRESS,
+  BORROW_SWAP_ARBITRUM_ADDRESS,
+  BORROW_SWAP_BASE_ADDRESS,
+  BORROW_SWAP_MAINNET_ADDRESS,
+} from "./borrowSwapAddresses"
 
 interface NetworkContract {
   address: string;
@@ -57,6 +62,10 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         address: RFW_MAINNET_ADDRESS,
         abi: RFW_ABI,
       },
+      BorrowSwap: {
+        address: BORROW_SWAP_MAINNET_ADDRESS,
+        abi: BORROW_SWAP_ABI,
+      },
     },
   },
   [arbitrum.id]: {
@@ -72,6 +81,10 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
       RolloverForWidget: {
         address: RFW_ARBITRUM_ADDRESS,
         abi: RFW_ABI,
+      },
+      BorrowSwap: {
+        address: BORROW_SWAP_ARBITRUM_ADDRESS,
+        abi: BORROW_SWAP_ABI,
       },
     },
   },
@@ -128,6 +141,10 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
       RolloverForWidget: {
         address: RFW_BASE_ADDRESS,
         abi: RFW_ABI,
+      },
+      BorrowSwap: {
+        address: BORROW_SWAP_BASE_ADDRESS,
+        abi: BORROW_SWAP_ABI,
       },
     },
   },
