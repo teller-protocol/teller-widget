@@ -271,13 +271,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                     }
                     valueTextColor={"#3D8974"}
                   />
-                ) : isStrategiesSection &&
-                  strategyAction === STRATEGY_ACTION_ENUM.LONG ? (
-                  <OpportunityListDataItem
-                    label="Long & Receive:"
-                    value={`1.11 LINK`}
-                    valueTextColor={"#3D8974"}
-                  />
                 ) : null}
               </>
             )}

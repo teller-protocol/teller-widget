@@ -96,11 +96,7 @@ const OpportunityDetails = () => {
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
 
-  const {
-    data: collateralTokenBalance,
-    isFetching,
-    isFetched,
-  } = useBalance({
+  const { data: collateralTokenBalance, isFetched } = useBalance({
     address,
     token: selectedOpportunity.collateralToken?.address,
   });
