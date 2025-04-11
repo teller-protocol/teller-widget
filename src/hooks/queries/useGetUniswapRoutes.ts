@@ -1,10 +1,10 @@
-import { getUniswapV3GraphEndpointWithKey } from "../../constants/graphEndpoints";
 import request, { gql } from "graphql-request";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useChainId } from "wagmi";
+import { getUniswapV3GraphEndpointWithKey } from "../../constants/graphEndpoints";
+import { WETH_ADDRESSES } from "../../constants/tokens";
 import { UniswapV3Pool } from "../../constants/uniswapV3Pool.type";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { TOKEN_ADDRESSES } from "../../constants/tokens";
 
 interface PoolsResponse {
   pools: UniswapV3Pool[];
@@ -74,6 +74,9 @@ export const useBestUniswapV3Route = (
   finalTokenAddress?: string
 ) => {
   const chainId = useChainId();
+  const isFinalTokenWETH = WETH_ADDRESSES.includes(
+    finalTokenAddress?.toLowerCase() ?? ""
+  );
   const { subgraphApiKey } = useGetGlobalPropsContext();
   const graphURL = getUniswapV3GraphEndpointWithKey(subgraphApiKey, chainId);
 
@@ -154,7 +157,9 @@ export const useBestUniswapV3Route = (
           UNISWAP_V3_POOLS_BY_PAIR_QUERY,
           {
             token0: principalTokenAddress.toLowerCase(),
-            token1: intermediaryToken.toLowerCase(),
+            token1: isFinalTokenWETH
+              ? finalTokenAddress.toLowerCase()
+              : intermediaryToken.toLowerCase(),
           }
         );
 
@@ -166,7 +171,9 @@ export const useBestUniswapV3Route = (
         );
 
         const pool2 = [
-          intermediaryToken,
+          isFinalTokenWETH
+            ? finalTokenAddress.toLowerCase()
+            : intermediaryToken.toLowerCase(),
           firstPrincipalPool.token0.id.toLowerCase() ===
             intermediaryToken.toLowerCase(),
           Number(firstPrincipalPool.feeTier),
@@ -175,7 +182,7 @@ export const useBestUniswapV3Route = (
         ];
 
         const result = {
-          pools: [pool2, pool1],
+          pools: [pool2, ...(isFinalTokenWETH ? [] : [pool1])],
           liquidityInsufficient:
             collateralLiquidity < UNIV3_LIQUIDITY_MIN ||
             principalLiquidity < UNIV3_LIQUIDITY_MIN,
@@ -189,7 +196,13 @@ export const useBestUniswapV3Route = (
     };
 
     void getRoute();
-  }, [principalTokenAddress, finalTokenAddress, chainId, graphURL]);
+  }, [
+    principalTokenAddress,
+    finalTokenAddress,
+    chainId,
+    graphURL,
+    isFinalTokenWETH,
+  ]);
 
   return route;
 };

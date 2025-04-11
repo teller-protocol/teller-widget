@@ -35,6 +35,7 @@ export const useGetBorrowSwapData = ({
     !!finalTokenAddress &&
     swapPath.length > 0;
 
+
   const borrowSwapPaths = useReadContract<string>(
     SupportedContractsEnum.BorrowSwap,
     "generateSwapPath",
@@ -54,6 +55,6 @@ export const useGetBorrowSwapData = ({
       borrowSwapPaths: swapPath,
       borrowQuoteExactInput: borrowQuoteExactInput.data,
     }),
-    [borrowSwapPaths, borrowQuoteExactInput]
+    [swapPath, borrowQuoteExactInput.data]
   );
 };

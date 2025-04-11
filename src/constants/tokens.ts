@@ -152,3 +152,10 @@ export const SUPPORTED_TOKEN_LOGOS: Record<string, string> = {
   [SupportedTokensEnum["USDbC"]]:
     "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
 };
+
+export const WETH_ADDRESSES = [
+  WETH_MAINNET_ADDRESS,
+  WETH_POLYGON_ADDRESS,
+  WETH_ARBITRUM_ADDRESS,
+  WETH_BASE_ADDRESS,
+];
