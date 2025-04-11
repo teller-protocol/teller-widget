@@ -5,7 +5,7 @@ import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import TransactionButton, {
   TransactionStepConfig,
 } from "../../../components/TransactionButton";
-import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
+import { useGetGlobalPropsContext, STRATEGY_ACTION_ENUM } from "../../../contexts/GlobalPropsContext";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { borrowSwapAddressMap } from "../../../constants/borrowSwapAddresses";
@@ -42,7 +42,7 @@ export const BorrowSwapButton: React.FC<Props> = ({
 }) => {
   const { address } = useAccount();
 
-  const { userTokens } = useGetGlobalPropsContext();
+  const { userTokens, strategyAction } = useGetGlobalPropsContext();
   const {
     setCurrentStep,
     setSuccessLoanHash,
@@ -230,10 +230,15 @@ export const BorrowSwapButton: React.FC<Props> = ({
       acceptCommitmentArgs,
     ];
 
+    const label =
+      strategyAction === STRATEGY_ACTION_ENUM.SHORT
+        ? "Short"
+        : "Long";
+
     if (!isLoadingTransactionInfo)
       row4.push({
-        buttonLabel: <span>Deposit & Borrow</span>,
-        loadingButtonLabel: <span>Executing Loan...</span>,
+        buttonLabel: <span>{label}</span>,
+        loadingButtonLabel: <span>Executing {label}...</span>,
         contractName: SupportedContractsEnum.BorrowSwap,
         functionName: step3FunctionName,
         args: step3Args,

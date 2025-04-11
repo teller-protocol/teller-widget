@@ -7,6 +7,10 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
+import { 
+  useGetGlobalPropsContext, 
+  STRATEGY_ACTION_ENUM 
+} from "../../../contexts/GlobalPropsContext";
 
 import { Address, decodeEventLog, formatUnits } from "viem";
 import Loader from "../../../components/Loader";
@@ -31,13 +35,17 @@ const BorrowConfirmation = () => {
     bidId,
     setCurrentStep,
     successfulLoanParams,
+    selectedSwapToken,
   } = useGetBorrowSectionContext();
+  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
   const contracts = useContracts();
 
   const { chainExplorerURL, chainName } = useChainData();
 
   const principalToken = selectedOpportunity?.principalToken;
   const collateralToken = selectedOpportunity?.collateralToken;
+
+  console.log("successfulLoanParams",successfulLoanParams)
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
@@ -83,8 +91,14 @@ const BorrowConfirmation = () => {
       />
       {/*<img src={confirmationAsset} className="borrow-confirmation-main-image" />*/}
       <div className="borrow-confirmation-title">
-        Borrowed {formattedPrincipalAmount} {principalToken?.symbol} with{" "}
-        {formattedCollateralAmount} {collateralToken?.symbol} as collateral
+        {isStrategiesSection
+          ? strategyAction === STRATEGY_ACTION_ENUM.SHORT
+            ? `Shorted ${formattedPrincipalAmount} ${principalToken?.symbol}`
+            : strategyAction === STRATEGY_ACTION_ENUM.LONG
+            ? `Longed ${formattedPrincipalAmount} ${selectedSwapToken?.symbol}`
+            : ""
+          : `Borrowed ${formattedPrincipalAmount} ${principalToken?.symbol}`}{" "}
+        with {formattedCollateralAmount} {collateralToken?.symbol} as collateral
       </div>
       <div className="borrow-confirmation-buttons">
         {!bidId ? (
