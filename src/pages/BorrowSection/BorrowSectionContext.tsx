@@ -50,8 +50,6 @@ export type BorrowSectionContextType = {
   setSelectedCollateralToken: (token: UserToken) => void;
   selectedPrincipalErc20Token?: UserToken;
   setSelectedPrincipalErc20Token: (token: UserToken) => void;
-  selectedLongErc20Token?: UserToken;
-  setSelectedLongErc20Token: (token: UserToken) => void;
   selectedSwapToken?: UserToken;
   setSelectedSwapToken: (token: UserToken | undefined) => void;
   tokensWithCommitments: UserToken[];
