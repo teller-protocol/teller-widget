@@ -134,6 +134,26 @@ export const Main: Story = {
   tags: ["!autodocs"],
 };
 
+export const Strategies: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+    showStrategiesSection: true,
+  },
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Widget {...args} />
+          <ConnectWalletButton />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+  tags: ["!autodocs"],
+};
+
 export const AutoOpen: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,
