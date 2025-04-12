@@ -34,26 +34,33 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
   const subtitleData = (() => {
-    if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-      return {
-        title: "Long with",
-        value: Number(token?.balance).toFixed(3),
-      };
-    } else if (strategyAction === STRATEGY_ACTION_ENUM.SHORT) {
-      return {
-        title: "Short up to",
-        value: token?.balance,
-      };
-    } else if (strategyAction === STRATEGY_ACTION_ENUM.FARM) {
-      return {
-        title: "Farm up to",
-        value: token?.balance,
-      };
-    } else {
+    if (!isStrategiesSection) {
       return {
         title: "Balance",
         value: Number(token?.balance).toFixed(3),
       };
+    } else {
+      if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+        return {
+          title: "Long with",
+          value: Number(token?.balance).toFixed(3),
+        };
+      } else if (strategyAction === STRATEGY_ACTION_ENUM.SHORT) {
+        return {
+          title: "Short up to",
+          value: token?.balance,
+        };
+      } else if (strategyAction === STRATEGY_ACTION_ENUM.FARM) {
+        return {
+          title: "Farm up to",
+          value: token?.balance,
+        };
+      } else {
+        return {
+          title: "Balance",
+          value: Number(token?.balance).toFixed(3),
+        };
+      }
     }
   })();
 
@@ -63,8 +70,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {subtitleData.title}:{" "}
-          {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
+          {subtitleData.title}: {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
         </div>
       </div>
     </div>
@@ -88,7 +94,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
       setSelectedCollateralToken(token);
     } else {
       if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-        setSelectedCollateralToken(token);
+        setSelectedCollateralToken(token)
       } else {
         setSelectedPrincipalErc20Token(token);
       }
