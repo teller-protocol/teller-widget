@@ -46,8 +46,8 @@ const BorrowConfirmation = () => {
   const principalToken = selectedOpportunity?.principalToken;
   const collateralToken = selectedOpportunity?.collateralToken;
 
-  const isLong = strategyAction === STRATEGY_ACTION_ENUM.LONG;
-  const isShort = strategyAction === STRATEGY_ACTION_ENUM.SHORT;
+  const isLong = isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
+  const isShort = isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.SHORT;
 
   const formattedPrincipalAmount = numberWithCommasAndDecimals(
     formatUnits(
