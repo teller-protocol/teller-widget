@@ -18,6 +18,7 @@ interface ModalContentProps {
   showPoolSection?: boolean;
   showRepaySection?: boolean;
   showStrategiesSection?: boolean;
+  hideAutoConnectModal?: boolean;
 }
 
 const ModalContent: React.FC<ModalContentProps> = ({
@@ -25,6 +26,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   showPoolSection,
   showRepaySection,
   showStrategiesSection,
+  hideAutoConnectModal = false,
 }) => {
   const { widgetAction, setWidgetAction } = useGetGlobalPropsContext();
   const [key, setKey] = useState(0);
@@ -64,8 +66,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const { isConnected } = useAccount();
 
   useEffect(() => {
-    if (!isConnected && !showModalByDefault) connect({ connector: injected() });
-  }, [connect, isConnected, showModalByDefault]);
+    if (!isConnected && !showModalByDefault && !hideAutoConnectModal)
+      connect({ connector: injected() });
+  }, [connect, hideAutoConnectModal, isConnected, showModalByDefault]);
 
   return (
     <>

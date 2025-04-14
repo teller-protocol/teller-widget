@@ -174,11 +174,13 @@ const OpportunityDetails = () => {
     ? liquidityPoolsCommitmentMax.maxLoanAmount
     : displayedPrincipalFromLCFa;
 
+  const isNotConnectedAndNotFetched = !address && !isFetched;
+
   useEffect(() => {
     if (
       tokenIsWhitelistedAndBalanceIs0 &&
       collateralTokenValue.valueBI === undefined &&
-      isFetched
+      isNotConnectedAndNotFetched
     ) {
       setCollateralTokenValue({
         token: selectedCollateralToken ?? matchingCollateralToken,
@@ -224,6 +226,7 @@ const OpportunityDetails = () => {
     selectedOpportunity?.collateralToken?.decimals,
     collateralWalletBalance.data?.value,
     isFetched,
+    isNotConnectedAndNotFetched,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();

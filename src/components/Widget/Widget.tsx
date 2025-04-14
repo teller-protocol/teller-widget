@@ -40,6 +40,7 @@ interface BaseWidgetProps {
   showStrategiesSection?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  hideAutoConnectModal?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -78,6 +79,7 @@ const Widget: React.FC<WidgetProps> = ({
   showStrategiesSection,
   showPoolSection = false,
   showRepaySection = true,
+  hideAutoConnectModal,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -130,6 +132,7 @@ const Widget: React.FC<WidgetProps> = ({
                     showPoolSection={showPoolSection}
                     showRepaySection={showRepaySection}
                     showStrategiesSection={showStrategiesSection}
+                    hideAutoConnectModal={hideAutoConnectModal}
                   />
                 )}
               </Modal>
