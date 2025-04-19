@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
-import { WagmiProvider } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount, useSwitchChain, WagmiProvider } from "wagmi";
 import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
@@ -41,6 +41,7 @@ interface BaseWidgetProps {
   showPoolSection?: boolean;
   showRepaySection?: boolean;
   hideAutoConnectModal?: boolean;
+  widgetChainId?: number;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -80,8 +81,17 @@ const Widget: React.FC<WidgetProps> = ({
   showPoolSection = false,
   showRepaySection = true,
   hideAutoConnectModal,
+  widgetChainId,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
+  const { switchChain } = useSwitchChain();
+  const { address } = useAccount();
+
+  useEffect(() => {
+    if (widgetChainId && !address) {
+      switchChain({ chainId: widgetChainId });
+    }
+  }, [widgetChainId, switchChain, address]);
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
     JSON.parse(
