@@ -14,6 +14,7 @@ import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
+import { useAccount, useSwitchChain } from "wagmi";
 
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
@@ -30,6 +31,7 @@ type ModalProps = {
   useLightLogo?: boolean;
   isEmbedded?: boolean;
   showChainSwitch?: boolean;
+  widgetChainId?: number;
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -40,6 +42,7 @@ const Modal: React.FC<ModalProps> = ({
   useLightLogo,
   isEmbedded,
   showChainSwitch,
+  widgetChainId,
 }: ModalProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -74,6 +77,16 @@ const Modal: React.FC<ModalProps> = ({
     }),
     []
   );
+
+  const { switchChain } = useSwitchChain();
+
+  const { address } = useAccount();
+
+  useEffect(() => {
+    if (widgetChainId && !address) {
+      switchChain({ chainId: widgetChainId });
+    }
+  }, [widgetChainId, switchChain, address]);
 
   const node = useMemo(
     () =>

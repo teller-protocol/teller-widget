@@ -1,17 +1,17 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
-import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
-import BorrowSection from "../../pages/BorrowSection";
-import RepaySection from "../../pages/RepaySection";
-import PoolSection from "../../pages/PoolSection";
-import SelectButtons from "../SelectButtons";
 import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
-import useIsMobile from "../../hooks/useIsMobile";
 import { useTransactionButton } from "../../contexts/TransactionButtonContext";
+import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
+import useIsMobile from "../../hooks/useIsMobile";
+import BorrowSection from "../../pages/BorrowSection";
+import PoolSection from "../../pages/PoolSection";
+import RepaySection from "../../pages/RepaySection";
+import SelectButtons from "../SelectButtons";
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
