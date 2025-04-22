@@ -149,8 +149,6 @@ const OpportunityDetails = () => {
     returnCalculatedLoanAmount: true,
   });
 
-  const { contracts } = useContracts();
-
   const liquidityPoolsCommitmentMax = useLiquidityPoolsCommitmentMax({
     lenderGroupCommitment: selectedOpportunity,
     collateralAmount: collateralTokenValue.valueBI,
@@ -174,22 +172,22 @@ const OpportunityDetails = () => {
     ? liquidityPoolsCommitmentMax.maxLoanAmount
     : displayedPrincipalFromLCFa;
 
-  const isNotConnectedAndNotFetched = !address && !isFetched;
+  const defaultAmountCheck = address
+    ? tokenIsWhitelistedAndBalanceIs0
+    : !isFetched;
 
   useEffect(() => {
-    if (
-      tokenIsWhitelistedAndBalanceIs0 &&
-      collateralTokenValue.valueBI === undefined &&
-      isNotConnectedAndNotFetched
-    ) {
-      setCollateralTokenValue({
-        token: selectedCollateralToken ?? matchingCollateralToken,
-        value: 1,
-        valueBI: parseUnits(
-          "1",
-          selectedOpportunity?.collateralToken?.decimals ?? 18
-        ),
-      });
+    if (collateralTokenValue.valueBI === undefined) {
+      if (defaultAmountCheck) {
+        setCollateralTokenValue({
+          token: selectedCollateralToken ?? matchingCollateralToken,
+          value: 1,
+          valueBI: parseUnits(
+            "1",
+            selectedOpportunity?.collateralToken?.decimals ?? 18
+          ),
+        });
+      }
     }
 
     if (
@@ -217,16 +215,13 @@ const OpportunityDetails = () => {
     }
   }, [
     collateralTokenValue,
-    tokenIsWhitelistedAndBalanceIs0,
-    matchingCollateralToken,
-    maxCollateral,
+    defaultAmountCheck,
     selectedCollateralToken,
-    selectedPrincipalErc20Token,
-    staticMaxCollateral,
+    matchingCollateralToken,
     selectedOpportunity?.collateralToken?.decimals,
     collateralWalletBalance.data?.value,
-    isFetched,
-    isNotConnectedAndNotFetched,
+    staticMaxCollateral,
+    maxCollateral,
   ]);
 
   const { isNewBorrower } = useIsNewBorrower();
