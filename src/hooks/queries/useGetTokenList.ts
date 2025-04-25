@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-const endpoint = `https://tbot.teller.org/get-json-file`;
+const endpoint = `https://tbot2.teller.org/get-json-file`;
 
 type UniswapToken = {
   address: string;

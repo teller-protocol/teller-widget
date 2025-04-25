@@ -7,14 +7,14 @@ import { useGetLiquidityPools } from "./queries/useGetLiquidityPools";
 import { useAlchemy } from "./useAlchemy";
 import { useConvertLenderGroupCommitmentToCommitment } from "./useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "./useGetUserTokens";
-import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
+import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 
 export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const skip = !isStrategiesSection;
-  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+  const getTokenImageFromTokenList = useGetTokenImageAndSymbolFromTokenList();
 
   const {
     liquidityPools: liquidityPools,
@@ -94,8 +94,13 @@ export const useGetCommitmentsForErc20Tokens = () => {
               return {
                 address: address as `0x${string}`,
                 name: metadata?.name || "",
-                symbol: metadata?.symbol || "",
-                logo: metadata?.logo ?? getTokenImageFromTokenList(address) ?? "",
+                symbol:
+                  getTokenImageFromTokenList(address).symbol ??
+                  (metadata?.symbol || ""),
+                logo:
+                  metadata?.logo ??
+                  getTokenImageFromTokenList(address).image ??
+                  "",
                 balance: aggregatedBalance || "0",
                 balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
                 decimals: metadata?.decimals || 18,
