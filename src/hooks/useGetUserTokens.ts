@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Address, formatUnits, parseUnits } from "viem";
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { useGetTokenList } from "./queries/useGetTokenList";
-import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
+import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 
 export type UserToken = {
   address: Address;
@@ -27,7 +27,8 @@ export const useGetUserTokens = (
   const { address } = useAccount();
   const alchemy = useAlchemy();
 
-  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+  const getTokenImageAndSymbolFromTokenList =
+    useGetTokenImageAndSymbolFromTokenList();
 
   useEffect(() => {
     if (!alchemy || skip) return;
@@ -86,7 +87,8 @@ export const useGetUserTokens = (
               if (metadata.decimals === 0) return;
               const logo =
                 metadata.logo ??
-                getTokenImageFromTokenList(token.contractAddress) ??
+                getTokenImageAndSymbolFromTokenList(token.contractAddress)
+                  .image ??
                 "";
               const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
               const decimals = metadata.decimals ?? 0;
@@ -94,7 +96,11 @@ export const useGetUserTokens = (
               userTokensData.push({
                 address: token.contractAddress,
                 name: metadata.name ?? "",
-                symbol: metadata.symbol ?? "",
+                symbol:
+                  getTokenImageAndSymbolFromTokenList(token.contractAddress)
+                    .symbol ??
+                  metadata.symbol ??
+                  "",
                 logo,
                 balance: formatUnits(balanceBigInt, decimals),
                 balanceBigInt,
@@ -109,7 +115,7 @@ export const useGetUserTokens = (
   }, [
     address,
     alchemy,
-    getTokenImageFromTokenList,
+    getTokenImageAndSymbolFromTokenList,
     showOnlyWhiteListedTokens,
     skip,
     whiteListedTokens,
