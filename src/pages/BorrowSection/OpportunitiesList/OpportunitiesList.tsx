@@ -201,6 +201,13 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     +(opportunity?.marketplace?.marketplaceFeePercent ?? 0) +
     (referralFee ?? 0);
 
+  const hideOffer =
+    commitmentMax.maxLoanAmount === 0n || commitmentMax.maxCollateral === 0n;
+
+  if (hideOffer) {
+    return <></>;
+  }
+
   return (
     <div className="opportunity-list-item" onClick={handleOnOpportunityClick}>
       <div className="paragraph opportunity-list-item-header">
@@ -218,7 +225,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token ?? ""}
         />
-        {strategyAction != STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
+        {strategyAction !== STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
       </div>
       {isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div className="paragraph opportunity-list-item-header">
