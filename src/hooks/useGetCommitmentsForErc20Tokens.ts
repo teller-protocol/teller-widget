@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { formatUnits } from "viem";
-import { cookieStorage, useChainId } from "wagmi";
+import { useChainId } from "wagmi";
 import { supportedPrincipalTokens, TOKEN_ADDRESSES } from "../constants/tokens";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetLiquidityPools } from "./queries/useGetLiquidityPools";
