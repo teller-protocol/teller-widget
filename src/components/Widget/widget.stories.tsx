@@ -106,6 +106,7 @@ const meta = {
         "0xb23d80f5fefcddaa212212f028021b41ded428cf",
       ],
       [42161]: ["0x221a0f68770658c15b525d0f89f5da2baab5f321"],
+      [8453]: ["0x4ed4e862860bed51a9570b96d89af5e1b0efefed"],
     },
     whitelistedChains: [1, 137, 42161, 8453],
   },
