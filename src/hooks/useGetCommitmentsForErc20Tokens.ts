@@ -7,14 +7,16 @@ import { useGetLiquidityPools } from "./queries/useGetLiquidityPools";
 import { useAlchemy } from "./useAlchemy";
 import { useConvertLenderGroupCommitmentToCommitment } from "./useConvertLenderGroupCommitmentToCommitment";
 import { UserToken } from "./useGetUserTokens";
-import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
+import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
+import { useGetTokenList } from "./queries/useGetTokenList";
 
 export const useGetCommitmentsForErc20Tokens = () => {
   const chainId = useChainId();
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const skip = !isStrategiesSection;
-  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+  const getTokenImageFromTokenList = useGetTokenImageAndSymbolFromTokenList();
+  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenList();
 
   const {
     liquidityPools: liquidityPools,
@@ -24,9 +26,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
 
   const alchemy = useAlchemy();
 
-  const [isLoading, setIsLoading] = useState<boolean>(
-    liquidityPoolsLoading || true
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [principalErc20Tokens, setPrincipalErc20Tokens] = useState<any[]>([]);
   const [convertedCommitments, setConvertedCommitments] = useState<any[]>([]);
@@ -37,12 +37,13 @@ export const useGetCommitmentsForErc20Tokens = () => {
 
   useEffect(() => {
     setPrincipalErc20Tokens([]);
-    setIsLoading(true);
   }, [chainId]);
 
   useEffect(() => {
     if (
       liquidityPoolsLoading ||
+      isLoading ||
+      (!tokenList?.[chainId] && !tokenListLoading) ||
       (liquidityPoolsFetched && principalErc20Tokens.length > 0) ||
       skip
     ) {
@@ -55,16 +56,12 @@ export const useGetCommitmentsForErc20Tokens = () => {
         return [];
       }
 
+      setIsLoading(true);
       const filteredPools = liquidityPools.filter(
-        (pool) =>
-          !chainTokenAddresses.includes(
-            pool.principal_token_address?.toLowerCase()
-          )
+        (pool) => !chainTokenAddresses.includes(pool.principal_token_address?.toLowerCase())
       );
 
-      const convertedCommitments = await Promise.all(
-        filteredPools.map(convertCommitment)
-      );
+      const convertedCommitments = await Promise.all(filteredPools.map(convertCommitment));
       setConvertedCommitments(convertedCommitments);
       return convertedCommitments;
     })()
@@ -94,33 +91,26 @@ export const useGetCommitmentsForErc20Tokens = () => {
               return {
                 address: address as `0x${string}`,
                 name: metadata?.name || "",
-                symbol: metadata?.symbol || "",
-                logo: metadata?.logo ?? getTokenImageFromTokenList(address) ?? "",
+                symbol: getTokenImageFromTokenList(address).symbol ?? (metadata?.symbol || ""),
+                logo: metadata?.logo ?? getTokenImageFromTokenList(address).image ?? "",
                 balance: aggregatedBalance || "0",
                 balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
                 decimals: metadata?.decimals || 18,
               } as UserToken;
             } catch (error) {
-              console.error(
-                `Error fetching metadata for token ${address}:`,
-                error
-              );
+              console.error(`Error fetching metadata for token ${address}:`, error);
               return null;
             }
           })
         );
-
         setPrincipalErc20Tokens(
-          tokensWithMetadata.filter(
-            (token): token is UserToken => token !== null
-          )
+          tokensWithMetadata.filter((token): token is UserToken => token !== null)
         );
-      })
-      .finally(() => {
-        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching commitments for ERC20 tokens", error);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, [
@@ -132,6 +122,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
     principalErc20Tokens.length,
     chainId,
     skip,
+    getTokenImageFromTokenList,
   ]);
 
   const getCommitmentsForErc20TokensByPrincipalToken = useCallback(
@@ -147,7 +138,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
 
   return {
     principalErc20Tokens,
-    isLoading,
+    isLoading: liquidityPoolsLoading || isLoading,
     getCommitmentsForErc20TokensByPrincipalToken,
   };
 };

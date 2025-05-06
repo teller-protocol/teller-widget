@@ -32,7 +32,7 @@ import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPools
 import { AddressStringType } from "../../../types/addressStringType";
 import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
-import { useGetTokenImageFromTokenList } from "../../../hooks/useGetTokenImageFromTokenList";
+import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -99,7 +99,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     opportunity.principalToken?.address ?? ""
   );
 
-  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+  const getTokenImageAndSymbolFromTokenList =
+    useGetTokenImageAndSymbolFromTokenList();
 
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
@@ -160,7 +161,9 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           token.address?.toLowerCase() ===
           opportunity.collateralToken?.address?.toLowerCase()
       )?.logo ??
-      getTokenImageFromTokenList(opportunity.collateralToken?.address ?? "") ??
+      getTokenImageAndSymbolFromTokenList(
+        opportunity.collateralToken?.address ?? ""
+      ).image ??
       "",
   };
 
@@ -198,6 +201,13 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     +(opportunity?.marketplace?.marketplaceFeePercent ?? 0) +
     (referralFee ?? 0);
 
+  const hideOffer =
+    commitmentMax.maxLoanAmount === 0n || commitmentMax.maxCollateral === 0n;
+
+  if (hideOffer) {
+    return <></>;
+  }
+
   return (
     <div className="opportunity-list-item" onClick={handleOnOpportunityClick}>
       <div className="paragraph opportunity-list-item-header">
@@ -215,7 +225,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           label={displayLoanAmountData.formattedAmount}
           logo={displayLoanAmountData.token ?? ""}
         />
-        {strategyAction != STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
+        {strategyAction !== STRATEGY_ACTION_ENUM.LONG && <img src={caret} />}
       </div>
       {isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div className="paragraph opportunity-list-item-header">

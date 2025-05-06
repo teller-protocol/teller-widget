@@ -1,23 +1,24 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
-import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
-import BorrowSection from "../../pages/BorrowSection";
-import RepaySection from "../../pages/RepaySection";
-import PoolSection from "../../pages/PoolSection";
-import SelectButtons from "../SelectButtons";
 import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
-import useIsMobile from "../../hooks/useIsMobile";
 import { useTransactionButton } from "../../contexts/TransactionButtonContext";
+import { useGetProtocolFee } from "../../hooks/useGetProtocolFee";
+import useIsMobile from "../../hooks/useIsMobile";
+import BorrowSection from "../../pages/BorrowSection";
+import PoolSection from "../../pages/PoolSection";
+import RepaySection from "../../pages/RepaySection";
+import SelectButtons from "../SelectButtons";
 
 interface ModalContentProps {
   showModalByDefault?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
   showStrategiesSection?: boolean;
+  hideAutoConnectModal?: boolean;
 }
 
 const ModalContent: React.FC<ModalContentProps> = ({
@@ -25,6 +26,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   showPoolSection,
   showRepaySection,
   showStrategiesSection,
+  hideAutoConnectModal = false,
 }) => {
   const { widgetAction, setWidgetAction } = useGetGlobalPropsContext();
   const [key, setKey] = useState(0);
@@ -64,8 +66,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const { isConnected } = useAccount();
 
   useEffect(() => {
-    if (!isConnected && !showModalByDefault) connect({ connector: injected() });
-  }, [connect, isConnected, showModalByDefault]);
+    if (!isConnected && !showModalByDefault && !hideAutoConnectModal)
+      connect({ connector: injected() });
+  }, [connect, hideAutoConnectModal, isConnected, showModalByDefault]);
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAlchemy } from "./useAlchemy";
 import { TokenMetadataResponse } from "alchemy-sdk";
-import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
+import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 import generic_token from "../assets/generic_token-icon.svg";
 
 export const useGetTokenMetadata = (
@@ -12,7 +12,8 @@ export const useGetTokenMetadata = (
   const [isLoading, setIsLoading] = useState(true);
   const [tokenMetadata, setTokenMetadata] = useState<TokenMetadataResponse>();
 
-  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+  const getTokenImageAndSymbolFromTokenList =
+    useGetTokenImageAndSymbolFromTokenList();
 
   useEffect(() => {
     if (!alchemy || !tokenAddress) return;
@@ -21,14 +22,14 @@ export const useGetTokenMetadata = (
       await alchemy.core.getTokenMetadata(tokenAddress).then((metadata) => {
         const logo =
           metadata?.logo ??
-          getTokenImageFromTokenList(tokenAddress) ??
+          getTokenImageAndSymbolFromTokenList(tokenAddress).image ??
           generic_token;
         setTokenMetadata({ ...metadata, logo });
         onSuccess && metadata && onSuccess?.(metadata.logo);
         setIsLoading(false);
       });
     })();
-  }, [alchemy, getTokenImageFromTokenList, onSuccess, tokenAddress]);
+  }, [alchemy, getTokenImageAndSymbolFromTokenList, onSuccess, tokenAddress]);
 
   return { tokenMetadata, isLoading };
 };

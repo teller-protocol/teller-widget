@@ -2,18 +2,22 @@ import { useChainId } from "wagmi";
 import { useGetTokenList } from "./queries/useGetTokenList";
 import { useCallback } from "react";
 
-export const useGetTokenImageFromTokenList = () => {
+export const useGetTokenImageAndSymbolFromTokenList = () => {
   const { data: tokenList } = useGetTokenList();
   const chainId = useChainId();
 
-  const getTokenImageFromTokenList = useCallback(
+  const getTokenImageAndSymbolFromTokenList = useCallback(
     (tokenAddress: string) => {
-      return tokenList[chainId]?.find(
+      const token = tokenList[chainId]?.find(
         (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
-      )?.logoURI;
+      );
+      return {
+        image: token?.logoURI,
+        symbol: token?.symbol,
+      };
     },
     [chainId, tokenList]
   );
 
-  return getTokenImageFromTokenList;
+  return getTokenImageAndSymbolFromTokenList;
 };

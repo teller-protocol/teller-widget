@@ -7,10 +7,10 @@ import Button from "../Button";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
 
+import { TransactionButtonProvider } from "../../contexts/TransactionButtonContext";
+import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
-import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
-import { TransactionButtonProvider } from "../../contexts/TransactionButtonContext";
 
 export const queryClient = new QueryClient();
 
@@ -40,6 +40,8 @@ interface BaseWidgetProps {
   showStrategiesSection?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  hideAutoConnectModal?: boolean;
+  widgetChainId?: number;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -78,6 +80,8 @@ const Widget: React.FC<WidgetProps> = ({
   showStrategiesSection,
   showPoolSection = false,
   showRepaySection = true,
+  hideAutoConnectModal,
+  widgetChainId,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -116,6 +120,7 @@ const Widget: React.FC<WidgetProps> = ({
                 useLightLogo={useLightLogo}
                 isEmbedded={isEmbedded}
                 showChainSwitch={showChainSwitch}
+                widgetChainId={widgetChainId}
               >
                 {showWelcomeScreen ? (
                   <WelcomeScreen
@@ -130,6 +135,7 @@ const Widget: React.FC<WidgetProps> = ({
                     showPoolSection={showPoolSection}
                     showRepaySection={showRepaySection}
                     showStrategiesSection={showStrategiesSection}
+                    hideAutoConnectModal={hideAutoConnectModal}
                   />
                 )}
               </Modal>
