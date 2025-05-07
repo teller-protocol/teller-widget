@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Address } from "viem";
 import { useChainId } from "wagmi";
+
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
 
@@ -51,6 +52,7 @@ interface GlobalPropsContextProps {
   singleWhitelistedToken?: string;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  isVisible?: boolean;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -68,6 +70,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   singleWhitelistedToken,
   showPoolSection = false,
   showRepaySection = true,
+  isVisible = false,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -80,7 +83,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
 
   const { userTokens, isLoading } = useGetUserTokens(
     whitelistedChainTokens,
-    showOnlyWhiteListedTokens
+    showOnlyWhiteListedTokens,
+    !isVisible
   );
 
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(

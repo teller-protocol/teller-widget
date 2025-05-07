@@ -1,10 +1,15 @@
-import { useAccount, useChainId } from "wagmi";
-import { useAlchemy } from "./useAlchemy";
-import { TokenBalanceType } from "alchemy-sdk";
+import {
+  TokenBalance,
+  TokenBalancesResponseErc20,
+  TokenBalanceType,
+  TokenMetadataResponse,
+} from "alchemy-sdk";
 import { useEffect, useState } from "react";
-import { Address, formatUnits, parseUnits } from "viem";
-import { WhitelistedTokens } from "../components/Widget/Widget";
+import { Address, formatUnits } from "viem";
+import { useAccount, useChainId } from "wagmi";
+
 import { useGetTokenList } from "./queries/useGetTokenList";
+import { useAlchemy } from "./useAlchemy";
 import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 
 export type UserToken = {
@@ -29,25 +34,69 @@ export const useGetUserTokens = (
 
   const getTokenImageAndSymbolFromTokenList =
     useGetTokenImageAndSymbolFromTokenList();
+  const chainId = useChainId();
+  const { data: tokenList } = useGetTokenList();
 
   useEffect(() => {
-    if (!alchemy || skip) return;
+    if (
+      !alchemy ||
+      skip ||
+      !tokenList[chainId] ||
+      tokenList[chainId].length === 0
+    ) {
+      return;
+    }
+
+    const sleep = (ms: number) => {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    };
+
+    const runInChunks = async <T, X>(
+      items: T[],
+      handler: (item: T) => Promise<any>,
+      chunkSize: number,
+      delayMs: number,
+      chunkCallback: (res: X[]) => void
+    ) => {
+      for (let i = 0; i < items.length; i += chunkSize) {
+        const chunk = items.slice(i, i + chunkSize);
+        const chunkRes = await Promise.all<X>(chunk.map(handler));
+        chunkCallback(chunkRes);
+
+        if (i + chunkSize < items.length) {
+          await sleep(delayMs);
+        }
+      }
+    };
 
     void (async () => {
-      const userTokensData: UserToken[] = [];
       let pageKey: string | undefined = undefined;
-      let nonZeroBalances: any[] = [];
+      const nonZeroBalances: TokenBalance[] = [];
 
       // Loop through token pages
       do {
-        const balances: any = address
-          ? await alchemy.core.getTokenBalances(address, {
+        let balances: Omit<TokenBalancesResponseErc20, "address"> = {
+          tokenBalances: [],
+        };
+
+        if (address) {
+          try {
+            balances = await alchemy.core.getTokenBalances(address, {
               pageKey, // Pass the pageKey for pagination
               type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
-            })
-          : { tokenBalances: [] };
+            });
+          } catch (e) {
+            await sleep(250);
+
+            balances = await alchemy.core.getTokenBalances(address, {
+              pageKey, // Pass the pageKey for pagination
+              type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
+            });
+          }
+        }
+
         const filteredBalances = balances.tokenBalances.filter(
-          (token: any) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
+          (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
         );
         nonZeroBalances.push(...filteredBalances);
         pageKey = balances.pageKey; // Update pageKey to fetch next page if available
@@ -75,47 +124,65 @@ export const useGetUserTokens = (
         }
       );
 
+      const metadataHandler = (
+        token: TokenBalance,
+        metadata: TokenMetadataResponse
+      ): UserToken | null => {
+        if (metadata.decimals === 0) return null;
+
+        const imageAndSymbol = getTokenImageAndSymbolFromTokenList(
+          token.contractAddress
+        );
+
+        const logo = metadata.logo ?? imageAndSymbol.image ?? "";
+        const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
+        const decimals = metadata.decimals ?? 0;
+
+        return {
+          address: token.contractAddress as Address,
+          name: metadata.name ?? "",
+          symbol: imageAndSymbol.symbol ?? metadata.symbol ?? "",
+          logo,
+          balance: formatUnits(balanceBigInt, decimals),
+          balanceBigInt,
+          decimals,
+        };
+      };
+
       const userTokensWithWhitelistedTokens = [
-        ...(whiteListedTokensWithBalances as any[]),
+        ...(whiteListedTokensWithBalances as TokenBalance[]),
         ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
       ];
-      await Promise.all(
-        userTokensWithWhitelistedTokens.map(async (token) => {
-          await alchemy.core
-            .getTokenMetadata(token.contractAddress)
-            .then((metadata) => {
-              if (metadata.decimals === 0) return;
-              const logo =
-                metadata.logo ??
-                getTokenImageAndSymbolFromTokenList(token.contractAddress)
-                  .image ??
-                "";
-              const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
-              const decimals = metadata.decimals ?? 0;
 
-              userTokensData.push({
-                address: token.contractAddress,
-                name: metadata.name ?? "",
-                symbol:
-                  getTokenImageAndSymbolFromTokenList(token.contractAddress)
-                    .symbol ??
-                  metadata.symbol ??
-                  "",
-                logo,
-                balance: formatUnits(balanceBigInt, decimals),
-                balanceBigInt,
-                decimals,
-              });
-            });
-        })
+      let chunks: (UserToken | null)[][] = [];
+
+      await runInChunks<TokenBalance, UserToken | null>(
+        userTokensWithWhitelistedTokens,
+        async (token) => {
+          const metadata = await alchemy.core.getTokenMetadata(
+            token.contractAddress
+          );
+          return metadataHandler(token, metadata);
+        },
+        40,
+        250,
+        (tokensChunk) => {
+          chunks = chunks.concat(tokensChunk);
+        }
       );
+
+      setUserTokens((userTokens) => [
+        ...userTokens,
+        ...chunks.flat().filter((token) => token !== null),
+      ]);
       setIsLoading(false);
-      setUserTokens(userTokensData);
     })();
   }, [
     address,
     alchemy,
     getTokenImageAndSymbolFromTokenList,
+    tokenList,
+    chainId,
     showOnlyWhiteListedTokens,
     skip,
     whiteListedTokens,
