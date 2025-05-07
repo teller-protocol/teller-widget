@@ -6,8 +6,9 @@ import {
 } from "alchemy-sdk";
 import { useEffect, useState } from "react";
 import { Address, formatUnits } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
+import { useGetTokenList } from "./queries/useGetTokenList";
 import { useAlchemy } from "./useAlchemy";
 import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 
@@ -31,12 +32,20 @@ export const useGetUserTokens = (
   const { address } = useAccount();
   const alchemy = useAlchemy();
 
-  const { getTokenImageAndSymbolFromTokenList, tokenList } =
+  const getTokenImageAndSymbolFromTokenList =
     useGetTokenImageAndSymbolFromTokenList();
+  const chainId = useChainId();
+  const { data: tokenList } = useGetTokenList();
 
   useEffect(() => {
-    if (!alchemy || skip || tokenList.length === 0) return;
-
+    if (
+      !alchemy ||
+      skip ||
+      !tokenList[chainId] ||
+      tokenList[chainId].length === 0
+    ) {
+      return;
+    }
 
     const sleep = (ms: number) => {
       return new Promise((resolve) => setTimeout(resolve, ms));

@@ -99,7 +99,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     opportunity.principalToken?.address ?? ""
   );
 
-  const { getTokenImageAndSymbolFromTokenList } =
+  const getTokenImageAndSymbolFromTokenList =
     useGetTokenImageAndSymbolFromTokenList();
 
   const matchingCollateralToken = !isStableView

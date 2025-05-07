@@ -20,8 +20,5 @@ export const useGetTokenImageAndSymbolFromTokenList = () => {
     [chainId, tokenList]
   );
 
-  return {
-    getTokenImageAndSymbolFromTokenList,
-    tokenList: tokenList[chainId] || [],
-  };
+  return getTokenImageAndSymbolFromTokenList;
 };

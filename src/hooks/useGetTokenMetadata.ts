@@ -12,7 +12,7 @@ export const useGetTokenMetadata = (
   const [isLoading, setIsLoading] = useState(true);
   const [tokenMetadata, setTokenMetadata] = useState<TokenMetadataResponse>();
 
-  const { getTokenImageAndSymbolFromTokenList } =
+  const getTokenImageAndSymbolFromTokenList =
     useGetTokenImageAndSymbolFromTokenList();
 
   useEffect(() => {
