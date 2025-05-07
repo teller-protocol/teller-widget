@@ -37,7 +37,6 @@ export const useGetUserTokens = (
   useEffect(() => {
     if (!alchemy || skip || tokenList.length === 0) return;
 
-    console.log("call");
 
     const sleep = (ms: number) => {
       return new Promise((resolve) => setTimeout(resolve, ms));
