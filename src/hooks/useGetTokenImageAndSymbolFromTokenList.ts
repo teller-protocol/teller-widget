@@ -1,6 +1,7 @@
-import { useChainId } from "wagmi";
-import { useGetTokenList } from "./queries/useGetTokenList";
 import { useCallback } from "react";
+import { useChainId } from "wagmi";
+
+import { useGetTokenList } from "./queries/useGetTokenList";
 
 export const useGetTokenImageAndSymbolFromTokenList = () => {
   const { data: tokenList } = useGetTokenList();
@@ -19,5 +20,8 @@ export const useGetTokenImageAndSymbolFromTokenList = () => {
     [chainId, tokenList]
   );
 
-  return getTokenImageAndSymbolFromTokenList;
+  return {
+    getTokenImageAndSymbolFromTokenList,
+    tokenList: tokenList[chainId] || [],
+  };
 };

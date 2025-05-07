@@ -9,7 +9,7 @@ import { Address, formatUnits } from "viem";
 import { useAccount } from "wagmi";
 
 import { useAlchemy } from "./useAlchemy";
-import { useGetTokenImageFromTokenList } from "./useGetTokenImageFromTokenList";
+import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 
 export type UserToken = {
   address: Address;
@@ -31,24 +31,30 @@ export const useGetUserTokens = (
   const { address } = useAccount();
   const alchemy = useAlchemy();
 
-  const getTokenImageFromTokenList = useGetTokenImageFromTokenList();
+  const { getTokenImageAndSymbolFromTokenList, tokenList } =
+    useGetTokenImageAndSymbolFromTokenList();
 
   useEffect(() => {
-    if (!alchemy || skip) return;
+    if (!alchemy || skip || tokenList.length === 0) return;
+
+    console.log("call");
 
     const sleep = (ms: number) => {
       return new Promise((resolve) => setTimeout(resolve, ms));
     };
 
-    const runInChunks = async <T>(
+    const runInChunks = async <T, X>(
       items: T[],
       handler: (item: T) => Promise<any>,
       chunkSize: number,
-      delayMs: number
+      delayMs: number,
+      chunkCallback: (res: X[]) => void
     ) => {
       for (let i = 0; i < items.length; i += chunkSize) {
         const chunk = items.slice(i, i + chunkSize);
-        await Promise.all(chunk.map(handler));
+        const chunkRes = await Promise.all<X>(chunk.map(handler));
+        chunkCallback(chunkRes);
+
         if (i + chunkSize < items.length) {
           await sleep(delayMs);
         }
@@ -56,7 +62,6 @@ export const useGetUserTokens = (
     };
 
     void (async () => {
-      const userTokensData: UserToken[] = [];
       let pageKey: string | undefined = undefined;
       const nonZeroBalances: TokenBalance[] = [];
 
@@ -114,24 +119,26 @@ export const useGetUserTokens = (
       const metadataHandler = (
         token: TokenBalance,
         metadata: TokenMetadataResponse
-      ) => {
-        if (metadata.decimals === 0) return;
-        const logo =
-          metadata.logo ??
-          getTokenImageFromTokenList(token.contractAddress) ??
-          "";
+      ): UserToken | null => {
+        if (metadata.decimals === 0) return null;
+
+        const imageAndSymbol = getTokenImageAndSymbolFromTokenList(
+          token.contractAddress
+        );
+
+        const logo = metadata.logo ?? imageAndSymbol.image ?? "";
         const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
         const decimals = metadata.decimals ?? 0;
 
-        userTokensData.push({
+        return {
           address: token.contractAddress as Address,
           name: metadata.name ?? "",
-          symbol: metadata.symbol ?? "",
+          symbol: imageAndSymbol.symbol ?? metadata.symbol ?? "",
           logo,
           balance: formatUnits(balanceBigInt, decimals),
           balanceBigInt,
           decimals,
-        });
+        };
       };
 
       const userTokensWithWhitelistedTokens = [
@@ -139,25 +146,34 @@ export const useGetUserTokens = (
         ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
       ];
 
-      await runInChunks(
+      let chunks: (UserToken | null)[][] = [];
+
+      await runInChunks<TokenBalance, UserToken | null>(
         userTokensWithWhitelistedTokens,
         async (token) => {
           const metadata = await alchemy.core.getTokenMetadata(
             token.contractAddress
           );
-          metadataHandler(token, metadata);
+          return metadataHandler(token, metadata);
         },
-        30,
-        250
+        40,
+        250,
+        (tokensChunk) => {
+          chunks = chunks.concat(tokensChunk);
+        }
       );
 
+      setUserTokens((userTokens) => [
+        ...userTokens,
+        ...chunks.flat().filter((token) => token !== null),
+      ]);
       setIsLoading(false);
-      setUserTokens(userTokensData);
     })();
   }, [
     address,
     alchemy,
-    getTokenImageFromTokenList,
+    getTokenImageAndSymbolFromTokenList,
+    tokenList,
     showOnlyWhiteListedTokens,
     skip,
     whiteListedTokens,
