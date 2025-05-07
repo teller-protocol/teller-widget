@@ -52,7 +52,7 @@ interface GlobalPropsContextProps {
   singleWhitelistedToken?: string;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
-  showModal?: boolean;
+  isVisible?: boolean;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -70,7 +70,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   singleWhitelistedToken,
   showPoolSection = false,
   showRepaySection = true,
-  showModal = false,
+  isVisible = false,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -84,7 +84,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   const { userTokens, isLoading } = useGetUserTokens(
     whitelistedChainTokens,
     showOnlyWhiteListedTokens,
-    !showModal
+    !isVisible
   );
 
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(

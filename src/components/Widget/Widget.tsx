@@ -108,7 +108,7 @@ const Widget: React.FC<WidgetProps> = ({
           buttonTextColorPrimary={buttonTextColorPrimary}
           subgraphApiKey={subgraphApiKey}
           singleWhitelistedToken={singleWhitelistedToken}
-          showModal={showModal}
+          isVisible={showModal || isEmbedded}
         >
           <TransactionButtonProvider>
             <div className="teller-widget">
