@@ -182,6 +182,7 @@ export const useGetUserTokens = (
     alchemy,
     getTokenImageAndSymbolFromTokenList,
     tokenList,
+    chainId,
     showOnlyWhiteListedTokens,
     skip,
     whiteListedTokens,
