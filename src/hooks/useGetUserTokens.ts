@@ -22,6 +22,28 @@ export type UserToken = {
   decimals: number;
 };
 
+const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const runInChunks = async <T, X>(
+  items: T[],
+  handler: (item: T) => Promise<any>,
+  chunkSize: number,
+  delayMs: number,
+  chunkCallback: (res: X[]) => void
+) => {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    const chunkRes = await Promise.all<X>(chunk.map(handler));
+    chunkCallback(chunkRes);
+
+    if (i + chunkSize < items.length) {
+      await sleep(delayMs);
+    }
+  }
+};
+
 export const useGetUserTokens = (
   whiteListedTokens?: string[],
   showOnlyWhiteListedTokens?: boolean,
@@ -46,28 +68,6 @@ export const useGetUserTokens = (
     ) {
       return;
     }
-
-    const sleep = (ms: number) => {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    };
-
-    const runInChunks = async <T, X>(
-      items: T[],
-      handler: (item: T) => Promise<any>,
-      chunkSize: number,
-      delayMs: number,
-      chunkCallback: (res: X[]) => void
-    ) => {
-      for (let i = 0; i < items.length; i += chunkSize) {
-        const chunk = items.slice(i, i + chunkSize);
-        const chunkRes = await Promise.all<X>(chunk.map(handler));
-        chunkCallback(chunkRes);
-
-        if (i + chunkSize < items.length) {
-          await sleep(delayMs);
-        }
-      }
-    };
 
     void (async () => {
       let pageKey: string | undefined = undefined;
