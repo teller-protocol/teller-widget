@@ -37,6 +37,7 @@ export type GlobalPropsContextType = {
   isStrategiesSection: boolean;
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
+  isTradeMode?: boolean;
 };
 
 interface GlobalPropsContextProps {
@@ -53,6 +54,7 @@ interface GlobalPropsContextProps {
   showPoolSection?: boolean;
   showRepaySection?: boolean;
   isVisible?: boolean;
+  isTradeMode?: boolean;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -71,6 +73,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   showPoolSection = false,
   showRepaySection = true,
   isVisible = false,
+  isTradeMode = false,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -88,7 +91,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   );
 
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(
-    WIDGET_ACTION_ENUM.BORROW
+    isTradeMode ? WIDGET_ACTION_ENUM.STRATEGIES : WIDGET_ACTION_ENUM.BORROW
   );
   const isStrategiesSection = widgetAction === WIDGET_ACTION_ENUM.STRATEGIES;
 
@@ -135,6 +138,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         isStrategiesSection,
         strategyAction,
         setStrategyAction,
+        isTradeMode,
       }}
     >
       {children}

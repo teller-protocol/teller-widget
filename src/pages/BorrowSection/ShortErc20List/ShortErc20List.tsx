@@ -27,7 +27,14 @@ const ShortErc20List: React.FC<{ searchQuery?: string }> = ({
 
   const onShortErc20TokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-      setSelectedPrincipalErc20Token(token);
+    setSelectedPrincipalErc20Token(token);
+    window.dispatchEvent(
+      new CustomEvent("teller-widget-opportunity-selected", {
+        detail: {
+          token: token.address,
+        },
+      })
+    );
   };
 
   return (

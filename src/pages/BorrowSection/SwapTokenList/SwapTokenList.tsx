@@ -24,6 +24,13 @@ const SwapTokenList: React.FC = () => {
   const isSupportedChain = useIsSupportedChain();
 
   const onSwapTokenSelected = (token: UserToken) => {
+    window.dispatchEvent(
+      new CustomEvent("teller-widget-opportunity-selected", {
+        detail: {
+          token: token.address,
+        },
+      })
+    );
     setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     setSelectedSwapToken(token);
   };
