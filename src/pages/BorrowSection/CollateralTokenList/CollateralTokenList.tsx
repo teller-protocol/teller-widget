@@ -35,8 +35,12 @@ const CollateralTokenList: React.FC = () => {
     selectedSwapToken,
   } = useGetBorrowSectionContext();
 
-  const { isStrategiesSection, strategyAction, setStrategyAction } =
-    useGetGlobalPropsContext();
+  const {
+    isStrategiesSection,
+    strategyAction,
+    setStrategyAction,
+    isTradeMode,
+  } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -81,7 +85,14 @@ const CollateralTokenList: React.FC = () => {
                 items={[
                   { value: STRATEGY_ACTION_ENUM.LONG, content: "Long ↗️" },
                   { value: STRATEGY_ACTION_ENUM.SHORT, content: "Short ↘️" },
-                  { value: STRATEGY_ACTION_ENUM.FARM, content: "Farm 🚜" },
+                  ...(isTradeMode
+                    ? []
+                    : [
+                        {
+                          value: STRATEGY_ACTION_ENUM.FARM,
+                          content: "Farm 🚜",
+                        },
+                      ]),
                 ]}
                 value={strategyAction ?? ""}
                 onChange={handleStrategyAction}

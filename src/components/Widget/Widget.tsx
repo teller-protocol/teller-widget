@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
@@ -42,6 +42,7 @@ interface BaseWidgetProps {
   showRepaySection?: boolean;
   hideAutoConnectModal?: boolean;
   widgetChainId?: number;
+  isTradeMode?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -82,6 +83,7 @@ const Widget: React.FC<WidgetProps> = ({
   showRepaySection = true,
   hideAutoConnectModal,
   widgetChainId,
+  isTradeMode,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -109,6 +111,7 @@ const Widget: React.FC<WidgetProps> = ({
           subgraphApiKey={subgraphApiKey}
           singleWhitelistedToken={singleWhitelistedToken}
           isVisible={showModal || isEmbedded}
+          isTradeMode={isTradeMode}
         >
           <TransactionButtonProvider>
             <div className="teller-widget">
