@@ -64,13 +64,25 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
     }
   })();
 
+  const handleOnDropdownRowClick = () => {
+    window.dispatchEvent(
+      new CustomEvent("teller-widget-token-selected", {
+        detail: {
+          token: token.address,
+        },
+      })
+    );
+    onClick?.(token);
+  };
+
   return (
-    <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
+    <div className="token-dropdown--row" onClick={handleOnDropdownRowClick}>
       <TokenLogo logoUrl={logoUrl} size={32} />
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {subtitleData.title}: {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
+          {subtitleData.title}:{" "}
+          {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
         </div>
       </div>
     </div>
@@ -94,7 +106,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
       setSelectedCollateralToken(token);
     } else {
       if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-        setSelectedCollateralToken(token)
+        setSelectedCollateralToken(token);
       } else {
         setSelectedPrincipalErc20Token(token);
       }

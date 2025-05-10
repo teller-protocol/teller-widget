@@ -1,6 +1,7 @@
 @import "../../tokens.scss";
 
 .select-buttons {
+  height: 33px;
   font-family: $primary-font;
   width: 100%;
   border: 0.5px solid $border-color;
@@ -15,7 +16,6 @@
   &__item {
     background-color: white;
     flex: 1;
-    padding: $s-small $s-medium;
     border: none;
     cursor: pointer;
     border-bottom: 3px solid transparent;

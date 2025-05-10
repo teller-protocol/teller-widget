@@ -38,6 +38,7 @@ import { BorrowSwapButton } from "./BorrowSwapButton";
 
 import Loader from "../../../components/Loader/Loader";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
+import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 
 const OpportunityDetails = () => {
   const {
@@ -48,7 +49,6 @@ const OpportunityDetails = () => {
     setSuccessLoanHash,
     setSuccessfulLoanParams,
     maxCollateral: maxCollateralFromContext,
-    tokensWithCommitments,
     selectedErc20Apy,
     selectedSwapToken,
     borrowSwapTokenInput,
@@ -241,7 +241,8 @@ const OpportunityDetails = () => {
   }
 
   const { protocolFeePercent } = useGetProtocolFee();
-  const { referralFee } = useGetGlobalPropsContext();
+  const { referralFee, isTradeMode, setStrategyAction } =
+    useGetGlobalPropsContext();
 
   const totalFeePercent =
     protocolFeePercent +
@@ -346,43 +347,52 @@ const OpportunityDetails = () => {
 
   return (
     <div className="opportunity-details">
-      <div className="back-pill-row">
-        <BackButton
-          onClick={() => {
-            if (
-              isStrategiesSection &&
-              strategyAction === STRATEGY_ACTION_ENUM.LONG
-            ) {
-              // go to SWAP TOKENS route
-              setCurrentStep(BorrowSectionSteps.SELECT_SWAP_TOKEN);
-            } else {
-              // fallback: go back to SELECT_OPPORTUNITY
-              setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-            }
-          }}
+      {isTradeMode ? (
+        <StrategiesSelect
+          renderFlag
+          showStrategy={false}
+          value={strategyAction ?? ""}
+          onValueChange={setStrategyAction}
         />
-        {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
-          <span
-            style={{
-              fontSize: "11px",
-              padding: "2px 5px !important",
-            }}
-          >
-            <DataPill
-              label={`${selectedErc20Apy}% APY`}
-              logo={
-                "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+      ) : (
+        <div className="back-pill-row">
+          <BackButton
+            onClick={() => {
+              if (
+                isStrategiesSection &&
+                strategyAction === STRATEGY_ACTION_ENUM.LONG
+              ) {
+                // go to SWAP TOKENS route
+                setCurrentStep(BorrowSectionSteps.SELECT_SWAP_TOKEN);
+              } else {
+                // fallback: go back to SELECT_OPPORTUNITY
+                setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
               }
-              linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(
-                chainName
-              )?.replace(
-                /-one/g,
-                ""
-              )}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
-            />
-          </span>
-        )}
-      </div>
+            }}
+          />
+          {!isStableView && strategyAction === STRATEGY_ACTION_ENUM.FARM && (
+            <span
+              style={{
+                fontSize: "11px",
+                padding: "2px 5px !important",
+              }}
+            >
+              <DataPill
+                label={`${selectedErc20Apy}% APY`}
+                logo={
+                  "https://seeklogo.com/images/U/uniswap-logo-E8E2787349-seeklogo.com.png"
+                }
+                linkOut={`https://app.uniswap.org/explore/tokens/${normalizeChainName(
+                  chainName
+                )?.replace(
+                  /-one/g,
+                  ""
+                )}/${selectedOpportunity?.principalToken?.address.toLocaleLowerCase()}`}
+              />
+            </span>
+          )}
+        </div>
+      )}
       <TokenInput
         tokenValue={collateralTokenValue}
         label={

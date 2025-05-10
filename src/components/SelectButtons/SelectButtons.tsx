@@ -40,7 +40,7 @@ const SelectButtons: React.FC<SelectButtonProps> = ({
           style={customStyle}
           onClick={() => onChange(item.value)}
         >
-          {item.content}
+          <span>{item.content}</span>
         </button>
       ))}
     </div>
