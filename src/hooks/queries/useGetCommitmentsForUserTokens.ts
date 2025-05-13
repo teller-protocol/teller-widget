@@ -115,7 +115,7 @@ export const useGetCommitmentsForUserTokens = () => {
 
   useEffect(() => {
     if (!userTokens.length) {
-      setLoading(true);
+      setLoading(false);
       return;
     }
     if (data?.commitments || lenderGroupsUserTokenCommitmentsData) {

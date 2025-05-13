@@ -1,6 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 import { Address } from "viem";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
@@ -37,6 +44,7 @@ export type GlobalPropsContextType = {
   isStrategiesSection: boolean;
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
+  whitelistedTokens?: WhitelistedTokens;
 };
 
 interface GlobalPropsContextProps {
@@ -73,18 +81,20 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   isVisible = false,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
+  const { address } = useAccount();
   const chainId = useChainId();
 
-  const whitelistedChainTokens = useMemo(
-    () =>
-      whitelistedTokens?.[chainId]?.map((token) => token.toLowerCase()) ?? [],
-    [whitelistedTokens, chainId]
-  );
+  const whitelistedChainTokens = useMemo(() => {
+    if (!address) return [];
+    return (
+      whitelistedTokens?.[chainId]?.map((token) => token.toLowerCase()) ?? []
+    );
+  }, [whitelistedTokens, chainId, address]);
 
   const { userTokens, isLoading } = useGetUserTokens(
     whitelistedChainTokens,
     showOnlyWhiteListedTokens,
-    !isVisible
+    !isVisible || !address
   );
 
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(
@@ -111,32 +121,59 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     setUserTokens([]);
   }, [chainId]);
 
-  const isWhitelistedToken = (token?: Address | undefined) =>
-    token ? whitelistedChainTokens.includes(token) : false;
+  const isWhitelistedToken = useCallback(
+    (token?: Address | undefined) =>
+      token ? whitelistedChainTokens.includes(token) : false,
+    [whitelistedChainTokens]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      userTokens,
+      isLoading,
+      isWhitelistedToken,
+      whitelistedChainTokens,
+      whitelistedChains,
+      referralFee,
+      referralAddress,
+      buttonColorPrimary,
+      buttonTextColorPrimary,
+      subgraphApiKey,
+      singleWhitelistedToken,
+      showPoolSection,
+      showRepaySection,
+      widgetAction,
+      setWidgetAction,
+      isStrategiesSection,
+      strategyAction,
+      setStrategyAction,
+      whitelistedTokens,
+    }),
+    [
+      userTokens,
+      isLoading,
+      isWhitelistedToken,
+      whitelistedChainTokens,
+      whitelistedChains,
+      referralFee,
+      referralAddress,
+      buttonColorPrimary,
+      buttonTextColorPrimary,
+      subgraphApiKey,
+      singleWhitelistedToken,
+      showPoolSection,
+      showRepaySection,
+      widgetAction,
+      setWidgetAction,
+      isStrategiesSection,
+      strategyAction,
+      setStrategyAction,
+      whitelistedTokens,
+    ]
+  );
 
   return (
-    <GlobalPropsContext.Provider
-      value={{
-        userTokens,
-        isLoading,
-        isWhitelistedToken,
-        whitelistedChainTokens,
-        whitelistedChains,
-        referralFee,
-        referralAddress,
-        buttonColorPrimary,
-        buttonTextColorPrimary,
-        subgraphApiKey,
-        singleWhitelistedToken,
-        showPoolSection,
-        showRepaySection,
-        widgetAction,
-        setWidgetAction,
-        isStrategiesSection,
-        strategyAction,
-        setStrategyAction,
-      }}
-    >
+    <GlobalPropsContext.Provider value={contextValue}>
       {children}
     </GlobalPropsContext.Provider>
   );

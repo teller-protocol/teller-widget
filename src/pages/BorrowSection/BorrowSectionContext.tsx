@@ -19,12 +19,13 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenList";
 
 // Import your existing Uniswap hooks
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
 import { Address } from "viem";
 import { TokenInputType } from "../../components/TokenInput/TokenInput";
+import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -84,7 +85,8 @@ export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
   const { singleWhitelistedToken } = useGetGlobalPropsContext();
-  const chainId = useChainId();
+
+  const { address } = useAccount();
 
   const { widgetAction } = useGetGlobalPropsContext();
 
@@ -122,6 +124,8 @@ export const BorrowSectionContextProvider: React.FC<
     Record<string, UniswapData>
   >({});
 
+  const allWhiteListedTokens = useGetAllWLCommitmentsAcrossNetworks();
+
   useEffect(() => {
     (async () => {
       await Promise.all(
@@ -157,7 +161,7 @@ export const BorrowSectionContextProvider: React.FC<
         })
       );
     })().catch(console.error);
-  }, [fetchUniswapPoolData, getPoolUSDValue, principalErc20Tokens, chainId]);
+  }, [fetchUniswapPoolData, getPoolUSDValue, principalErc20Tokens]);
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState<CommitmentType>({} as CommitmentType);
@@ -185,7 +189,9 @@ export const BorrowSectionContextProvider: React.FC<
         setSelectedPrincipalErc20Token,
         selectedSwapToken,
         setSelectedSwapToken,
-        tokensWithCommitments,
+        tokensWithCommitments: address
+          ? tokensWithCommitments
+          : allWhiteListedTokens.data,
         tokensWithCommitmentsLoading,
         selectedOpportunity,
         setSelectedOpportunity,

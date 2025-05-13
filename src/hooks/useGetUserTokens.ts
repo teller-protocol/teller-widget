@@ -20,6 +20,7 @@ export type UserToken = {
   balance: string;
   balanceBigInt: bigint;
   decimals: number;
+  chainId?: number;
 };
 
 const sleep = (ms: number) => {
