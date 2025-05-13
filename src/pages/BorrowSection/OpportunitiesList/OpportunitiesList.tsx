@@ -14,7 +14,7 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useChainId, useSwitchChain } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
@@ -204,7 +204,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const hideOffer =
     commitmentMax.maxLoanAmount === 0n || commitmentMax.maxCollateral === 0n;
 
-  if (hideOffer) {
+  if (false) {
     return <></>;
   }
 
@@ -293,6 +293,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const chainId = useChainId();
 
   const {
     selectedCollateralToken,
@@ -302,6 +304,16 @@ const OpportunitiesList: React.FC = () => {
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
+
+  useEffect(() => {
+    if (
+      !chainId ||
+      (selectedCollateralToken?.chainId &&
+        chainId !== selectedCollateralToken.chainId)
+    ) {
+      switchChain({ chainId: selectedCollateralToken?.chainId ?? 1 });
+    }
+  }, [chainId, selectedCollateralToken, switchChain]);
 
   const strategyType = strategyAction;
 

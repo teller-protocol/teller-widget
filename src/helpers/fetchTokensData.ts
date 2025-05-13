@@ -29,8 +29,8 @@ export const fetchAllWhitelistedTokensData = async (
         name: metadata.name ?? "",
         symbol: metadata.symbol ?? "",
         logo: metadata.logo ?? "",
-        balance: "0", // Default balance as 0 since it's not fetched here
-        balanceBigInt: BigInt(0),
+        balance: "1", // Default balance as 0 since it's not fetched here
+        balanceBigInt: BigInt(1),
         decimals: metadata.decimals ?? 0,
         chainId: Number(chainId),
       };

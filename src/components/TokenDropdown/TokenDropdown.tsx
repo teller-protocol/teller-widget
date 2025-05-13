@@ -29,7 +29,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   token,
   onClick,
 }) => {
-  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+  const logoUrl = token?.logo ? token?.logo : defaultTokenImage;
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
@@ -70,7 +70,8 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {subtitleData.title}: {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
+          {subtitleData.title}:{" "}
+          {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
         </div>
       </div>
     </div>
@@ -94,7 +95,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
       setSelectedCollateralToken(token);
     } else {
       if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-        setSelectedCollateralToken(token)
+        setSelectedCollateralToken(token);
       } else {
         setSelectedPrincipalErc20Token(token);
       }
@@ -111,15 +112,15 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     ...tokens
       .filter(
         (token) =>
-          parseFloat(token.balance) > 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance) > 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokens
       .filter(
         (token) =>
-          parseFloat(token.balance) <= 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance) <= 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
@@ -155,7 +156,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}
-              key={token.address}
+              key={token?.address}
               onClick={onTokenDropdownRowClick}
             />
           ))}
