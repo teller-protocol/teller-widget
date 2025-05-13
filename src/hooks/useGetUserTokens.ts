@@ -4,7 +4,7 @@ import {
   TokenBalanceType,
   TokenMetadataResponse,
 } from "alchemy-sdk";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Address, formatUnits } from "viem";
 import { useAccount, useChainId } from "wagmi";
 
@@ -189,5 +189,9 @@ export const useGetUserTokens = (
     whiteListedTokens,
   ]);
 
-  return { userTokens, isLoading };
+  const memoizedReturn = useMemo(
+    () => ({ userTokens, isLoading }),
+    [userTokens, isLoading]
+  );
+  return memoizedReturn;
 };

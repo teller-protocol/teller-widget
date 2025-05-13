@@ -7,6 +7,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useMemo,
 } from "react";
 import {
   useGetGlobalPropsContext,
@@ -178,39 +179,71 @@ export const BorrowSectionContextProvider: React.FC<
     }
   }, [selectedPrincipalErc20Token, uniswapDataMap]);
 
+  const contextValue = useMemo(
+    () => ({
+      currentStep,
+      setCurrentStep,
+      selectedCollateralToken,
+      setSelectedCollateralToken,
+      selectedPrincipalErc20Token,
+      setSelectedPrincipalErc20Token,
+      selectedSwapToken,
+      setSelectedSwapToken,
+      tokensWithCommitments: address
+        ? tokensWithCommitments
+        : allWhiteListedTokens.data,
+      tokensWithCommitmentsLoading,
+      selectedOpportunity,
+      setSelectedOpportunity,
+      successfulLoanParams,
+      setSuccessfulLoanParams,
+      successLoanHash,
+      setSuccessLoanHash,
+      bidId,
+      setBidId,
+      maxCollateral,
+      setMaxCollateral,
+      principalErc20Tokens,
+      erc20sWithCommitmentsLoading,
+      uniswapDataMap,
+      selectedErc20Apy,
+      borrowSwapTokenInput,
+      setBorrowSwapTokenInput,
+    }),
+    [
+      currentStep,
+      setCurrentStep,
+      selectedCollateralToken,
+      setSelectedCollateralToken,
+      selectedPrincipalErc20Token,
+      setSelectedPrincipalErc20Token,
+      selectedSwapToken,
+      setSelectedSwapToken,
+      address,
+      tokensWithCommitments,
+      allWhiteListedTokens.data,
+      tokensWithCommitmentsLoading,
+      selectedOpportunity,
+      setSelectedOpportunity,
+      successfulLoanParams,
+      setSuccessfulLoanParams,
+      successLoanHash,
+      setSuccessLoanHash,
+      bidId,
+      setBidId,
+      maxCollateral,
+      setMaxCollateral,
+      principalErc20Tokens,
+      erc20sWithCommitmentsLoading,
+      uniswapDataMap,
+      selectedErc20Apy,
+      borrowSwapTokenInput,
+      setBorrowSwapTokenInput,
+    ]
+  );
+
   return (
-    <BorrowSectionContext.Provider
-      value={{
-        currentStep,
-        setCurrentStep,
-        selectedCollateralToken,
-        setSelectedCollateralToken,
-        selectedPrincipalErc20Token,
-        setSelectedPrincipalErc20Token,
-        selectedSwapToken,
-        setSelectedSwapToken,
-        tokensWithCommitments: address
-          ? tokensWithCommitments
-          : allWhiteListedTokens.data,
-        tokensWithCommitmentsLoading,
-        selectedOpportunity,
-        setSelectedOpportunity,
-        successfulLoanParams,
-        setSuccessfulLoanParams,
-        successLoanHash,
-        setSuccessLoanHash,
-        bidId,
-        setBidId,
-        maxCollateral,
-        setMaxCollateral,
-        principalErc20Tokens,
-        erc20sWithCommitmentsLoading,
-        uniswapDataMap,
-        selectedErc20Apy,
-        borrowSwapTokenInput,
-        setBorrowSwapTokenInput,
-      }}
-    >
+    <BorrowSectionContext.Provider value={contextValue}>
       {children}
       {/* For each principal token, render a helper component to fetch its Uniswap data */}
     </BorrowSectionContext.Provider>

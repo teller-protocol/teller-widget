@@ -95,9 +95,10 @@ const RenderComponent: React.FC = () => {
     [bidId, setCurrentStep]
   );
 
-  useEffect(() => {
-    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-  }, [chainId, setCurrentStep, whitelistedChainTokens]);
+  // TODO improve this logic so this works only when there is a wallet connected
+  // useEffect(() => {
+  //   setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+  // }, [chainId, setCurrentStep, whitelistedChainTokens]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>
