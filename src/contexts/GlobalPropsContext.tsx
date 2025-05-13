@@ -55,6 +55,7 @@ interface GlobalPropsContextProps {
   showRepaySection?: boolean;
   isVisible?: boolean;
   isTradeMode?: boolean;
+  initialStrategyAction?: STRATEGY_ACTION_ENUM;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -74,13 +75,13 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   showRepaySection = true,
   isVisible = false,
   isTradeMode = false,
+  initialStrategyAction,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
 
   const whitelistedChainTokens = useMemo(
-    () =>
-      whitelistedTokens?.[chainId]?.map((token) => token.toLowerCase()) ?? [],
+    () => whitelistedTokens?.[chainId]?.map((token) => token.toLowerCase()) ?? [],
     [whitelistedTokens, chainId]
   );
 
@@ -96,8 +97,14 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   const isStrategiesSection = widgetAction === WIDGET_ACTION_ENUM.STRATEGIES;
 
   const [strategyAction, setStrategyAction] = useState<STRATEGY_ACTION_ENUM>(
-    STRATEGY_ACTION_ENUM.LONG
+    initialStrategyAction || STRATEGY_ACTION_ENUM.LONG
   );
+
+  useEffect(() => {
+    if (initialStrategyAction) {
+      setStrategyAction(initialStrategyAction);
+    }
+  }, [initialStrategyAction]);
 
   useEffect(() => {
     let mounted = true;
@@ -149,9 +156,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
 export const useGetGlobalPropsContext = () => {
   const context = useContext(GlobalPropsContext);
   if (context === undefined) {
-    throw new Error(
-      "useGetGlobalPropsContext must be used within a UserTokensContextProvider"
-    );
+    throw new Error("useGetGlobalPropsContext must be used within a UserTokensContextProvider");
   }
   return context;
 };

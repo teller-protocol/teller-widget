@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { GlobalContextProvider } from "../../contexts/GlobalPropsContext";
+import { GlobalContextProvider, STRATEGY_ACTION_ENUM } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
 import Modal from "../Modal/Modal";
@@ -43,6 +43,7 @@ interface BaseWidgetProps {
   hideAutoConnectModal?: boolean;
   widgetChainId?: number;
   isTradeMode?: boolean;
+  strategy?: STRATEGY_ACTION_ENUM.LONG | STRATEGY_ACTION_ENUM.SHORT;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -54,9 +55,7 @@ interface WhiteListedTokensOptionalProps extends BaseWidgetProps {
   showOnlyWhiteListedTokens?: false;
 }
 
-export type WidgetProps =
-  | WhiteListedTokensRequiredProps
-  | WhiteListedTokensOptionalProps;
+export type WidgetProps = WhiteListedTokensRequiredProps | WhiteListedTokensOptionalProps;
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
@@ -84,13 +83,12 @@ const Widget: React.FC<WidgetProps> = ({
   hideAutoConnectModal,
   widgetChainId,
   isTradeMode,
+  strategy,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
-    JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
-    ) as boolean
+    JSON.parse(getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true") as boolean
   );
 
   if (referralFee > 500) {
@@ -112,6 +110,7 @@ const Widget: React.FC<WidgetProps> = ({
           singleWhitelistedToken={singleWhitelistedToken}
           isVisible={showModal || isEmbedded}
           isTradeMode={isTradeMode}
+          initialStrategyAction={strategy}
         >
           <TransactionButtonProvider>
             <div className="teller-widget">
