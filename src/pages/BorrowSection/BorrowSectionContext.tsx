@@ -125,7 +125,8 @@ export const BorrowSectionContextProvider: React.FC<
     Record<string, UniswapData>
   >({});
 
-  const allWhiteListedTokens = useGetAllWLCommitmentsAcrossNetworks();
+  const { data: allWhiteListedTokens, loading: isLoadingAllWhiteListedTokens } =
+    useGetAllWLCommitmentsAcrossNetworks();
 
   useEffect(() => {
     (async () => {
@@ -191,8 +192,9 @@ export const BorrowSectionContextProvider: React.FC<
       setSelectedSwapToken,
       tokensWithCommitments: address
         ? tokensWithCommitments
-        : allWhiteListedTokens.data,
-      tokensWithCommitmentsLoading,
+        : allWhiteListedTokens,
+      tokensWithCommitmentsLoading:
+        isLoadingAllWhiteListedTokens || tokensWithCommitmentsLoading,
       selectedOpportunity,
       setSelectedOpportunity,
       successfulLoanParams,
@@ -212,33 +214,24 @@ export const BorrowSectionContextProvider: React.FC<
     }),
     [
       currentStep,
-      setCurrentStep,
       selectedCollateralToken,
-      setSelectedCollateralToken,
       selectedPrincipalErc20Token,
-      setSelectedPrincipalErc20Token,
       selectedSwapToken,
-      setSelectedSwapToken,
       address,
       tokensWithCommitments,
-      allWhiteListedTokens.data,
+      allWhiteListedTokens,
+      isLoadingAllWhiteListedTokens,
       tokensWithCommitmentsLoading,
       selectedOpportunity,
-      setSelectedOpportunity,
       successfulLoanParams,
-      setSuccessfulLoanParams,
       successLoanHash,
-      setSuccessLoanHash,
       bidId,
-      setBidId,
       maxCollateral,
-      setMaxCollateral,
       principalErc20Tokens,
       erc20sWithCommitmentsLoading,
       uniswapDataMap,
       selectedErc20Apy,
       borrowSwapTokenInput,
-      setBorrowSwapTokenInput,
     ]
   );
 
