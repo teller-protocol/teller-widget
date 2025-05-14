@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from "react";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
@@ -18,7 +18,7 @@ import AddToCalendar from "../../components/AddToCalendar";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens, singleWhitelistedToken, userTokens } =
+  const { whitelistedChainTokens, singleWhitelistedToken, userTokens, strategyToken } =
     useGetGlobalPropsContext();
   const {
     currentStep,
@@ -29,7 +29,7 @@ const RenderComponent: React.FC = () => {
   } = useGetBorrowSectionContext();
   const chainId = useChainId();
 
-  const tokenAddress = singleWhitelistedToken?.toLowerCase() || "";
+  const tokenAddress = singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
 
   useEffect(() => {
@@ -95,9 +95,13 @@ const RenderComponent: React.FC = () => {
     [bidId, setCurrentStep]
   );
 
+  const { address } = useAccount();
+
   useEffect(() => {
-    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-  }, [chainId, setCurrentStep, whitelistedChainTokens]);
+    if (!address) {
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    }
+  }, [address, setCurrentStep]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>

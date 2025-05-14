@@ -4,7 +4,7 @@ import { useGraphURL } from "../useGraphURL";
 import { useQuery } from "@tanstack/react-query";
 import { useForwarderAddresses } from "../useForwarderAddresses";
 import { Address } from "viem";
-import { useGetCommitmentsForCollateralTokensFromLiquidityPools } from "./useGetCommitmentsForCollateralTokensFromLiquidityPools";
+import { useChainId } from "wagmi";
 
 export type SubgraphTokenType = {
   imageUri?: string | undefined;
@@ -51,6 +51,7 @@ export const useGetCommitmentsForCollateralToken = (
   userAddress?: Address
 ) => {
   const graphURL = useGraphURL();
+  const chainId = useChainId();
 
   const { lcfAlphaAddress, lcfAddress } = useForwarderAddresses();
 
@@ -132,7 +133,11 @@ export const useGetCommitmentsForCollateralToken = (
   );
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["commitmentsForCollateralToken-", collateralTokenAddress],
+    queryKey: [
+      "commitmentsForCollateralToken-",
+      collateralTokenAddress,
+      chainId,
+    ],
     queryFn: async () => request(graphURL, collateralTokenCommitments),
     enabled: !!collateralTokenAddress,
   }) as {
@@ -140,13 +145,6 @@ export const useGetCommitmentsForCollateralToken = (
     isLoading: boolean;
     error: string;
   };
-
-  const {
-    data: lenderGroupsCommitments,
-    isLoading: lenderGroupsCommitmentsLoading,
-  } = useGetCommitmentsForCollateralTokensFromLiquidityPools(
-    collateralTokenAddress || ""
-  );
 
   if (error) console.error("commitmentsForCollateralToken Query error", error);
 

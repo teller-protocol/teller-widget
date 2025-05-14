@@ -49,6 +49,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
     queryKey: [
       "commitmentsForLiquidityPoolsCollateralToken-",
       collateralTokenAddress,
+      chainId,
     ],
     queryFn: async () => {
       const rawCommitments = (await request(

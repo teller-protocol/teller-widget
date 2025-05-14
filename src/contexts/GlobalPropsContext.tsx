@@ -1,6 +1,14 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { Address } from "viem";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
@@ -37,7 +45,9 @@ export type GlobalPropsContextType = {
   isStrategiesSection: boolean;
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
+  whitelistedTokens?: WhitelistedTokens;
   isTradeMode?: boolean;
+  strategyToken?: string;
 };
 
 interface GlobalPropsContextProps {
@@ -56,6 +66,7 @@ interface GlobalPropsContextProps {
   isVisible?: boolean;
   isTradeMode?: boolean;
   initialStrategyAction?: STRATEGY_ACTION_ENUM;
+  strategyToken?: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -76,19 +87,39 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   isVisible = false,
   isTradeMode = false,
   initialStrategyAction,
+  strategyToken,
 }) => {
-  const [_userTokens, setUserTokens] = useState<any[]>([]);
+  const { address } = useAccount();
   const chainId = useChainId();
 
-  const whitelistedChainTokens = useMemo(
-    () => whitelistedTokens?.[chainId]?.map((token) => token.toLowerCase()) ?? [],
-    [whitelistedTokens, chainId]
-  );
+  const prevWhitelistedChainTokensRef = useRef<string[]>([]);
+
+  const whitelistedChainTokens = useMemo(() => {
+    let newTokens: string[];
+    if (!address) {
+      newTokens = [];
+    } else {
+      newTokens =
+        whitelistedTokens?.[chainId]?.map((token) => token.toLowerCase()) ?? [];
+    }
+
+    if (
+      newTokens.length === prevWhitelistedChainTokensRef.current.length &&
+      newTokens.every(
+        (val, index) => val === prevWhitelistedChainTokensRef.current[index]
+      )
+    ) {
+      return prevWhitelistedChainTokensRef.current;
+    }
+
+    prevWhitelistedChainTokensRef.current = newTokens;
+    return newTokens;
+  }, [address, whitelistedTokens, chainId]);
 
   const { userTokens, isLoading } = useGetUserTokens(
     whitelistedChainTokens,
     showOnlyWhiteListedTokens,
-    !isVisible
+    !isVisible || !address
   );
 
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(
@@ -106,48 +137,64 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     }
   }, [initialStrategyAction]);
 
-  useEffect(() => {
-    let mounted = true;
-    if (_userTokens?.length > 0) return;
-    if (mounted) {
-      setUserTokens(userTokens);
-    }
-    return () => {
-      mounted = false;
+  const isWhitelistedToken = useCallback(
+    (token?: Address | undefined) => {
+      const result = token ? whitelistedChainTokens.includes(token) : false;
+      return result;
+    },
+    [whitelistedChainTokens]
+  );
+
+  const contextValue = useMemo(() => {
+    return {
+      userTokens,
+      isLoading,
+      isWhitelistedToken,
+      whitelistedChainTokens,
+      whitelistedChains,
+      referralFee,
+      referralAddress,
+      buttonColorPrimary,
+      buttonTextColorPrimary,
+      subgraphApiKey,
+      singleWhitelistedToken,
+      showPoolSection,
+      showRepaySection,
+      widgetAction,
+      setWidgetAction,
+      isStrategiesSection,
+      strategyAction,
+      setStrategyAction,
+      whitelistedTokens,
+      isTradeMode,
+      strategyToken,
     };
-  }, [_userTokens?.length, userTokens]);
-
-  useEffect(() => {
-    setUserTokens([]);
-  }, [chainId]);
-
-  const isWhitelistedToken = (token?: Address | undefined) =>
-    token ? whitelistedChainTokens.includes(token) : false;
+  }, [
+    userTokens,
+    isLoading,
+    isWhitelistedToken,
+    whitelistedChainTokens,
+    whitelistedChains,
+    referralFee,
+    referralAddress,
+    buttonColorPrimary,
+    buttonTextColorPrimary,
+    subgraphApiKey,
+    singleWhitelistedToken,
+    showPoolSection,
+    showRepaySection,
+    widgetAction,
+    setWidgetAction,
+    isStrategiesSection,
+    strategyAction,
+    setStrategyAction,
+    whitelistedTokens,
+    isTradeMode,
+    strategyToken,
+  ]);
 
   return (
-    <GlobalPropsContext.Provider
-      value={{
-        userTokens,
-        isLoading,
-        isWhitelistedToken,
-        whitelistedChainTokens,
-        whitelistedChains,
-        referralFee,
-        referralAddress,
-        buttonColorPrimary,
-        buttonTextColorPrimary,
-        subgraphApiKey,
-        singleWhitelistedToken,
-        showPoolSection,
-        showRepaySection,
-        widgetAction,
-        setWidgetAction,
-        isStrategiesSection,
-        strategyAction,
-        setStrategyAction,
-        isTradeMode,
-      }}
-    >
+    <GlobalPropsContext.Provider value={contextValue}>
       {children}
     </GlobalPropsContext.Provider>
   );
