@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from "react";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
@@ -95,10 +95,13 @@ const RenderComponent: React.FC = () => {
     [bidId, setCurrentStep]
   );
 
-  // TODO improve this logic so this works only when there is a wallet connected
-  // useEffect(() => {
-  //   setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-  // }, [chainId, setCurrentStep, whitelistedChainTokens]);
+  const { address } = useAccount();
+
+  useEffect(() => {
+    if (!address) {
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    }
+  }, [address, setCurrentStep]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>
