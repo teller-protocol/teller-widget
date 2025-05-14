@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 
 import ConnectWalletButton from "../../../.storybook/components/ConnectWalletButton";
+import { STRATEGY_ACTION_ENUM } from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 
 import "./widgetStories.scss";
@@ -41,8 +42,7 @@ const meta = {
       defaultValue: "",
     },
     isBareButton: {
-      description:
-        "Flag to remove all styling for the button for easier overwriting.",
+      description: "Flag to remove all styling for the button for easier overwriting.",
       defaultValue: false,
     },
     isEmbedded: {
@@ -64,8 +64,7 @@ const meta = {
       },
     },
     referralFee: {
-      description:
-        "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
+      description: "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
       defaultValue: "0",
       control: {
         type: "number",
@@ -79,10 +78,8 @@ const meta = {
       defaultValue: "0x0000000000000000000000000000000000000000",
     },
     welcomeScreenLogo: {
-      description:
-        "Logo (as a URL) to be displayed on the widget's welcome screen.",
-      defaultValue:
-        "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
+      description: "Logo (as a URL) to be displayed on the widget's welcome screen.",
+      defaultValue: "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
     },
     welcomeScreenTitle: {
       description: "Bold, header text on the widget's welcome screen.",
@@ -90,13 +87,17 @@ const meta = {
     },
     welcomeScreenParagraph: {
       description: "Body, paragraph text on the widget's welcome screen.",
-      defaultValue:
-        "Time-based loans, up to thirty days, with no margin-call liquidations.",
+      defaultValue: "Time-based loans, up to thirty days, with no margin-call liquidations.",
     },
     subgraphApiKey: {
       table: {
         disable: true,
       },
+    },
+    strategy: {
+      description: "Set the initial strategy (LONG/SHORT)",
+      options: [STRATEGY_ACTION_ENUM.LONG, STRATEGY_ACTION_ENUM.SHORT],
+      control: { type: "select" },
     },
   },
   args: {
@@ -166,6 +167,27 @@ export const AutoOpen: Story = {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <Widget {...args} showModalByDefault />
+          <ConnectWalletButton />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+  tags: ["!autodocs"],
+};
+
+export const Trade: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+    isTradeMode: true,
+    strategy: STRATEGY_ACTION_ENUM.LONG,
+  },
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Widget {...args} />
           <ConnectWalletButton />
         </QueryClientProvider>
       </WagmiProvider>
