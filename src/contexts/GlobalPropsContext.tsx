@@ -106,7 +106,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
 
     prevWhitelistedChainTokensRef.current = newTokens;
     return newTokens;
-  }, [whitelistedTokens, chainId, address]);
+  }, [address, whitelistedTokens, chainId]);
 
   const { userTokens, isLoading } = useGetUserTokens(
     whitelistedChainTokens,

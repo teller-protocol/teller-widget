@@ -110,9 +110,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       )
     : selectedCollateralToken;
 
-  const defaultAmount = isWhitelistedToken(opportunity.collateralToken?.address)
-    ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
-    : BigInt(0);
+  const defaultAmount =
+    !userAddress || isWhitelistedToken(opportunity.collateralToken?.address)
+      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
+      : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
     (matchingCollateralToken?.balanceBigInt ?? 0) > 0
@@ -204,7 +205,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const hideOffer =
     commitmentMax.maxLoanAmount === 0n || commitmentMax.maxCollateral === 0n;
 
-  if (false) {
+  if (hideOffer) {
     return <></>;
   }
 
