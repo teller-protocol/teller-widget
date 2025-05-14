@@ -83,13 +83,13 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
 export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
-  const { singleWhitelistedToken } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken, strategyToken } = useGetGlobalPropsContext();
   const chainId = useChainId();
 
   const { widgetAction } = useGetGlobalPropsContext();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
-    singleWhitelistedToken
+    singleWhitelistedToken || strategyToken
       ? BorrowSectionSteps.SELECT_OPPORTUNITY
       : BorrowSectionSteps.SELECT_TOKEN
   );

@@ -38,6 +38,7 @@ export type GlobalPropsContextType = {
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
   isTradeMode?: boolean;
+  strategyToken?: string;
 };
 
 interface GlobalPropsContextProps {
@@ -56,6 +57,7 @@ interface GlobalPropsContextProps {
   isVisible?: boolean;
   isTradeMode?: boolean;
   initialStrategyAction?: STRATEGY_ACTION_ENUM;
+  strategyToken?: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -76,6 +78,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   isVisible = false,
   isTradeMode = false,
   initialStrategyAction,
+  strategyToken,
 }) => {
   const [_userTokens, setUserTokens] = useState<any[]>([]);
   const chainId = useChainId();
@@ -146,6 +149,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
         strategyAction,
         setStrategyAction,
         isTradeMode,
+        strategyToken,
       }}
     >
       {children}
