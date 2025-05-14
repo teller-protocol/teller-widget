@@ -29,7 +29,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   token,
   onClick,
 }) => {
-  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+  const logoUrl = token?.logo ? token?.logo : defaultTokenImage;
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
@@ -123,15 +123,15 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
     ...tokens
       .filter(
         (token) =>
-          parseFloat(token.balance) > 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance) > 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokens
       .filter(
         (token) =>
-          parseFloat(token.balance) <= 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance) <= 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
@@ -167,7 +167,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
           {sortedTokens.map((token) => (
             <TokenDropdownRow
               token={token}
-              key={token.address}
+              key={token?.address}
               onClick={onTokenDropdownRowClick}
             />
           ))}

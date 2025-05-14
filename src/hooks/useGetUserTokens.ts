@@ -4,7 +4,7 @@ import {
   TokenBalanceType,
   TokenMetadataResponse,
 } from "alchemy-sdk";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Address, formatUnits } from "viem";
 import { useAccount, useChainId } from "wagmi";
 
@@ -20,6 +20,29 @@ export type UserToken = {
   balance: string;
   balanceBigInt: bigint;
   decimals: number;
+  chainId?: number;
+};
+
+const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const runInChunks = async <T, X>(
+  items: T[],
+  handler: (item: T) => Promise<any>,
+  chunkSize: number,
+  delayMs: number,
+  chunkCallback: (res: X[]) => void
+) => {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    const chunkRes = await Promise.all<X>(chunk.map(handler));
+    chunkCallback(chunkRes);
+
+    if (i + chunkSize < items.length) {
+      await sleep(delayMs);
+    }
+  }
 };
 
 export const useGetUserTokens = (
@@ -46,28 +69,6 @@ export const useGetUserTokens = (
     ) {
       return;
     }
-
-    const sleep = (ms: number) => {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    };
-
-    const runInChunks = async <T, X>(
-      items: T[],
-      handler: (item: T) => Promise<any>,
-      chunkSize: number,
-      delayMs: number,
-      chunkCallback: (res: X[]) => void
-    ) => {
-      for (let i = 0; i < items.length; i += chunkSize) {
-        const chunk = items.slice(i, i + chunkSize);
-        const chunkRes = await Promise.all<X>(chunk.map(handler));
-        chunkCallback(chunkRes);
-
-        if (i + chunkSize < items.length) {
-          await sleep(delayMs);
-        }
-      }
-    };
 
     void (async () => {
       let pageKey: string | undefined = undefined;
@@ -188,5 +189,9 @@ export const useGetUserTokens = (
     whiteListedTokens,
   ]);
 
-  return { userTokens, isLoading };
+  const memoizedReturn = useMemo(
+    () => ({ userTokens, isLoading }),
+    [userTokens, isLoading]
+  );
+  return memoizedReturn;
 };

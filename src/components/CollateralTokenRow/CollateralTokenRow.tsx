@@ -2,7 +2,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
-
+import { mapChainIdToName } from "../../constants/chains";
 import "./collateralTokenRow.scss";
 
 interface CollateralTokenSelectProps {
@@ -22,7 +22,11 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
       <div className="token-balance-info">
         <span className="paragraph">{token?.symbol}</span>
         <span className="section-sub-title">
-          Balance: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
+          {token.chainId
+            ? `Available on: ${mapChainIdToName[token.chainId]}`
+            : `Balance: ${numberWithCommasAndDecimals(token?.balance)} ${
+                token?.symbol
+              }`}
         </span>
       </div>
     </div>
