@@ -35,6 +35,17 @@
     width: 100%;
   }
 
+  .chain-info {
+    display: flex;
+    align-items: center;
+    gap: $s-small;
+
+    img {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
   .token-logo {
     margin-right: $s-small;
   }
