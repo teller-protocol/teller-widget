@@ -28,12 +28,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
   showStrategiesSection,
   hideAutoConnectModal = false,
 }) => {
-  const { widgetAction, setWidgetAction } = useGetGlobalPropsContext();
+  const { widgetAction, setWidgetAction, isTradeMode } =
+    useGetGlobalPropsContext();
   const [key, setKey] = useState(0);
   const isMobile = useIsMobile();
   const { isTransactionButtonPresent } = useTransactionButton();
 
-  const hideNavBar = isMobile && isTransactionButtonPresent;
+  const hideNavBar = isTradeMode || (isMobile && isTransactionButtonPresent);
 
   const selectOptions = [
     { value: WIDGET_ACTION_ENUM.BORROW, content: "Borrow" },

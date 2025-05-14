@@ -46,6 +46,7 @@ export type GlobalPropsContextType = {
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
   whitelistedTokens?: WhitelistedTokens;
+  isTradeMode?: boolean;
 };
 
 interface GlobalPropsContextProps {
@@ -62,6 +63,8 @@ interface GlobalPropsContextProps {
   showPoolSection?: boolean;
   showRepaySection?: boolean;
   isVisible?: boolean;
+  isTradeMode?: boolean;
+  initialStrategyAction?: STRATEGY_ACTION_ENUM;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -80,6 +83,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   showPoolSection = false,
   showRepaySection = true,
   isVisible = false,
+  isTradeMode = false,
+  initialStrategyAction,
 }) => {
   const { address } = useAccount();
   const chainId = useChainId();
@@ -115,12 +120,12 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   );
 
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(
-    WIDGET_ACTION_ENUM.BORROW
+    isTradeMode ? WIDGET_ACTION_ENUM.STRATEGIES : WIDGET_ACTION_ENUM.BORROW
   );
   const isStrategiesSection = widgetAction === WIDGET_ACTION_ENUM.STRATEGIES;
 
   const [strategyAction, setStrategyAction] = useState<STRATEGY_ACTION_ENUM>(
-    STRATEGY_ACTION_ENUM.LONG
+    initialStrategyAction || STRATEGY_ACTION_ENUM.LONG
   );
 
   const isWhitelistedToken = useCallback(
@@ -152,6 +157,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       strategyAction,
       setStrategyAction,
       whitelistedTokens,
+      isTradeMode,
     };
   }, [
     userTokens,
@@ -168,12 +174,17 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     showPoolSection,
     showRepaySection,
     widgetAction,
-    setWidgetAction,
     isStrategiesSection,
     strategyAction,
-    setStrategyAction,
     whitelistedTokens,
+    isTradeMode,
   ]);
+
+  useEffect(() => {
+    if (initialStrategyAction) {
+      setStrategyAction(initialStrategyAction);
+    }
+  }, [initialStrategyAction]);
 
   return (
     <GlobalPropsContext.Provider value={contextValue}>

@@ -68,8 +68,19 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
     }
   })();
 
+  const handleOnDropdownRowClick = () => {
+    window.dispatchEvent(
+      new CustomEvent("teller-widget-token-selected", {
+        detail: {
+          token: token.address,
+        },
+      })
+    );
+    onClick?.(token);
+  };
+
   return (
-    <div className="token-dropdown--row" onClick={() => onClick?.(token)}>
+    <div className="token-dropdown--row" onClick={handleOnDropdownRowClick}>
       <TokenLogo logoUrl={logoUrl} size={32} />
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>

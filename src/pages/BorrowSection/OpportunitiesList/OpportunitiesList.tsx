@@ -30,7 +30,7 @@ import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
-import { BORROW_TOKEN_TYPE_ENUM } from "../CollateralTokenList/CollateralTokenList";
+import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
 
@@ -303,8 +303,14 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
+    setSelectedSwapToken,
   } = useGetBorrowSectionContext();
-  const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
+  const {
+    isStrategiesSection,
+    strategyAction,
+    isTradeMode,
+    setStrategyAction,
+  } = useGetGlobalPropsContext();
 
   useEffect(() => {
     if (
@@ -399,6 +405,12 @@ const OpportunitiesList: React.FC = () => {
 
   return (
     <div className="opportunities-list">
+      <StrategiesSelect
+        renderFlag={isTradeMode}
+        showStrategy={false}
+        value={strategyAction ?? ""}
+        onValueChange={setStrategyAction}
+      />
       <div className="opportunities-list-header">
         {isStableView
           ? selectedCollateralToken && (

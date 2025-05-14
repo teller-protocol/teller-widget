@@ -24,6 +24,47 @@ export enum BORROW_TOKEN_TYPE_ENUM {
   ERC20 = "ERC20",
 }
 
+export const StrategiesSelect: React.FC<{
+  renderFlag?: boolean;
+  showStrategy: boolean;
+  value: string;
+  onValueChange: (value: STRATEGY_ACTION_ENUM) => void;
+}> = ({ renderFlag, showStrategy, value, onValueChange }) => {
+  const { setCurrentStep, setSelectedSwapToken } = useGetBorrowSectionContext();
+
+  const handleOnChange = (value: STRATEGY_ACTION_ENUM) => {
+    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    setSelectedSwapToken(undefined);
+    onValueChange(value);
+  };
+
+  if (renderFlag) {
+    return (
+      <div className="select-button-list">
+        <SelectButtons
+          items={[
+            { value: STRATEGY_ACTION_ENUM.LONG, content: "Long ↗️" },
+            {
+              value: STRATEGY_ACTION_ENUM.SHORT,
+              content: "Short ↘️",
+            },
+            ...(showStrategy
+              ? [
+                  {
+                    value: STRATEGY_ACTION_ENUM.FARM,
+                    content: "Farm 🚜",
+                  },
+                ]
+              : []),
+          ]}
+          value={value}
+          onChange={handleOnChange}
+        />
+      </div>
+    );
+  } else <></>;
+};
+
 const CollateralTokenList: React.FC = () => {
   const {
     setCurrentStep,
@@ -35,8 +76,12 @@ const CollateralTokenList: React.FC = () => {
     selectedSwapToken,
   } = useGetBorrowSectionContext();
 
-  const { isStrategiesSection, strategyAction, setStrategyAction } =
-    useGetGlobalPropsContext();
+  const {
+    isStrategiesSection,
+    strategyAction,
+    setStrategyAction,
+    isTradeMode,
+  } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -64,8 +109,8 @@ const CollateralTokenList: React.FC = () => {
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
   ];
 
-  const handleStrategyAction = (action: STRATEGY_ACTION_ENUM) => {
-    setStrategyAction(action);
+  const handleStrategyAction = (action: string) => {
+    setStrategyAction(action as STRATEGY_ACTION_ENUM);
 
     // Reset selected swap token when switching strategies
     setSelectedSwapToken(undefined);
@@ -75,19 +120,12 @@ const CollateralTokenList: React.FC = () => {
     <div className="collateral-token-list">
       {isSupportedChain ? (
         <div>
-          {isStrategiesSection && (
-            <div className="select-button-list">
-              <SelectButtons
-                items={[
-                  { value: STRATEGY_ACTION_ENUM.LONG, content: "Long ↗️" },
-                  { value: STRATEGY_ACTION_ENUM.SHORT, content: "Short ↘️" },
-                  { value: STRATEGY_ACTION_ENUM.FARM, content: "Farm 🚜" },
-                ]}
-                value={strategyAction ?? ""}
-                onChange={handleStrategyAction}
-              />
-            </div>
-          )}
+          <StrategiesSelect
+            renderFlag={isStrategiesSection}
+            showStrategy={!isTradeMode}
+            value={strategyAction ?? ""}
+            onValueChange={handleStrategyAction}
+          />
           {!isStrategiesSection && (
             <div className="search-and-buttons">
               <input
