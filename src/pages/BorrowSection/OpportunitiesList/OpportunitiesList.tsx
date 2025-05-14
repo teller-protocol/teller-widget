@@ -310,6 +310,7 @@ const OpportunitiesList: React.FC = () => {
     strategyAction,
     isTradeMode,
     setStrategyAction,
+    strategyToken,
   } = useGetGlobalPropsContext();
 
   useEffect(() => {
@@ -384,7 +385,8 @@ const OpportunitiesList: React.FC = () => {
       strategyAction === STRATEGY_ACTION_ENUM.LONG &&
       selectedCollateralToken &&
       sortedCommitments.length > 0 &&
-      !isLoading;
+      !isLoading &&
+      !strategyToken;
 
     if (isLongStrategyActive) {
       const bestCommitment = sortedCommitments[0];
