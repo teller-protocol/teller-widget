@@ -8,9 +8,10 @@ import {
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import "./swapTokenList.scss";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useGetTokenList } from "../../../hooks/queries/useGetTokenList";
 import { AddressStringType } from "../../../types/addressStringType";
+import { arbitrum, base, mainnet, polygon } from "viem/chains";
 
 const SwapTokenList: React.FC = () => {
   const {
@@ -22,6 +23,8 @@ const SwapTokenList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const isSupportedChain = useIsSupportedChain();
+
+  const { address } = useAccount();
 
   const onSwapTokenSelected = (token: UserToken) => {
     window.dispatchEvent(
@@ -38,14 +41,29 @@ const SwapTokenList: React.FC = () => {
   const { data: tokenList } = useGetTokenList();
   const chainId = useChainId();
 
-  const uniswapTokens = tokenList?.[chainId] || [];
+  const uniswapChainTokens = tokenList?.[chainId] || [];
+
+  const allTokens = [
+    ...(uniswapChainTokens.length > 0
+      ? [
+          ...tokenList?.[mainnet.id],
+          ...tokenList?.[polygon.id],
+          ...tokenList?.[base.id],
+          ...tokenList?.[arbitrum.id],
+        ]
+      : []),
+  ];
+
+  const uniswapTokens = address ? uniswapChainTokens : allTokens;
+
+  console.log("TCL ~ SwapTokenList.tsx:58 ~ uniswapTokens:", uniswapTokens);
 
   const userTokenAddresses = new Set(
-    tokensWithCommitments.map((t) => t.address.toLowerCase())
+    tokensWithCommitments.map((t) => t?.address?.toLowerCase())
   );
 
   const additionalTokens: UserToken[] = uniswapTokens
-    .filter((token) => !userTokenAddresses.has(token.address.toLowerCase()))
+    .filter((token) => !userTokenAddresses.has(token?.address.toLowerCase()))
     .map((token) => ({
       address: token.address as AddressStringType,
       name: token.name,
@@ -60,7 +78,7 @@ const SwapTokenList: React.FC = () => {
   const mergedTokens = Array.from(
     new Map(
       [...tokensWithCommitments, ...additionalTokens].map((t) => [
-        t.address.toLowerCase(),
+        t?.address?.toLowerCase(),
         t,
       ])
     )
@@ -70,14 +88,14 @@ const SwapTokenList: React.FC = () => {
     ...mergedTokens
       .filter(
         (token) =>
-          parseFloat(token.balance) > 0 &&
+          parseFloat(token?.balance) > 0 &&
           token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...mergedTokens
       .filter(
         (token) =>
-          parseFloat(token.balance) <= 0 &&
+          parseFloat(token?.balance) <= 0 &&
           token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
