@@ -34,6 +34,32 @@
     }
   }
 
+  .selected-collateral-token {
+    border: 0.5px solid $border-color-secondary;
+    border-radius: $border-radius;
+    display: flex;
+    padding: $s-small $s-normal;
+    align-items: center;
+    margin-bottom: $s-normal;
+    background-color: rgba(190, 190, 190, 0.1);
+
+    .token-balance-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+
+      .paragraph {
+        line-height: 18px;
+        margin-bottom: 4px;
+      }
+    }
+
+    .token-logo {
+      margin-right: $s-small;
+    }
+  }
+
   .select-buttons {
     display: flex;
     width: 100%;
