@@ -54,6 +54,7 @@ const SwapTokenList: React.FC = () => {
       logo: token.logoURI,
       balance: "0",
       balanceBigInt: 0n,
+      chainId: token.chainId,
     }));
 
   const mergedTokens = Array.from(

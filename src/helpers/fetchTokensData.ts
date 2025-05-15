@@ -1,5 +1,4 @@
 import { Alchemy } from "alchemy-sdk";
-import { WhitelistedTokens } from "../components/Widget/Widget";
 import { ALCHEMY_API_KEY } from "../constants/global";
 import { mapChainIdToAlchemyNetworkKey } from "../hooks/useAlchemy";
 import { UserToken, runInChunks } from "../hooks/useGetUserTokens";
