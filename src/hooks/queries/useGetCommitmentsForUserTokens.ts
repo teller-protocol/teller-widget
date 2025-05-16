@@ -165,6 +165,7 @@ export const useGetCommitmentsForUserTokens = () => {
     setTokensWithCommitments,
     setLoading,
     lenderGroupsUserTokenCommitmentsData,
+    address,
   ]);
 
   return useMemo(
