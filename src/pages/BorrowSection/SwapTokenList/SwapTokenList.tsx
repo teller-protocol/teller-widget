@@ -8,7 +8,7 @@ import {
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import "./swapTokenList.scss";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { useGetTokenList } from "../../../hooks/queries/useGetTokenList";
 import { AddressStringType } from "../../../types/addressStringType";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
@@ -26,6 +26,8 @@ const SwapTokenList: React.FC = () => {
 
   const { address } = useAccount();
 
+  const { switchChain } = useSwitchChain();
+
   const onSwapTokenSelected = (token: UserToken) => {
     window.dispatchEvent(
       new CustomEvent("teller-widget-opportunity-selected", {
@@ -34,6 +36,7 @@ const SwapTokenList: React.FC = () => {
         },
       })
     );
+    token.chainId && switchChain({ chainId: token.chainId });
     setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     setSelectedSwapToken(token);
   };
@@ -72,7 +75,7 @@ const SwapTokenList: React.FC = () => {
       logo: token.logoURI,
       balance: "0",
       balanceBigInt: 0n,
-      chainId: token.chainId,
+      chainId: !address ? token.chainId : undefined,
     }));
 
   const mergedTokens = Array.from(
