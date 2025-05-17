@@ -64,8 +64,9 @@ export const useGetUserTokens = (
     if (
       !alchemy ||
       skip ||
-      !tokenList[chainId] ||
-      tokenList[chainId].length === 0
+      !tokenList ||
+      !tokenList?.[chainId] ||
+      tokenList?.[chainId].length === 0
     ) {
       return;
     }

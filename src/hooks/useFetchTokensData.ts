@@ -3,6 +3,7 @@ import { ALCHEMY_API_KEY } from "../constants/global";
 import { mapChainIdToAlchemyNetworkKey } from "./useAlchemy";
 import { UserToken, runInChunks } from "./useGetUserTokens";
 import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
+import { useGetTokenList } from "./queries/useGetTokenList";
 
 const chainAwareAlchemy = (chainId: number) => {
   return new Alchemy({
@@ -11,9 +12,10 @@ const chainAwareAlchemy = (chainId: number) => {
   });
 };
 
-export const useGetAllWhitelistedTokensData = () => {
-  const getTokenImageAndSymbolFromTokenList =
+export const useGetTokensData = () => {
+  const { getTokenImageAndSymbolFromTokenList } =
     useGetTokenImageAndSymbolFromTokenList();
+
   const fetchAllWhitelistedTokensData = async (
     whitelistedTokens: string[],
     chainId: number
@@ -26,17 +28,17 @@ export const useGetAllWhitelistedTokensData = () => {
       whitelistedTokens,
       async (tokenAddress) => {
         const metadata = await alchemy.core.getTokenMetadata(tokenAddress);
+        if (metadata.decimals === 0) return null;
         const imageAndSymbol = getTokenImageAndSymbolFromTokenList(
           tokenAddress,
           chainId
         );
 
-        if (metadata.decimals === 0) return null;
         return {
           address: tokenAddress,
           name: metadata.name ?? "",
           symbol: metadata.symbol ?? "",
-          logo: metadata.logo ?? imageAndSymbol.image ?? "",
+          logo: metadata.logo ?? imageAndSymbol?.image ?? "",
           balance: "0", // Default balance as 0 since it's not fetched here
           balanceBigInt: BigInt(0),
           decimals: metadata.decimals ?? 0,

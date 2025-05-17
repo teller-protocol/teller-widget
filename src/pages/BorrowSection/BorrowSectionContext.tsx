@@ -27,6 +27,7 @@ import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUS
 import { Address } from "viem";
 import { TokenInputType } from "../../components/TokenInput/TokenInput";
 import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
+import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -89,7 +90,7 @@ export const BorrowSectionContextProvider: React.FC<
 
   const { address } = useAccount();
 
-  const { widgetAction } = useGetGlobalPropsContext();
+  const { isLoading: isTokenListLoading } = useGetTokenList();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
     singleWhitelistedToken
@@ -115,7 +116,6 @@ export const BorrowSectionContextProvider: React.FC<
 
   const { tokensWithCommitments, loading: tokensWithCommitmentsLoading } =
     useGetCommitmentsForUserTokens();
-
 
   const { principalErc20Tokens, isLoading: erc20sWithCommitmentsLoading } =
     useGetCommitmentsForErc20Tokens();
@@ -195,7 +195,9 @@ export const BorrowSectionContextProvider: React.FC<
         ? tokensWithCommitments
         : allWhiteListedTokens,
       tokensWithCommitmentsLoading:
-        isLoadingAllWhiteListedTokens || tokensWithCommitmentsLoading,
+        isLoadingAllWhiteListedTokens ||
+        tokensWithCommitmentsLoading ||
+        isTokenListLoading,
       selectedOpportunity,
       setSelectedOpportunity,
       successfulLoanParams,

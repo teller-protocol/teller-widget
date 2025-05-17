@@ -7,7 +7,7 @@ import { base, mainnet } from "viem/chains";
 import { polygon } from "viem/chains";
 import { arbitrum } from "viem/chains";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
-import { useGetAllWhitelistedTokensData } from "../useFetchTokensData";
+import { useGetTokensData } from "../useFetchTokensData";
 
 const commitmentsQuery = (tokens: UserToken[]) => gql`
   query commitmentsForUserTokens {
@@ -42,7 +42,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   const { subgraphApiKey, userTokens, whitelistedTokens } =
     useGetGlobalPropsContext();
 
-  const { fetchAllWhitelistedTokensData } = useGetAllWhitelistedTokensData();
+  const { fetchAllWhitelistedTokensData } = useGetTokensData();
 
   const mainnetID = mainnet.id;
   const polygonID = polygon.id;
