@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { GlobalContextProvider, STRATEGY_ACTION_ENUM } from "../../contexts/GlobalPropsContext";
+import {
+  GlobalContextProvider,
+  STRATEGY_ACTION_ENUM,
+} from "../../contexts/GlobalPropsContext";
 import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
 import Modal from "../Modal/Modal";
@@ -55,7 +58,9 @@ interface WhiteListedTokensOptionalProps extends BaseWidgetProps {
   showOnlyWhiteListedTokens?: false;
 }
 
-export type WidgetProps = WhiteListedTokensRequiredProps | WhiteListedTokensOptionalProps;
+export type WidgetProps =
+  | WhiteListedTokensRequiredProps
+  | WhiteListedTokensOptionalProps;
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
@@ -88,7 +93,9 @@ const Widget: React.FC<WidgetProps> = ({
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(
-    JSON.parse(getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true") as boolean
+    JSON.parse(
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
+    ) as boolean
   );
 
   if (referralFee > 500) {

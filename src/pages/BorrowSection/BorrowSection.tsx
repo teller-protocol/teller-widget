@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from "react";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
@@ -95,9 +95,13 @@ const RenderComponent: React.FC = () => {
     [bidId, setCurrentStep]
   );
 
+  const { address } = useAccount();
+
   useEffect(() => {
-    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-  }, [chainId, setCurrentStep, whitelistedChainTokens]);
+    if (!address) {
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+    }
+  }, [address, setCurrentStep]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>

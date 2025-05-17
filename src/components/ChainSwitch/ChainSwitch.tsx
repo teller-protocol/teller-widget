@@ -29,7 +29,7 @@ interface ChainDropdownRowProps {
   chain: Chain;
 }
 
-const mapChainToImage: { [key: number]: string } = {
+export const mapChainToImage: { [key: number]: string } = {
   [arbitrum.id]: arbitrumIcon,
   [optimism.id]: "https://l2beat.com/icons/optimism.png",
   [base.id]: baseIcon,

@@ -14,7 +14,7 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useChainId, useSwitchChain } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
@@ -110,9 +110,10 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       )
     : selectedCollateralToken;
 
-  const defaultAmount = isWhitelistedToken(opportunity.collateralToken?.address)
-    ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
-    : BigInt(0);
+  const defaultAmount =
+    !userAddress || isWhitelistedToken(opportunity.collateralToken?.address)
+      ? BigInt(parseUnits("1", opportunity.collateralToken?.decimals ?? 0))
+      : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
     (matchingCollateralToken?.balanceBigInt ?? 0) > 0
@@ -293,6 +294,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const chainId = useChainId();
 
   const {
     selectedCollateralToken,
@@ -308,6 +311,16 @@ const OpportunitiesList: React.FC = () => {
     isTradeMode,
     setStrategyAction,
   } = useGetGlobalPropsContext();
+
+  useEffect(() => {
+    if (
+      !chainId ||
+      (selectedCollateralToken?.chainId &&
+        chainId !== selectedCollateralToken.chainId)
+    ) {
+      switchChain({ chainId: selectedCollateralToken?.chainId ?? 1 });
+    }
+  }, [chainId, selectedCollateralToken, switchChain]);
 
   const strategyType = strategyAction;
 

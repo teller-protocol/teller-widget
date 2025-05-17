@@ -18,6 +18,7 @@ import {
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
+import { useChainId } from "wagmi";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -85,6 +86,11 @@ const CollateralTokenList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const chainId = useChainId();
+
+  const isLong =
+    isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
+
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
@@ -96,17 +102,18 @@ const CollateralTokenList: React.FC = () => {
     ...tokensWithCommitments
       .filter(
         (token) =>
-          parseFloat(token.balance) > 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance ?? "0") > 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokensWithCommitments
       .filter(
         (token) =>
-          parseFloat(token.balance) <= 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance ?? "0") <= 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .filter((token) => (isLong ? token.chainId === chainId : true)), // if long, match collateral token to chainId
   ];
 
   const handleStrategyAction = (action: string) => {
