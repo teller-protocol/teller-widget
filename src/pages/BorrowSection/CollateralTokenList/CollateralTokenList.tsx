@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
-import LongErc20TokenRow from "../../../components/LongErc20Row";
 import Loader from "../../../components/Loader";
 import {
   useGetGlobalPropsContext,
@@ -19,11 +18,32 @@ import {
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
 import { useChainId } from "wagmi";
+import TokenLogo from "../../../components/TokenLogo";
+import defaultTokenImage from "../../../assets/generic_token-icon.svg";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
   ERC20 = "ERC20",
 }
+
+const SelectedCollateralTokenRow: React.FC<{ token: UserToken }> = ({
+  token,
+}) => {
+  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+
+  return (
+    <div className="selected-collateral-token">
+      <TokenLogo logoUrl={logoUrl} size={32} />
+      <div className="token-balance-info">
+        <span className="paragraph">Long {token?.symbol}</span>
+        <span className="section-sub-title">
+          Balance: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 export const StrategiesSelect: React.FC<{
   renderFlag?: boolean;
@@ -147,6 +167,9 @@ const CollateralTokenList: React.FC = () => {
                 className="token-search-input"
               />
             </div>
+          )}
+          {selectedSwapToken && (
+            <SelectedCollateralTokenRow token={selectedSwapToken} />
           )}
           {isStrategiesSection ? (
             erc20Loading ? (
