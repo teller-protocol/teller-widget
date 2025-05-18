@@ -58,9 +58,6 @@ const SwapTokenList: React.FC = () => {
   ];
 
   const uniswapTokens = address ? uniswapChainTokens : allTokens;
-
-  console.log("TCL ~ SwapTokenList.tsx:58 ~ uniswapTokens:", uniswapTokens);
-
   const userTokenAddresses = new Set(
     tokensWithCommitments.map((t) => t?.address?.toLowerCase())
   );
@@ -137,5 +134,4 @@ const SwapTokenList: React.FC = () => {
     </div>
   );
 };
-
 export default SwapTokenList;

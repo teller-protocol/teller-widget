@@ -15,7 +15,8 @@ export const useGetCommitmentsForErc20Tokens = () => {
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
   const { isStrategiesSection } = useGetGlobalPropsContext();
   const skip = !isStrategiesSection;
-  const getTokenImageFromTokenList = useGetTokenImageAndSymbolFromTokenList();
+  const { getTokenImageAndSymbolFromTokenList } =
+    useGetTokenImageAndSymbolFromTokenList();
   const { data: tokenList, isLoading: tokenListLoading } = useGetTokenList();
 
   const {
@@ -58,10 +59,15 @@ export const useGetCommitmentsForErc20Tokens = () => {
 
       setIsLoading(true);
       const filteredPools = liquidityPools.filter(
-        (pool) => !chainTokenAddresses.includes(pool.principal_token_address?.toLowerCase())
+        (pool) =>
+          !chainTokenAddresses.includes(
+            pool.principal_token_address?.toLowerCase()
+          )
       );
 
-      const convertedCommitments = await Promise.all(filteredPools.map(convertCommitment));
+      const convertedCommitments = await Promise.all(
+        filteredPools.map(convertCommitment)
+      );
       setConvertedCommitments(convertedCommitments);
       return convertedCommitments;
     })()
@@ -91,20 +97,30 @@ export const useGetCommitmentsForErc20Tokens = () => {
               return {
                 address: address as `0x${string}`,
                 name: metadata?.name || "",
-                symbol: getTokenImageFromTokenList(address).symbol ?? (metadata?.symbol || ""),
-                logo: metadata?.logo ?? getTokenImageFromTokenList(address).image ?? "",
+                symbol:
+                  getTokenImageAndSymbolFromTokenList(address)?.symbol ??
+                  (metadata?.symbol || ""),
+                logo:
+                  metadata?.logo ??
+                  getTokenImageAndSymbolFromTokenList(address)?.image ??
+                  "",
                 balance: aggregatedBalance || "0",
                 balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
                 decimals: metadata?.decimals || 18,
               } as UserToken;
             } catch (error) {
-              console.error(`Error fetching metadata for token ${address}:`, error);
+              console.error(
+                `Error fetching metadata for token ${address}:`,
+                error
+              );
               return null;
             }
           })
         );
         setPrincipalErc20Tokens(
-          tokensWithMetadata.filter((token): token is UserToken => token !== null)
+          tokensWithMetadata.filter(
+            (token): token is UserToken => token !== null
+          )
         );
       })
       .catch((error) => {
@@ -122,7 +138,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
     principalErc20Tokens.length,
     chainId,
     skip,
-    getTokenImageFromTokenList,
+    getTokenImageAndSymbolFromTokenList,
   ]);
 
   const getCommitmentsForErc20TokensByPrincipalToken = useCallback(
