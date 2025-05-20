@@ -14,6 +14,8 @@ import {
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { Icon } from "@iconify/react";
+import { mapChainIdToName } from "../../constants/chains";
+import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
 
 interface TokenDropdownProps {
   tokens: UserToken[];
@@ -32,6 +34,8 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   const logoUrl = token?.logo ? token?.logo : defaultTokenImage;
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
+
+  const isDisconnectedView = !!token.chainId;
 
   const subtitleData = (() => {
     if (!isStrategiesSection) {
@@ -81,8 +85,16 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
       <div className="token-info">
         <div className="paragraph">{token?.symbol}</div>
         <div className="section-sub-title">
-          {subtitleData.title}:{" "}
-          {numberWithCommasAndDecimals(subtitleData.value)} {token?.symbol}
+          {isDisconnectedView ? (
+            <span className="chain-info">
+              {mapChainIdToName[token?.chainId ?? 0]}
+              <img src={mapChainToImage[token?.chainId ?? 0]} />
+            </span>
+          ) : (
+            `${numberWithCommasAndDecimals(subtitleData.value)} ${
+              token?.symbol
+            }`
+          )}
         </div>
       </div>
     </div>

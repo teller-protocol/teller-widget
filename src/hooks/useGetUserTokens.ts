@@ -55,7 +55,7 @@ export const useGetUserTokens = (
   const { address } = useAccount();
   const alchemy = useAlchemy();
 
-  const getTokenImageAndSymbolFromTokenList =
+  const { getTokenImageAndSymbolFromTokenList } =
     useGetTokenImageAndSymbolFromTokenList();
   const chainId = useChainId();
   const { data: tokenList } = useGetTokenList();
@@ -64,8 +64,9 @@ export const useGetUserTokens = (
     if (
       !alchemy ||
       skip ||
-      !tokenList[chainId] ||
-      tokenList[chainId].length === 0
+      !tokenList ||
+      !tokenList?.[chainId] ||
+      tokenList?.[chainId].length === 0
     ) {
       return;
     }
@@ -135,14 +136,14 @@ export const useGetUserTokens = (
           token.contractAddress
         );
 
-        const logo = metadata.logo ?? imageAndSymbol.image ?? "";
+        const logo = metadata.logo ?? imageAndSymbol?.image ?? "";
         const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
         const decimals = metadata.decimals ?? 0;
 
         return {
           address: token.contractAddress as Address,
           name: metadata.name ?? "",
-          symbol: imageAndSymbol.symbol ?? metadata.symbol ?? "",
+          symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
           logo,
           balance: formatUnits(balanceBigInt, decimals),
           balanceBigInt,

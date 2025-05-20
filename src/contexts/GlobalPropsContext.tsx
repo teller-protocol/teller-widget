@@ -184,10 +184,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     showPoolSection,
     showRepaySection,
     widgetAction,
-    setWidgetAction,
     isStrategiesSection,
     strategyAction,
-    setStrategyAction,
     whitelistedTokens,
     isTradeMode,
     strategyToken,
@@ -203,7 +201,9 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
 export const useGetGlobalPropsContext = () => {
   const context = useContext(GlobalPropsContext);
   if (context === undefined) {
-    throw new Error("useGetGlobalPropsContext must be used within a UserTokensContextProvider");
+    throw new Error(
+      "useGetGlobalPropsContext must be used within a UserTokensContextProvider"
+    );
   }
   return context;
 };

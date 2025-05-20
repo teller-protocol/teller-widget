@@ -12,7 +12,7 @@ export const useGetTokenMetadata = (
   const [isLoading, setIsLoading] = useState(true);
   const [tokenMetadata, setTokenMetadata] = useState<TokenMetadataResponse>();
 
-  const getTokenImageAndSymbolFromTokenList =
+  const { getTokenImageAndSymbolFromTokenList } =
     useGetTokenImageAndSymbolFromTokenList();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export const useGetTokenMetadata = (
       await alchemy.core.getTokenMetadata(tokenAddress).then((metadata) => {
         const logo =
           metadata?.logo ??
-          getTokenImageAndSymbolFromTokenList(tokenAddress).image ??
+          getTokenImageAndSymbolFromTokenList(tokenAddress)?.image ??
           generic_token;
         setTokenMetadata({ ...metadata, logo });
         onSuccess && metadata && onSuccess?.(metadata.logo);
