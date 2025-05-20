@@ -10,3 +10,11 @@ export enum SupportedChainId {
 export function normalizeChainName(chainName?: string) {
   return chainName?.replace(/ /g, "-")?.toLowerCase();
 }
+
+export const mapChainIdToName: Record<number, string> = {
+  [mainnet.id]: "Ethereum",
+  [arbitrum.id]: "Arbitrum",
+  [base.id]: "Base",
+  [polygon.id]: "Polygon",
+  [sepolia.id]: "Sepolia",
+};

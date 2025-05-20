@@ -11,9 +11,13 @@ import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List"
 import ShortErc20List from "../../../pages/BorrowSection/ShortErc20List";
 import SwapTokenList from "../../../pages/BorrowSection/SwapTokenList";
 
-import { BorrowSectionSteps, useGetBorrowSectionContext } from "../BorrowSectionContext";
+import {
+  BorrowSectionSteps,
+  useGetBorrowSectionContext,
+} from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
+import { useChainId } from "wagmi";
 import TokenLogo from "../../../components/TokenLogo";
 import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
@@ -23,7 +27,9 @@ export enum BORROW_TOKEN_TYPE_ENUM {
   ERC20 = "ERC20",
 }
 
-const SelectedCollateralTokenRow: React.FC<{ token: UserToken }> = ({ token }) => {
+const SelectedCollateralTokenRow: React.FC<{ token: UserToken }> = ({
+  token,
+}) => {
   const logoUrl = token?.logo ? token.logo : defaultTokenImage;
 
   return (
@@ -91,10 +97,19 @@ const CollateralTokenList: React.FC = () => {
     selectedSwapToken,
   } = useGetBorrowSectionContext();
 
-  const { isStrategiesSection, strategyAction, setStrategyAction, isTradeMode } =
-    useGetGlobalPropsContext();
+  const {
+    isStrategiesSection,
+    strategyAction,
+    setStrategyAction,
+    isTradeMode,
+  } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  const chainId = useChainId();
+
+  const isLong =
+    isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
 
   const isSupportedChain = useIsSupportedChain();
 
@@ -107,17 +122,18 @@ const CollateralTokenList: React.FC = () => {
     ...tokensWithCommitments
       .filter(
         (token) =>
-          parseFloat(token.balance) > 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance ?? "0") > 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
     ...tokensWithCommitments
       .filter(
         (token) =>
-          parseFloat(token.balance) <= 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          parseFloat(token?.balance ?? "0") <= 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .filter((token) => (isLong ? token.chainId === chainId : true)), // if long, match collateral token to chainId
   ];
 
   const handleStrategyAction = (action: string) => {
@@ -142,7 +158,9 @@ const CollateralTokenList: React.FC = () => {
               <input
                 type="text"
                 placeholder={
-                  isStrategiesSection ? "Tokens to borrow" : "Collateral to deposit for loan"
+                  isStrategiesSection
+                    ? "Tokens to borrow"
+                    : "Collateral to deposit for loan"
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -150,7 +168,9 @@ const CollateralTokenList: React.FC = () => {
               />
             </div>
           )}
-          {selectedSwapToken && <SelectedCollateralTokenRow token={selectedSwapToken} />}
+          {selectedSwapToken && (
+            <SelectedCollateralTokenRow token={selectedSwapToken} />
+          )}
           {isStrategiesSection ? (
             erc20Loading ? (
               <Loader />
@@ -158,7 +178,8 @@ const CollateralTokenList: React.FC = () => {
               <PrincipalErc20List searchQuery={searchQuery} />
             ) : strategyAction === STRATEGY_ACTION_ENUM.SHORT ? (
               <ShortErc20List searchQuery={searchQuery} />
-            ) : strategyAction === STRATEGY_ACTION_ENUM.LONG && !selectedSwapToken ? (
+            ) : strategyAction === STRATEGY_ACTION_ENUM.LONG &&
+              !selectedSwapToken ? (
               <SwapTokenList />
             ) : (
               <>

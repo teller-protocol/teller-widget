@@ -4,7 +4,7 @@ import {
   TokenBalanceType,
   TokenMetadataResponse,
 } from "alchemy-sdk";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Address, formatUnits } from "viem";
 import { useAccount, useChainId } from "wagmi";
 
@@ -20,6 +20,29 @@ export type UserToken = {
   balance: string;
   balanceBigInt: bigint;
   decimals: number;
+  chainId?: number;
+};
+
+const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const runInChunks = async <T, X>(
+  items: T[],
+  handler: (item: T) => Promise<any>,
+  chunkSize: number,
+  delayMs: number,
+  chunkCallback: (res: X[]) => void
+) => {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    const chunkRes = await Promise.all<X>(chunk.map(handler));
+    chunkCallback(chunkRes);
+
+    if (i + chunkSize < items.length) {
+      await sleep(delayMs);
+    }
+  }
 };
 
 export const useGetUserTokens = (
@@ -32,7 +55,7 @@ export const useGetUserTokens = (
   const { address } = useAccount();
   const alchemy = useAlchemy();
 
-  const getTokenImageAndSymbolFromTokenList =
+  const { getTokenImageAndSymbolFromTokenList } =
     useGetTokenImageAndSymbolFromTokenList();
   const chainId = useChainId();
   const { data: tokenList } = useGetTokenList();
@@ -41,33 +64,12 @@ export const useGetUserTokens = (
     if (
       !alchemy ||
       skip ||
-      !tokenList[chainId] ||
-      tokenList[chainId].length === 0
+      !tokenList ||
+      !tokenList?.[chainId] ||
+      tokenList?.[chainId].length === 0
     ) {
       return;
     }
-
-    const sleep = (ms: number) => {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    };
-
-    const runInChunks = async <T, X>(
-      items: T[],
-      handler: (item: T) => Promise<any>,
-      chunkSize: number,
-      delayMs: number,
-      chunkCallback: (res: X[]) => void
-    ) => {
-      for (let i = 0; i < items.length; i += chunkSize) {
-        const chunk = items.slice(i, i + chunkSize);
-        const chunkRes = await Promise.all<X>(chunk.map(handler));
-        chunkCallback(chunkRes);
-
-        if (i + chunkSize < items.length) {
-          await sleep(delayMs);
-        }
-      }
-    };
 
     void (async () => {
       let pageKey: string | undefined = undefined;
@@ -134,14 +136,14 @@ export const useGetUserTokens = (
           token.contractAddress
         );
 
-        const logo = metadata.logo ?? imageAndSymbol.image ?? "";
+        const logo = metadata.logo ?? imageAndSymbol?.image ?? "";
         const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
         const decimals = metadata.decimals ?? 0;
 
         return {
           address: token.contractAddress as Address,
           name: metadata.name ?? "",
-          symbol: imageAndSymbol.symbol ?? metadata.symbol ?? "",
+          symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
           logo,
           balance: formatUnits(balanceBigInt, decimals),
           balanceBigInt,
@@ -188,5 +190,9 @@ export const useGetUserTokens = (
     whiteListedTokens,
   ]);
 
-  return { userTokens, isLoading };
+  const memoizedReturn = useMemo(
+    () => ({ userTokens, isLoading }),
+    [userTokens, isLoading]
+  );
+  return memoizedReturn;
 };

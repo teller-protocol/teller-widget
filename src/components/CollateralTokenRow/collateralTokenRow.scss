@@ -28,4 +28,15 @@
   .token-logo {
     margin-right: $s-small;
   }
+
+  .chain-info-row {
+    display: flex;
+    align-items: center;
+    gap: $s-small;
+
+    img {
+      width: 10px;
+      height: 10px;
+    }
+  }
 }

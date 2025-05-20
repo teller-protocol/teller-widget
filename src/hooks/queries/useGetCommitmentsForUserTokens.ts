@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useChainId } from "wagmi";
+import { useChainId, useAccount } from "wagmi";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 
 interface Commitment {
@@ -21,6 +21,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const graphURL = useGraphURL();
   const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
   const { userTokens } = useGetGlobalPropsContext();
+  const { address } = useAccount();
 
   const hasTokens = userTokens.length > 0;
 
@@ -114,6 +115,10 @@ export const useGetCommitmentsForUserTokens = () => {
   }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
+    if (!address) {
+      setLoading(false);
+      return;
+    }
     if (!userTokens.length) {
       setLoading(true);
       return;
@@ -160,6 +165,7 @@ export const useGetCommitmentsForUserTokens = () => {
     setTokensWithCommitments,
     setLoading,
     lenderGroupsUserTokenCommitmentsData,
+    address,
   ]);
 
   return useMemo(
