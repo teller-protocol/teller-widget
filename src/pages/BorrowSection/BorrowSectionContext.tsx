@@ -3,15 +3,14 @@
 import React, {
   createContext,
   ReactNode,
-  useCallback,
   useContext,
   useEffect,
   useState,
   useMemo,
 } from "react";
 import {
+  STRATEGY_ACTION_ENUM,
   useGetGlobalPropsContext,
-  WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
@@ -20,8 +19,7 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenList";
 
 // Import your existing Uniswap hooks
-import { useAccount, useChainId } from "wagmi";
-import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
+import { useAccount } from "wagmi";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
 import { Address } from "viem";
@@ -86,14 +84,16 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
 export const BorrowSectionContextProvider: React.FC<
   BorrowSectionContextProps
 > = ({ children }) => {
-  const { singleWhitelistedToken, strategyToken } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken, strategyToken, strategyAction } =
+    useGetGlobalPropsContext();
 
   const { address } = useAccount();
 
   const { isLoading: isTokenListLoading } = useGetTokenList();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
-    singleWhitelistedToken || strategyToken
+    singleWhitelistedToken ||
+      (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.SHORT)
       ? BorrowSectionSteps.SELECT_OPPORTUNITY
       : BorrowSectionSteps.SELECT_TOKEN
   );

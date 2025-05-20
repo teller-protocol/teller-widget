@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { parseUnits } from "viem";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
@@ -15,10 +15,13 @@ import OpportunityDetails from "./OpportunityDetails";
 import "./borrowSection.scss";
 import BorrowConfirmation from "./BorrowConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import {
+  STRATEGY_ACTION_ENUM,
+  useGetGlobalPropsContext,
+} from "../../contexts/GlobalPropsContext";
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens, singleWhitelistedToken, userTokens, strategyToken } =
+  const { singleWhitelistedToken, userTokens, strategyToken, strategyAction } =
     useGetGlobalPropsContext();
   const {
     currentStep,
@@ -26,10 +29,11 @@ const RenderComponent: React.FC = () => {
     bidId,
     setSelectedCollateralToken,
     setSelectedPrincipalErc20Token,
+    setSelectedSwapToken,
   } = useGetBorrowSectionContext();
-  const chainId = useChainId();
 
-  const tokenAddress = singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
+  const tokenAddress =
+    singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
 
   useEffect(() => {
@@ -44,6 +48,19 @@ const RenderComponent: React.FC = () => {
         tokenMetadata.decimals || 18
       );
       const balanceBigInt = BigInt(balanceUnits.toString());
+
+      if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+        setSelectedSwapToken({
+          address: tokenAddress as `0x${string}`,
+          name: tokenMetadata.name || "",
+          symbol: tokenMetadata.symbol || "",
+          logo: tokenMetadata.logo || "",
+          balance: tokenBalance,
+          balanceBigInt: balanceBigInt,
+          decimals: tokenMetadata.decimals || 18,
+        });
+        return;
+      }
 
       setSelectedCollateralToken({
         address: tokenAddress as `0x${string}`,
@@ -75,6 +92,9 @@ const RenderComponent: React.FC = () => {
     setSelectedPrincipalErc20Token,
     setCurrentStep,
     userTokens,
+    strategyToken,
+    strategyAction,
+    setSelectedSwapToken,
   ]);
 
   const mapStepToComponent = useMemo(
