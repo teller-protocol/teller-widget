@@ -9,7 +9,7 @@ import { arbitrum } from "viem/chains";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetTokensData } from "../useFetchTokensData";
 
-const commitmentsQuery = (tokens: UserToken[]) => gql`
+const commitmentsQuery = (tokens: string[]) => gql`
   query commitmentsForUserTokens {
     commitments(
       where: { collateralToken_: { address_in: ${JSON.stringify(
@@ -23,7 +23,7 @@ const commitmentsQuery = (tokens: UserToken[]) => gql`
   }
 `;
 
-const liquidityPoolsQuery = (tokens: UserToken[]) => gql`
+const liquidityPoolsQuery = (tokens: string[]) => gql`
         query checkCommitmentsLenderGroups {
           groupPoolMetrics(
             where: {
@@ -55,7 +55,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     queries: subpgraphIds.map((id, index) => ({
       queryKey: ["commitments", id, index],
       queryFn: async () => {
-        const tokens = whitelistedTokens?.[id];
+        const tokens = whitelistedTokens?.[id] || [];
 
         let commitments: any;
         let liquidityPools: any;
