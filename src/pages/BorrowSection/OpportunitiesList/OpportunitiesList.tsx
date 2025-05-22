@@ -303,7 +303,7 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
-    setSelectedSwapToken,
+    currentStep,
   } = useGetBorrowSectionContext();
   const {
     isStrategiesSection,
@@ -374,36 +374,6 @@ const OpportunitiesList: React.FC = () => {
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
-
-  const { setSelectedOpportunity, setCurrentStep } =
-    useGetBorrowSectionContext();
-  const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
-
-  useEffect(() => {
-    const isLongStrategyActive =
-      isStrategiesSection &&
-      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
-      selectedCollateralToken &&
-      sortedCommitments.length > 0 &&
-      !isLoading &&
-      !strategyToken;
-
-    if (isLongStrategyActive) {
-      const bestCommitment = sortedCommitments[0];
-      if (bestCommitment) {
-        setSelectedOpportunity(bestCommitment);
-        setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
-      }
-    }
-  }, [
-    isStrategiesSection,
-    strategyAction,
-    selectedCollateralToken,
-    sortedCommitments,
-    isLoading,
-    setSelectedOpportunity,
-    setCurrentStep,
-  ]);
 
   return (
     <div className="opportunities-list">

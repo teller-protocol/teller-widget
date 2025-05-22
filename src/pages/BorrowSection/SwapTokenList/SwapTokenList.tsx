@@ -16,6 +16,7 @@ import { arbitrum, base, mainnet, polygon } from "viem/chains";
 const SwapTokenList: React.FC = () => {
   const {
     setCurrentStep,
+    selectedSwapToken,
     setSelectedSwapToken,
     tokensWithCommitmentsLoading: loading,
     tokensWithCommitments,
@@ -49,10 +50,10 @@ const SwapTokenList: React.FC = () => {
   const allTokens = [
     ...(uniswapChainTokens.length > 0
       ? [
-          ...tokenList?.[mainnet.id],
-          ...tokenList?.[polygon.id],
-          ...tokenList?.[base.id],
-          ...tokenList?.[arbitrum.id],
+          ...(tokenList?.[mainnet.id] || []),
+          ...(tokenList?.[polygon.id] || []),
+          ...(tokenList?.[base.id] || []),
+          ...(tokenList?.[arbitrum.id] || []),
         ]
       : []),
   ];
@@ -72,14 +73,14 @@ const SwapTokenList: React.FC = () => {
       logo: token.logoURI,
       balance: "0",
       balanceBigInt: 0n,
-      chainId: !address ? token.chainId : undefined,
+      chainId: token.chainId,
     }));
 
   const mergedTokens = Array.from(
     new Map(
       [...tokensWithCommitments, ...additionalTokens].map((t) => [
         t?.address?.toLowerCase(),
-        t,
+        { ...t, chainId: t.chainId || chainId },
       ])
     )
   ).map(([, token]) => token);
