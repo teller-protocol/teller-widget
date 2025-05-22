@@ -13,7 +13,13 @@ import {
   manta,
   mode,
 } from "wagmi/chains";
-import { walletConnect, safe } from "wagmi/connectors";
+import {
+  walletConnect,
+  coinbaseWallet,
+  metaMask,
+  injected,
+  safe,
+} from "wagmi/connectors";
 
 import { ALCHEMY_API_KEY } from "../constants/global";
 
@@ -54,6 +60,18 @@ export const config = createConfig({
     walletConnect({
       projectId: "1c82ac0d6e7e111ef9f9476c00f3c0fa",
     }),
+    coinbaseWallet({
+      appName: "Teller",
+      chains: [
+        mainnet,
+        arbitrum,
+        optimism,
+        base,
+        polygon,
+      ],
+    }),
+    metaMask(),
+    injected(),
     safe(),
   ],
 });
