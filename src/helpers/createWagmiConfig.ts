@@ -62,13 +62,6 @@ export const config = createConfig({
     }),
     coinbaseWallet({
       appName: "Teller",
-      chains: [
-        mainnet,
-        arbitrum,
-        optimism,
-        base,
-        polygon,
-      ],
     }),
     metaMask(),
     injected(),
