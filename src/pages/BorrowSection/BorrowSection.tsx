@@ -1,7 +1,10 @@
 import { useMemo, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
-import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
+import {
+  findTokenWithMetadata,
+  useGetTokenMetadata,
+} from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -46,89 +49,46 @@ const RenderComponent: React.FC = () => {
   const { data: tokenList } = useGetTokenList();
 
   useEffect(() => {
-    if (tokenAddress && tokenMetadata && !isLoading) {
-      const tokenBalance =
-        userTokens.find(
-          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
-        )?.balance || "0";
+    if (!tokenAddress || !tokenMetadata || isLoading) return;
 
-      const balanceUnits = parseUnits(
-        tokenBalance,
-        tokenMetadata.decimals || 18
-      );
-      const balanceBigInt = BigInt(balanceUnits.toString());
-
-      let address = tokenAddress.toLowerCase();
-      let chainIdToUse = chainId;
-
-      let currentToken = tokenList?.[chainId]?.find(
+    const tokenBalance =
+      userTokens.find(
         (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
-      );
-      if (!currentToken) {
-        currentToken = tokenList?.[chainId]?.find(
-          (token) =>
-            token.symbol.toLowerCase() === tokenMetadata.symbol?.toLowerCase()
-        );
-        if (!currentToken) {
-          const chains = Object.keys(tokenList || {});
-          for (const chain of chains) {
-            currentToken = tokenList?.[parseInt(chain)]?.find(
-              (token) =>
-                token.address.toLowerCase() === tokenAddress.toLowerCase()
-            );
-            if (currentToken) break;
-          }
-        }
-        if (currentToken) {
-          tokenMetadata.name = currentToken.name || "";
-          tokenMetadata.symbol = currentToken.symbol || "";
-          tokenMetadata.logo = currentToken.logoURI || "";
-          tokenMetadata.decimals = currentToken.decimals || 18;
-          address = currentToken.address;
-          chainIdToUse = currentToken.chainId;
-        }
-      }
+      )?.balance || "0";
+    const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
+    const balanceBigInt = BigInt(balanceUnits.toString());
 
-      if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-        setSelectedSwapToken({
-          address: address as `0x${string}`,
-          name: tokenMetadata.name || "",
-          symbol: tokenMetadata.symbol || "",
-          logo: tokenMetadata.logo || "",
-          balance: tokenBalance,
-          balanceBigInt: balanceBigInt,
-          decimals: tokenMetadata.decimals || 18,
-          chainId: chainIdToUse,
-        });
-        return;
-      }
+    const normalizedAddress = tokenAddress.toLowerCase();
+    let currentChainId = chainId;
+    let enrichedToken = findTokenWithMetadata(
+      normalizedAddress,
+      tokenMetadata,
+      tokenList || {},
+      chainId
+    );
 
-      if (!isTradeMode && !isStrategiesSection) {
-        setSelectedCollateralToken({
-          address: address as `0x${string}`,
-          name: tokenMetadata.name || "",
-          symbol: tokenMetadata.symbol || "",
-          logo: tokenMetadata.logo || "",
-          balance: tokenBalance,
-          balanceBigInt: balanceBigInt,
-          decimals: tokenMetadata.decimals || 18,
-          chainId: chainIdToUse,
-        });
-      }
+    const tokenData = {
+      address: enrichedToken.address as `0x${string}`,
+      name: enrichedToken.name || "",
+      symbol: enrichedToken.symbol || "",
+      logo: enrichedToken.logo || "",
+      balance: tokenBalance,
+      balanceBigInt: balanceBigInt,
+      decimals: enrichedToken.decimals || 18,
+      chainId: enrichedToken.chainId || currentChainId,
+    };
 
-      setSelectedPrincipalErc20Token({
-        address: address as `0x${string}`,
-        name: tokenMetadata.name || "",
-        symbol: tokenMetadata.symbol || "",
-        logo: tokenMetadata.logo || "",
-        balance: tokenBalance,
-        balanceBigInt: balanceBigInt,
-        decimals: tokenMetadata.decimals || 18,
-        chainId: chainIdToUse,
-      });
-
-      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+      setSelectedSwapToken(tokenData);
+      return;
     }
+
+    if (!isTradeMode && !isStrategiesSection) {
+      setSelectedCollateralToken(tokenData);
+    }
+
+    setSelectedPrincipalErc20Token(tokenData);
+    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
   }, [
     tokenAddress,
     tokenMetadata,
@@ -141,6 +101,9 @@ const RenderComponent: React.FC = () => {
     strategyToken,
     strategyAction,
     setSelectedSwapToken,
+    chainId,
+    isTradeMode,
+    isStrategiesSection,
   ]);
 
   const mapStepToComponent = useMemo(
