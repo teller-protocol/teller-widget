@@ -17,7 +17,6 @@ interface Commitment {
 }
 
 export const useGetCommitmentsForUserTokens = () => {
-  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
   const chainId = useChainId();
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
@@ -41,6 +40,9 @@ export const useGetCommitmentsForUserTokens = () => {
       cachedResult = { data: JSON.parse(cached).data, loading: false };
     }
   }
+  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>(
+    cachedResult?.data || []
+  );
 
   const userTokenCommitments = useMemo(
     () =>
@@ -135,6 +137,10 @@ export const useGetCommitmentsForUserTokens = () => {
   }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
+    if (tokensWithCommitments.length) {
+      setLoading(false);
+      return;
+    }
     if (!address) {
       setLoading(false);
       return;
@@ -177,7 +183,6 @@ export const useGetCommitmentsForUserTokens = () => {
         }
       );
       setTokensWithCommitments(userCommitmentsUnique);
-      console.log(userCommitmentsUnique, "userCommitmentsUnique");
 
       if (
         typeof window !== "undefined" &&
@@ -200,6 +205,7 @@ export const useGetCommitmentsForUserTokens = () => {
     address,
     isFetched,
     lenderGroupsUserTokenCommitmentsFetched,
+    tokensWithCommitments.length,
   ]);
 
   return useMemo(
