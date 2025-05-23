@@ -82,11 +82,8 @@ const RenderComponent: React.FC = () => {
       setSelectedSwapToken(tokenData);
       return;
     }
-
-    if (!isTradeMode && !isStrategiesSection) {
-      setSelectedCollateralToken(tokenData);
-    }
-
+    
+    setSelectedCollateralToken(tokenData);
     setSelectedPrincipalErc20Token(tokenData);
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
   }, [
