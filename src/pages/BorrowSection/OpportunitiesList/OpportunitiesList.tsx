@@ -380,15 +380,15 @@ const OpportunitiesList: React.FC = () => {
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
 
   useEffect(() => {
-    const isLongStrategyActive =
+    const shouldSkipOpportunitySelection =
       (isStrategiesSection || isTradeMode) &&
-      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
-      selectedCollateralToken &&
+      (strategyAction === STRATEGY_ACTION_ENUM.LONG ||
+        strategyAction === STRATEGY_ACTION_ENUM.SHORT) &&
+      (selectedCollateralToken || selectedPrincipalErc20Token) &&
       sortedCommitments.length > 0 &&
-      !isLoading &&
-      !strategyToken;
+      !isLoading;
 
-    if (isLongStrategyActive) {
+    if (shouldSkipOpportunitySelection) {
       const bestCommitment = sortedCommitments[0];
       if (bestCommitment) {
         setSelectedOpportunity(bestCommitment);
