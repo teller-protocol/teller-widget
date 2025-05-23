@@ -47,6 +47,7 @@ interface BaseWidgetProps {
   widgetChainId?: number;
   isTradeMode?: boolean;
   strategy?: STRATEGY_ACTION_ENUM.LONG | STRATEGY_ACTION_ENUM.SHORT;
+  strategyToken?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -89,6 +90,7 @@ const Widget: React.FC<WidgetProps> = ({
   widgetChainId,
   isTradeMode,
   strategy,
+  strategyToken,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -118,6 +120,7 @@ const Widget: React.FC<WidgetProps> = ({
           isVisible={showModal || isEmbedded}
           isTradeMode={isTradeMode}
           initialStrategyAction={strategy}
+          strategyToken={strategyToken}
         >
           <TransactionButtonProvider>
             <div className="teller-widget">

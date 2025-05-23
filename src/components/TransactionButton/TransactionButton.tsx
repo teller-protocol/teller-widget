@@ -136,49 +136,47 @@ const TransactionButton = ({
   const renderButton = useCallback(
     (step: TransactionStepConfig, stepId: number) =>
       currentStepID <= stepId && (
-        <>
-          <Button
-            key={stepId}
-            onClick={() => {
-              isLastStep && step.onClick?.();
-              // if (step.tx) {
-              //   try {
-              //     setCustomTxLoading(true);
-              //     const tx = await step.tx();
-              //     const receipt = await tx?.wait();
-              //     onSuccessTransaction(receipt);
-              //     setCustomTxLoading(false);
-              //   } catch (e) {
-              //     console.error("Error sending custom tx", e);
-              //     setCustomTxLoading(false);
-              //     setCustomTxError(true);
-              //   }
-              // }
-              if (writeContract && simulatedData?.request)
-                writeContract(simulatedData?.request, {
-                  onSuccess: (data: any, params: any) =>
-                    void (async () => onSuccessTransaction(data, params))(),
-                });
-            }}
-            disabled={
-              isDisabled ||
-              stepId !== currentStepID ||
-              isSimulationLoading ||
-              isLoading ||
-              isButtonDisabled ||
-              isPending ||
-              currentStep?.isStepDisabled ||
-              !!currentStep?.errorMessage ||
-              isConfirming ||
-              !!simulatedError
-            }
-          >
-            {(isPending || customTxLoading || isConfirming) &&
-            step.buttonLabel === currentStep?.buttonLabel
-              ? step.loadingButtonLabel
-              : step?.buttonLabel}
-          </Button>
-        </>
+        <Button
+          key={stepId}
+          onClick={() => {
+            isLastStep && step.onClick?.();
+            // if (step.tx) {
+            //   try {
+            //     setCustomTxLoading(true);
+            //     const tx = await step.tx();
+            //     const receipt = await tx?.wait();
+            //     onSuccessTransaction(receipt);
+            //     setCustomTxLoading(false);
+            //   } catch (e) {
+            //     console.error("Error sending custom tx", e);
+            //     setCustomTxLoading(false);
+            //     setCustomTxError(true);
+            //   }
+            // }
+            if (writeContract && simulatedData?.request)
+              writeContract(simulatedData?.request, {
+                onSuccess: (data: any, params: any) =>
+                  void (async () => onSuccessTransaction(data, params))(),
+              });
+          }}
+          disabled={
+            isDisabled ||
+            stepId !== currentStepID ||
+            isSimulationLoading ||
+            isLoading ||
+            isButtonDisabled ||
+            isPending ||
+            currentStep?.isStepDisabled ||
+            !!currentStep?.errorMessage ||
+            isConfirming ||
+            !!simulatedError
+          }
+        >
+          {(isPending || customTxLoading || isConfirming) &&
+          step.buttonLabel === currentStep?.buttonLabel
+            ? step.loadingButtonLabel
+            : step?.buttonLabel}
+        </Button>
       ),
     [
       currentStep?.buttonLabel,

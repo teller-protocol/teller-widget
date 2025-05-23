@@ -1,7 +1,10 @@
 import { useMemo, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
-import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
+import {
+  findTokenWithMetadata,
+  useGetTokenMetadata,
+} from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -15,58 +18,74 @@ import OpportunityDetails from "./OpportunityDetails";
 import "./borrowSection.scss";
 import BorrowConfirmation from "./BorrowConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import {
+  STRATEGY_ACTION_ENUM,
+  useGetGlobalPropsContext,
+} from "../../contexts/GlobalPropsContext";
+import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 
 const RenderComponent: React.FC = () => {
-  const { whitelistedChainTokens, singleWhitelistedToken, userTokens } =
-    useGetGlobalPropsContext();
+  const {
+    singleWhitelistedToken,
+    userTokens,
+    strategyToken,
+    strategyAction,
+    isTradeMode,
+    isStrategiesSection,
+  } = useGetGlobalPropsContext();
   const {
     currentStep,
     setCurrentStep,
     bidId,
     setSelectedCollateralToken,
     setSelectedPrincipalErc20Token,
+    setSelectedSwapToken,
   } = useGetBorrowSectionContext();
-  const chainId = useChainId();
 
-  const tokenAddress = singleWhitelistedToken?.toLowerCase() || "";
+  const tokenAddress =
+    singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
+  const chainId = useChainId();
+  const { data: tokenList } = useGetTokenList();
 
   useEffect(() => {
-    if (tokenAddress && tokenMetadata && !isLoading) {
-      const tokenBalance =
-        userTokens.find(
-          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
-        )?.balance || "0";
+    if (!tokenAddress || !tokenMetadata || isLoading) return;
 
-      const balanceUnits = parseUnits(
-        tokenBalance,
-        tokenMetadata.decimals || 18
-      );
-      const balanceBigInt = BigInt(balanceUnits.toString());
+    const tokenBalance =
+      userTokens.find(
+        (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+      )?.balance || "0";
+    const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
+    const balanceBigInt = BigInt(balanceUnits.toString());
 
-      setSelectedCollateralToken({
-        address: tokenAddress as `0x${string}`,
-        name: tokenMetadata.name || "",
-        symbol: tokenMetadata.symbol || "",
-        logo: tokenMetadata.logo || "",
-        balance: tokenBalance,
-        balanceBigInt: balanceBigInt,
-        decimals: tokenMetadata.decimals || 18,
-      });
+    const normalizedAddress = tokenAddress.toLowerCase();
+    let currentChainId = chainId;
+    let enrichedToken = findTokenWithMetadata(
+      normalizedAddress,
+      tokenMetadata,
+      tokenList || {},
+      chainId
+    );
 
-      setSelectedPrincipalErc20Token({
-        address: tokenAddress as `0x${string}`,
-        name: tokenMetadata.name || "",
-        symbol: tokenMetadata.symbol || "",
-        logo: tokenMetadata.logo || "",
-        balance: tokenBalance,
-        balanceBigInt: balanceBigInt,
-        decimals: tokenMetadata.decimals || 18,
-      });
+    const tokenData = {
+      address: enrichedToken.address as `0x${string}`,
+      name: enrichedToken.name || "",
+      symbol: enrichedToken.symbol || "",
+      logo: enrichedToken.logo || "",
+      balance: tokenBalance,
+      balanceBigInt: balanceBigInt,
+      decimals: enrichedToken.decimals || 18,
+      chainId: enrichedToken.chainId || currentChainId,
+    };
 
-      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+      setSelectedSwapToken(tokenData);
+      return;
     }
+    
+    setSelectedCollateralToken(tokenData);
+    setSelectedPrincipalErc20Token(tokenData);
+    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
   }, [
     tokenAddress,
     tokenMetadata,
@@ -75,6 +94,13 @@ const RenderComponent: React.FC = () => {
     setSelectedPrincipalErc20Token,
     setCurrentStep,
     userTokens,
+    tokenList,
+    strategyToken,
+    strategyAction,
+    setSelectedSwapToken,
+    chainId,
+    isTradeMode,
+    isStrategiesSection,
   ]);
 
   const mapStepToComponent = useMemo(

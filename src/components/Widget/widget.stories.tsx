@@ -99,6 +99,10 @@ const meta = {
       options: [STRATEGY_ACTION_ENUM.LONG, STRATEGY_ACTION_ENUM.SHORT],
       control: { type: "select" },
     },
+    strategyToken: {
+      description: "Token address to automatically load in strategy section",
+      control: { type: "text" },
+    },
   },
   args: {
     hideAutoConnectModal: true,
@@ -392,6 +396,7 @@ export const Trade: Story = {
     subgraphApiKey: SUBGRAPH_API_KEY,
     isTradeMode: true,
     strategy: STRATEGY_ACTION_ENUM.LONG,
+    strategyToken: "0x1bc0c42215582d5a085795f4badbac3ff36d1bcb",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();

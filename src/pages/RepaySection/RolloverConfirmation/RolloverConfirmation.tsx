@@ -1,22 +1,20 @@
+import { useEffect } from "react";
 import { useWaitForTransactionReceipt } from "wagmi";
-import confirmationAsset from "../../../assets/confirmation.svg";
 import confirmationBackground from "../../../assets/confirmation_background.png";
 import externalLink from "../../../assets/external_link.svg";
 import Button from "../../../components/Button";
 
-import { Address, decodeEventLog, formatUnits, fromHex } from "viem";
+import { Address, formatUnits, fromHex } from "viem";
 import Loader from "../../../components/Loader";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useChainData } from "../../../hooks/useChainData";
-import { useContracts } from "../../../hooks/useContracts";
-import { SupportedContractsEnum } from "../../../hooks/useReadContract";
 import {
   RepaySectionSteps,
   useGetRepaySectionContext,
 } from "../RepaySectionContext";
 import "./rolloverConfirmation.scss";
-import RepaySection from "../RepaySection";
 import { normalizeChainName } from "../../../constants/chains";
+
 const LabelWithIcon = ({ label }: { label: string }) => (
   <div className="label-with-icon">
     {label} <img src={externalLink} />
@@ -30,6 +28,7 @@ const RolloverConfirmation = () => {
     setBidId,
     setCurrentStep,
     successfulLoanParams,
+    bidId,
   } = useGetRepaySectionContext();
 
   const { chainExplorerURL, chainName } = useChainData();
@@ -58,8 +57,15 @@ const RolloverConfirmation = () => {
     },
   });
 
-  const bidId = fromHex(successData?.logs?.[10]?.topics?.[1] ?? "0x", "number");
-  setBidId(bidId.toString());
+  useEffect(() => {
+    if (successData) {
+      const topicData = successData.logs?.[10]?.topics?.[1];
+      if (topicData && topicData !== "0x") {
+        const extractedBidId = fromHex(topicData, "number");
+        setBidId(extractedBidId.toString());
+      }
+    }
+  }, [successData, setBidId]);
 
   return (
     <div className="rollover-confirmation">

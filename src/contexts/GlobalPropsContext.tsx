@@ -47,6 +47,7 @@ export type GlobalPropsContextType = {
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
   whitelistedTokens?: WhitelistedTokens;
   isTradeMode?: boolean;
+  strategyToken?: string;
 };
 
 interface GlobalPropsContextProps {
@@ -65,6 +66,7 @@ interface GlobalPropsContextProps {
   isVisible?: boolean;
   isTradeMode?: boolean;
   initialStrategyAction?: STRATEGY_ACTION_ENUM;
+  strategyToken?: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -85,6 +87,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   isVisible = false,
   isTradeMode = false,
   initialStrategyAction,
+  strategyToken,
 }) => {
   const { address } = useAccount();
   const chainId = useChainId();
@@ -128,6 +131,12 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     initialStrategyAction || STRATEGY_ACTION_ENUM.LONG
   );
 
+  useEffect(() => {
+    if (initialStrategyAction) {
+      setStrategyAction(initialStrategyAction);
+    }
+  }, [initialStrategyAction]);
+
   const isWhitelistedToken = useCallback(
     (token?: Address | undefined) => {
       const result = token ? whitelistedChainTokens.includes(token) : false;
@@ -158,6 +167,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       setStrategyAction,
       whitelistedTokens,
       isTradeMode,
+      strategyToken,
     };
   }, [
     userTokens,
@@ -178,13 +188,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     strategyAction,
     whitelistedTokens,
     isTradeMode,
+    strategyToken,
   ]);
-
-  useEffect(() => {
-    if (initialStrategyAction) {
-      setStrategyAction(initialStrategyAction);
-    }
-  }, [initialStrategyAction]);
 
   return (
     <GlobalPropsContext.Provider value={contextValue}>

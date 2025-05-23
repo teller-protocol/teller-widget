@@ -107,6 +107,7 @@ export const useGetCommitmentsForErc20Tokens = () => {
                 balance: aggregatedBalance || "0",
                 balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
                 decimals: metadata?.decimals || 18,
+                chainId,
               } as UserToken;
             } catch (error) {
               console.error(

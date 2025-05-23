@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 const endpoint = `https://tbot2.teller.org/get-json-file`;
 
-type UniswapToken = {
+export type UniswapToken = {
   address: string;
   chainId: number;
   decimals: number;
