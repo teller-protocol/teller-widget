@@ -9,6 +9,8 @@ import { arbitrum } from "viem/chains";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetTokensData } from "../useFetchTokensData";
 
+const cacheKey = "commitments_across_networks";
+
 const commitmentsQuery = (tokens: string[]) => gql`
   query commitmentsForUserTokens {
     commitments(
@@ -50,6 +52,21 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   const baseID = base.id;
 
   const subpgraphIds = [mainnetID, polygonID, arbitrumID, baseID];
+
+  let cachedResult;
+
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(cacheKey);
+    const cacheTimestamp = cached ? JSON.parse(cached).timestamp : null;
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    if (
+      cached &&
+      cacheTimestamp &&
+      Date.now() - parseInt(cacheTimestamp, 10) < oneHour
+    ) {
+      cachedResult = { data: JSON.parse(cached).data, loading: false };
+    }
+  }
 
   const result = useQueries({
     queries: subpgraphIds.map((id, index) => ({
@@ -106,9 +123,16 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     })),
     combine: (results) => {
       const allData = results.map((d) => d.data).flat();
+      const allDataFetched = results.every((d) => d.isSuccess);
+      if (typeof window !== "undefined" && allDataFetched) {
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ data: allData, timestamp: Date.now() })
+        );
+      }
       return { data: allData, loading: results.some((d) => d.isLoading) };
     },
   });
 
-  return result;
+  return cachedResult ?? result;
 };

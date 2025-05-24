@@ -8,6 +8,8 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useChainId, useAccount } from "wagmi";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 
+const cacheKey = "userTokensCommitments";
+
 interface Commitment {
   collateralToken: {
     address: string;
@@ -15,7 +17,6 @@ interface Commitment {
 }
 
 export const useGetCommitmentsForUserTokens = () => {
-  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
   const chainId = useChainId();
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
@@ -24,6 +25,24 @@ export const useGetCommitmentsForUserTokens = () => {
   const { address } = useAccount();
 
   const hasTokens = userTokens.length > 0;
+
+  let cachedResult;
+
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(cacheKey);
+    const cacheTimestamp = cached ? JSON.parse(cached).timestamp : null;
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    if (
+      cached &&
+      cacheTimestamp &&
+      Date.now() - parseInt(cacheTimestamp, 10) < oneHour
+    ) {
+      cachedResult = { data: JSON.parse(cached).data, loading: false };
+    }
+  }
+  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>(
+    cachedResult?.data || []
+  );
 
   const userTokenCommitments = useMemo(
     () =>
@@ -66,19 +85,21 @@ export const useGetCommitmentsForUserTokens = () => {
       `,
     [userTokens]
   );
-  const { data, refetch } = useQuery({
+  const { data, refetch, isFetched } = useQuery({
     queryKey: [`commitmentsForUserTokens-${chainId}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
-    enabled: !!hasTokens,
+    enabled: !!hasTokens || !cachedResult?.data.length,
   }) as {
     data: { commitments: Commitment[] };
     isLoading: boolean;
     refetch: any;
+    isFetched: boolean;
   };
 
   const {
     data: lenderGroupsUserTokenCommitmentsData,
     isLoading: lenderGroupsUserTokenCommitmentsLoading,
+    isFetched: lenderGroupsUserTokenCommitmentsFetched,
   } = useQuery({
     queryKey: [`lenderGroupsUserTokenCommitments-${chainId}`],
     queryFn: async () => {
@@ -95,7 +116,7 @@ export const useGetCommitmentsForUserTokens = () => {
       });
       return response;
     },
-    enabled: !!hasTokens,
+    enabled: !!hasTokens || !cachedResult?.data.length,
   }) as {
     data: {
       group_pool_address: string;
@@ -105,6 +126,7 @@ export const useGetCommitmentsForUserTokens = () => {
       };
     }[];
     isLoading: boolean;
+    isFetched: boolean;
   };
 
   useEffect(() => {
@@ -115,6 +137,10 @@ export const useGetCommitmentsForUserTokens = () => {
   }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
+    if (tokensWithCommitments.length) {
+      setLoading(false);
+      return;
+    }
     if (!address) {
       setLoading(false);
       return;
@@ -157,6 +183,17 @@ export const useGetCommitmentsForUserTokens = () => {
         }
       );
       setTokensWithCommitments(userCommitmentsUnique);
+
+      if (
+        typeof window !== "undefined" &&
+        isFetched &&
+        lenderGroupsUserTokenCommitmentsFetched
+      ) {
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ data: userCommitmentsUnique, timestamp: Date.now() })
+        );
+      }
       setLoading(false);
     }
   }, [
@@ -166,6 +203,9 @@ export const useGetCommitmentsForUserTokens = () => {
     setLoading,
     lenderGroupsUserTokenCommitmentsData,
     address,
+    isFetched,
+    lenderGroupsUserTokenCommitmentsFetched,
+    tokensWithCommitments.length,
   ]);
 
   return useMemo(

@@ -40,7 +40,7 @@ export const useGetTokensData = () => {
           symbol: metadata.symbol ?? "",
           logo: metadata.logo ?? imageAndSymbol?.image ?? "",
           balance: "0", // Default balance as 0 since it's not fetched here
-          balanceBigInt: BigInt(0),
+          balanceBigInt: "0",
           decimals: metadata.decimals ?? 0,
           chainId: Number(chainId),
         };

@@ -17,7 +17,7 @@ import {
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import TokenLogo from "../../../components/TokenLogo";
 import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
@@ -106,6 +106,8 @@ const CollateralTokenList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { address } = useAccount();
+
   const chainId = useChainId();
 
   const isLong =
@@ -133,7 +135,9 @@ const CollateralTokenList: React.FC = () => {
           token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
-      .filter((token) => (isLong ? token.chainId === chainId : true)), // if long, match collateral token to chainId
+      .filter((token) =>
+        isLong ? (address ? true : token.chainId === chainId) : true
+      ), // if long, match collateral token to chainId
   ];
 
   const handleStrategyAction = (action: string) => {
