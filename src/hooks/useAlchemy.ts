@@ -14,15 +14,16 @@ export const mapChainIdToAlchemyNetworkKey: {
   [base.id]: Network.BASE_MAINNET,
 };
 
-export const useAlchemy = (chainId?: number): Alchemy | undefined => {
-  const defaultChainId = useChainId();
+export const useAlchemy = (): Alchemy | undefined => {
+  const chainId = useChainId();
+
   return useMemo(() => {
-    if (!mapChainIdToAlchemyNetworkKey[chainId || defaultChainId]) {
+    if (!mapChainIdToAlchemyNetworkKey[chainId]) {
       return;
     }
     return new Alchemy({
       apiKey: ALCHEMY_API_KEY,
-      network: mapChainIdToAlchemyNetworkKey[chainId || defaultChainId],
+      network: mapChainIdToAlchemyNetworkKey[chainId],
     });
   }, [chainId]);
 };
