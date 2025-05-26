@@ -13,6 +13,7 @@ import { useGetTokenList } from "../../../hooks/queries/useGetTokenList";
 import { AddressStringType } from "../../../types/addressStringType";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 import { useGetTokensData } from "../../../hooks/useFetchTokensData";
+import { getTokenChain } from "../../../hooks/useGetTokenChain";
 
 const SwapTokenList: React.FC = () => {
   const {
@@ -120,6 +121,7 @@ const SwapTokenList: React.FC = () => {
       ];
 
       if (tokens.length === 0 && searchQuery.length > 0) {
+        const chainId = await getTokenChain(searchQuery);
         tokens = await fetchAllWhitelistedTokensData([searchQuery], chainId);
       }
 
