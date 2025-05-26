@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { parseUnits } from "viem";
 import {
   findTokenWithMetadata,
@@ -47,6 +47,7 @@ const RenderComponent: React.FC = () => {
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
   const chainId = useChainId();
   const { data: tokenList } = useGetTokenList();
+  const { switchChain } = useSwitchChain();
 
   useEffect(() => {
     if (!tokenAddress || !tokenMetadata || isLoading) return;
@@ -59,13 +60,17 @@ const RenderComponent: React.FC = () => {
     const balanceBigInt = BigInt(balanceUnits.toString());
 
     const normalizedAddress = tokenAddress.toLowerCase();
-    let currentChainId = chainId;
     let enrichedToken = findTokenWithMetadata(
       normalizedAddress,
       tokenMetadata,
       tokenList || {},
       chainId
     );
+
+    if (enrichedToken.chainId && enrichedToken.chainId !== chainId) {
+      switchChain({ chainId: enrichedToken.chainId });
+      return;
+    }
 
     const tokenData = {
       address: enrichedToken.address as `0x${string}`,
@@ -75,7 +80,7 @@ const RenderComponent: React.FC = () => {
       balance: tokenBalance,
       balanceBigInt: balanceBigInt,
       decimals: enrichedToken.decimals || 18,
-      chainId: enrichedToken.chainId || currentChainId,
+      chainId: enrichedToken.chainId || chainId,
     };
 
     if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
@@ -101,6 +106,7 @@ const RenderComponent: React.FC = () => {
     chainId,
     isTradeMode,
     isStrategiesSection,
+    switchChain,
   ]);
 
   const mapStepToComponent = useMemo(
