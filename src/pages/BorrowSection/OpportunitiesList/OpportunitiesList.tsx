@@ -403,6 +403,8 @@ const OpportunitiesList: React.FC = () => {
     isLoading,
     setSelectedOpportunity,
     setCurrentStep,
+    isTradeMode,
+    selectedPrincipalErc20Token,
   ]);
 
   return (
