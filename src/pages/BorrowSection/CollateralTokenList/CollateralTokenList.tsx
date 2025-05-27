@@ -66,7 +66,6 @@ export const StrategiesSelect: React.FC<{
 
   const handleOnChange = (value: STRATEGY_ACTION_ENUM) => {
     setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-    setSelectedSwapToken(undefined);
     onValueChange(value);
   };
 
