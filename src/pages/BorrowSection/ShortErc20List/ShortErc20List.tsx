@@ -1,4 +1,5 @@
 import React from "react";
+import { useAccount } from "wagmi";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -7,7 +8,6 @@ import { UserToken } from "../../../hooks/useGetUserTokens";
 import ShortErc20TokenRow from "../../../components/ShortErc20Row";
 import "./shortErc20List.scss";
 
-import TokenLogo from "../../../components/TokenLogo";
 import Loader from "../../../components/Loader";
 import "../../../components/ShortErc20Row/shortErc20Row.scss";
 
@@ -20,10 +20,16 @@ const ShortErc20List: React.FC<{ searchQuery?: string }> = ({
     setSelectedPrincipalErc20Token,
     erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
+  const { address } = useAccount();
 
-  const filteredTokens = principalErc20Tokens.filter((token) =>
-    token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTokens = principalErc20Tokens
+    .filter((token) =>
+      token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .map((token) => ({
+      ...token,
+      chainId: address ? undefined : token.chainId,
+    }));
 
   const onShortErc20TokenSelected = (token: UserToken) => {
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);

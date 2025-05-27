@@ -23,6 +23,7 @@ import {
   useGetGlobalPropsContext,
 } from "../../contexts/GlobalPropsContext";
 import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
+import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 
 const RenderComponent: React.FC = () => {
   const {
@@ -40,6 +41,7 @@ const RenderComponent: React.FC = () => {
     setSelectedCollateralToken,
     setSelectedPrincipalErc20Token,
     setSelectedSwapToken,
+    setSelectedOpportunity,
   } = useGetBorrowSectionContext();
 
   const tokenAddress =
@@ -48,6 +50,7 @@ const RenderComponent: React.FC = () => {
   const chainId = useChainId();
   const { data: tokenList } = useGetTokenList();
   const { switchChain } = useSwitchChain();
+  const { address } = useAccount();
 
   useEffect(() => {
     if (!tokenAddress || !tokenMetadata || isLoading) return;
@@ -59,16 +62,19 @@ const RenderComponent: React.FC = () => {
     const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
     const balanceBigInt = BigInt(balanceUnits.toString());
 
-    const normalizedAddress = tokenAddress.toLowerCase();
     let enrichedToken = findTokenWithMetadata(
-      normalizedAddress,
+      tokenAddress.toLowerCase(),
       tokenMetadata,
       tokenList || {},
       chainId
     );
 
     if (enrichedToken.chainId && enrichedToken.chainId !== chainId) {
-      switchChain({ chainId: enrichedToken.chainId });
+      setSelectedSwapToken(undefined);
+      setSelectedCollateralToken(undefined);
+      setSelectedPrincipalErc20Token(undefined);
+      setSelectedOpportunity({} as CommitmentType);
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
       return;
     }
 
@@ -80,14 +86,14 @@ const RenderComponent: React.FC = () => {
       balance: tokenBalance,
       balanceBigInt: balanceBigInt,
       decimals: enrichedToken.decimals || 18,
-      chainId: enrichedToken.chainId || chainId,
+      chainId: !address ? enrichedToken.chainId || chainId : undefined,
     };
 
     if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
       setSelectedSwapToken(tokenData);
       return;
     }
-    
+
     setSelectedCollateralToken(tokenData);
     setSelectedPrincipalErc20Token(tokenData);
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
@@ -126,8 +132,6 @@ const RenderComponent: React.FC = () => {
     }),
     [bidId, setCurrentStep]
   );
-
-  const { address } = useAccount();
 
   useEffect(() => {
     if (!address) {

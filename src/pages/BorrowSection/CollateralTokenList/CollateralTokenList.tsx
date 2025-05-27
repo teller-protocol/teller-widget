@@ -17,7 +17,7 @@ import {
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import TokenLogo from "../../../components/TokenLogo";
 import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
@@ -117,6 +117,7 @@ const CollateralTokenList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const chainId = useChainId();
+  const { address } = useAccount();
 
   const isLong =
     isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
@@ -144,7 +145,10 @@ const CollateralTokenList: React.FC = () => {
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
       .filter((token) => (isLong ? token.chainId === chainId : true)), // if long, match collateral token to chainId
-  ];
+  ].map((token) => ({
+    ...token,
+    chainId: address ? undefined : token.chainId,
+  }));
 
   const handleStrategyAction = (action: string) => {
     setStrategyAction(action as STRATEGY_ACTION_ENUM);
@@ -163,7 +167,7 @@ const CollateralTokenList: React.FC = () => {
             value={strategyAction ?? ""}
             onValueChange={handleStrategyAction}
           />
-          {selectedSwapToken && (
+          {selectedSwapToken && isStrategiesSection && (
             <SelectedCollateralTokenRow token={selectedSwapToken} />
           )}
           {!isStrategiesSection && (

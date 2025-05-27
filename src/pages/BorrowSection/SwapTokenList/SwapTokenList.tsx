@@ -16,7 +16,6 @@ import { arbitrum, base, mainnet, polygon } from "viem/chains";
 const SwapTokenList: React.FC = () => {
   const {
     setCurrentStep,
-    selectedSwapToken,
     setSelectedSwapToken,
     tokensWithCommitmentsLoading: loading,
     tokensWithCommitments,
@@ -80,7 +79,7 @@ const SwapTokenList: React.FC = () => {
     new Map(
       [...tokensWithCommitments, ...additionalTokens].map((t) => [
         t?.address?.toLowerCase(),
-        { ...t, chainId: t.chainId || chainId },
+        { ...t, chainId: !address ? t?.chainId || chainId : undefined },
       ])
     )
   ).map(([, token]) => token);

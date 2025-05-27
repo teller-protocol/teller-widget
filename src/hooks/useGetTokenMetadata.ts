@@ -35,7 +35,6 @@ export const useGetTokenMetadata = (
   return { tokenMetadata, isLoading };
 };
 
-
 export const findTokenWithMetadata = (
   address: string,
   metadata: TokenMetadataResponse,
@@ -47,10 +46,6 @@ export const findTokenWithMetadata = (
   );
 
   if (!token) {
-    token = tokenList?.[currentChainId]?.find(
-      (t) => t.symbol.toLowerCase() === metadata.symbol?.toLowerCase()
-    );
-
     if (!token) {
       const chains = Object.keys(tokenList || {});
       for (const chain of chains) {
@@ -61,6 +56,15 @@ export const findTokenWithMetadata = (
           token = foundToken;
           break;
         }
+      }
+    }
+
+    if (token) {
+      const tokenInSameChain = tokenList?.[currentChainId]?.find(
+        (t) => t.symbol.toLowerCase() === token?.symbol?.toLowerCase()
+      );
+      if (tokenInSameChain) {
+        token = tokenInSameChain;
       }
     }
   }
