@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { parseUnits } from "viem";
 import {
@@ -44,16 +44,26 @@ const RenderComponent: React.FC = () => {
     setSelectedOpportunity,
   } = useGetBorrowSectionContext();
 
+  const chainId = useChainId();
+  const { address } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const { data: tokenList } = useGetTokenList();
+
+  const [isStrategyTokenProcessed, setIsStrategyTokenProcessed] =
+    useState(false);
+
   const tokenAddress =
     singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
-  const chainId = useChainId();
-  const { data: tokenList } = useGetTokenList();
-  const { switchChain } = useSwitchChain();
-  const { address } = useAccount();
 
   useEffect(() => {
-    if (!tokenAddress || !tokenMetadata || isLoading) return;
+    if (
+      !tokenAddress ||
+      !tokenMetadata ||
+      isLoading ||
+      isStrategyTokenProcessed
+    )
+      return;
 
     const tokenBalance =
       userTokens.find(
@@ -91,12 +101,14 @@ const RenderComponent: React.FC = () => {
 
     if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
       setSelectedSwapToken(tokenData);
+      setIsStrategyTokenProcessed(true);
       return;
     }
 
     setSelectedCollateralToken(tokenData);
     setSelectedPrincipalErc20Token(tokenData);
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    setIsStrategyTokenProcessed(false);
   }, [
     tokenAddress,
     tokenMetadata,
@@ -113,6 +125,7 @@ const RenderComponent: React.FC = () => {
     isTradeMode,
     isStrategiesSection,
     switchChain,
+    isStrategyTokenProcessed,
   ]);
 
   const mapStepToComponent = useMemo(
@@ -138,6 +151,10 @@ const RenderComponent: React.FC = () => {
       setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     }
   }, [address, setCurrentStep]);
+
+  useEffect(() => {
+    if (chainId) setIsStrategyTokenProcessed(false);
+  }, [chainId]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>
