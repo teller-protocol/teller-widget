@@ -40,9 +40,18 @@ export const useGetCommitmentsForUserTokens = () => {
       cachedResult = { data: JSON.parse(cached).data, loading: false };
     }
   }
-  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>(
-    cachedResult?.data || []
+  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
+  console.log(
+    "TCL ~ useGetCommitmentsForUserTokens.ts:46 ~ useGetCommitmentsForUserTokens ~ tokensWithCommitments:",
+    tokensWithCommitments
   );
+
+  useEffect(() => {
+    setTokensWithCommitments([]);
+    if (cachedResult?.data) {
+      setTokensWithCommitments(cachedResult?.data);
+    }
+  }, [address, userTokens, cachedResult]);
 
   const userTokenCommitments = useMemo(
     () =>
@@ -86,7 +95,7 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens]
   );
   const { data, refetch, isFetched } = useQuery({
-    queryKey: [`commitmentsForUserTokens-${chainId}`],
+    queryKey: [`commitmentsForUserTokens-${chainId}-${address}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
     enabled: !!hasTokens || !cachedResult?.data.length,
   }) as {
@@ -101,7 +110,7 @@ export const useGetCommitmentsForUserTokens = () => {
     isLoading: lenderGroupsUserTokenCommitmentsLoading,
     isFetched: lenderGroupsUserTokenCommitmentsFetched,
   } = useQuery({
-    queryKey: [`lenderGroupsUserTokenCommitments-${chainId}`],
+    queryKey: [`lenderGroupsUserTokenCommitments-${chainId}-${address}`],
     queryFn: async () => {
       const response = await request(
         lenderGroupsGraphURL,
