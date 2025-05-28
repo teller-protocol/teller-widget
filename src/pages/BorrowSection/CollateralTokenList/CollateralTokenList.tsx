@@ -117,8 +117,6 @@ const CollateralTokenList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { address } = useAccount();
-
   const chainId = useChainId();
   const { address } = useAccount();
 

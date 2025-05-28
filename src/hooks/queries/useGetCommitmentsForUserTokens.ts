@@ -8,7 +8,7 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useChainId, useAccount } from "wagmi";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 
-const cacheKey = "userTokensCommitments";
+const cacheKeyPrefix = "userTokensCommitments";
 
 interface Commitment {
   collateralToken: {
@@ -26,6 +26,7 @@ export const useGetCommitmentsForUserTokens = () => {
 
   const hasTokens = userTokens.length > 0;
 
+  const cacheKey = `${cacheKeyPrefix}-${address}`;
   let cachedResult;
 
   if (typeof window !== "undefined") {
@@ -41,22 +42,17 @@ export const useGetCommitmentsForUserTokens = () => {
     }
   }
   const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
-  console.log(
-    "TCL ~ useGetCommitmentsForUserTokens.ts:46 ~ useGetCommitmentsForUserTokens ~ tokensWithCommitments:",
-    tokensWithCommitments
-  );
 
   useEffect(() => {
-    setTokensWithCommitments([]);
-    if (cachedResult?.data) {
+    if (cachedResult?.data && tokensWithCommitments.length === 0) {
       setTokensWithCommitments(cachedResult?.data);
     }
-  }, [address, userTokens, cachedResult]);
+  }, [address, userTokens, cachedResult, tokensWithCommitments.length]);
 
   const userTokenCommitments = useMemo(
     () =>
       gql`
-        query commitmentsForUserTokens {
+        query commitmentsForUserTokens${address} {
           commitments(
             where: {
               collateralToken_: { address_in: ${JSON.stringify(
@@ -73,13 +69,13 @@ export const useGetCommitmentsForUserTokens = () => {
           }
         }
       `,
-    [userTokens]
+    [userTokens, address]
   );
 
   const lenderGroupsUserTokenCommitments = useMemo(
     () =>
       gql`
-        query checkCommitmentsLenderGroups {
+        query checkCommitmentsLenderGroups${address} {
           groupPoolMetrics(
             where: {
               collateral_token_address_in: ${JSON.stringify(
@@ -92,12 +88,12 @@ export const useGetCommitmentsForUserTokens = () => {
           }
         }
       `,
-    [userTokens]
+    [userTokens, address]
   );
   const { data, refetch, isFetched } = useQuery({
     queryKey: [`commitmentsForUserTokens-${chainId}-${address}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
-    enabled: !!hasTokens || !cachedResult?.data.length,
+    enabled: !!hasTokens,
   }) as {
     data: { commitments: Commitment[] };
     isLoading: boolean;
@@ -125,7 +121,7 @@ export const useGetCommitmentsForUserTokens = () => {
       });
       return response;
     },
-    enabled: !!hasTokens || !cachedResult?.data.length,
+    enabled: !!hasTokens,
   }) as {
     data: {
       group_pool_address: string;
@@ -138,12 +134,19 @@ export const useGetCommitmentsForUserTokens = () => {
     isFetched: boolean;
   };
 
-  useEffect(() => {
-    void (async () => {
-      setLoading(true);
-      await refetch();
-    })();
-  }, [chainId, refetch, userTokens]);
+  console.log(
+    "TCL ~ useGetCommitmentsForUserTokens.ts:102 ~ useGetCommitmentsForUserTokens ~ isFetched:",
+    isFetched,
+    "lenderGroupsFetched",
+    lenderGroupsUserTokenCommitmentsFetched
+  );
+
+  // useEffect(() => {
+  //   void (async () => {
+  //     setLoading(true);
+  //     await refetch();
+  //   })();
+  // }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
     if (tokensWithCommitments.length) {
@@ -158,7 +161,7 @@ export const useGetCommitmentsForUserTokens = () => {
       setLoading(true);
       return;
     }
-    if (data?.commitments || lenderGroupsUserTokenCommitmentsData) {
+    if (isFetched && lenderGroupsUserTokenCommitmentsFetched) {
       const combinedCommitments = [
         ...(data?.commitments || []),
         ...(lenderGroupsUserTokenCommitmentsData || []),
@@ -215,6 +218,7 @@ export const useGetCommitmentsForUserTokens = () => {
     isFetched,
     lenderGroupsUserTokenCommitmentsFetched,
     tokensWithCommitments.length,
+    cacheKey,
   ]);
 
   return useMemo(
