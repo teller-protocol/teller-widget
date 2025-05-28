@@ -57,13 +57,7 @@ const RenderComponent: React.FC = () => {
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
 
   useEffect(() => {
-    if (
-      !tokenAddress ||
-      !tokenMetadata ||
-      isLoading ||
-      isStrategyTokenProcessed
-    )
-      return;
+    if (!tokenAddress || !tokenMetadata || isLoading) return;
 
     const tokenBalance =
       userTokens.find(
@@ -79,7 +73,12 @@ const RenderComponent: React.FC = () => {
       chainId
     );
 
-    if (enrichedToken.chainId && enrichedToken.chainId !== chainId) {
+    setIsStrategyTokenProcessed(true);
+    if (
+      enrichedToken.chainId &&
+      (enrichedToken.chainId !== chainId ||
+        enrichedToken.address.toLowerCase() !== tokenAddress.toLowerCase())
+    ) {
       setSelectedSwapToken(undefined);
       setSelectedCollateralToken(undefined);
       setSelectedPrincipalErc20Token(undefined);
@@ -87,6 +86,7 @@ const RenderComponent: React.FC = () => {
       setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
       return;
     }
+    if (isStrategyTokenProcessed) return;
 
     const tokenData = {
       address: enrichedToken.address as `0x${string}`,
@@ -101,14 +101,12 @@ const RenderComponent: React.FC = () => {
 
     if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
       setSelectedSwapToken(tokenData);
-      setIsStrategyTokenProcessed(true);
       return;
     }
 
     setSelectedCollateralToken(tokenData);
     setSelectedPrincipalErc20Token(tokenData);
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-    setIsStrategyTokenProcessed(false);
   }, [
     tokenAddress,
     tokenMetadata,
@@ -151,10 +149,6 @@ const RenderComponent: React.FC = () => {
       setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     }
   }, [address, setCurrentStep]);
-
-  useEffect(() => {
-    if (chainId) setIsStrategyTokenProcessed(false);
-  }, [chainId]);
 
   return (
     <div className="borrow-section">{mapStepToComponent[currentStep]}</div>
