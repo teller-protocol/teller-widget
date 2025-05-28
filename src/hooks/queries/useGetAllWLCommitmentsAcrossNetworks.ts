@@ -1,18 +1,16 @@
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
-import request, { gql } from "graphql-request";
-import { UserToken } from "../useGetUserTokens";
 import { useQueries } from "@tanstack/react-query";
-import { base, mainnet } from "viem/chains";
-import { polygon } from "viem/chains";
-import { arbitrum } from "viem/chains";
+import request, { gql } from "graphql-request";
+import { arbitrum, base, mainnet, polygon } from "viem/chains";
+import { useAccount } from "wagmi";
+import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetTokensData } from "../useFetchTokensData";
 
 const cacheKey = "commitments_across_networks";
 
 const commitmentsQuery = (tokens: string[]) => gql`
-  query commitmentsForUserTokens {
+  query commitmentsForUserTokensALLWLTokens {
     commitments(
       where: { collateralToken_: { address_in: ${JSON.stringify(
         Array.from(new Set(tokens))
@@ -26,7 +24,7 @@ const commitmentsQuery = (tokens: string[]) => gql`
 `;
 
 const liquidityPoolsQuery = (tokens: string[]) => gql`
-        query checkCommitmentsLenderGroups {
+        query checkCommitmentsLenderGroupsALLWLTokens {
           groupPoolMetrics(
             where: {
               collateral_token_address_in: ${JSON.stringify(
@@ -43,6 +41,8 @@ const liquidityPoolsQuery = (tokens: string[]) => gql`
 export const useGetAllWLCommitmentsAcrossNetworks = () => {
   const { subgraphApiKey, userTokens, whitelistedTokens } =
     useGetGlobalPropsContext();
+
+  const { address } = useAccount();
 
   const { fetchAllWhitelistedTokensData } = useGetTokensData();
 
@@ -120,6 +120,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
         return commitmentsWithData;
       },
+      enabled: !address,
     })),
     combine: (results) => {
       const allData = results.map((d) => d.data).flat();
