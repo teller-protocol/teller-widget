@@ -16,8 +16,6 @@ import {
 import {
   walletConnect,
   coinbaseWallet,
-  metaMask,
-  injected,
   safe,
 } from "wagmi/connectors";
 
@@ -63,8 +61,6 @@ export const config = createConfig({
     coinbaseWallet({
       appName: "Teller",
     }),
-    metaMask(),
-    injected(),
     safe(),
   ],
 });

@@ -72,14 +72,14 @@ const SwapTokenList: React.FC = () => {
       logo: token.logoURI,
       balance: "0",
       balanceBigInt: 0n,
-      chainId: !address ? token.chainId : undefined,
+      chainId: token.chainId,
     }));
 
   const mergedTokens = Array.from(
     new Map(
       [...tokensWithCommitments, ...additionalTokens].map((t) => [
         t?.address?.toLowerCase(),
-        t,
+        { ...t, chainId: !address ? t?.chainId || chainId : undefined },
       ])
     )
   ).map(([, token]) => token);
