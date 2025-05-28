@@ -303,13 +303,14 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
-    setSelectedSwapToken,
+    currentStep,
   } = useGetBorrowSectionContext();
   const {
     isStrategiesSection,
     strategyAction,
     isTradeMode,
     setStrategyAction,
+    strategyToken,
   } = useGetGlobalPropsContext();
 
   useEffect(() => {
@@ -379,14 +380,15 @@ const OpportunitiesList: React.FC = () => {
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
 
   useEffect(() => {
-    const isLongStrategyActive =
-      isStrategiesSection &&
-      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
-      selectedCollateralToken &&
+    const shouldSkipOpportunitySelection =
+      (isStrategiesSection || isTradeMode) &&
+      (strategyAction === STRATEGY_ACTION_ENUM.LONG ||
+        strategyAction === STRATEGY_ACTION_ENUM.SHORT) &&
+      (selectedCollateralToken || selectedPrincipalErc20Token) &&
       sortedCommitments.length > 0 &&
       !isLoading;
 
-    if (isLongStrategyActive) {
+    if (shouldSkipOpportunitySelection) {
       const bestCommitment = sortedCommitments[0];
       if (bestCommitment) {
         setSelectedOpportunity(bestCommitment);
@@ -401,6 +403,8 @@ const OpportunitiesList: React.FC = () => {
     isLoading,
     setSelectedOpportunity,
     setCurrentStep,
+    isTradeMode,
+    selectedPrincipalErc20Token,
   ]);
 
   return (

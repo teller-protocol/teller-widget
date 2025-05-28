@@ -17,10 +17,12 @@ import {
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import TokenLogo from "../../../components/TokenLogo";
 import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { mapChainIdToName } from "../../../constants/chains";
+import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -38,7 +40,16 @@ const SelectedCollateralTokenRow: React.FC<{ token: UserToken }> = ({
       <div className="token-balance-info">
         <span className="paragraph">Long {token?.symbol}</span>
         <span className="section-sub-title">
-          Balance: {numberWithCommasAndDecimals(token?.balance)} {token?.symbol}
+          {token.chainId ? (
+            <span className="chain-info-row">
+              {mapChainIdToName[token.chainId]}
+              <img src={mapChainToImage[token.chainId]} />
+            </span>
+          ) : (
+            `Balance: ${numberWithCommasAndDecimals(token?.balance)} ${
+              token?.symbol
+            }`
+          )}
         </span>
       </div>
     </div>
@@ -107,6 +118,7 @@ const CollateralTokenList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const chainId = useChainId();
+  const { address } = useAccount();
 
   const isLong =
     isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
@@ -134,7 +146,10 @@ const CollateralTokenList: React.FC = () => {
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
       .filter((token) => (isLong ? token.chainId === chainId : true)), // if long, match collateral token to chainId
-  ];
+  ].map((token) => ({
+    ...token,
+    chainId: address ? undefined : token.chainId,
+  }));
 
   const handleStrategyAction = (action: string) => {
     setStrategyAction(action as STRATEGY_ACTION_ENUM);
@@ -153,6 +168,9 @@ const CollateralTokenList: React.FC = () => {
             value={strategyAction ?? ""}
             onValueChange={handleStrategyAction}
           />
+          {selectedSwapToken && isStrategiesSection && (
+            <SelectedCollateralTokenRow token={selectedSwapToken} />
+          )}
           {!isStrategiesSection && (
             <div className="search-and-buttons">
               <input
@@ -167,9 +185,6 @@ const CollateralTokenList: React.FC = () => {
                 className="token-search-input"
               />
             </div>
-          )}
-          {selectedSwapToken && (
-            <SelectedCollateralTokenRow token={selectedSwapToken} />
           )}
           {isStrategiesSection ? (
             erc20Loading ? (

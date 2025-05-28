@@ -148,6 +148,7 @@ export const useGetUserTokens = (
           balance: formatUnits(balanceBigInt, decimals),
           balanceBigInt,
           decimals,
+          chainId,
         };
       };
 
