@@ -116,8 +116,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
-    (matchingCollateralToken?.balanceBigInt ?? 0) > 0
-      ? matchingCollateralToken?.balanceBigInt
+    BigInt(matchingCollateralToken?.balanceBigInt ?? 0) > 0n
+      ? BigInt(matchingCollateralToken?.balanceBigInt ?? 0)
       : defaultAmount
   );
   const lcfaCommitmentMax = useGetCommitmentMax({

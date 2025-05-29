@@ -94,7 +94,7 @@ const RenderComponent: React.FC = () => {
       symbol: enrichedToken.symbol || "",
       logo: enrichedToken.logo || "",
       balance: tokenBalance,
-      balanceBigInt: balanceBigInt,
+      balanceBigInt: balanceBigInt.toString(),
       decimals: enrichedToken.decimals || 18,
       chainId: !address ? enrichedToken.chainId || chainId : undefined,
     };
@@ -124,6 +124,8 @@ const RenderComponent: React.FC = () => {
     isStrategiesSection,
     switchChain,
     isStrategyTokenProcessed,
+    address,
+    setSelectedOpportunity,
   ]);
 
   const mapStepToComponent = useMemo(
