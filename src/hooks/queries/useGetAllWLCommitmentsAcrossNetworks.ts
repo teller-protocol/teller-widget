@@ -74,15 +74,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
 
-        console.log(
-          "TCL ~ useGetAllWLCommitmentsAcrossNetworks.ts:76 ~ queryFn: ~ whitelistedTokens:",
-          whitelistedTokens
-        );
-        console.log(
-          "TCL ~ useGetAllWLCommitmentsAcrossNetworks.ts:76 ~ queryFn: ~ tokens:",
-          tokens
-        );
-
         let commitments: any;
         let liquidityPools: any;
 
@@ -130,7 +121,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
         return commitmentsWithData;
       },
       enabled: !address,
-      staleTime: 1000 * 60 * 60, // 1 hour
       keepPreviousData: true,
     })),
     combine: (results) => {
