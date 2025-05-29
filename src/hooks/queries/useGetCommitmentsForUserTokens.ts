@@ -43,11 +43,11 @@ export const useGetCommitmentsForUserTokens = () => {
   }
   const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (cachedResult?.data && tokensWithCommitments.length === 0) {
-      setTokensWithCommitments(cachedResult?.data);
-    }
-  }, [address, userTokens, cachedResult, tokensWithCommitments.length]);
+  // useEffect(() => {
+  //   if (cachedResult?.data && tokensWithCommitments.length === 0) {
+  //     setTokensWithCommitments(cachedResult?.data);
+  //   }
+  // }, [address, userTokens, cachedResult, tokensWithCommitments.length]);
 
   const userTokenCommitments = useMemo(
     () =>
