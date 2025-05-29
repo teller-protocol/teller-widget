@@ -8,6 +8,8 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useChainId, useAccount } from "wagmi";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 
+const cacheKeyPrefix = "userTokensCommitments";
+
 interface Commitment {
   collateralToken: {
     address: string;
@@ -15,7 +17,6 @@ interface Commitment {
 }
 
 export const useGetCommitmentsForUserTokens = () => {
-  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
   const chainId = useChainId();
   const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
@@ -25,10 +26,33 @@ export const useGetCommitmentsForUserTokens = () => {
 
   const hasTokens = userTokens.length > 0;
 
+  const cacheKey = `${cacheKeyPrefix}-${address}`;
+  let cachedResult;
+
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(cacheKey);
+    const cacheTimestamp = cached ? JSON.parse(cached).timestamp : null;
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    if (
+      cached &&
+      cacheTimestamp &&
+      Date.now() - parseInt(cacheTimestamp, 10) < oneHour
+    ) {
+      cachedResult = { data: JSON.parse(cached).data, loading: false };
+    }
+  }
+  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
+
+  // useEffect(() => {
+  //   if (cachedResult?.data && tokensWithCommitments.length === 0) {
+  //     setTokensWithCommitments(cachedResult?.data);
+  //   }
+  // }, [address, userTokens, cachedResult, tokensWithCommitments.length]);
+
   const userTokenCommitments = useMemo(
     () =>
       gql`
-        query commitmentsForUserTokens {
+        query commitmentsForUserTokens${address} {
           commitments(
             where: {
               collateralToken_: { address_in: ${JSON.stringify(
@@ -45,13 +69,13 @@ export const useGetCommitmentsForUserTokens = () => {
           }
         }
       `,
-    [userTokens]
+    [userTokens, address]
   );
 
   const lenderGroupsUserTokenCommitments = useMemo(
     () =>
       gql`
-        query checkCommitmentsLenderGroups {
+        query checkCommitmentsLenderGroups${address} {
           groupPoolMetrics(
             where: {
               collateral_token_address_in: ${JSON.stringify(
@@ -64,23 +88,25 @@ export const useGetCommitmentsForUserTokens = () => {
           }
         }
       `,
-    [userTokens]
+    [userTokens, address]
   );
-  const { data, refetch } = useQuery({
-    queryKey: [`commitmentsForUserTokens-${chainId}`],
+  const { data, refetch, isFetched } = useQuery({
+    queryKey: [`commitmentsForUserTokens-${chainId}-${address}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
     enabled: !!hasTokens,
   }) as {
     data: { commitments: Commitment[] };
     isLoading: boolean;
     refetch: any;
+    isFetched: boolean;
   };
 
   const {
     data: lenderGroupsUserTokenCommitmentsData,
     isLoading: lenderGroupsUserTokenCommitmentsLoading,
+    isFetched: lenderGroupsUserTokenCommitmentsFetched,
   } = useQuery({
-    queryKey: [`lenderGroupsUserTokenCommitments-${chainId}`],
+    queryKey: [`lenderGroupsUserTokenCommitments-${chainId}-${address}`],
     queryFn: async () => {
       const response = await request(
         lenderGroupsGraphURL,
@@ -105,16 +131,28 @@ export const useGetCommitmentsForUserTokens = () => {
       };
     }[];
     isLoading: boolean;
+    isFetched: boolean;
   };
 
-  useEffect(() => {
-    void (async () => {
-      setLoading(true);
-      await refetch();
-    })();
-  }, [chainId, refetch, userTokens]);
+  console.log(
+    "TCL ~ useGetCommitmentsForUserTokens.ts:102 ~ useGetCommitmentsForUserTokens ~ isFetched:",
+    isFetched,
+    "lenderGroupsFetched",
+    lenderGroupsUserTokenCommitmentsFetched
+  );
+
+  // useEffect(() => {
+  //   void (async () => {
+  //     setLoading(true);
+  //     await refetch();
+  //   })();
+  // }, [chainId, refetch, userTokens]);
 
   useEffect(() => {
+    if (tokensWithCommitments.length) {
+      setLoading(false);
+      return;
+    }
     if (!address) {
       setLoading(false);
       return;
@@ -123,7 +161,7 @@ export const useGetCommitmentsForUserTokens = () => {
       setLoading(true);
       return;
     }
-    if (data?.commitments || lenderGroupsUserTokenCommitmentsData) {
+    if (isFetched && lenderGroupsUserTokenCommitmentsFetched) {
       const combinedCommitments = [
         ...(data?.commitments || []),
         ...(lenderGroupsUserTokenCommitmentsData || []),
@@ -157,6 +195,17 @@ export const useGetCommitmentsForUserTokens = () => {
         }
       );
       setTokensWithCommitments(userCommitmentsUnique);
+
+      if (
+        typeof window !== "undefined" &&
+        isFetched &&
+        lenderGroupsUserTokenCommitmentsFetched
+      ) {
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ data: userCommitmentsUnique, timestamp: Date.now() })
+        );
+      }
       setLoading(false);
     }
   }, [
@@ -166,6 +215,10 @@ export const useGetCommitmentsForUserTokens = () => {
     setLoading,
     lenderGroupsUserTokenCommitmentsData,
     address,
+    isFetched,
+    lenderGroupsUserTokenCommitmentsFetched,
+    tokensWithCommitments.length,
+    cacheKey,
   ]);
 
   return useMemo(

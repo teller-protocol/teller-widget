@@ -86,7 +86,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     )
       return 0;
     return (
-      ((collateralAmount ?? 0n) * principalTokenExpansionFactor) / //  this muldiv represents the inverse ratio , 1 principal amount / required collateral
+      (BigInt(collateralAmount ?? 0) * principalTokenExpansionFactor) / //  this muldiv represents the inverse ratio , 1 principal amount / required collateral
       (requiredCollateralFor1PrincipalAmount ?? 1n) /
       standardExpansionFactor
     );
