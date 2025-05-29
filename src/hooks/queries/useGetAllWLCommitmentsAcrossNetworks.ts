@@ -7,7 +7,7 @@ import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGr
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetTokensData } from "../useFetchTokensData";
 
-const cacheKey = "commitments_across_networks";
+const cacheKey = "commitmentsAcrossNetworks";
 
 const commitmentsQuery = (tokens: string[]) => gql`
   query commitmentsForUserTokensALLWLTokens {
@@ -69,8 +69,8 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   }
 
   const result = useQueries({
-    queries: subpgraphIds.map((id, index) => ({
-      queryKey: ["commitments", id, index],
+    queries: subpgraphIds.map((id) => ({
+      queryKey: ["commitments", id],
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
 
@@ -121,11 +121,16 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
         return commitmentsWithData;
       },
       enabled: !address,
+      keepPreviousData: true,
     })),
     combine: (results) => {
       const allData = results.map((d) => d.data).flat();
       const allDataFetched = results.every((d) => d.isSuccess);
-      if (typeof window !== "undefined" && allDataFetched) {
+      if (
+        typeof window !== "undefined" &&
+        allDataFetched &&
+        allData.length > 0
+      ) {
         localStorage.setItem(
           cacheKey,
           JSON.stringify({ data: allData, timestamp: Date.now() })

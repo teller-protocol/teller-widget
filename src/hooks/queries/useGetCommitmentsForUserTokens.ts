@@ -133,14 +133,6 @@ export const useGetCommitmentsForUserTokens = () => {
     isLoading: boolean;
     isFetched: boolean;
   };
-
-  console.log(
-    "TCL ~ useGetCommitmentsForUserTokens.ts:102 ~ useGetCommitmentsForUserTokens ~ isFetched:",
-    isFetched,
-    "lenderGroupsFetched",
-    lenderGroupsUserTokenCommitmentsFetched
-  );
-
   // useEffect(() => {
   //   void (async () => {
   //     setLoading(true);
