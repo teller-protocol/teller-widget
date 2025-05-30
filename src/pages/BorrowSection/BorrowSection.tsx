@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { parseUnits } from "viem";
 import {
@@ -24,6 +24,7 @@ import {
 } from "../../contexts/GlobalPropsContext";
 import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { UserToken } from "../../hooks/useGetUserTokens";
 
 const RenderComponent: React.FC = () => {
   const {
@@ -33,6 +34,9 @@ const RenderComponent: React.FC = () => {
     strategyAction,
     isTradeMode,
     isStrategiesSection,
+    borrowToken,
+    isInitialTokenProcessed,
+    setIsInitialTokenProcessed,
   } = useGetGlobalPropsContext();
   const {
     currentStep,
@@ -49,12 +53,54 @@ const RenderComponent: React.FC = () => {
   const { switchChain } = useSwitchChain();
   const { data: tokenList } = useGetTokenList();
 
-  const [isStrategyTokenProcessed, setIsStrategyTokenProcessed] =
-    useState(false);
-
   const tokenAddress =
-    singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
+    singleWhitelistedToken?.toLowerCase() ||
+    (isStrategiesSection
+      ? strategyToken?.toLowerCase()
+      : borrowToken?.toLowerCase()) ||
+    "";
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
+
+  const resetSelections = useCallback(() => {
+    setSelectedSwapToken(undefined);
+    setSelectedCollateralToken(undefined);
+    setSelectedPrincipalErc20Token(undefined);
+    setSelectedOpportunity({} as CommitmentType);
+    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+  }, [
+    setSelectedSwapToken,
+    setSelectedCollateralToken,
+    setSelectedPrincipalErc20Token,
+    setSelectedOpportunity,
+    setCurrentStep,
+  ]);
+
+  const shouldResetForChainMismatch = useCallback(
+    (enrichedTokenChainId: number, enrichedTokenAddress: string) =>
+      enrichedTokenChainId &&
+      (enrichedTokenChainId !== chainId ||
+        enrichedTokenAddress.toLowerCase() !== tokenAddress.toLowerCase()),
+    [chainId, tokenAddress]
+  );
+
+  const processTokenInitialization = useCallback(
+    (tokenData: UserToken, isLongStrategy: boolean = false) => {
+      if (isLongStrategy) {
+        setSelectedSwapToken(tokenData);
+        return;
+      }
+
+      setSelectedCollateralToken(tokenData);
+      setSelectedPrincipalErc20Token(tokenData);
+      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    },
+    [
+      setSelectedSwapToken,
+      setSelectedCollateralToken,
+      setSelectedPrincipalErc20Token,
+      setCurrentStep,
+    ]
+  );
 
   useEffect(() => {
     if (!tokenAddress || !tokenMetadata || isLoading) return;
@@ -73,22 +119,7 @@ const RenderComponent: React.FC = () => {
       chainId
     );
 
-    setIsStrategyTokenProcessed(true);
-    if (
-      enrichedToken.chainId &&
-      (enrichedToken.chainId !== chainId ||
-        enrichedToken.address.toLowerCase() !== tokenAddress.toLowerCase())
-    ) {
-      setSelectedSwapToken(undefined);
-      setSelectedCollateralToken(undefined);
-      setSelectedPrincipalErc20Token(undefined);
-      setSelectedOpportunity({} as CommitmentType);
-      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
-      return;
-    }
-    if (isStrategyTokenProcessed) return;
-
-    const tokenData = {
+    const tokenData: UserToken = {
       address: enrichedToken.address as `0x${string}`,
       name: enrichedToken.name || "",
       symbol: enrichedToken.symbol || "",
@@ -99,33 +130,59 @@ const RenderComponent: React.FC = () => {
       chainId: !address ? enrichedToken.chainId || chainId : undefined,
     };
 
-    if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-      setSelectedSwapToken(tokenData);
+    if (borrowToken && !isInitialTokenProcessed && !isStrategiesSection) {
+      setIsInitialTokenProcessed(true);
+
+      if (
+        shouldResetForChainMismatch(
+          enrichedToken.chainId,
+          enrichedToken.address
+        )
+      ) {
+        resetSelections();
+        return;
+      }
+
+      processTokenInitialization(tokenData);
       return;
     }
 
-    setSelectedCollateralToken(tokenData);
-    setSelectedPrincipalErc20Token(tokenData);
-    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    if (strategyToken && !isInitialTokenProcessed && isStrategiesSection) {
+      setIsInitialTokenProcessed(true);
+
+      if (
+        shouldResetForChainMismatch(
+          enrichedToken.chainId,
+          enrichedToken.address
+        )
+      ) {
+        resetSelections();
+        return;
+      }
+
+      const isLongStrategy =
+        !!strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG;
+      processTokenInitialization(tokenData, isLongStrategy);
+    }
   }, [
     tokenAddress,
     tokenMetadata,
     isLoading,
-    setSelectedCollateralToken,
-    setSelectedPrincipalErc20Token,
-    setCurrentStep,
     userTokens,
     tokenList,
     strategyToken,
+    borrowToken,
     strategyAction,
-    setSelectedSwapToken,
     chainId,
     isTradeMode,
     isStrategiesSection,
     switchChain,
-    isStrategyTokenProcessed,
+    isInitialTokenProcessed,
+    setIsInitialTokenProcessed,
     address,
-    setSelectedOpportunity,
+    resetSelections,
+    shouldResetForChainMismatch,
+    processTokenInitialization,
   ]);
 
   const mapStepToComponent = useMemo(
