@@ -129,37 +129,25 @@ const RenderComponent: React.FC = () => {
       decimals: enrichedToken.decimals || 18,
       chainId: !address ? enrichedToken.chainId || chainId : undefined,
     };
+    setIsInitialTokenProcessed(true);
 
-    if (borrowToken && !isInitialTokenProcessed && !isStrategiesSection) {
-      setIsInitialTokenProcessed(true);
+    if (
+      shouldResetForChainMismatch(enrichedToken.chainId, enrichedToken.address)
+    ) {
+      resetSelections();
+      return;
+    }
 
-      if (
-        shouldResetForChainMismatch(
-          enrichedToken.chainId,
-          enrichedToken.address
-        )
-      ) {
-        resetSelections();
-        return;
-      }
+    if (isInitialTokenProcessed) {
+      return;
+    }
 
+    if (borrowToken && !isStrategiesSection) {
       processTokenInitialization(tokenData);
       return;
     }
 
-    if (strategyToken && !isInitialTokenProcessed && isStrategiesSection) {
-      setIsInitialTokenProcessed(true);
-
-      if (
-        shouldResetForChainMismatch(
-          enrichedToken.chainId,
-          enrichedToken.address
-        )
-      ) {
-        resetSelections();
-        return;
-      }
-
+    if (strategyToken && isStrategiesSection) {
       const isLongStrategy =
         !!strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG;
       processTokenInitialization(tokenData, isLongStrategy);
