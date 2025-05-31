@@ -14,14 +14,12 @@ export const useGetLiquidityPools = () => {
   const poolCommitmentsDashboard = useMemo(
     () => gql`
       query groupLiquidityPools {
-        groupPoolMetrics(
+        group_pool_metric(
           where: ${
             singleWhitelistedToken
-              ? `{ collateral_token_address: "${singleWhitelistedToken.toLocaleLowerCase()}" }`
+              ? `{ collateral_token_address: {_eq: "${singleWhitelistedToken.toLocaleLowerCase()}"} }`
               : "{}"
           }
-          orderBy: principal_token_address
-          orderDirection: asc
         ) {
           id
           market_id
@@ -61,15 +59,15 @@ export const useGetLiquidityPools = () => {
     queryKey: ["allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
       const response = (await request(graphURL, poolCommitmentsDashboard)) as {
-        groupPoolMetrics: LenderGroupsPoolMetrics[];
+        group_pool_metric: LenderGroupsPoolMetrics[];
       };
 
       const filteredPools = blockedPools?.length
-        ? response.groupPoolMetrics.filter(
+        ? response.group_pool_metric.filter(
             (pool) =>
               !blockedPools.includes(pool.group_pool_address.toLowerCase())
           )
-        : response.groupPoolMetrics;
+        : response.group_pool_metric;
 
       return filteredPools;
     },

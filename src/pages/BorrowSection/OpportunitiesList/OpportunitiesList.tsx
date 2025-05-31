@@ -133,7 +133,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     skip: !isLiquidityPool,
     tokenIsWhitelistedAndBalanceIs0,
   });
-
   const commitmentMax = isLiquidityPool
     ? lenderGroupCommitmentMax
     : lcfaCommitmentMax;
@@ -338,7 +337,6 @@ const OpportunitiesList: React.FC = () => {
     useGetCommitmentsForCollateralTokensFromLiquidityPools(
       selectedCollateralToken?.address as AddressStringType
     );
-
   const {
     isLoading: isErc20Loading,
     getCommitmentsForErc20TokensByPrincipalToken,
@@ -370,7 +368,6 @@ const OpportunitiesList: React.FC = () => {
     lenderGroupsCommitments,
     erc20sWithCommitments,
   ]);
-
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;

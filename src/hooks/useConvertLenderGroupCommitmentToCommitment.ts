@@ -75,7 +75,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
           collateralTokenType: "ERC20",
           maxDuration: lenderGroupCommitment.max_loan_duration,
           minAPY: lenderGroupCommitment.interest_rate_upper_bound,
-          lenderAddress: `0x${lenderGroupCommitment.id}`,
+          lenderAddress: lenderGroupCommitment.id,
           collateralTokenAddress:
             lenderGroupCommitment.collateral_token_address,
           collateralType: 1,
