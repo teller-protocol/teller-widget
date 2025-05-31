@@ -18,10 +18,8 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
   const collateralTokenCommitmentsDashboard = useMemo(
     () => gql`
       query groupDashboardCommitmentsFor${collateralTokenAddress} {
-        groupPoolMetrics(
-          where: { collateral_token_address: "${collateralTokenAddress}" }
-          orderBy: collateral_ratio
-          orderDirection: asc
+        group_pool_metric(
+          where: { collateral_token_address: {_eq: "${collateralTokenAddress}" } }
         ) {
           id
           market_id
@@ -57,7 +55,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
         collateralTokenCommitmentsDashboard
       )) as any;
       const commitments = await Promise.all(
-        rawCommitments.groupPoolMetrics.map(convertCommitment)
+        rawCommitments.group_pool_metric.map(convertCommitment)
       );
       return commitments;
     },

@@ -16,13 +16,12 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
   const collateralTokenCommitments = useMemo(
     () => gql`
       query rolloverableCommitmentsForCollateralTokenFromLiquidityPools_${collateralTokenAddress} {
-        groupPoolMetrics(
+        group_pool_metric(
           where: {
-            collateral_token_address: "${collateralTokenAddress}",
-            principal_token_address: "${principalTokenAddress}"
+            collateral_token_address: {_eq: "${collateralTokenAddress}"},
+            principal_token_address: {_eq: "${principalTokenAddress}"}
           }
           orderBy: collateral_ratio
-          orderDirection: asc
         ) {
           id
           market_id
@@ -54,7 +53,7 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
     queryFn: async () => request(graphURL, collateralTokenCommitments),
     enabled: !!collateralTokenAddress,
   }) as {
-    data: { groupPoolMetrics: LenderGroupsPoolMetrics[] };
+    data: { group_pool_metric: LenderGroupsPoolMetrics[] };
     isLoading: boolean;
   };
 

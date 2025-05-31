@@ -212,13 +212,13 @@ export const useGetRolloverableCommitments = (
       return;
     }
 
-    if (lenderGroupsRolloverableCommitments?.groupPoolMetrics?.length) {
+    if (lenderGroupsRolloverableCommitments?.group_pool_metric?.length) {
       setIsRawCommitmentsLoading(true);
 
       const fetchConvertedCommitments = async () => {
         try {
           const groupMetrics =
-            lenderGroupsRolloverableCommitments?.groupPoolMetrics;
+            lenderGroupsRolloverableCommitments?.group_pool_metric;
           if (!groupMetrics?.length) return;
 
           await Promise.all(
@@ -256,7 +256,7 @@ export const useGetRolloverableCommitments = (
       controller.abort();
     };
   }, [
-    lenderGroupsRolloverableCommitments?.groupPoolMetrics,
+    lenderGroupsRolloverableCommitments?.group_pool_metric,
     convertCommitment,
     convertedLenderGroupsRolloverableCommitments?.length,
     convertedLenderGroupsRolloverableCommitments,

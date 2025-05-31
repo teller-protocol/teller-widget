@@ -28,5 +28,5 @@ export type LenderGroupsPoolMetrics = {
 };
 
 export type GetLenderGroupsRolloverableCommitmentsResponse = {
-  groupPoolMetrics: LenderGroupsPoolMetrics[];
+  group_pool_metric: LenderGroupsPoolMetrics[];
 };

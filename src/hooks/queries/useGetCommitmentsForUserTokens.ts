@@ -76,11 +76,11 @@ export const useGetCommitmentsForUserTokens = () => {
     () =>
       gql`
         query checkCommitmentsLenderGroups${address} {
-          groupPoolMetrics(
+          group_pool_metric(
             where: {
-              collateral_token_address_in: ${JSON.stringify(
+              collateral_token_address: {_in: ${JSON.stringify(
                 Array.from(new Set(userTokens.map((token) => token.address)))
-              )}
+              )}}
             }
           ) {
             group_pool_address
@@ -112,7 +112,7 @@ export const useGetCommitmentsForUserTokens = () => {
         lenderGroupsGraphURL,
         lenderGroupsUserTokenCommitments
       ).then((res: any) => {
-        return res.groupPoolMetrics.map((metric: any) => ({
+        return res.group_pool_metric.map((metric: any) => ({
           ...metric,
           collateralToken: {
             address: metric.collateral_token_address,
