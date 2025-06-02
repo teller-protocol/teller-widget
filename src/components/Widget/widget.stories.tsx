@@ -42,7 +42,8 @@ const meta = {
       defaultValue: "",
     },
     isBareButton: {
-      description: "Flag to remove all styling for the button for easier overwriting.",
+      description:
+        "Flag to remove all styling for the button for easier overwriting.",
       defaultValue: false,
     },
     isEmbedded: {
@@ -64,7 +65,8 @@ const meta = {
       },
     },
     referralFee: {
-      description: "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
+      description:
+        "Referral fee %, in basis points. For example, 100 = 1%, max 500 = 5%.",
       defaultValue: "0",
       control: {
         type: "number",
@@ -78,8 +80,10 @@ const meta = {
       defaultValue: "0x0000000000000000000000000000000000000000",
     },
     welcomeScreenLogo: {
-      description: "Logo (as a URL) to be displayed on the widget's welcome screen.",
-      defaultValue: "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
+      description:
+        "Logo (as a URL) to be displayed on the widget's welcome screen.",
+      defaultValue:
+        "https://pbs.twimg.com/profile_images/1711805553700470784/5Je325YE_400x400.jpg",
     },
     welcomeScreenTitle: {
       description: "Bold, header text on the widget's welcome screen.",
@@ -87,7 +91,8 @@ const meta = {
     },
     welcomeScreenParagraph: {
       description: "Body, paragraph text on the widget's welcome screen.",
-      defaultValue: "Time-based loans, up to thirty days, with no margin-call liquidations.",
+      defaultValue:
+        "Time-based loans, up to thirty days, with no margin-call liquidations.",
     },
     subgraphApiKey: {
       table: {
@@ -216,6 +221,7 @@ const meta = {
         "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
         "0x6e5970dbd6fc7eb1f29c6d2edf2bc4c36124c0c1",
         "0x7f89f674b7d264944027e78e5f58eb2bbbb7cfa3",
+        "0x594daad7d77592a2b97b725a7ad59d7e188b5bfa",
         "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e",
         "0x7420b4b9a0110cdc71fb720908340c03f9bc03ec",
         "0xd5f7838f5c461feff7fe49ea5ebaf7728bb0adfa",
