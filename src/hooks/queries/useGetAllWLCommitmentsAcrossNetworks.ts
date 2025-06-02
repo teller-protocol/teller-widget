@@ -73,7 +73,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
       queryKey: ["commitments", id],
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
-
         let commitments: any;
         let liquidityPools: any;
 
@@ -112,7 +111,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
             ...liquidityPoolsWithCollateralAddressOnly,
           ])
         );
-
         const commitmentsWithData = await fetchAllWhitelistedTokensData(
           combinedCommitments,
           id
