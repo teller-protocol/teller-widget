@@ -129,16 +129,16 @@ const RenderComponent: React.FC = () => {
       decimals: enrichedToken.decimals || 18,
       chainId: !address ? enrichedToken.chainId || chainId : undefined,
     };
+
     setIsInitialTokenProcessed(true);
+    if (isInitialTokenProcessed) {
+      return;
+    }
 
     if (
       shouldResetForChainMismatch(enrichedToken.chainId, enrichedToken.address)
     ) {
       resetSelections();
-      return;
-    }
-
-    if (isInitialTokenProcessed) {
       return;
     }
 

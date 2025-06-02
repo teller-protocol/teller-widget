@@ -144,6 +144,10 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     }
   }, [initialStrategyAction]);
 
+  useEffect(() => {
+    setIsInitialTokenProcessed(false);
+  }, [strategyToken, borrowToken]);
+
   const isWhitelistedToken = useCallback(
     (token?: Address | undefined) => {
       const result = token ? whitelistedChainTokens.includes(token) : false;
