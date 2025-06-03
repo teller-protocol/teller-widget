@@ -79,7 +79,7 @@ const SwapTokenList: React.FC = () => {
         decimals: token.decimals,
         logo: token.logoURI,
         balance: "0",
-        balanceBigInt: 0n,
+        balanceBigInt: "0",
         chainId: !address ? token.chainId : undefined,
       }));
   }, [uniswapTokens, userTokenAddresses, address]);

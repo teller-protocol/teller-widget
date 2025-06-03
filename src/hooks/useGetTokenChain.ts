@@ -25,7 +25,8 @@ export const getTokenChain = (tokenAddress: string): Promise<number> => {
       const chainName = data.pairs.find((pair) =>
         supportedChains.includes(pair.chainId)
       )?.chainId;
-      const chainId = mapChainNameToId[chainName];
+      const chainId =
+        mapChainNameToId[chainName as keyof typeof mapChainNameToId];
       if (!chainId) {
         throw new Error("Chain ID not found in response");
       }
