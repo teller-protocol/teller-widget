@@ -105,8 +105,11 @@ export const useGetCommitmentsForErc20Tokens = () => {
                   getTokenImageAndSymbolFromTokenList(address)?.image ??
                   "",
                 balance: aggregatedBalance || "0",
-                balanceBigInt: tokenCommitmentMap.get(address) || BigInt(0),
+                balanceBigInt: (
+                  tokenCommitmentMap.get(address) || BigInt(0)
+                ).toString(),
                 decimals: metadata?.decimals || 18,
+                chainId,
               } as UserToken;
             } catch (error) {
               console.error(

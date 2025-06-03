@@ -1,16 +1,16 @@
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
-import request, { gql } from "graphql-request";
-import { UserToken } from "../useGetUserTokens";
 import { useQueries } from "@tanstack/react-query";
-import { base, mainnet } from "viem/chains";
-import { polygon } from "viem/chains";
-import { arbitrum } from "viem/chains";
+import request, { gql } from "graphql-request";
+import { arbitrum, base, mainnet, polygon } from "viem/chains";
+import { useAccount } from "wagmi";
+import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetTokensData } from "../useFetchTokensData";
 
-const commitmentsQuery = (tokens: UserToken[]) => gql`
-  query commitmentsForUserTokens {
+const cacheKey = "commitmentsAcrossNetworks";
+
+const commitmentsQuery = (tokens: string[]) => gql`
+  query commitmentsForUserTokensALLWLTokens {
     commitments(
       where: { collateralToken_: { address_in: ${JSON.stringify(
         Array.from(new Set(tokens))
@@ -23,8 +23,8 @@ const commitmentsQuery = (tokens: UserToken[]) => gql`
   }
 `;
 
-const liquidityPoolsQuery = (tokens: UserToken[]) => gql`
-        query checkCommitmentsLenderGroups {
+const liquidityPoolsQuery = (tokens: string[]) => gql`
+        query checkCommitmentsLenderGroupsALLWLTokens {
           groupPoolMetrics(
             where: {
               collateral_token_address_in: ${JSON.stringify(
@@ -42,6 +42,8 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   const { subgraphApiKey, userTokens, whitelistedTokens } =
     useGetGlobalPropsContext();
 
+  const { address } = useAccount();
+
   const { fetchAllWhitelistedTokensData } = useGetTokensData();
 
   const mainnetID = mainnet.id;
@@ -51,11 +53,26 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
   const subpgraphIds = [mainnetID, polygonID, arbitrumID, baseID];
 
+  let cachedResult;
+
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(cacheKey);
+    const cacheTimestamp = cached ? JSON.parse(cached).timestamp : null;
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    if (
+      cached &&
+      cacheTimestamp &&
+      Date.now() - parseInt(cacheTimestamp, 10) < oneHour
+    ) {
+      cachedResult = { data: JSON.parse(cached).data, loading: false };
+    }
+  }
+
   const result = useQueries({
-    queries: subpgraphIds.map((id, index) => ({
-      queryKey: ["commitments", id, index],
+    queries: subpgraphIds.map((id) => ({
+      queryKey: ["commitments", id],
       queryFn: async () => {
-        const tokens = whitelistedTokens?.[id];
+        const tokens = whitelistedTokens?.[id] || [];
 
         let commitments: any;
         let liquidityPools: any;
@@ -103,12 +120,25 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
         return commitmentsWithData;
       },
+      enabled: !address,
+      keepPreviousData: true,
     })),
     combine: (results) => {
       const allData = results.map((d) => d.data).flat();
+      const allDataFetched = results.every((d) => d.isSuccess);
+      if (
+        typeof window !== "undefined" &&
+        allDataFetched &&
+        allData.length > 0
+      ) {
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ data: allData, timestamp: Date.now() })
+        );
+      }
       return { data: allData, loading: results.some((d) => d.isLoading) };
     },
   });
 
-  return result;
+  return cachedResult ?? result;
 };

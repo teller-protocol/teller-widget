@@ -8,6 +8,8 @@ import DataPill from "../../components/DataPill";
 import "./shortErc20Row.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import Loader from "../Loader";
+import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import { mapChainIdToName } from "../../constants/chains";
 
 interface ShortErc20TokenSelectProps {
   token: UserToken;
@@ -31,8 +33,16 @@ const ShortErc20TokenRow: React.FC<ShortErc20TokenSelectProps> = ({
           <span className="paragraph">{token.symbol}</span>
         </div>
         <span className="section-sub-title">
-          Short up to: {numberWithCommasAndDecimals(token.balance)}{" "}
-          {token.symbol}
+          {token.chainId ? (
+            <span className="chain-info-row">
+              {mapChainIdToName[token.chainId]}
+              <img src={mapChainToImage[token.chainId]} />
+            </span>
+          ) : (
+            `Short up to: ${numberWithCommasAndDecimals(token.balance)} ${
+              token.symbol
+            }`
+          )}
         </span>
       </div>
     </div>

@@ -18,7 +18,7 @@ export type UserToken = {
   symbol: string;
   logo: string;
   balance: string;
-  balanceBigInt: bigint;
+  balanceBigInt: string;
   decimals: number;
   chainId?: number;
 };
@@ -146,8 +146,9 @@ export const useGetUserTokens = (
           symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
           logo,
           balance: formatUnits(balanceBigInt, decimals),
-          balanceBigInt,
+          balanceBigInt: balanceBigInt.toString(),
           decimals,
+          chainId,
         };
       };
 

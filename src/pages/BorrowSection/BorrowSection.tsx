@@ -1,7 +1,10 @@
-import { useMemo, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useMemo, useEffect, useState } from "react";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { parseUnits } from "viem";
-import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
+import {
+  findTokenWithMetadata,
+  useGetTokenMetadata,
+} from "../../hooks/useGetTokenMetadata";
 import BorrowerTerms from "./BorrowerTerms";
 import {
   BorrowSectionContextProvider,
@@ -19,10 +22,18 @@ import {
   STRATEGY_ACTION_ENUM,
   useGetGlobalPropsContext,
 } from "../../contexts/GlobalPropsContext";
+import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
+import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 
 const RenderComponent: React.FC = () => {
-  const { singleWhitelistedToken, userTokens, strategyToken, strategyAction } =
-    useGetGlobalPropsContext();
+  const {
+    singleWhitelistedToken,
+    userTokens,
+    strategyToken,
+    strategyAction,
+    isTradeMode,
+    isStrategiesSection,
+  } = useGetGlobalPropsContext();
   const {
     currentStep,
     setCurrentStep,
@@ -30,60 +41,72 @@ const RenderComponent: React.FC = () => {
     setSelectedCollateralToken,
     setSelectedPrincipalErc20Token,
     setSelectedSwapToken,
+    setSelectedOpportunity,
   } = useGetBorrowSectionContext();
+
+  const chainId = useChainId();
+  const { address } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const { data: tokenList } = useGetTokenList();
+
+  const [isStrategyTokenProcessed, setIsStrategyTokenProcessed] =
+    useState(false);
 
   const tokenAddress =
     singleWhitelistedToken?.toLowerCase() || strategyToken?.toLowerCase() || "";
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
 
   useEffect(() => {
-    if (tokenAddress && tokenMetadata && !isLoading) {
-      const tokenBalance =
-        userTokens.find(
-          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
-        )?.balance || "0";
+    if (!tokenAddress || !tokenMetadata || isLoading) return;
 
-      const balanceUnits = parseUnits(
-        tokenBalance,
-        tokenMetadata.decimals || 18
-      );
-      const balanceBigInt = BigInt(balanceUnits.toString());
+    const tokenBalance =
+      userTokens.find(
+        (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+      )?.balance || "0";
+    const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
+    const balanceBigInt = BigInt(balanceUnits.toString());
 
-      if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-        setSelectedSwapToken({
-          address: tokenAddress as `0x${string}`,
-          name: tokenMetadata.name || "",
-          symbol: tokenMetadata.symbol || "",
-          logo: tokenMetadata.logo || "",
-          balance: tokenBalance,
-          balanceBigInt: balanceBigInt,
-          decimals: tokenMetadata.decimals || 18,
-        });
-        return;
-      }
+    let enrichedToken = findTokenWithMetadata(
+      tokenAddress.toLowerCase(),
+      tokenMetadata,
+      tokenList || {},
+      chainId
+    );
 
-      setSelectedCollateralToken({
-        address: tokenAddress as `0x${string}`,
-        name: tokenMetadata.name || "",
-        symbol: tokenMetadata.symbol || "",
-        logo: tokenMetadata.logo || "",
-        balance: tokenBalance,
-        balanceBigInt: balanceBigInt,
-        decimals: tokenMetadata.decimals || 18,
-      });
-
-      setSelectedPrincipalErc20Token({
-        address: tokenAddress as `0x${string}`,
-        name: tokenMetadata.name || "",
-        symbol: tokenMetadata.symbol || "",
-        logo: tokenMetadata.logo || "",
-        balance: tokenBalance,
-        balanceBigInt: balanceBigInt,
-        decimals: tokenMetadata.decimals || 18,
-      });
-
-      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    setIsStrategyTokenProcessed(true);
+    if (
+      enrichedToken.chainId &&
+      (enrichedToken.chainId !== chainId ||
+        enrichedToken.address.toLowerCase() !== tokenAddress.toLowerCase())
+    ) {
+      setSelectedSwapToken(undefined);
+      setSelectedCollateralToken(undefined);
+      setSelectedPrincipalErc20Token(undefined);
+      setSelectedOpportunity({} as CommitmentType);
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+      return;
     }
+    if (isStrategyTokenProcessed) return;
+
+    const tokenData = {
+      address: enrichedToken.address as `0x${string}`,
+      name: enrichedToken.name || "",
+      symbol: enrichedToken.symbol || "",
+      logo: enrichedToken.logo || "",
+      balance: tokenBalance,
+      balanceBigInt: balanceBigInt.toString(),
+      decimals: enrichedToken.decimals || 18,
+      chainId: !address ? enrichedToken.chainId || chainId : undefined,
+    };
+
+    if (strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG) {
+      setSelectedSwapToken(tokenData);
+      return;
+    }
+
+    setSelectedCollateralToken(tokenData);
+    setSelectedPrincipalErc20Token(tokenData);
+    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
   }, [
     tokenAddress,
     tokenMetadata,
@@ -92,9 +115,17 @@ const RenderComponent: React.FC = () => {
     setSelectedPrincipalErc20Token,
     setCurrentStep,
     userTokens,
+    tokenList,
     strategyToken,
     strategyAction,
     setSelectedSwapToken,
+    chainId,
+    isTradeMode,
+    isStrategiesSection,
+    switchChain,
+    isStrategyTokenProcessed,
+    address,
+    setSelectedOpportunity,
   ]);
 
   const mapStepToComponent = useMemo(
@@ -114,8 +145,6 @@ const RenderComponent: React.FC = () => {
     }),
     [bidId, setCurrentStep]
   );
-
-  const { address } = useAccount();
 
   useEffect(() => {
     if (!address) {

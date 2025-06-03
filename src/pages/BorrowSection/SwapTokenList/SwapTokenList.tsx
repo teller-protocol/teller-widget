@@ -53,10 +53,10 @@ const SwapTokenList: React.FC = () => {
   const allTokens = [
     ...(uniswapChainTokens.length > 0
       ? [
-          ...tokenList?.[mainnet.id],
-          ...tokenList?.[polygon.id],
-          ...tokenList?.[base.id],
-          ...tokenList?.[arbitrum.id],
+          ...(tokenList?.[mainnet.id] || []),
+          ...(tokenList?.[polygon.id] || []),
+          ...(tokenList?.[base.id] || []),
+          ...(tokenList?.[arbitrum.id] || []),
         ]
       : []),
   ];

@@ -116,8 +116,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       : BigInt(0);
 
   const [collateralAmount, setCollateralAmount] = useState<bigint | undefined>(
-    (matchingCollateralToken?.balanceBigInt ?? 0) > 0
-      ? matchingCollateralToken?.balanceBigInt
+    BigInt(matchingCollateralToken?.balanceBigInt ?? 0) > 0n
+      ? BigInt(matchingCollateralToken?.balanceBigInt ?? 0)
       : defaultAmount
   );
   const lcfaCommitmentMax = useGetCommitmentMax({
@@ -303,7 +303,7 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
-    setSelectedSwapToken,
+    currentStep,
   } = useGetBorrowSectionContext();
   const {
     isStrategiesSection,
@@ -380,15 +380,15 @@ const OpportunitiesList: React.FC = () => {
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
 
   useEffect(() => {
-    const isLongStrategyActive =
-      isStrategiesSection &&
-      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
-      selectedCollateralToken &&
+    const shouldSkipOpportunitySelection =
+      (isStrategiesSection || isTradeMode) &&
+      (strategyAction === STRATEGY_ACTION_ENUM.LONG ||
+        strategyAction === STRATEGY_ACTION_ENUM.SHORT) &&
+      (selectedCollateralToken || selectedPrincipalErc20Token) &&
       sortedCommitments.length > 0 &&
-      !isLoading &&
-      !strategyToken;
+      !isLoading;
 
-    if (isLongStrategyActive) {
+    if (shouldSkipOpportunitySelection) {
       const bestCommitment = sortedCommitments[0];
       if (bestCommitment) {
         setSelectedOpportunity(bestCommitment);
@@ -403,6 +403,8 @@ const OpportunitiesList: React.FC = () => {
     isLoading,
     setSelectedOpportunity,
     setCurrentStep,
+    isTradeMode,
+    selectedPrincipalErc20Token,
   ]);
 
   return (
