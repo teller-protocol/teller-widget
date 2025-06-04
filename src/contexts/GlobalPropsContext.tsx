@@ -139,10 +139,12 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
 
   const isWhitelistedToken = useCallback(
     (token?: Address | undefined) => {
-      const result = token ? whitelistedChainTokens.includes(token) : false;
+      const result = token
+        ? whitelistedTokens?.[chainId]?.includes(token)
+        : false;
       return result;
     },
-    [whitelistedChainTokens]
+    [chainId, whitelistedTokens]
   );
 
   const contextValue = useMemo(() => {

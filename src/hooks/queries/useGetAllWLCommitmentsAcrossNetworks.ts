@@ -25,11 +25,11 @@ const commitmentsQuery = (tokens: string[]) => gql`
 
 const liquidityPoolsQuery = (tokens: string[]) => gql`
         query checkCommitmentsLenderGroupsALLWLTokens {
-          groupPoolMetrics(
+          group_pool_metric(
             where: {
-              collateral_token_address_in: ${JSON.stringify(
+              collateral_token_address: {_in: ${JSON.stringify(
                 Array.from(new Set(tokens))
-              )}
+              )}}
             }
           ) {
             group_pool_address
@@ -73,7 +73,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
       queryKey: ["commitments", id],
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
-
         let commitments: any;
         let liquidityPools: any;
 
@@ -101,7 +100,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
           );
 
         const liquidityPoolsWithCollateralAddressOnly =
-          liquidityPools.groupPoolMetrics.map(
+          liquidityPools.group_pool_metric.map(
             (pool: { collateral_token_address: string }) =>
               pool.collateral_token_address
           );
@@ -112,7 +111,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
             ...liquidityPoolsWithCollateralAddressOnly,
           ])
         );
-
         const commitmentsWithData = await fetchAllWhitelistedTokensData(
           combinedCommitments,
           id
