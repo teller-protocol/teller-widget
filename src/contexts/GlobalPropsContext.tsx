@@ -30,7 +30,7 @@ export type GlobalPropsContextType = {
   userTokens: UserToken[];
   isLoading: boolean;
   whitelistedChainTokens: string[];
-  isWhitelistedToken: (token: Address | undefined) => boolean;
+  isWhitelistedToken: (token: Address | undefined) => boolean | undefined;
   whitelistedChains?: number[];
   referralFee?: number;
   referralAddress?: string;
