@@ -21,7 +21,7 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
             collateral_token_address: {_eq: "${collateralTokenAddress}"},
             principal_token_address: {_eq: "${principalTokenAddress}"}
           }
-          orderBy: collateral_ratio
+          order_by: {collateral_ratio: desc}
         ) {
           id
           market_id
