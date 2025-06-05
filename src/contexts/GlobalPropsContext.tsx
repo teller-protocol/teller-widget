@@ -49,8 +49,6 @@ export type GlobalPropsContextType = {
   isTradeMode?: boolean;
   strategyToken?: string;
   borrowToken?: string;
-  isInitialTokenProcessed?: boolean;
-  setIsInitialTokenProcessed: (isInitialTokenProcessed: boolean) => void;
 };
 
 interface GlobalPropsContextProps {
@@ -136,17 +134,11 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     initialStrategyAction || STRATEGY_ACTION_ENUM.LONG
   );
 
-  const [isInitialTokenProcessed, setIsInitialTokenProcessed] = useState(false);
-
   useEffect(() => {
     if (initialStrategyAction) {
       setStrategyAction(initialStrategyAction);
     }
   }, [initialStrategyAction]);
-
-  useEffect(() => {
-    setIsInitialTokenProcessed(false);
-  }, [strategyToken, borrowToken]);
 
   const isWhitelistedToken = useCallback(
     (token?: Address | undefined) => {
@@ -180,8 +172,6 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       isTradeMode,
       strategyToken,
       borrowToken,
-      isInitialTokenProcessed,
-      setIsInitialTokenProcessed,
     };
   }, [
     userTokens,
@@ -204,8 +194,6 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     isTradeMode,
     strategyToken,
     borrowToken,
-    isInitialTokenProcessed,
-    setIsInitialTokenProcessed,
   ]);
 
   return (

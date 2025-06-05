@@ -35,8 +35,6 @@ const RenderComponent: React.FC = () => {
     isTradeMode,
     isStrategiesSection,
     borrowToken,
-    isInitialTokenProcessed,
-    setIsInitialTokenProcessed,
   } = useGetGlobalPropsContext();
   const {
     currentStep,
@@ -53,12 +51,15 @@ const RenderComponent: React.FC = () => {
   const { switchChain } = useSwitchChain();
   const { data: tokenList } = useGetTokenList();
 
+  const [isInitialTokenProcessed, setIsInitialTokenProcessed] = useState(false);
+
   const tokenAddress =
     singleWhitelistedToken?.toLowerCase() ||
     (isStrategiesSection
       ? strategyToken?.toLowerCase()
       : borrowToken?.toLowerCase()) ||
     "";
+
   const { tokenMetadata, isLoading } = useGetTokenMetadata(tokenAddress || "");
 
   const resetSelections = useCallback(() => {
@@ -74,6 +75,10 @@ const RenderComponent: React.FC = () => {
     setSelectedOpportunity,
     setCurrentStep,
   ]);
+
+  useEffect(() => {
+    setIsInitialTokenProcessed(false);
+  }, [strategyToken, borrowToken]);
 
   const shouldResetForChainMismatch = useCallback(
     (enrichedTokenChainId: number, enrichedTokenAddress: string) =>
