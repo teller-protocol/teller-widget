@@ -108,6 +108,10 @@ const meta = {
       description: "Token address to automatically load in strategy section",
       control: { type: "text" },
     },
+    borrowToken: {
+      description: "Token address to automatically load in borrow section",
+      control: { type: "text" },
+    },
   },
   args: {
     hideAutoConnectModal: true,
