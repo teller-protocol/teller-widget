@@ -81,7 +81,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
           collateralType: 1,
           id: BigInt(0),
           rolloverable: true,
-          marketplaceId: lenderGroupCommitment.market_id,
+          marketplaceId: lenderGroupCommitment.market_id.toString(),
           marketplace: {
             marketplaceFeePercent: marketplaceFee,
           },

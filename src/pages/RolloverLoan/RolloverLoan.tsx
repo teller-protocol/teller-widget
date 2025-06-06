@@ -182,7 +182,7 @@ const RolloverLoan: React.FC = () => {
     setDuration(defaultDuration ?? dropdownOptions[0]);
   }, [loan?.marketplaceId, dropdownOptions, duration]);
 
-  const commitment = filteredCommitments?.get(Number(duration?.value));
+  const commitment = filteredCommitments?.get(duration?.value ?? "");
 
   const commitmentCollateral = commitment?.collateralToken;
 
