@@ -19,7 +19,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
     () => gql`
       query groupDashboardCommitmentsFor${collateralTokenAddress} {
         group_pool_metric(
-          where: { collateral_token_address: {_eq: "${collateralTokenAddress.toLowerCase()}" } }
+          where: { collateral_token_address: {_eq: "${collateralTokenAddress?.toLowerCase()}" } }
         ) {
           id
           market_id
