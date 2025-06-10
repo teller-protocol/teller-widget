@@ -49,6 +49,7 @@ interface BaseWidgetProps {
   strategy?: STRATEGY_ACTION_ENUM.LONG | STRATEGY_ACTION_ENUM.SHORT;
   strategyToken?: string;
   borrowToken?: string;
+  principalTokenForPair?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -93,6 +94,7 @@ const Widget: React.FC<WidgetProps> = ({
   strategy,
   strategyToken,
   borrowToken,
+  principalTokenForPair,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -124,6 +126,7 @@ const Widget: React.FC<WidgetProps> = ({
           initialStrategyAction={strategy}
           strategyToken={strategyToken}
           borrowToken={borrowToken}
+          principalTokenForPair={principalTokenForPair}
         >
           <TransactionButtonProvider>
             <div className="teller-widget">

@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useForwarderAddresses } from "../useForwarderAddresses";
 import { Address } from "viem";
 import { useChainId } from "wagmi";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 export type SubgraphTokenType = {
   imageUri?: string | undefined;
@@ -52,6 +53,7 @@ export const useGetCommitmentsForCollateralToken = (
 ) => {
   const graphURL = useGraphURL();
   const chainId = useChainId();
+  const { principalTokenForPair } = useGetGlobalPropsContext();
 
   const { lcfAlphaAddress, lcfAddress } = useForwarderAddresses();
 
@@ -65,6 +67,13 @@ export const useGetCommitmentsForCollateralToken = (
               collateralToken_: {
                 address: "${collateralTokenAddress}"
               },
+              ${
+                principalTokenForPair
+                  ? `principalToken_: {
+                    address: "${principalTokenForPair.toLowerCase()}"
+                  },`
+                  : ""
+              }
               status: "Active",
               expirationTimestamp_gt: "${Math.floor(Date.now() / 1000)}",
               committedAmount_gt: "0",
