@@ -9,39 +9,46 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 export const useGetLiquidityPools = () => {
   const chainId = useChainId();
   const graphURL = getLiquidityPoolsGraphEndpoint(chainId);
-  const { singleWhitelistedToken } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken, principalTokenForPair } =
+    useGetGlobalPropsContext();
 
   const poolCommitmentsDashboard = useMemo(
     () => gql`
-      query groupLiquidityPools {
-        group_pool_metric(
-          where: ${
+    query groupLiquidityPools {
+      group_pool_metric(
+        where: {
+          ${
             singleWhitelistedToken
-              ? `{ collateral_token_address: {_eq: "${singleWhitelistedToken.toLocaleLowerCase()}"} }`
-              : "{}"
+              ? `collateral_token_address: {_eq: "${singleWhitelistedToken.toLowerCase()}"},`
+              : ""
           }
-        ) {
-          id
-          market_id
-          max_loan_duration
-          collateral_token_address
-          principal_token_address
-          total_principal_tokens_committed
-          total_principal_tokens_borrowed
-          total_principal_tokens_withdrawn
-          total_interest_collected
-          total_interest_collected
-          interest_rate_lower_bound
-          interest_rate_upper_bound
-          current_min_interest_rate
-          shares_token_address
-          collateral_ratio
-          group_pool_address
-          smart_commitment_forwarder_address
+          ${
+            principalTokenForPair
+              ? `principal_token_address: {_eq: "${principalTokenForPair.toLowerCase()}"},`
+              : ""
+          }
         }
+      ) {
+        id
+        market_id
+        max_loan_duration
+        collateral_token_address
+        principal_token_address
+        total_principal_tokens_committed
+        total_principal_tokens_borrowed
+        total_principal_tokens_withdrawn
+        total_interest_collected
+        interest_rate_lower_bound
+        interest_rate_upper_bound
+        current_min_interest_rate
+        shares_token_address
+        collateral_ratio
+        group_pool_address
+        smart_commitment_forwarder_address
       }
-    `,
-    [singleWhitelistedToken]
+    }
+  `,
+    [principalTokenForPair, singleWhitelistedToken]
   );
 
   const { data: blockedPools } = useQuery({

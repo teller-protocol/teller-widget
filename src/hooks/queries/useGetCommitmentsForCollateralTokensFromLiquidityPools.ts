@@ -6,12 +6,14 @@ import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useChainId } from "wagmi";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
 import { CommitmentType } from "./useGetRolloverableCommitments";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
   collateralTokenAddress: string
 ) => {
   const chainId = useChainId();
   const graphURL = getLiquidityPoolsGraphEndpoint(chainId);
+  const { principalTokenForPair } = useGetGlobalPropsContext();
 
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
 
@@ -19,7 +21,14 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
     () => gql`
       query groupDashboardCommitmentsFor${collateralTokenAddress} {
         group_pool_metric(
-          where: { collateral_token_address: {_eq: "${collateralTokenAddress?.toLowerCase()}" } }
+          where: {
+            collateral_token_address: {_eq: "${collateralTokenAddress?.toLowerCase()}" }
+            ${
+              principalTokenForPair
+                ? `principal_token_address: {_eq: "${principalTokenForPair.toLowerCase()}"},`
+                : ""
+            }
+          }
         ) {
           id
           market_id
@@ -40,7 +49,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
         }
       }
     `,
-    [collateralTokenAddress]
+    [collateralTokenAddress, principalTokenForPair]
   );
 
   const { data, isLoading, error } = useQuery({

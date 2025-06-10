@@ -151,7 +151,11 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
       return;
     }
 
-    if (borrowToken && !isStrategiesSection && internalKey === 0) {
+    if (
+      (borrowToken || singleWhitelistedToken) &&
+      !isStrategiesSection &&
+      internalKey === 0
+    ) {
       processTokenInitialization(tokenData);
       return;
     }
@@ -181,6 +185,7 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     shouldResetForChainMismatch,
     processTokenInitialization,
     internalKey,
+    singleWhitelistedToken,
   ]);
 
   const mapStepToComponent = useMemo(

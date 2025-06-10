@@ -49,6 +49,7 @@ export type GlobalPropsContextType = {
   isTradeMode?: boolean;
   strategyToken?: string;
   borrowToken?: string;
+  principalTokenForPair?: string;
 };
 
 interface GlobalPropsContextProps {
@@ -69,6 +70,7 @@ interface GlobalPropsContextProps {
   initialStrategyAction?: STRATEGY_ACTION_ENUM;
   strategyToken?: string;
   borrowToken?: string;
+  principalTokenForPair?: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -91,6 +93,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   initialStrategyAction,
   strategyToken,
   borrowToken,
+  principalTokenForPair,
 }) => {
   const { address } = useAccount();
   const chainId = useChainId();
@@ -174,6 +177,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       isTradeMode,
       strategyToken,
       borrowToken,
+      principalTokenForPair,
     };
   }, [
     userTokens,
@@ -196,6 +200,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     isTradeMode,
     strategyToken,
     borrowToken,
+    principalTokenForPair,
   ]);
 
   return (
