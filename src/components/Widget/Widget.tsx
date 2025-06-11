@@ -48,6 +48,7 @@ interface BaseWidgetProps {
   strategyToken?: string;
   borrowToken?: string;
   principalTokenForPair?: string;
+  isLoop?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -93,6 +94,7 @@ const Widget: React.FC<WidgetProps> = ({
   strategyToken,
   borrowToken,
   principalTokenForPair,
+  isLoop = false,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -124,6 +126,7 @@ const Widget: React.FC<WidgetProps> = ({
         strategyToken={strategyToken}
         borrowToken={borrowToken}
         principalTokenForPair={principalTokenForPair}
+        isLoop={isLoop}
       >
         <TransactionButtonProvider>
           <div className="teller-widget">
