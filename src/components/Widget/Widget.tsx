@@ -1,11 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { WagmiProvider } from "wagmi";
 import {
   GlobalContextProvider,
   STRATEGY_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
-import { config } from "../../helpers/createWagmiConfig";
 import Button from "../Button";
 import Modal from "../Modal/Modal";
 import ModalContent from "../ModalContent";
@@ -109,68 +107,66 @@ const Widget: React.FC<WidgetProps> = ({
   }
 
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <GlobalContextProvider
-          whitelistedTokens={whitelistedTokens}
-          showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
-          whitelistedChains={whitelistedChains}
-          referralFee={Math.min(referralFee, 500)}
-          referralAddress={referralAddress}
-          buttonColorPrimary={buttonColorPrimary}
-          buttonTextColorPrimary={buttonTextColorPrimary}
-          subgraphApiKey={subgraphApiKey}
-          singleWhitelistedToken={singleWhitelistedToken}
-          isVisible={showModal || isEmbedded}
-          isTradeMode={isTradeMode}
-          initialStrategyAction={strategy}
-          strategyToken={strategyToken}
-          borrowToken={borrowToken}
-          principalTokenForPair={principalTokenForPair}
-        >
-          <TransactionButtonProvider>
-            <div className="teller-widget">
-              <Modal
-                {...(!isEmbedded && {
-                  closeModal: () => setShowModal(false),
-                  showModal,
-                })}
-                isWelcomeScreen={showWelcomeScreen}
-                useLightLogo={useLightLogo}
-                isEmbedded={isEmbedded}
-                showChainSwitch={showChainSwitch}
-                widgetChainId={widgetChainId}
-              >
-                {showWelcomeScreen ? (
-                  <WelcomeScreen
-                    onClick={() => setShowWelcomeScreen(false)}
-                    welcomeScreenLogo={welcomeScreenLogo}
-                    welcomeScreenTitle={welcomeScreenTitle}
-                    welcomeScreenParagraph={welcomeScreenParagraph}
-                  />
-                ) : (
-                  <ModalContent
-                    showModalByDefault={showModalByDefault}
-                    showPoolSection={showPoolSection}
-                    showRepaySection={showRepaySection}
-                    showStrategiesSection={showStrategiesSection}
-                    hideAutoConnectModal={hideAutoConnectModal}
-                  />
-                )}
-              </Modal>
-              {!isEmbedded && (
-                <Button
-                  label={buttonLabel}
-                  onClick={() => setShowModal(true)}
-                  className={buttonClassName}
-                  variant={isBareButton ? "bare" : "primary"}
+    <QueryClientProvider client={queryClient}>
+      <GlobalContextProvider
+        whitelistedTokens={whitelistedTokens}
+        showOnlyWhiteListedTokens={showOnlyWhiteListedTokens}
+        whitelistedChains={whitelistedChains}
+        referralFee={Math.min(referralFee, 500)}
+        referralAddress={referralAddress}
+        buttonColorPrimary={buttonColorPrimary}
+        buttonTextColorPrimary={buttonTextColorPrimary}
+        subgraphApiKey={subgraphApiKey}
+        singleWhitelistedToken={singleWhitelistedToken}
+        isVisible={showModal || isEmbedded}
+        isTradeMode={isTradeMode}
+        initialStrategyAction={strategy}
+        strategyToken={strategyToken}
+        borrowToken={borrowToken}
+        principalTokenForPair={principalTokenForPair}
+      >
+        <TransactionButtonProvider>
+          <div className="teller-widget">
+            <Modal
+              {...(!isEmbedded && {
+                closeModal: () => setShowModal(false),
+                showModal,
+              })}
+              isWelcomeScreen={showWelcomeScreen}
+              useLightLogo={useLightLogo}
+              isEmbedded={isEmbedded}
+              showChainSwitch={showChainSwitch}
+              widgetChainId={widgetChainId}
+            >
+              {showWelcomeScreen ? (
+                <WelcomeScreen
+                  onClick={() => setShowWelcomeScreen(false)}
+                  welcomeScreenLogo={welcomeScreenLogo}
+                  welcomeScreenTitle={welcomeScreenTitle}
+                  welcomeScreenParagraph={welcomeScreenParagraph}
+                />
+              ) : (
+                <ModalContent
+                  showModalByDefault={showModalByDefault}
+                  showPoolSection={showPoolSection}
+                  showRepaySection={showRepaySection}
+                  showStrategiesSection={showStrategiesSection}
+                  hideAutoConnectModal={hideAutoConnectModal}
                 />
               )}
-            </div>
-          </TransactionButtonProvider>
-        </GlobalContextProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+            </Modal>
+            {!isEmbedded && (
+              <Button
+                label={buttonLabel}
+                onClick={() => setShowModal(true)}
+                className={buttonClassName}
+                variant={isBareButton ? "bare" : "primary"}
+              />
+            )}
+          </div>
+        </TransactionButtonProvider>
+      </GlobalContextProvider>
+    </QueryClientProvider>
   );
 };
 

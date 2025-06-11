@@ -11,6 +11,8 @@ _Please note that a subgraph studio api key is required to use the widget. Pleas
 
 # Required packages
 
+**THIS REQUIRES WAGMI IN THE CONSUMER APP**
+
 ```bash
  @tanstack/react-query
  alchemy-sdk
