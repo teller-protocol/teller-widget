@@ -14,8 +14,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext",
-    "noEmit": true
+    "target": "esnext"
   },
   "include": ["src", "src/**/*.d.ts"],
   "exclude": ["node_modules/", "lib", ".storybook/*"]
