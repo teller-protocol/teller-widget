@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import {
@@ -12,6 +12,8 @@ import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { useGetTokenList } from "../../../hooks/queries/useGetTokenList";
 import { AddressStringType } from "../../../types/addressStringType";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
+import { useGetTokensData } from "../../../hooks/useFetchTokensData";
+import { getTokenChain } from "../../../hooks/useGetTokenChain";
 
 const SwapTokenList: React.FC = () => {
   const {
@@ -23,6 +25,8 @@ const SwapTokenList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const isSupportedChain = useIsSupportedChain();
+
+  const { fetchAllWhitelistedTokensData } = useGetTokensData();
 
   const { address } = useAccount();
 
@@ -58,48 +62,92 @@ const SwapTokenList: React.FC = () => {
   ];
 
   const uniswapTokens = address ? uniswapChainTokens : allTokens;
-  const userTokenAddresses = new Set(
-    tokensWithCommitments.map((t) => t?.address?.toLowerCase())
+  const userTokenAddresses = useMemo(
+    () => tokensWithCommitments.map((t) => t?.address?.toLowerCase()),
+    [tokensWithCommitments]
   );
 
-  const additionalTokens: UserToken[] = uniswapTokens
-    .filter((token) => !userTokenAddresses.has(token?.address.toLowerCase()))
-    .map((token) => ({
-      address: token.address as AddressStringType,
-      name: token.name,
-      symbol: token.symbol,
-      decimals: token.decimals,
-      logo: token.logoURI,
-      balance: "0",
-      balanceBigInt: "0",
-      chainId: token.chainId,
-    }));
-
-  const mergedTokens = Array.from(
-    new Map(
-      [...tokensWithCommitments, ...additionalTokens].map((t) => [
-        t?.address?.toLowerCase(),
-        { ...t, chainId: !address ? t?.chainId || chainId : undefined },
-      ])
-    )
-  ).map(([, token]) => token);
-
-  const filteredAndSortedTokens = [
-    ...mergedTokens
+  const additionalTokens: UserToken[] = useMemo(() => {
+    return uniswapTokens
       .filter(
-        (token) =>
-          parseFloat(token?.balance) > 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+        (token) => !userTokenAddresses.includes(token?.address.toLowerCase())
       )
-      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
-    ...mergedTokens
-      .filter(
-        (token) =>
-          parseFloat(token?.balance) <= 0 &&
-          token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      .map((token) => ({
+        address: token.address as AddressStringType,
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        logo: token.logoURI,
+        balance: "0",
+        balanceBigInt: "0",
+        chainId: !address ? token.chainId : undefined,
+      }));
+  }, [uniswapTokens, userTokenAddresses, address]);
+
+  const mergedTokens = useMemo(() => {
+    return Array.from(
+      new Map(
+        [...tokensWithCommitments, ...additionalTokens].map((t) => [
+          t?.address?.toLowerCase(),
+          t,
+        ])
       )
-      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
-  ];
+    ).map(([, token]) => token);
+  }, [tokensWithCommitments, additionalTokens]);
+
+  const [filteredAndSortedTokens, setFilteredAndSortedTokens] = useState<
+    UserToken[]
+  >([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const filterTokens = async () => {
+      let tokens = [
+        ...mergedTokens
+          .filter(
+            (token) =>
+              parseFloat(token?.balance) > 0 &&
+              token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+        ...mergedTokens
+          .filter(
+            (token) =>
+              parseFloat(token?.balance) <= 0 &&
+              token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+      ];
+
+      if (tokens.length === 0 && searchQuery.length > 0) {
+        const chainId = await getTokenChain(searchQuery);
+        tokens = await fetchAllWhitelistedTokensData([searchQuery], chainId);
+      }
+
+      if (
+        isMounted &&
+        (filteredAndSortedTokens.length !== tokens.length ||
+          !filteredAndSortedTokens.every(
+            (t, i) => t.address === tokens[i]?.address
+          ))
+      ) {
+        setFilteredAndSortedTokens(tokens);
+      }
+    };
+
+    void filterTokens();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    chainId,
+    fetchAllWhitelistedTokensData,
+    filteredAndSortedTokens,
+    mergedTokens,
+    searchQuery,
+  ]);
 
   return (
     <div className="swap-token-list">
