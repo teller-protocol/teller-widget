@@ -382,6 +382,28 @@ export const Strategies: Story = {
   tags: ["!autodocs"],
 };
 
+export const Loop: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+    showStrategiesSection: true,
+    strategyToken: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    isLoop: true,
+  },
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Widget {...args} />
+          <ConnectWalletButton />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+  tags: ["!autodocs"],
+};
+
 export const AutoOpen: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,

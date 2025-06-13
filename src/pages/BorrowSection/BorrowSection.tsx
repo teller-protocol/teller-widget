@@ -39,6 +39,7 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     isTradeMode,
     isStrategiesSection,
     borrowToken,
+    isLoop,
   } = useGetGlobalPropsContext();
   const {
     currentStep,
@@ -94,6 +95,19 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
 
   const processTokenInitialization = useCallback(
     (tokenData: UserToken, isLongStrategy: boolean = false) => {
+      if (
+        isStrategiesSection &&
+        isLoop &&
+        strategyToken &&
+        tokenData.address.toLowerCase() === strategyToken.toLowerCase()
+      ) {
+        setSelectedSwapToken(tokenData);
+        setSelectedCollateralToken(tokenData);
+        setSelectedPrincipalErc20Token(tokenData);
+        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+        return;
+      }
+
       if (isLongStrategy) {
         setSelectedSwapToken(tokenData);
         return;
@@ -108,6 +122,9 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
       setSelectedCollateralToken,
       setSelectedPrincipalErc20Token,
       setCurrentStep,
+      isLoop,
+      isStrategiesSection,
+      strategyToken,
     ]
   );
 
@@ -121,7 +138,7 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     const balanceUnits = parseUnits(tokenBalance, tokenMetadata.decimals || 18);
     const balanceBigInt = BigInt(balanceUnits.toString());
 
-    let enrichedToken = findTokenWithMetadata(
+    const enrichedToken = findTokenWithMetadata(
       tokenAddress.toLowerCase(),
       tokenMetadata,
       tokenList || {},
