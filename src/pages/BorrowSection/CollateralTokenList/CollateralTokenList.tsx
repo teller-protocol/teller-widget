@@ -130,9 +130,10 @@ const CollateralTokenList: React.FC = () => {
     logEvent({
         eventName: 'borrow_collateral_token_selected',
         pageUrl: window.location.href,
-        properties: [
-          { name: 'collateral_token', value: token.toString() ?? '' },
-        ],
+        properties: Object.entries(token).map(([key, value]) => ({
+          name: key,
+          value: value?.toString() ?? '',
+        })),
         address,
         chainId: chainId ?? '',
         extensionProvider: connector?.name ?? '',
