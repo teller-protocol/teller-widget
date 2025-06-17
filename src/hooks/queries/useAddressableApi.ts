@@ -47,7 +47,7 @@ export function logEvent({
   const encoded = Buffer.from(JSON.stringify(payload)).toString('base64')
 
   const img = new Image()
-  img.src = `https://tag.adrsbl.io/events/prod_standard_stage/p.png?is_conversion=false&data=${encodeURIComponent(
+  img.src = `https://tag.adrsbl.io/events/prod_standard_stage/p.png?is_conversion=true&data=${encodeURIComponent(
     encoded
   )}`
 }
