@@ -26,11 +26,7 @@ import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { UserToken } from "../../hooks/useGetUserTokens";
 
-interface Props {
-  internalKey?: number;
-}
-
-const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
+const RenderComponent: React.FC = () => {
   const {
     singleWhitelistedToken,
     userTokens,
@@ -168,11 +164,7 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
       return;
     }
 
-    if (
-      (borrowToken || singleWhitelistedToken) &&
-      !isStrategiesSection &&
-      internalKey === 0
-    ) {
+    if ((borrowToken || singleWhitelistedToken) && !isStrategiesSection) {
       processTokenInitialization(tokenData);
       return;
     }
@@ -201,7 +193,6 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     resetSelections,
     shouldResetForChainMismatch,
     processTokenInitialization,
-    internalKey,
     singleWhitelistedToken,
   ]);
 
@@ -234,10 +225,10 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
   );
 };
 
-const BorrowSection: React.FC<Props> = ({ internalKey }) => {
+const BorrowSection: React.FC<Props> = () => {
   return (
     <BorrowSectionContextProvider>
-      <RenderComponent internalKey={internalKey || 0} />
+      <RenderComponent />
     </BorrowSectionContextProvider>
   );
 };
