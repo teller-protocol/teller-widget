@@ -183,19 +183,18 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const handleOnOpportunityClick = () => {
     logEvent({
-      eventName: 'borrow_offer_selected',
+      eventName: "borrow_offer_selected",
       pageUrl: window.location.href,
       properties: Object.entries(opportunity).flatMap(([key, value]) =>
-        value && typeof value === 'object' && !Array.isArray(value)
+        value && typeof value === "object" && !Array.isArray(value)
           ? Object.entries(value).map(([k, v]) => ({
               name: `${key}.${k}`,
-              value: v?.toString() ?? '',
+              value: v?.toString() ?? "",
             }))
-          : [{ name: key, value: value?.toString() ?? '' }]
+          : [{ name: key, value: value?.toString() ?? "" }]
       ),
-      userAddress,
-      chainId: chainId ?? '',
-      extensionProvider: connector?.name ?? '',
+      chainId: chainId ? chainId.toString() : "",
+      extensionProvider: connector?.name ?? "",
     });
 
     setSelectedOpportunity(opportunity);
