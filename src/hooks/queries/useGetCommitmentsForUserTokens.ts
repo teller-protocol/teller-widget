@@ -91,7 +91,10 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens, address]
   );
   const { data, refetch, isFetched } = useQuery({
-    queryKey: [`commitmentsForUserTokens-${chainId}-${address}`],
+    queryKey: [
+      "teller-widget",
+      `commitmentsForUserTokens-${chainId}-${address}`,
+    ],
     queryFn: async () => request(graphURL, userTokenCommitments),
     enabled: !!hasTokens,
   }) as {
@@ -106,7 +109,10 @@ export const useGetCommitmentsForUserTokens = () => {
     isLoading: lenderGroupsUserTokenCommitmentsLoading,
     isFetched: lenderGroupsUserTokenCommitmentsFetched,
   } = useQuery({
-    queryKey: [`lenderGroupsUserTokenCommitments-${chainId}-${address}`],
+    queryKey: [
+      "teller-widget",
+      `lenderGroupsUserTokenCommitments-${chainId}-${address}`,
+    ],
     queryFn: async () => {
       const response = await request(
         lenderGroupsGraphURL,

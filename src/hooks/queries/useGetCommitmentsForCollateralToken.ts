@@ -143,6 +143,7 @@ export const useGetCommitmentsForCollateralToken = (
 
   const { data, isLoading, error } = useQuery({
     queryKey: [
+      "teller-widget",
       "commitmentsForCollateralToken-",
       collateralTokenAddress,
       chainId,

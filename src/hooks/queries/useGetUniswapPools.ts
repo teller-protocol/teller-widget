@@ -98,7 +98,13 @@ export const useGetUniswapPools = () => {
       setIsLoading(true);
       try {
         const result = await queryClient.fetchQuery({
-          queryKey: ["uniswapPoolData", chainId, tokenAddress, days],
+          queryKey: [
+            "teller-widget",
+            "uniswapPoolData",
+            chainId,
+            tokenAddress,
+            days,
+          ],
           queryFn: async () => {
             // Step 1: Get the best pool
             const poolsResponse = await request<PoolsResponse>(

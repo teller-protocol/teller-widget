@@ -54,6 +54,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
 
   const { data, isLoading, error } = useQuery({
     queryKey: [
+      "teller-widget",
       "commitmentsForLiquidityPoolsCollateralToken-",
       collateralTokenAddress,
       chainId,
