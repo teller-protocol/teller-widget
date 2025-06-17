@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GlobalContextProvider,
   STRATEGY_ACTION_ENUM,
@@ -107,6 +107,12 @@ const Widget: React.FC<WidgetProps> = ({
   if (referralFee > 500) {
     console.warn("Referral fee set to maximum at 5%.");
   }
+
+  useEffect(() => {
+    return () => {
+      queryClient.removeQueries({ queryKey: ["teller-widget"] });
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

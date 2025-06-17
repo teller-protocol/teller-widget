@@ -52,7 +52,7 @@ export const useGetLiquidityPools = () => {
   );
 
   const { data: blockedPools } = useQuery({
-    queryKey: ["blockedPools", chainId],
+    queryKey: ["teller-widget", "blockedPools", chainId],
     queryFn: async () => {
       const response = await fetch(
         `https://xyon-xymz-1ofj.n7d.xano.io/api:x0wU2WHq/no_show_pools_by_network?network_id=${chainId}`
@@ -63,7 +63,7 @@ export const useGetLiquidityPools = () => {
   });
 
   const { data, isLoading, error, isFetched } = useQuery({
-    queryKey: ["allLiquidityPools", chainId, blockedPools],
+    queryKey: ["teller-widget", "allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
       const response = (await request(graphURL, poolCommitmentsDashboard)) as {
         group_pool_metric: LenderGroupsPoolMetrics[];

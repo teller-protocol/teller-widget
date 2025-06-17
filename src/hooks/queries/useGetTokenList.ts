@@ -17,7 +17,7 @@ export const useGetTokenList = () => {
     Record<number, UniswapToken[]>,
     Error
   >({
-    queryKey: ["getTellerTokenList"],
+    queryKey: ["teller-widget", "getTellerTokenList"],
     queryFn: async () =>
       fetch(endpoint)
         .then((res) => res.json())

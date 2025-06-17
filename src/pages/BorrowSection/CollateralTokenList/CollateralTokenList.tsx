@@ -128,17 +128,17 @@ const CollateralTokenList: React.FC = () => {
 
   const onCollateralTokenSelected = (token: UserToken) => {
     logEvent({
-        eventName: 'borrow_collateral_token_selected',
-        pageUrl: window.location.href,
-        properties: Object.entries(token).map(([key, value]) => ({
-          name: key,
-          value: value?.toString() ?? '',
-        })),
-        address,
-        chainId: chainId ?? '',
-        extensionProvider: connector?.name ?? '',
-      })
-      
+      eventName: "borrow_collateral_token_selected",
+      pageUrl: window.location.href,
+      properties: Object.entries(token).map(([key, value]) => ({
+        name: key,
+        value: value?.toString() ?? "",
+      })),
+      address,
+      chainId: chainId ? chainId.toString() : "",
+      extensionProvider: connector?.name ?? "",
+    });
+
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedCollateralToken(token);
   };

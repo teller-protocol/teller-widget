@@ -70,7 +70,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
   const result = useQueries({
     queries: subpgraphIds.map((id) => ({
-      queryKey: ["commitments", id],
+      queryKey: ["teller-widget", "commitments", id],
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
         let commitments: any;
