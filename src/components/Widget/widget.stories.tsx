@@ -404,6 +404,35 @@ export const Loop: Story = {
   tags: ["!autodocs"],
 };
 
+export const Pair: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+    isEmbedded: true,
+    showChainSwitch: false,
+    singleWhitelistedToken: "0x427a03fb96d9a94a6727fbcfbba143444090dd64",
+    whitelistedTokens: { [1]: ["0x427a03fb96d9a94a6727fbcfbba143444090dd64"] },
+    showOnlyWhiteListedTokens: true,
+    showPoolSection: true,
+    showRepaySection: false,
+    widgetChainId: 1,
+    hideAutoConnectModal: true,
+    principalTokenForPair: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  },
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Widget {...args} />
+          <ConnectWalletButton />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+  tags: ["!autodocs"],
+};
+
 export const AutoOpen: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,

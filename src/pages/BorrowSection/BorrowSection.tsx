@@ -26,11 +26,7 @@ import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { UserToken } from "../../hooks/useGetUserTokens";
 
-interface Props {
-  internalKey?: number;
-}
-
-const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
+const RenderComponent: React.FC = () => {
   const {
     singleWhitelistedToken,
     userTokens,
@@ -40,7 +36,10 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     isStrategiesSection,
     borrowToken,
     isLoop,
+    isSwitchingBetweenWidgetActions,
+    setIsSwitchingBetweenWidgetActions,
   } = useGetGlobalPropsContext();
+
   const {
     currentStep,
     setCurrentStep,
@@ -171,7 +170,7 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     if (
       (borrowToken || singleWhitelistedToken) &&
       !isStrategiesSection &&
-      internalKey === 0
+      isSwitchingBetweenWidgetActions
     ) {
       processTokenInitialization(tokenData);
       return;
@@ -182,6 +181,8 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
         !!strategyToken && strategyAction === STRATEGY_ACTION_ENUM.LONG;
       processTokenInitialization(tokenData, isLongStrategy);
     }
+
+    setIsSwitchingBetweenWidgetActions(false);
   }, [
     tokenAddress,
     tokenMetadata,
@@ -201,8 +202,9 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
     resetSelections,
     shouldResetForChainMismatch,
     processTokenInitialization,
-    internalKey,
     singleWhitelistedToken,
+    isSwitchingBetweenWidgetActions,
+    setIsSwitchingBetweenWidgetActions,
   ]);
 
   const mapStepToComponent = useMemo(
@@ -234,10 +236,10 @@ const RenderComponent: React.FC<Props> = ({ internalKey = 0 }) => {
   );
 };
 
-const BorrowSection: React.FC<Props> = ({ internalKey }) => {
+const BorrowSection: React.FC = () => {
   return (
     <BorrowSectionContextProvider>
-      <RenderComponent internalKey={internalKey || 0} />
+      <RenderComponent />
     </BorrowSectionContextProvider>
   );
 };
