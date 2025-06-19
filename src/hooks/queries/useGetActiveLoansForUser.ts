@@ -241,7 +241,7 @@ export const useGetActiveLoansForUser = () => {
   `;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["getActiveLoansForUser", address],
+    queryKey: ["teller-widget", "getActiveLoansForUser", address],
     queryFn: () => request(graphURL, activeLoanForUser),
     enabled: !!address,
   }) as {

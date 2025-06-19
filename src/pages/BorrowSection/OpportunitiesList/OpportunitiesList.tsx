@@ -33,6 +33,7 @@ import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
+import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -74,7 +75,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
-  const { address: userAddress } = useAccount();
+  const { address: userAddress, connector } = useAccount();
+  const chainId = useChainId();
 
   const { data: collateralTokenBalance } = useBalance({
     address: userAddress,
@@ -180,6 +182,21 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   };
 
   const handleOnOpportunityClick = () => {
+    logEvent({
+      eventName: "borrow_offer_selected",
+      pageUrl: window.location.href,
+      properties: Object.entries(opportunity).flatMap(([key, value]) =>
+        value && typeof value === "object" && !Array.isArray(value)
+          ? Object.entries(value).map(([k, v]) => ({
+              name: `${key}.${k}`,
+              value: v?.toString() ?? "",
+            }))
+          : [{ name: key, value: value?.toString() ?? "" }]
+      ),
+      chainId: chainId ? chainId.toString() : "",
+      extensionProvider: connector?.name ?? "",
+    });
+
     setSelectedOpportunity(opportunity);
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
   };

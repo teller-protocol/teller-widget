@@ -50,6 +50,7 @@ export type GlobalPropsContextType = {
   strategyToken?: string;
   borrowToken?: string;
   principalTokenForPair?: string;
+  isLoop?: boolean;
 };
 
 interface GlobalPropsContextProps {
@@ -71,6 +72,7 @@ interface GlobalPropsContextProps {
   strategyToken?: string;
   borrowToken?: string;
   principalTokenForPair?: string;
+  isLoop?: boolean;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -94,6 +96,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   strategyToken,
   borrowToken,
   principalTokenForPair,
+  isLoop = false,
 }) => {
   const { address } = useAccount();
   const chainId = useChainId();
@@ -178,6 +181,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       strategyToken,
       borrowToken,
       principalTokenForPair,
+      isLoop,
     };
   }, [
     userTokens,
@@ -201,6 +205,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     strategyToken,
     borrowToken,
     principalTokenForPair,
+    isLoop,
   ]);
 
   return (

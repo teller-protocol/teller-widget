@@ -47,6 +47,7 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
 
   const { data, isLoading } = useQuery({
     queryKey: [
+      "teller-widget",
       "rolloverableCommitmentsForCollateralTokenFromLiquidityPools-",
       collateralTokenAddress,
     ],

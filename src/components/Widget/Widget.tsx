@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GlobalContextProvider,
   STRATEGY_ACTION_ENUM,
@@ -48,6 +48,7 @@ interface BaseWidgetProps {
   strategyToken?: string;
   borrowToken?: string;
   principalTokenForPair?: string;
+  isLoop?: boolean;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -93,6 +94,7 @@ const Widget: React.FC<WidgetProps> = ({
   strategyToken,
   borrowToken,
   principalTokenForPair,
+  isLoop = false,
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -105,6 +107,12 @@ const Widget: React.FC<WidgetProps> = ({
   if (referralFee > 500) {
     console.warn("Referral fee set to maximum at 5%.");
   }
+
+  useEffect(() => {
+    return () => {
+      queryClient.removeQueries({ queryKey: ["teller-widget"] });
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -124,6 +132,7 @@ const Widget: React.FC<WidgetProps> = ({
         strategyToken={strategyToken}
         borrowToken={borrowToken}
         principalTokenForPair={principalTokenForPair}
+        isLoop={isLoop}
       >
         <TransactionButtonProvider>
           <div className="teller-widget">
