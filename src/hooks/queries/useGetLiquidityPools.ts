@@ -65,16 +65,30 @@ export const useGetLiquidityPools = () => {
   const { data, isLoading, error, isFetched } = useQuery({
     queryKey: ["teller-widget", "allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
-      const response = (await request(graphURL, poolCommitmentsDashboard)) as {
+      const response = await request<{
         group_pool_metric: LenderGroupsPoolMetrics[];
-      };
+      }>(graphURL, poolCommitmentsDashboard);
 
-      const filteredPools = blockedPools?.length
+      let filteredPools = blockedPools?.length
         ? response.group_pool_metric.filter(
             (pool) =>
               !blockedPools.includes(pool.group_pool_address.toLowerCase())
           )
         : response.group_pool_metric;
+
+      // Filter out pools with 0 or negative liquidity
+      const hiddenPools: LenderGroupsPoolMetrics[] = [];
+      filteredPools = filteredPools.filter((pool) => {
+        const committed = BigInt(pool.total_principal_tokens_committed);
+        const withdrawn = BigInt(pool.total_principal_tokens_withdrawn);
+        const interest = BigInt(pool.total_interest_collected);
+        const trueLiquidity = committed - withdrawn + interest;
+        if (trueLiquidity <= 0n) {
+          hiddenPools.push(pool);
+        }
+        return trueLiquidity > 0n;
+      });
+      console.log("WARN: hidden pools with no liquidity", hiddenPools);
 
       return filteredPools;
     },
