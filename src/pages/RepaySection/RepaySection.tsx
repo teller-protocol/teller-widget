@@ -13,8 +13,15 @@ import {
 import "./repaySection.scss";
 import RolloverConfirmation from "./RolloverConfirmation";
 import AddToCalendar from "../../components/AddToCalendar";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 
 const RenderComponent: React.FC = () => {
+  const { setIsSwitchingBetweenWidgetActions } = useGetGlobalPropsContext();
+
+  useEffect(() => {
+    setIsSwitchingBetweenWidgetActions(false);
+  }, [setIsSwitchingBetweenWidgetActions]);
+
   const { currentStep, bidId, setCurrentStep } = useGetRepaySectionContext();
   const chainId = useChainId();
   const mapStepToComponent = useMemo(
