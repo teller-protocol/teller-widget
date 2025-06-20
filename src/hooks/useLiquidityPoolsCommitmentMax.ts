@@ -84,7 +84,7 @@ export const useLiquidityPoolsCommitmentMax = ({
       !requiredCollateralFor1PrincipalAmount ||
       requiredCollateralFor1PrincipalAmount === 0n
     )
-      return 0;
+      return 0n;
     return (
       (BigInt(collateralAmount ?? 0) * principalTokenExpansionFactor) / //  this muldiv represents the inverse ratio , 1 principal amount / required collateral
       (requiredCollateralFor1PrincipalAmount ?? 1n) /
@@ -116,13 +116,17 @@ export const useLiquidityPoolsCommitmentMax = ({
         maxAvailableCollateral ?? BigInt(0)
       );
 
-  const maxLoanAmount = tokenIsWhitelistedAndBalanceIs0
-    ? maxLoanAmountFromContract ?? 0n
-    : requiredPrincipalAmount === 0n
-    ? 0n
-    : requiredPrincipalAmount > 0
-    ? requiredPrincipalAmount
-    : maxLoanAmountFromContract;
+  let maxLoanAmount: bigint;
+
+  if (tokenIsWhitelistedAndBalanceIs0) {
+    maxLoanAmount = maxLoanAmountFromContract ?? 0n;
+  } else if (requiredPrincipalAmount === 0n) {
+    maxLoanAmount = 0n;
+  } else if (requiredPrincipalAmount > 0) {
+    maxLoanAmount = requiredPrincipalAmount;
+  } else {
+    maxLoanAmount = maxLoanAmountFromContract;
+  }
 
   const maxLoanAmountNumber = Number(
     formatUnits(maxLoanAmount ?? 0n, principalTokenData?.decimals ?? 18)
