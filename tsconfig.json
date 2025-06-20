@@ -16,6 +16,6 @@
     "strict": true,
     "target": "esnext"
   },
-  "include": ["src", "src/*.d.ts"],
+  "include": ["src/types/global.d.ts", "src", "src/**/*.d.ts"],
   "exclude": ["node_modules/", "lib", ".storybook/*"]
 }
