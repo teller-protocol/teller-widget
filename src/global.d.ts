@@ -14,6 +14,7 @@ declare module "*.png" {
   const path: string;
   export default path;
 }
+
 declare global {
   interface Window {
     __adrsbl: {
