@@ -191,8 +191,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   };
 
   const handleOnOpportunityClick = () => {
-
-    const adrsblProperties = Object.entries(opportunity).flatMap(([key, value]) =>
+    if (window.__adrsbl?.run) {
+      const adrsblProperties = Object.entries(opportunity).flatMap(([key, value]) =>
         value && typeof value === "object" && !Array.isArray(value)
           ? Object.entries(value).map(([k, v]) => ({
               name: `${key}.${k}`,
@@ -200,8 +200,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
             }))
           : [{ name: key, value: value?.toString() ?? "" }]
       )
-
-    window.__adrsbl.run('borrow_offer_selected', false, adrsblProperties)
+      window.__adrsbl.run('borrow_offer_selected', false, adrsblProperties)
+    }
 
     setSelectedOpportunity(opportunity);
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
