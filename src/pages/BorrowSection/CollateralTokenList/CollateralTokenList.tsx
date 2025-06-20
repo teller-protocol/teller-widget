@@ -25,15 +25,6 @@ import { mapChainIdToName } from "../../../constants/chains";
 import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
 import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
-declare global {
-  interface Window {
-    __adrsbl: {
-      queue: any[];
-      run: (...args: any[]) => void;
-    };
-  }
-}
-
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
   ERC20 = "ERC20",

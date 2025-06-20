@@ -35,15 +35,6 @@ import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAgg
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
 import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
-declare global {
-  interface Window {
-    __adrsbl: {
-      queue: any[];
-      run: (...args: any[]) => void;
-    };
-  }
-}
-
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
 }
