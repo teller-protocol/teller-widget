@@ -35,6 +35,15 @@ import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAgg
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
 import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
+declare global {
+  interface Window {
+    __adrsbl: {
+      queue: any[];
+      run: (...args: any[]) => void;
+    };
+  }
+}
+
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
 }
@@ -182,20 +191,17 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   };
 
   const handleOnOpportunityClick = () => {
-    logEvent({
-      eventName: "borrow_offer_selected",
-      pageUrl: window.location.href,
-      properties: Object.entries(opportunity).flatMap(([key, value]) =>
+
+    const adrsblProperties = Object.entries(opportunity).flatMap(([key, value]) =>
         value && typeof value === "object" && !Array.isArray(value)
           ? Object.entries(value).map(([k, v]) => ({
               name: `${key}.${k}`,
               value: v?.toString() ?? "",
             }))
           : [{ name: key, value: value?.toString() ?? "" }]
-      ),
-      chainId: chainId ? chainId.toString() : "",
-      extensionProvider: connector?.name ?? "",
-    });
+      )
+
+    window.__adrsbl.run('borrow_offer_selected', false, adrsblProperties)
 
     setSelectedOpportunity(opportunity);
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);

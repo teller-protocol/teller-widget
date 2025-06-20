@@ -25,6 +25,15 @@ import { mapChainIdToName } from "../../../constants/chains";
 import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
 import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
+declare global {
+  interface Window {
+    __adrsbl: {
+      queue: any[];
+      run: (...args: any[]) => void;
+    };
+  }
+}
+
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
   ERC20 = "ERC20",
@@ -127,17 +136,12 @@ const CollateralTokenList: React.FC = () => {
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
-    logEvent({
-      eventName: "borrow_collateral_token_selected",
-      pageUrl: window.location.href,
-      properties: Object.entries(token).map(([key, value]) => ({
-        name: key,
-        value: value?.toString() ?? "",
-      })),
-      address,
-      chainId: chainId ? chainId.toString() : "",
-      extensionProvider: connector?.name ?? "",
-    });
+    const adrsblProperties = Object.entries(token).map(([key, value]) => ({
+      name: key,
+      value: value?.toString() ?? "",
+    }))
+
+    window.__adrsbl.run('borrow_collateral_token_selected', false, adrsblProperties)
 
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     setSelectedCollateralToken(token);
