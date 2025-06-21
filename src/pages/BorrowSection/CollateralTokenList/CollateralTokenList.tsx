@@ -17,7 +17,7 @@ import {
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import TokenLogo from "../../../components/TokenLogo";
 import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
@@ -116,6 +116,8 @@ const CollateralTokenList: React.FC = () => {
     isTradeMode,
   } = useGetGlobalPropsContext();
 
+  const { switchChain } = useSwitchChain();
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const chainId = useChainId();
@@ -135,8 +137,13 @@ const CollateralTokenList: React.FC = () => {
       window.__adrsbl.run('borrow_collateral_token_selected', false, adrsblProperties);
     }
 
-    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-    setSelectedCollateralToken(token);
+    if (token.chainId) {
+      switchChain({ chainId: token.chainId });
+    }
+    setTimeout(() => {
+      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      setSelectedCollateralToken(token);
+    });
   };
 
   const filteredAndSortedTokens = [

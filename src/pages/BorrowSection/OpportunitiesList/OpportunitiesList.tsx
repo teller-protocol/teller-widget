@@ -14,7 +14,7 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
-import { useAccount, useBalance, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useBalance, useChainId } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
@@ -307,7 +307,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
-  const { switchChain } = useSwitchChain();
   const chainId = useChainId();
 
   const {
@@ -316,25 +315,24 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
-    currentStep,
   } = useGetBorrowSectionContext();
   const {
     isStrategiesSection,
     strategyAction,
     isTradeMode,
     setStrategyAction,
-    strategyToken,
   } = useGetGlobalPropsContext();
+  const { setSelectedOpportunity, setCurrentStep } =
+    useGetBorrowSectionContext();
 
   useEffect(() => {
     if (
-      !chainId ||
-      (selectedCollateralToken?.chainId &&
-        chainId !== selectedCollateralToken.chainId)
+      selectedCollateralToken?.chainId &&
+      chainId !== selectedCollateralToken.chainId
     ) {
-      switchChain({ chainId: selectedCollateralToken?.chainId ?? 1 });
+      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     }
-  }, [chainId, selectedCollateralToken, switchChain]);
+  }, [setCurrentStep, selectedCollateralToken, chainId]);
 
   const strategyType = strategyAction;
 
@@ -386,8 +384,6 @@ const OpportunitiesList: React.FC = () => {
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
 
-  const { setSelectedOpportunity, setCurrentStep } =
-    useGetBorrowSectionContext();
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
 
   useEffect(() => {
