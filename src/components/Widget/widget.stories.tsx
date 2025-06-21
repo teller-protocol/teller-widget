@@ -382,35 +382,6 @@ export const Strategies: Story = {
   tags: ["!autodocs"],
 };
 
-export const Loop: Story = {
-  args: {
-    subgraphApiKey: SUBGRAPH_API_KEY,
-    isEmbedded: true,
-    showChainSwitch: false,
-    showRepaySection: true,
-    showStrategiesSection: true,
-    strategyToken: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-    isLoop: true,
-    hideAutoConnectModal: true,
-    widgetChainId: 1,
-    isTradeMode: true,
-    strategy: STRATEGY_ACTION_ENUM.LONG,
-  },
-  render: function Render(args) {
-    const queryClient = new QueryClient();
-
-    return (
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <Widget {...args} />
-          <ConnectWalletButton />
-        </QueryClientProvider>
-      </WagmiProvider>
-    );
-  },
-  tags: ["!autodocs"],
-};
-
 export const Pair: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,
