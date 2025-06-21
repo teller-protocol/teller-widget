@@ -116,17 +116,12 @@ export const useLiquidityPoolsCommitmentMax = ({
         maxAvailableCollateral ?? BigInt(0)
       );
 
-  let maxLoanAmount: bigint;
-
-  if (tokenIsWhitelistedAndBalanceIs0) {
-    maxLoanAmount = maxLoanAmountFromContract ?? 0n;
-  } else if (requiredPrincipalAmount === 0n) {
-    maxLoanAmount = 0n;
-  } else if (requiredPrincipalAmount > 0) {
-    maxLoanAmount = requiredPrincipalAmount;
-  } else {
-    maxLoanAmount = maxLoanAmountFromContract;
-  }
+  const maxLoanAmount =
+    requiredPrincipalAmount === 0n
+      ? 0n
+      : requiredPrincipalAmount > 0
+      ? requiredPrincipalAmount
+      : maxLoanAmountFromContract;
 
   const maxLoanAmountNumber = Number(
     formatUnits(maxLoanAmount ?? 0n, principalTokenData?.decimals ?? 18)
