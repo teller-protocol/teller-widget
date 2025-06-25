@@ -50,7 +50,8 @@ const RenderComponent: React.FC = () => {
     setSelectedOpportunity,
   } = useGetBorrowSectionContext();
 
-  const chainId = useChainId();
+  const newChainId = useChainId();
+  const [chainId, setChainId] = useState(newChainId);
   const { address } = useAccount();
   const { switchChain } = useSwitchChain();
   const { data: tokenList } = useGetTokenList();
@@ -79,6 +80,13 @@ const RenderComponent: React.FC = () => {
     setSelectedOpportunity,
     setCurrentStep,
   ]);
+
+  useEffect(() => {
+    if (newChainId !== chainId) {
+      resetSelections();
+      setChainId(newChainId);
+    }
+  }, [newChainId, chainId, resetSelections]);
 
   useEffect(() => {
     setIsInitialTokenProcessed(false);
