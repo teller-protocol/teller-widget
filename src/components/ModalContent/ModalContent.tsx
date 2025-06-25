@@ -55,7 +55,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   };
 
   const mapOptionToComponent = {
-    [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection key={key} internalKey={key} />,
+    [WIDGET_ACTION_ENUM.BORROW]: <BorrowSection key={key} />,
     [WIDGET_ACTION_ENUM.REPAY]: <RepaySection key={key} />,
     [WIDGET_ACTION_ENUM.POOL]: <PoolSection />,
     [WIDGET_ACTION_ENUM.STRATEGIES]: <BorrowSection key={key} />,

@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import request, { gql } from "graphql-request";
 import { useMemo } from "react";
-import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import {
+  GetLenderGroupsRolloverableCommitmentsResponse,
+  LenderGroupsPoolMetrics,
+} from "../../types/lenderGroupsPoolMetrics";
 import { useChainId } from "wagmi";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
 import { CommitmentType } from "./useGetRolloverableCommitments";
@@ -60,13 +63,27 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
       chainId,
     ],
     queryFn: async () => {
-      const rawCommitments = (await request(
-        graphURL,
-        collateralTokenCommitmentsDashboard
-      )) as any;
-      const commitments = await Promise.all(
-        rawCommitments.group_pool_metric.map(convertCommitment)
+      const rawCommitments =
+        await request<GetLenderGroupsRolloverableCommitmentsResponse>(
+          graphURL,
+          collateralTokenCommitmentsDashboard
+        );
+
+      const filteredCommitments = rawCommitments.group_pool_metric.filter(
+        (pool: any) => {
+          const committed = BigInt(pool?.total_principal_tokens_committed ?? 0);
+          const withdrawn = BigInt(pool?.total_principal_tokens_withdrawn ?? 0);
+          const interest = BigInt(pool?.total_interest_collected ?? 0);
+          const trueLiquidity = committed - (withdrawn + interest);
+
+          return trueLiquidity > 0n;
+        }
       );
+
+      const commitments = await Promise.all(
+        filteredCommitments.map(convertCommitment)
+      );
+
       return commitments;
     },
     enabled: !!collateralTokenAddress,

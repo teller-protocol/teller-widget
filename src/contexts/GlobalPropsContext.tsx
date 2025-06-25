@@ -42,6 +42,8 @@ export type GlobalPropsContextType = {
   showRepaySection?: boolean;
   widgetAction?: WIDGET_ACTION_ENUM;
   setWidgetAction: (action: WIDGET_ACTION_ENUM) => void;
+  isSwitchingBetweenWidgetActions: boolean;
+  setIsSwitchingBetweenWidgetActions: (isSwitching: boolean) => void;
   isStrategiesSection: boolean;
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
@@ -131,6 +133,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     !isVisible || !address
   );
 
+  const [isSwitchingBetweenWidgetActions, setIsSwitchingBetweenWidgetActions] =
+    useState(true);
   const [widgetAction, setWidgetAction] = useState<WIDGET_ACTION_ENUM>(
     isTradeMode ? WIDGET_ACTION_ENUM.STRATEGIES : WIDGET_ACTION_ENUM.BORROW
   );
@@ -172,7 +176,14 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       showPoolSection,
       showRepaySection,
       widgetAction,
-      setWidgetAction,
+      setWidgetAction: (action: WIDGET_ACTION_ENUM) => {
+        setIsSwitchingBetweenWidgetActions(action !== widgetAction);
+        setTimeout(() => {
+          setWidgetAction(action);
+        });
+      },
+      setIsSwitchingBetweenWidgetActions,
+      isSwitchingBetweenWidgetActions,
       isStrategiesSection,
       strategyAction,
       setStrategyAction,
@@ -206,6 +217,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     borrowToken,
     principalTokenForPair,
     isLoop,
+    isSwitchingBetweenWidgetActions,
   ]);
 
   return (

@@ -129,17 +129,13 @@ const CollateralTokenList: React.FC = () => {
   const isSupportedChain = useIsSupportedChain();
 
   const onCollateralTokenSelected = (token: UserToken) => {
-    logEvent({
-      eventName: "borrow_collateral_token_selected",
-      pageUrl: window.location.href,
-      properties: Object.entries(token).map(([key, value]) => ({
+    if (window.__adrsbl?.run) {
+      const adrsblProperties = Object.entries(token).map(([key, value]) => ({
         name: key,
         value: value?.toString() ?? "",
-      })),
-      address,
-      chainId: chainId ? chainId.toString() : "",
-      extensionProvider: connector?.name ?? "",
-    });
+      }))
+      window.__adrsbl.run('borrow_collateral_token_selected', false, adrsblProperties);
+    }
 
     if (token.chainId) {
       switchChain({ chainId: token.chainId });
