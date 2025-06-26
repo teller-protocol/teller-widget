@@ -16,6 +16,7 @@ import { config } from "../../helpers/createWagmiConfig";
 
 import Loader from "../Loader";
 import "./transactionButton.scss";
+import { TransactionReceipt } from "viem";
 
 export type TransactionStepConfig = {
   contractName?: string;
@@ -37,7 +38,7 @@ export type TransactionStepConfig = {
 };
 export type TransactionButtonProps = {
   transactions: TransactionStepConfig[] | TransactionStepConfig[][];
-  onSuccess?: () => void;
+  onLastStepSuccess?: (receipt: TransactionReceipt) => void;
   autoStep?: boolean;
   hideCtaOnSuccess?: boolean;
   isButtonDisabled?: boolean;
@@ -48,7 +49,7 @@ export type TransactionButtonProps = {
 const TransactionButton = ({
   transactions,
   autoStep = true,
-  onSuccess,
+  onLastStepSuccess,
   isButtonDisabled = false,
   buttonDisabledMessage,
   isLoading,
@@ -83,15 +84,11 @@ const TransactionButton = ({
     isButtonDisabled ||
     currentStep?.isStepDisabled ||
     !!currentStep?.errorMessage;
-  // || !!customTxLoading;
 
   const {
-    data,
     error,
-    isConfirmed,
     isPending,
     isSimulationLoading,
-    successData,
     writeContract,
     simulatedData,
     simulatedError,
@@ -112,26 +109,32 @@ const TransactionButton = ({
         confirmations: 1,
       })
         .then((res: any) => {
+          currentStep?.onSuccess?.(data, params);
+
+          if (isLastStep) {
+            onLastStepSuccess?.(res as unknown as TransactionReceipt);
+          }
+
           setCurrentStepID((currentStepID: number) => {
             return currentStepID + 1;
           });
-          currentStep?.onSuccess?.(data, params);
-          onSuccess?.();
         })
         .catch((e) => {
           console.error("Error waiting for transaction receipt", e);
         })
         .finally(() => setIsConfirming(false));
     },
-    [currentStep, onSuccess, setCurrentStepID]
+    [currentStep, onLastStepSuccess, isLastStep, setCurrentStepID]
   );
 
   if (simulatedError || writeError) {
     console.error("Error writing contract", error);
   }
 
-  const [customTxLoading, setCustomTxLoading] = useState(false);
-  const [customTxError, setCustomTxError] = useState(false);
+  const isLastStep = useMemo(
+    () => currentStepID >= steps.length - 1,
+    [currentStepID, steps.length]
+  );
 
   const renderButton = useCallback(
     (step: TransactionStepConfig, stepId: number) =>
@@ -140,19 +143,7 @@ const TransactionButton = ({
           key={stepId}
           onClick={() => {
             isLastStep && step.onClick?.();
-            // if (step.tx) {
-            //   try {
-            //     setCustomTxLoading(true);
-            //     const tx = await step.tx();
-            //     const receipt = await tx?.wait();
-            //     onSuccessTransaction(receipt);
-            //     setCustomTxLoading(false);
-            //   } catch (e) {
-            //     console.error("Error sending custom tx", e);
-            //     setCustomTxLoading(false);
-            //     setCustomTxError(true);
-            //   }
-            // }
+
             if (writeContract && simulatedData?.request)
               writeContract(simulatedData?.request, {
                 onSuccess: (data: any, params: any) =>
@@ -172,7 +163,7 @@ const TransactionButton = ({
             !!simulatedError
           }
         >
-          {(isPending || customTxLoading || isConfirming) &&
+          {(isPending || isConfirming) &&
           step.buttonLabel === currentStep?.buttonLabel
             ? step.loadingButtonLabel
             : step?.buttonLabel}
@@ -183,7 +174,6 @@ const TransactionButton = ({
       currentStep?.errorMessage,
       currentStep?.isStepDisabled,
       currentStepID,
-      customTxLoading,
       isButtonDisabled,
       isConfirming,
       isDisabled,
