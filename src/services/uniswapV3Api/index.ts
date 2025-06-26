@@ -1,112 +1,164 @@
-import { createApi, BaseQueryFn } from "@reduxjs/toolkit/query/react";
-import { graphqlRequestBaseQuery } from "@rtk-query/graphql-request-base-query";
+import { useQuery } from "@tanstack/react-query";
+import { GraphQLClient } from "graphql-request";
+
 import { UniswapV3Pool } from "../../constants/uniswapV3Pool.type";
-import { getSubgraphURL } from "../../services/uniswapV3Api/uniswapV3Config";
+
 import {
   getEthPriceUSD,
   getTokenDerivedETH,
   getUniswapV3PoolsByToken,
   getUniswapV3PoolsByTokensPair,
 } from "./uniswapV3ApiQueries";
+import { getSubgraphURL } from "./uniswapV3Config";
 
-// Custom baseQuery that changes URL dynamically based on chainId
-const dynamicBaseQuery: BaseQueryFn<
-  {
-    subgraphApiKey: string;
-    chainId: number;
-    body: { document: any; variables: any };
-  }, // Define input types
-  unknown, // Define result types
-  unknown // Define error types
-> = async ({ subgraphApiKey, chainId, body }, api, extraOptions) => {
-  const url = getSubgraphURL(subgraphApiKey, chainId); // Generate the URL based on chainId
-  const baseQuery = graphqlRequestBaseQuery({ url }); // Use graphqlRequestBaseQuery with the new URL
-
-  return baseQuery(body, api, extraOptions); // Pass all required arguments to the baseQuery
+export const getUniswapV3Client = (subgraphApiKey: string, chainId: number) => {
+  const url = getSubgraphURL(subgraphApiKey, chainId);
+  return new GraphQLClient(url);
 };
 
-export const uniswapV3Api = createApi({
-  reducerPath: "uniswapV3Api",
-  baseQuery: dynamicBaseQuery, // Use dynamic base query here
-  endpoints: (builder) => ({
-    getUniswapV3PoolsByToken: builder.query<
-      UniswapV3Pool[],
-      {
-        subgraphApiKey: string;
-        token0: string;
-        chainId: number; // Added chainId here
-      }
-    >({
-      query: ({ subgraphApiKey, token0, chainId }) => ({
+export const fetchUniswapV3PoolsByToken = async ({
+  subgraphApiKey,
+  token0,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  token0: string;
+  chainId: number;
+}): Promise<UniswapV3Pool[]> => {
+  const client = getUniswapV3Client(subgraphApiKey, chainId);
+  const res: { pools: UniswapV3Pool[] } = await client.request(
+    getUniswapV3PoolsByToken,
+    { token0: token0.toLowerCase() }
+  );
+  return res?.pools ?? [];
+};
+
+export const fetchUniswapV3PoolsByTokensPair = async ({
+  subgraphApiKey,
+  token0,
+  token1,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  token0: string;
+  token1: string;
+  chainId: number;
+}): Promise<UniswapV3Pool[]> => {
+  const client = getUniswapV3Client(subgraphApiKey, chainId);
+  const res: { pools: UniswapV3Pool[] } = await client.request(
+    getUniswapV3PoolsByTokensPair,
+    {
+      token0: token0.toLowerCase(),
+      token1: token1.toLowerCase(),
+    }
+  );
+  return res?.pools ?? [];
+};
+
+export const fetchTokenDerivedETH = async ({
+  subgraphApiKey,
+  tokenId,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  tokenId: string;
+  chainId: number;
+}): Promise<{ derivedETH: string }> => {
+  const client = getUniswapV3Client(subgraphApiKey, chainId);
+  const res: { token: { derivedETH: string } } = await client.request(
+    getTokenDerivedETH,
+    { tokenId }
+  );
+  return res.token;
+};
+
+export const fetchEthPriceUSD = async ({
+  subgraphApiKey,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  chainId: number;
+}): Promise<{ ethPriceUSD: string }> => {
+  const client = getUniswapV3Client(subgraphApiKey, chainId);
+  const res: { bundle: { ethPriceUSD: string } } = await client.request(
+    getEthPriceUSD,
+    {}
+  );
+  return res.bundle;
+};
+
+export const useUniswapV3PoolsByToken = ({
+  subgraphApiKey,
+  token0,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  token0: string;
+  chainId: number;
+}) => {
+  return useQuery({
+    queryKey: ["uniswapV3PoolsByToken", chainId, token0],
+    queryFn: () =>
+      fetchUniswapV3PoolsByToken({ subgraphApiKey, token0, chainId }),
+  });
+};
+
+export const useUniswapV3PoolsByTokensPair = ({
+  subgraphApiKey,
+  token0,
+  token1,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  token0: string;
+  token1: string;
+  chainId: number;
+}) => {
+  return useQuery({
+    queryKey: ["uniswapV3PoolsByTokensPair", chainId, token0, token1],
+    queryFn: () =>
+      fetchUniswapV3PoolsByTokensPair({
         subgraphApiKey,
-        chainId, // Pass chainId to the dynamic base query
-        body: {
-          document: getUniswapV3PoolsByToken,
-          variables: {
-            token0: token0.toLowerCase(),
-          },
-        },
+        token0,
+        token1,
+        chainId,
       }),
-      transformResponse: (res: { pools: UniswapV3Pool[] }) => {
-        return res?.pools || [];
-      },
-    }),
-    getUniswapV3PoolsByTokensPair: builder.query<
-      UniswapV3Pool[],
-      {
-        subgraphApiKey: string;
-        token0: string;
-        token1: string;
-        chainId: number; // Added chainId here
-      }
-    >({
-      query: ({ subgraphApiKey, token0, token1, chainId }) => ({
+  });
+};
+
+export const useTokenDerivedETH = ({
+  subgraphApiKey,
+  tokenId,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  tokenId: string;
+  chainId: number;
+}) => {
+  return useQuery({
+    queryKey: ["tokenDerivedETH", chainId, tokenId],
+    queryFn: () =>
+      fetchTokenDerivedETH({
         subgraphApiKey,
-        chainId, // Pass chainId to the dynamic base query
-        body: {
-          document: getUniswapV3PoolsByTokensPair,
-          variables: {
-            token0: token0.toLowerCase(),
-            token1: token1.toLowerCase(),
-          },
-        },
+        tokenId,
+        chainId,
       }),
-      transformResponse: (res: { pools: UniswapV3Pool[] }) => {
-        return res?.pools || [];
-      },
-    }),
-    getTokenDerivedETH: builder.query<
-      { token: { derivedETH: string } },
-      {
-        subgraphApiKey: string;
-        tokenId: string;
-        chainId: number;
-      }
-    >({
-      query: ({ subgraphApiKey, tokenId, chainId }) => ({
+  });
+};
+
+export const useEthPriceUSD = ({
+  subgraphApiKey,
+  chainId,
+}: {
+  subgraphApiKey: string;
+  chainId: number;
+}) => {
+  return useQuery({
+    queryKey: ["ethPriceUSD", chainId],
+    queryFn: () =>
+      fetchEthPriceUSD({
         subgraphApiKey,
         chainId,
-        body: {
-          document: getTokenDerivedETH,
-          variables: { tokenId },
-        },
       }),
-    }),
-    getEthPriceUSD: builder.query<
-      { bundle: { ethPriceUSD: string } },
-      {
-        subgraphApiKey: string;
-        chainId: number;
-      }
-    >({
-      query: ({ subgraphApiKey, chainId }) => ({
-        subgraphApiKey,
-        chainId,
-        body: {
-          document: getEthPriceUSD,
-          variables: {},
-        },
-      }),
-    }),
-  }),
-});
+  });
+};

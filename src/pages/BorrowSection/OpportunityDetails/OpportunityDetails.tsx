@@ -264,6 +264,8 @@ const OpportunityDetails = () => {
 
   const { chainName } = useChainData();
 
+  const { getTokenPrice } = useGetTokenPriceFromDerivedETH();
+
   const lenderGroupTransactions = useBorrowFromPool({
     skip: !isLenderGroup,
     commitmentPoolAddress: selectedOpportunity?.lenderAddress ?? "0x",
@@ -272,7 +274,7 @@ const OpportunityDetails = () => {
     collateralTokenAddress: collateralTokenValue.token?.address ?? "0x",
     loanDuration: selectedOpportunity?.maxDuration?.toString(),
     marketId: selectedOpportunity?.marketplaceId,
-    onSuccess: (receipt: any) => {
+    onSuccess: (receipt: string) => {
       // match the structure of a succesful loan from a LCFa so it works with the confirmation screen
       const loanParams = {
         args: [
@@ -283,6 +285,43 @@ const OpportunityDetails = () => {
           },
         ],
       };
+
+      const logBorrowEvent = async () => {
+        if (
+          !receipt ||
+          !collateralTokenValue.token?.address ||
+          !collateralTokenValue.value
+        )
+          return;
+
+        const price = await getTokenPrice(
+          collateralTokenValue.token.address,
+          collateralTokenValue.value
+        );
+
+        if (price) {
+          logEvent({
+            eventName: "user_supply_to_pool",
+            pageUrl: window.location.href,
+            properties: [
+              { name: "amount", value: collateralTokenValue.value.toString() },
+              {
+                name: "amount_usd",
+                value: price.toString(),
+              },
+              {
+                name: "transaction_id",
+                value: receipt,
+              },
+            ],
+            address,
+            chainId: chainId?.toString(16) ?? "",
+            extensionProvider: connector?.name ?? "",
+          });
+        }
+      };
+
+      logBorrowEvent().catch(console.error);
 
       setCurrentStep(BorrowSectionSteps.SUCCESS);
       setSuccessLoanHash(receipt);
@@ -340,60 +379,6 @@ const OpportunityDetails = () => {
   ]);
 
   const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
-
-  const { getTokenPrice } = useGetTokenPriceFromDerivedETH();
-  const [supplyTxHash, setSupplyTxHash] = useState<string | null>(null);
-
-  useEffect(() => {
-    const logSupplyEvent = async () => {
-      if (
-        !supplyTxHash ||
-        !collateralTokenValue.token?.address ||
-        !collateralTokenValue.value
-      )
-        return;
-
-      const price = await getTokenPrice(
-        collateralTokenValue.token.address,
-        collateralTokenValue.value
-      );
-
-      if (price) {
-        logEvent({
-          eventName: "user_supply_to_pool",
-          pageUrl: window.location.href,
-          properties: [
-            { name: "amount", value: collateralTokenValue.value.toString() },
-            {
-              name: "amount_usd",
-              value: price.toString(),
-            },
-            {
-              name: "transaction_id",
-              value: supplyTxHash,
-            },
-          ],
-          address,
-          chainId: chainId?.toString(16) ?? "",
-          extensionProvider: connector?.name ?? "",
-        });
-
-        setSupplyTxHash(null);
-      }
-    };
-
-    if (supplyTxHash) {
-      logSupplyEvent().catch(console.error);
-    }
-  }, [
-    supplyTxHash,
-    address,
-    connector?.name,
-    chainId,
-    getTokenPrice,
-    collateralTokenValue.token?.address,
-    collateralTokenValue.value,
-  ]);
 
   return (
     <div className="opportunity-details">
@@ -663,9 +648,6 @@ const OpportunityDetails = () => {
                 : "Insufficient collateral"
               : ""
           }
-          onLastStepSuccess={(receipt) => {
-            setSupplyTxHash(receipt.transactionHash);
-          }}
         />
       ) : (
         <AcceptCommitmentButton

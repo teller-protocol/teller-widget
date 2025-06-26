@@ -1,9 +1,13 @@
-import { useCallback } from "react";
-
-import { uniswapV3Api } from "../services/uniswapV3Api";
+import { useCallback, useMemo } from "react";
 import { useChainId } from "wagmi";
 import { AddressStringType } from "../types/addressStringType";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import {
+  useTokenDerivedETH,
+  useEthPriceUSD,
+  fetchTokenDerivedETH,
+  fetchEthPriceUSD,
+} from "../services/uniswapV3Api";
 
 export const useGetTokenPriceFromDerivedETH = (
   token?: AddressStringType,
@@ -13,18 +17,10 @@ export const useGetTokenPriceFromDerivedETH = (
   const { subgraphApiKey } = useGetGlobalPropsContext();
 
   const {
-    useGetEthPriceUSDQuery,
-    useGetTokenDerivedETHQuery,
-    useLazyGetTokenDerivedETHQuery,
-  } = uniswapV3Api;
-
-  const [getTokenDerivedETH] = useLazyGetTokenDerivedETHQuery();
-
-  const {
     data: derivedETHData,
     isLoading: derivedETHLoading,
     error: derivedETHError,
-  } = useGetTokenDerivedETHQuery({
+  } = useTokenDerivedETH({
     tokenId: token?.toLowerCase() ?? "0x",
     chainId: chainId ?? 0,
     subgraphApiKey,
@@ -34,42 +30,43 @@ export const useGetTokenPriceFromDerivedETH = (
     data: ethPriceUSDData,
     isLoading: ethPriceUSDLoading,
     error: ethPriceUSDError,
-  } = useGetEthPriceUSDQuery({
+  } = useEthPriceUSD({
     chainId: 1,
     subgraphApiKey,
   });
-  const derivedETH = derivedETHData?.token?.derivedETH;
-  const ethPriceUSD = ethPriceUSDData?.bundle?.ethPriceUSD;
 
-  const tokenPriceInUSD =
-    (tokenAmount ?? 0) * +(derivedETH ?? 0) * +(ethPriceUSD ?? 0);
+  const tokenPriceInUSD = useMemo(() => {
+    const derivedETH = Number(derivedETHData?.derivedETH ?? 0);
+    const ethPriceUSD = Number(ethPriceUSDData?.ethPriceUSD ?? 0);
+    return (tokenAmount ?? 0) * derivedETH * ethPriceUSD;
+  }, [tokenAmount, derivedETHData?.derivedETH, ethPriceUSDData?.ethPriceUSD]);
 
   const getTokenPrice = useCallback(
     async (tokenAddress: AddressStringType, tokenAmount: number) => {
       try {
-        const derivedETHResponse = await getTokenDerivedETH({
+        const tokenDerived = await fetchTokenDerivedETH({
           tokenId: tokenAddress.toLowerCase(),
           chainId: chainId ?? 0,
           subgraphApiKey,
         });
 
-        const tokenDerivedETH = Number(
-          derivedETHResponse.data?.token?.derivedETH
-        );
+        const ethPrice = await fetchEthPriceUSD({
+          chainId: 1,
+          subgraphApiKey,
+        });
 
-        if (!tokenDerivedETH || !ethPriceUSD) {
-          return null;
-        }
+        const derived = Number(tokenDerived?.derivedETH ?? 0);
+        const ethPriceNum = Number(ethPrice?.ethPriceUSD ?? 0);
 
-        const tokenPriceInUSD = tokenAmount * +tokenDerivedETH * +ethPriceUSD;
+        if (!derived || !ethPriceNum) return null;
 
-        return tokenPriceInUSD;
-      } catch (error) {
-        console.error("Error fetching token price:", error);
+        return tokenAmount * derived * ethPriceNum;
+      } catch (err) {
+        console.error("Error fetching token price:", err);
         return null;
       }
     },
-    [chainId, getTokenDerivedETH, ethPriceUSD]
+    [chainId, subgraphApiKey]
   );
 
   return {

@@ -39,7 +39,6 @@ export type TransactionStepConfig = {
 export type TransactionButtonProps = {
   transactions: TransactionStepConfig[] | TransactionStepConfig[][];
   onLastStepSuccess?: (receipt: TransactionReceipt) => void;
-  autoStep?: boolean;
   hideCtaOnSuccess?: boolean;
   isButtonDisabled?: boolean;
   buttonDisabledMessage?: string;
@@ -48,7 +47,6 @@ export type TransactionButtonProps = {
 };
 const TransactionButton = ({
   transactions,
-  autoStep = true,
   onLastStepSuccess,
   isButtonDisabled = false,
   buttonDisabledMessage,
@@ -69,6 +67,7 @@ const TransactionButton = ({
     () => currentStepID >= steps.length - 1,
     [currentStepID, steps.length]
   );
+
   const currentStep = useMemo(() => {
     const step = steps[currentStepID];
     if (step)
@@ -130,11 +129,6 @@ const TransactionButton = ({
   if (simulatedError || writeError) {
     console.error("Error writing contract", error);
   }
-
-  const isLastStep = useMemo(
-    () => currentStepID >= steps.length - 1,
-    [currentStepID, steps.length]
-  );
 
   const renderButton = useCallback(
     (step: TransactionStepConfig, stepId: number) =>
