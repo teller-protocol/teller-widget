@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
 import {
   findTokenWithMetadata,
@@ -38,6 +38,7 @@ const RenderComponent: React.FC = () => {
     isLoop,
     isSwitchingBetweenWidgetActions,
     setIsSwitchingBetweenWidgetActions,
+    shouldResetSelections,
   } = useGetGlobalPropsContext();
 
   const {
@@ -53,7 +54,6 @@ const RenderComponent: React.FC = () => {
   const newChainId = useChainId();
   const [chainId, setChainId] = useState(newChainId);
   const { address } = useAccount();
-  const { switchChain } = useSwitchChain();
   const { data: tokenList } = useGetTokenList();
 
   const [isInitialTokenProcessed, setIsInitialTokenProcessed] = useState(false);
@@ -82,11 +82,11 @@ const RenderComponent: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (newChainId !== chainId) {
+    if (shouldResetSelections && newChainId !== chainId) {
       resetSelections();
       setChainId(newChainId);
     }
-  }, [newChainId, chainId, resetSelections]);
+  }, [shouldResetSelections, resetSelections, newChainId, chainId]);
 
   useEffect(() => {
     setIsInitialTokenProcessed(false);
@@ -203,7 +203,6 @@ const RenderComponent: React.FC = () => {
     chainId,
     isTradeMode,
     isStrategiesSection,
-    switchChain,
     isInitialTokenProcessed,
     setIsInitialTokenProcessed,
     address,

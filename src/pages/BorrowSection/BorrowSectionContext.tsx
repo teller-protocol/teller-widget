@@ -87,7 +87,7 @@ export const BorrowSectionContextProvider: React.FC<
     useGetGlobalPropsContext();
 
   const { address } = useAccount();
-  const chaidId = useChainId();
+  const chainId = useChainId();
 
   const { isLoading: isTokenListLoading } = useGetTokenList();
 
@@ -190,7 +190,7 @@ export const BorrowSectionContextProvider: React.FC<
           token
             ? {
                 ...token,
-                chainId: token?.chainId || chaidId,
+                chainId: token?.chainId || chainId,
               }
             : undefined
         );
@@ -243,7 +243,7 @@ export const BorrowSectionContextProvider: React.FC<
       uniswapDataMap,
       selectedErc20Apy,
       borrowSwapTokenInput,
-      chaidId,
+      chainId,
       isTokenListLoading,
     ]
   );

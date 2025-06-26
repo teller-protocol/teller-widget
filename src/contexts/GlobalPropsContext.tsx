@@ -8,7 +8,7 @@ import {
   useRef,
 } from "react";
 import { Address } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 
 import { WhitelistedTokens } from "../components/Widget/Widget";
 import { UserToken, useGetUserTokens } from "../hooks/useGetUserTokens";
@@ -53,6 +53,8 @@ export type GlobalPropsContextType = {
   borrowToken?: string;
   principalTokenForPair?: string;
   isLoop?: boolean;
+  switchChainManual: (chainId: number, resetSelections?: boolean) => void;
+  shouldResetSelections: boolean;
 };
 
 interface GlobalPropsContextProps {
@@ -160,6 +162,20 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     [chainId, whitelistedTokens]
   );
 
+  const { switchChain } = useSwitchChain();
+  const [shouldResetSelections, setShouldResetSelections] = useState(false);
+  const switchChainManual = useCallback(
+    (toChainId: number, resetSelections?: boolean) => {
+      if (chainId !== toChainId) {
+        setShouldResetSelections(resetSelections || false);
+        setTimeout(() => {
+          switchChain({ chainId: toChainId });
+        });
+      }
+    },
+    [switchChain, chainId]
+  );
+
   const contextValue = useMemo(() => {
     return {
       userTokens,
@@ -193,6 +209,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       borrowToken,
       principalTokenForPair,
       isLoop,
+      shouldResetSelections,
+      switchChainManual,
     };
   }, [
     userTokens,
@@ -218,6 +236,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     principalTokenForPair,
     isLoop,
     isSwitchingBetweenWidgetActions,
+    shouldResetSelections,
+    switchChainManual,
   ]);
 
   return (

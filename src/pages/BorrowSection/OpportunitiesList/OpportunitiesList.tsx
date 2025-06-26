@@ -33,7 +33,6 @@ import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
-import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -75,8 +74,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
-  const { address: userAddress, connector } = useAccount();
-  const chainId = useChainId();
+  const { address: userAddress } = useAccount();
 
   const { data: collateralTokenBalance } = useBalance({
     address: userAddress,
@@ -183,15 +181,16 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const handleOnOpportunityClick = () => {
     if (window.__adrsbl?.run) {
-      const adrsblProperties = Object.entries(opportunity).flatMap(([key, value]) =>
-        value && typeof value === "object" && !Array.isArray(value)
-          ? Object.entries(value).map(([k, v]) => ({
-              name: `${key}.${k}`,
-              value: v?.toString() ?? "",
-            }))
-          : [{ name: key, value: value?.toString() ?? "" }]
-      )
-      window.__adrsbl.run('borrow_offer_selected', false, adrsblProperties)
+      const adrsblProperties = Object.entries(opportunity).flatMap(
+        ([key, value]) =>
+          value && typeof value === "object" && !Array.isArray(value)
+            ? Object.entries(value).map(([k, v]) => ({
+                name: `${key}.${k}`,
+                value: v?.toString() ?? "",
+              }))
+            : [{ name: key, value: value?.toString() ?? "" }]
+      );
+      window.__adrsbl.run("borrow_offer_selected", false, adrsblProperties);
     }
 
     setSelectedOpportunity(opportunity);
@@ -315,24 +314,26 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
+    setSelectedOpportunity,
+    setCurrentStep,
   } = useGetBorrowSectionContext();
   const {
     isStrategiesSection,
     strategyAction,
     isTradeMode,
     setStrategyAction,
+    switchChainManual,
   } = useGetGlobalPropsContext();
-  const { setSelectedOpportunity, setCurrentStep } =
-    useGetBorrowSectionContext();
 
   useEffect(() => {
     if (
-      selectedCollateralToken?.chainId &&
-      chainId !== selectedCollateralToken.chainId
+      !chainId ||
+      (selectedCollateralToken?.chainId &&
+        chainId !== selectedCollateralToken.chainId)
     ) {
-      setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
+      switchChainManual(selectedCollateralToken?.chainId ?? 1);
     }
-  }, [setCurrentStep, selectedCollateralToken, chainId]);
+  }, [chainId, selectedCollateralToken, switchChainManual]);
 
   const strategyType = strategyAction;
 
