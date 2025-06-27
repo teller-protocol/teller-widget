@@ -173,7 +173,8 @@ const OpportunityDetails = () => {
     : displayedPrincipalFromLCFa;
 
   const defaultAmountCheck = address
-    ? tokenIsWhitelistedAndBalanceIs0
+    ? tokenIsWhitelistedAndBalanceIs0 &&
+      collateralWalletBalance.data !== undefined
     : !isFetched;
 
   useEffect(() => {
