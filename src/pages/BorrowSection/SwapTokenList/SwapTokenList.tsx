@@ -8,14 +8,16 @@ import {
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import { UserToken } from "../../../hooks/useGetUserTokens";
 import "./swapTokenList.scss";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useGetTokenList } from "../../../hooks/queries/useGetTokenList";
 import { AddressStringType } from "../../../types/addressStringType";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 import { useGetTokensData } from "../../../hooks/useFetchTokensData";
 import { getTokenChain } from "../../../hooks/useGetTokenChain";
+import { useGetGlobalPropsContext } from "../../../contexts/GlobalPropsContext";
 
 const SwapTokenList: React.FC = () => {
+  const { switchChainManual } = useGetGlobalPropsContext();
   const {
     setCurrentStep,
     setSelectedSwapToken,
@@ -30,8 +32,6 @@ const SwapTokenList: React.FC = () => {
 
   const { address } = useAccount();
 
-  const { switchChain } = useSwitchChain();
-
   const onSwapTokenSelected = (token: UserToken) => {
     window.dispatchEvent(
       new CustomEvent("teller-widget-opportunity-selected", {
@@ -40,7 +40,7 @@ const SwapTokenList: React.FC = () => {
         },
       })
     );
-    token.chainId && switchChain({ chainId: token.chainId });
+    token.chainId && switchChainManual(token.chainId);
     setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     setSelectedSwapToken(token);
   };

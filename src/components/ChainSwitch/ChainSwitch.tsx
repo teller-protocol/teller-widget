@@ -11,7 +11,7 @@ import {
   optimism,
   polygon,
 } from "viem/chains";
-import { useChainId, useSwitchChain } from "wagmi";
+import { useChainId } from "wagmi";
 import arbitrumIcon from "../../assets/arbitrum.png";
 import baseIcon from "../../assets/base.png";
 import mainnetIcon from "../../assets/mainnet.png";
@@ -45,13 +45,13 @@ export const mapChainToImage: { [key: number]: string } = {
 const supportedChains = [arbitrum, base, polygon, mainnet];
 
 const ChainDropdownRow: React.FC<ChainDropdownRowProps> = ({ chain }) => {
-  const { switchChain } = useSwitchChain();
+  const { switchChainManual } = useGetGlobalPropsContext();
   const img = mapChainToImage[chain.id];
 
   return (
     <div
       className="chain-dropdown-row"
-      onClick={() => switchChain({ chainId: chain.id })}
+      onClick={() => switchChainManual(chain.id, true)}
     >
       <img src={img} />
     </div>

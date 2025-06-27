@@ -14,7 +14,7 @@ import {
 import "./opportunitiesList.scss";
 
 import { formatUnits, parseUnits } from "viem";
-import { useAccount, useBalance, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useBalance, useChainId } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
@@ -33,7 +33,6 @@ import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
-import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -75,8 +74,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     selectedErc20Apy,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
-  const { address: userAddress, connector } = useAccount();
-  const chainId = useChainId();
+  const { address: userAddress } = useAccount();
 
   const { data: collateralTokenBalance } = useBalance({
     address: userAddress,
@@ -183,15 +181,16 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const handleOnOpportunityClick = () => {
     if (window.__adrsbl?.run) {
-      const adrsblProperties = Object.entries(opportunity).flatMap(([key, value]) =>
-        value && typeof value === "object" && !Array.isArray(value)
-          ? Object.entries(value).map(([k, v]) => ({
-              name: `${key}.${k}`,
-              value: v?.toString() ?? "",
-            }))
-          : [{ name: key, value: value?.toString() ?? "" }]
-      )
-      window.__adrsbl.run('borrow_offer_selected', false, adrsblProperties)
+      const adrsblProperties = Object.entries(opportunity).flatMap(
+        ([key, value]) =>
+          value && typeof value === "object" && !Array.isArray(value)
+            ? Object.entries(value).map(([k, v]) => ({
+                name: `${key}.${k}`,
+                value: v?.toString() ?? "",
+              }))
+            : [{ name: key, value: value?.toString() ?? "" }]
+      );
+      window.__adrsbl.run("borrow_offer_selected", false, adrsblProperties);
     }
 
     setSelectedOpportunity(opportunity);
@@ -307,7 +306,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
-  const { switchChain } = useSwitchChain();
   const chainId = useChainId();
 
   const {
@@ -316,14 +314,15 @@ const OpportunitiesList: React.FC = () => {
     tokensWithCommitments,
     principalErc20Tokens,
     selectedErc20Apy,
-    currentStep,
+    setSelectedOpportunity,
+    setCurrentStep,
   } = useGetBorrowSectionContext();
   const {
     isStrategiesSection,
     strategyAction,
     isTradeMode,
     setStrategyAction,
-    strategyToken,
+    switchChainManual,
   } = useGetGlobalPropsContext();
 
   useEffect(() => {
@@ -332,9 +331,9 @@ const OpportunitiesList: React.FC = () => {
       (selectedCollateralToken?.chainId &&
         chainId !== selectedCollateralToken.chainId)
     ) {
-      switchChain({ chainId: selectedCollateralToken?.chainId ?? 1 });
+      switchChainManual(selectedCollateralToken?.chainId ?? 1);
     }
-  }, [chainId, selectedCollateralToken, switchChain]);
+  }, [chainId, selectedCollateralToken, switchChainManual]);
 
   const strategyType = strategyAction;
 
@@ -386,8 +385,6 @@ const OpportunitiesList: React.FC = () => {
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
 
-  const { setSelectedOpportunity, setCurrentStep } =
-    useGetBorrowSectionContext();
   const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
 
   useEffect(() => {

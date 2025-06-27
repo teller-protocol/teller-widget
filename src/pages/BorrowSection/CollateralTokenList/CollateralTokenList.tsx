@@ -23,7 +23,6 @@ import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { mapChainIdToName } from "../../../constants/chains";
 import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
-import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -119,7 +118,7 @@ const CollateralTokenList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const chainId = useChainId();
-  const { address, connector } = useAccount();
+  const { address } = useAccount();
 
   const isLong =
     isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
@@ -131,8 +130,12 @@ const CollateralTokenList: React.FC = () => {
       const adrsblProperties = Object.entries(token).map(([key, value]) => ({
         name: key,
         value: value?.toString() ?? "",
-      }))
-      window.__adrsbl.run('borrow_collateral_token_selected', false, adrsblProperties);
+      }));
+      window.__adrsbl.run(
+        "borrow_collateral_token_selected",
+        false,
+        adrsblProperties
+      );
     }
 
     setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);

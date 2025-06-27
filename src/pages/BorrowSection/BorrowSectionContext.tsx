@@ -16,10 +16,9 @@ import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollater
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { useGetCommitmentsForErc20Tokens } from "../../hooks/useGetCommitmentsForErc20Tokens";
 import { UserToken } from "../../hooks/useGetUserTokens";
-import { BORROW_TOKEN_TYPE_ENUM } from "./CollateralTokenList/CollateralTokenList";
 
 // Import your existing Uniswap hooks
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
 import { Address } from "viem";
@@ -88,6 +87,7 @@ export const BorrowSectionContextProvider: React.FC<
     useGetGlobalPropsContext();
 
   const { address } = useAccount();
+  const chainId = useChainId();
 
   const { isLoading: isTokenListLoading } = useGetTokenList();
 
@@ -98,9 +98,8 @@ export const BorrowSectionContextProvider: React.FC<
       : BorrowSectionSteps.SELECT_TOKEN
   );
 
-  const { getPoolUSDValue, isLoading } = useUniswapV3PoolUSDValue();
-  const { fetchPoolData: fetchUniswapPoolData, isLoading: isFetchingPoolData } =
-    useGetUniswapPools();
+  const { getPoolUSDValue } = useUniswapV3PoolUSDValue();
+  const { fetchPoolData: fetchUniswapPoolData } = useGetUniswapPools();
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
     useState<UserToken>();
@@ -186,7 +185,16 @@ export const BorrowSectionContextProvider: React.FC<
       currentStep,
       setCurrentStep,
       selectedCollateralToken,
-      setSelectedCollateralToken,
+      setSelectedCollateralToken: (token: UserToken | undefined) => {
+        setSelectedCollateralToken(
+          token
+            ? {
+                ...token,
+                chainId: token?.chainId || chainId,
+              }
+            : undefined
+        );
+      },
       selectedPrincipalErc20Token,
       setSelectedPrincipalErc20Token,
       selectedSwapToken,
@@ -235,6 +243,8 @@ export const BorrowSectionContextProvider: React.FC<
       uniswapDataMap,
       selectedErc20Apy,
       borrowSwapTokenInput,
+      chainId,
+      isTokenListLoading,
     ]
   );
 
