@@ -98,6 +98,7 @@ const RenderComponent: React.FC = () => {
         isStrategiesSection &&
         isLoop &&
         strategyToken &&
+        isLongStrategy &&
         tokenData.address.toLowerCase() === strategyToken.toLowerCase()
       ) {
         setSelectedSwapToken(tokenData);

@@ -38,6 +38,7 @@ const ShortErc20List: React.FC<{ searchQuery?: string }> = ({
       new CustomEvent("teller-widget-opportunity-selected", {
         detail: {
           token: token.address,
+          type: "short",
         },
       })
     );
