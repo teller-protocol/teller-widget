@@ -399,8 +399,8 @@ const OpportunitiesList: React.FC = () => {
     if (shouldSkipOpportunitySelection) {
       const bestCommitment = sortedCommitments[0];
       if (bestCommitment) {
-        setSelectedOpportunity(bestCommitment);
-        setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
+        // setSelectedOpportunity(bestCommitment);
+        // setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
       }
     }
   }, [
