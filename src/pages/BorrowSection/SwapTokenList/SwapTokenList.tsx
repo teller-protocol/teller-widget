@@ -37,6 +37,7 @@ const SwapTokenList: React.FC = () => {
       new CustomEvent("teller-widget-opportunity-selected", {
         detail: {
           token: token.address,
+          type: "long",
         },
       })
     );

@@ -1,37 +1,41 @@
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 type Property = {
-  name: string
-  value?: string
-}
+  name: string;
+  value?: string;
+};
 
 interface LogEventParams {
-  eventName: string
-  pageUrl: string
-  properties?: Property[]
-  address?: string
-  chainId?: string
-  extensionProvider?: string
-  referrer?: string
-  timestamp?: number
-  timezoneName?: string
-  timezoneOffset?: number
+  eventName: string;
+  pageUrl: string;
+  properties?: Property[];
+  address?: string;
+  chainId?: string;
+  extensionProvider?: string;
+  referrer?: string;
+  timestamp?: number;
+  timezoneName?: string;
+  timezoneOffset?: number;
 }
 
 export function logEvent({
   eventName,
   pageUrl,
   properties = [],
-  address = '',
-  chainId = '',
-  extensionProvider = '',
-  referrer = '',
+  address = "",
+  chainId = "",
+  extensionProvider = "",
+  referrer = "",
   timestamp = Math.floor(Date.now() / 1000),
   timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone,
   timezoneOffset = new Date().getTimezoneOffset(),
 }: LogEventParams): void {
+  if (window.__adrsbl?.run) {
+    window.__adrsbl.run(eventName, false, properties);
+  }
+
   const payload = {
-    tid: 'ffe0326452604bcd8c9508eb8df3b3be',
+    tid: "ffe0326452604bcd8c9508eb8df3b3be",
     event_name: eventName,
     page_url: pageUrl,
     referrer,
@@ -42,12 +46,12 @@ export function logEvent({
     address,
     chain_id: chainId,
     properties,
-  }
+  };
 
-  const encoded = Buffer.from(JSON.stringify(payload)).toString('base64')
+  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64");
 
-  const img = new Image()
+  const img = new Image();
   img.src = `https://tag.adrsbl.io/events/prod_standard_stage/p.png?is_conversion=true&data=${encodeURIComponent(
     encoded
-  )}`
+  )}`;
 }
