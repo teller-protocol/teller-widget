@@ -39,7 +39,6 @@ import Loader from "../../../components/Loader/Loader";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
-import { logEvent } from "../../../hooks/queries/useAddressableApi";
 
 const OpportunityDetails = () => {
   const {
@@ -301,10 +300,8 @@ const OpportunityDetails = () => {
         );
 
         if (price) {
-          logEvent({
-            eventName: "user_supply_to_pool",
-            pageUrl: window.location.href,
-            properties: [
+          if (window.__adrsbl?.run) {
+            const adrsblProperties = [
               { name: "amount", value: collateralTokenValue.value.toString() },
               {
                 name: "amount_usd",
@@ -314,11 +311,10 @@ const OpportunityDetails = () => {
                 name: "transaction_id",
                 value: receipt,
               },
-            ],
-            address,
-            chainId: chainId?.toString(16) ?? "",
-            extensionProvider: connector?.name ?? "",
-          });
+            ];
+
+            window.__adrsbl.run("user_supply_to_pool", false, adrsblProperties);
+          }
         }
       };
 

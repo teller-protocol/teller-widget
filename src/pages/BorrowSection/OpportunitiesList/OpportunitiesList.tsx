@@ -180,21 +180,18 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   };
 
   const handleOnOpportunityClick = () => {
-    logEvent({
-      eventName: "borrow_offer_selected",
-      pageUrl: window.location.href,
-      properties: Object.entries(opportunity).flatMap(([key, value]) =>
-        value && typeof value === "object" && !Array.isArray(value)
-          ? Object.entries(value).map(([k, v]) => ({
-              name: `${key}.${k}`,
-              value: v?.toString() ?? "",
-            }))
-          : [{ name: key, value: value?.toString() ?? "" }]
-      ),
-      address: userAddress,
-      chainId: chainId?.toString(16) ?? "",
-      extensionProvider: connector?.name ?? "",
-    });
+    if (window.__adrsbl?.run) {
+      const adrsblProperties = Object.entries(opportunity).flatMap(
+        ([key, value]) =>
+          value && typeof value === "object" && !Array.isArray(value)
+            ? Object.entries(value).map(([k, v]) => ({
+                name: `${key}.${k}`,
+                value: v?.toString() ?? "",
+              }))
+            : [{ name: key, value: value?.toString() ?? "" }]
+      );
+      window.__adrsbl.run("borrow_offer_selected", false, adrsblProperties);
+    }
 
     setSelectedOpportunity(opportunity);
     setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
