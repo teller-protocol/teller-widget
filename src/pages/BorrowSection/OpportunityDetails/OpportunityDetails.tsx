@@ -313,7 +313,7 @@ const OpportunityDetails = () => {
               },
             ];
 
-            window.__adrsbl.run("user_supply_to_pool", false, adrsblProperties);
+            window.__adrsbl.run("user_supply_to_pool", true, adrsblProperties);
           }
         }
       };
