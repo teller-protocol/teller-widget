@@ -25,12 +25,11 @@ import "./opportunityDetails.scss";
 
 import { formatUnits, parseUnits } from "viem";
 
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useChainId } from "wagmi";
 import Button from "../../../components/Button";
 import TransactionButton from "../../../components/TransactionButton";
 import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
 import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
-import { useContracts } from "../../../hooks/useContracts";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
@@ -39,26 +38,24 @@ import { BorrowSwapButton } from "./BorrowSwapButton";
 import Loader from "../../../components/Loader/Loader";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
+import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
 
 const OpportunityDetails = () => {
   const {
     setCurrentStep,
     selectedOpportunity,
     selectedCollateralToken,
-    selectedPrincipalErc20Token,
     setSuccessLoanHash,
     setSuccessfulLoanParams,
-    maxCollateral: maxCollateralFromContext,
     selectedErc20Apy,
     selectedSwapToken,
     borrowSwapTokenInput,
     setBorrowSwapTokenInput,
   } = useGetBorrowSectionContext();
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
+  const chainId = useChainId();
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
-
-  const strategyType = strategyAction;
 
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
@@ -91,7 +88,6 @@ const OpportunityDetails = () => {
   }
 
   const { isWhitelistedToken } = useGetGlobalPropsContext();
-  const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
@@ -138,7 +134,6 @@ const OpportunityDetails = () => {
 
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
-    isLoading,
     maxCollateral: maxCollateralFromLCFa,
     maxLoanAmount: maxLoanAmountFromLCFa,
     maxLoanAmountNumber: maxLoanAmountNumberFromLCFa,
@@ -269,6 +264,8 @@ const OpportunityDetails = () => {
 
   const { chainName } = useChainData();
 
+  const { getTokenPrice } = useGetTokenPriceFromDerivedETH();
+
   const lenderGroupTransactions = useBorrowFromPool({
     skip: !isLenderGroup,
     commitmentPoolAddress: selectedOpportunity?.lenderAddress ?? "0x",
@@ -277,7 +274,7 @@ const OpportunityDetails = () => {
     collateralTokenAddress: collateralTokenValue.token?.address ?? "0x",
     loanDuration: selectedOpportunity?.maxDuration?.toString(),
     marketId: selectedOpportunity?.marketplaceId,
-    onSuccess: (receipt: any) => {
+    onSuccess: (receipt: string) => {
       // match the structure of a succesful loan from a LCFa so it works with the confirmation screen
       const loanParams = {
         args: [
@@ -288,6 +285,40 @@ const OpportunityDetails = () => {
           },
         ],
       };
+
+      const logBorrowEvent = async () => {
+        if (
+          !receipt ||
+          !collateralTokenValue.token?.address ||
+          !collateralTokenValue.value
+        )
+          return;
+
+        const price = await getTokenPrice(
+          collateralTokenValue.token.address,
+          collateralTokenValue.value
+        );
+
+        if (price) {
+          if (window.__adrsbl?.run) {
+            const adrsblProperties = [
+              { name: "amount", value: collateralTokenValue.value.toString() },
+              {
+                name: "amount_usd",
+                value: price.toString(),
+              },
+              {
+                name: "transaction_id",
+                value: receipt,
+              },
+            ];
+
+            window.__adrsbl.run("user_supply_to_pool", true, adrsblProperties);
+          }
+        }
+      };
+
+      logBorrowEvent().catch(console.error);
 
       setCurrentStep(BorrowSectionSteps.SUCCESS);
       setSuccessLoanHash(receipt);

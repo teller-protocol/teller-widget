@@ -141,6 +141,7 @@ const CollateralTokenList: React.FC = () => {
         name: key,
         value: value?.toString() ?? "",
       }));
+
       window.__adrsbl.run(
         "borrow_collateral_token_selected",
         false,
