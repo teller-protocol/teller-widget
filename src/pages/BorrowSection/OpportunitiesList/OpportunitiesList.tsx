@@ -323,6 +323,7 @@ const OpportunitiesList: React.FC = () => {
     isTradeMode,
     setStrategyAction,
     switchChainManual,
+    isLoop,
   } = useGetGlobalPropsContext();
 
   useEffect(() => {
@@ -389,9 +390,8 @@ const OpportunitiesList: React.FC = () => {
 
   useEffect(() => {
     const shouldSkipOpportunitySelection =
-      (isStrategiesSection || isTradeMode) &&
-      (strategyAction === STRATEGY_ACTION_ENUM.LONG ||
-        strategyAction === STRATEGY_ACTION_ENUM.SHORT) &&
+      isLoop &&
+      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
       (selectedCollateralToken || selectedPrincipalErc20Token) &&
       sortedCommitments.length > 0 &&
       !isLoading;
@@ -399,19 +399,18 @@ const OpportunitiesList: React.FC = () => {
     if (shouldSkipOpportunitySelection) {
       const bestCommitment = sortedCommitments[0];
       if (bestCommitment) {
-        // setSelectedOpportunity(bestCommitment);
-        // setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
+        setSelectedOpportunity(bestCommitment);
+        setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
       }
     }
   }, [
-    isStrategiesSection,
     strategyAction,
     selectedCollateralToken,
     sortedCommitments,
     isLoading,
     setSelectedOpportunity,
     setCurrentStep,
-    isTradeMode,
+    isLoop,
     selectedPrincipalErc20Token,
   ]);
 
