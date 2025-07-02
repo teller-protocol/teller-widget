@@ -18,3 +18,11 @@ export const mapChainIdToName: Record<number, string> = {
   [polygon.id]: "Polygon",
   [sepolia.id]: "Sepolia",
 };
+
+export function isSupportedChain(
+  chainId?: number
+): chainId is SupportedChainId {
+  return !!chainId && Object.values(SupportedChainId).includes(chainId);
+}
+
+export const DEFAULT_CHAIN_ID = SupportedChainId.MAINNET;

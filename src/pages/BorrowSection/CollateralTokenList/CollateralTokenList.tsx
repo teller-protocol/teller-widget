@@ -10,7 +10,7 @@ import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
 import ShortErc20List from "../../../pages/BorrowSection/ShortErc20List";
 import SwapTokenList from "../../../pages/BorrowSection/SwapTokenList";
-
+import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -62,11 +62,21 @@ export const StrategiesSelect: React.FC<{
   value: string;
   onValueChange: (value: STRATEGY_ACTION_ENUM) => void;
 }> = ({ renderFlag, showStrategy, value, onValueChange }) => {
-  const { setCurrentStep, setSelectedSwapToken } = useGetBorrowSectionContext();
+  const {
+    setCurrentStep,
+    setSelectedSwapToken,
+    setSelectedCollateralToken,
+    setSelectedPrincipalErc20Token,
+    setSelectedOpportunity,
+  } = useGetBorrowSectionContext();
 
   const handleOnChange = (value: STRATEGY_ACTION_ENUM) => {
     setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     setSelectedSwapToken(undefined);
+    setSelectedCollateralToken(undefined);
+    setSelectedPrincipalErc20Token(undefined);
+    setSelectedOpportunity({} as CommitmentType);
+    setCurrentStep(BorrowSectionSteps.SELECT_TOKEN);
     onValueChange(value);
   };
 
@@ -131,6 +141,7 @@ const CollateralTokenList: React.FC = () => {
         name: key,
         value: value?.toString() ?? "",
       }));
+
       window.__adrsbl.run(
         "borrow_collateral_token_selected",
         false,
