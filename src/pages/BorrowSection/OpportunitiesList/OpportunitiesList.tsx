@@ -32,7 +32,7 @@ import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPools
 import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
-import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
+import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -72,6 +72,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setMaxCollateral,
     tokensWithCommitments,
     selectedErc20Apy,
+    selectedSwapToken,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
   const { address: userAddress } = useAccount();
@@ -98,9 +99,12 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
-
-  const { getTokenImageAndSymbolFromTokenList } =
-    useGetTokenImageAndSymbolFromTokenList();
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    opportunity.collateralToken?.address ?? ""
+  );
+  const { tokenMetadata: finalTokenMetadata } = useGetTokenMetadata(
+    selectedSwapToken?.address ?? ""
+  );
 
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
@@ -155,16 +159,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         )
       ).toFixed(2)
     ),
-    token:
-      userTokens.find(
-        (token) =>
-          token.address?.toLowerCase() ===
-          opportunity.collateralToken?.address?.toLowerCase()
-      )?.logo ??
-      getTokenImageAndSymbolFromTokenList(
-        opportunity.collateralToken?.address ?? ""
-      )?.image ??
-      "",
+    token: collateralTokenMetadata?.logo,
   };
 
   const displayLoanAmountData = {
@@ -177,6 +172,23 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       ).toFixed(2)
     ),
     token: principalTokenMetadata?.logo,
+  };
+
+  const { borrowQuoteExactInput: finalValueBI } = useGetBorrowSwapData({
+    principalTokenAddress: opportunity.principalToken?.address,
+    principalAmount: commitmentMax.maxLoanAmount,
+    finalTokenAddress: selectedSwapToken?.address,
+  });
+
+  const displayFinalAmountData = {
+    formattedAmount: finalValueBI
+      ? numberWithCommasAndDecimals(
+          Number(
+            formatUnits(finalValueBI, selectedSwapToken?.decimals ?? 0)
+          ).toFixed(2)
+        )
+      : "",
+    token: finalTokenMetadata?.logo,
   };
 
   const handleOnOpportunityClick = () => {
@@ -227,7 +239,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         Deposit{" "}
         <DataPill
           label={displayCollateralAmountData.formattedAmount}
-          logo={displayCollateralAmountData.token}
+          logo={displayCollateralAmountData.token ?? ""}
         />{" "}
         {strategyAction === STRATEGY_ACTION_ENUM.SHORT
           ? " to short "
@@ -249,8 +261,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           />{" "}
           into{" "}
           <DataPill
-            label={displayCollateralAmountData.formattedAmount}
-            logo={displayCollateralAmountData.token ?? ""}
+            label={displayFinalAmountData.formattedAmount}
+            logo={displayFinalAmountData.token ?? ""}
           />
           <img src={caret} />
         </div>
