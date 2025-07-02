@@ -33,6 +33,7 @@ import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
+import { ALL_USDC_ADDRESSES } from "../../../constants/tokens";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -397,7 +398,19 @@ const OpportunitiesList: React.FC = () => {
       !isLoading;
 
     if (shouldSkipOpportunitySelection) {
-      const bestCommitment = sortedCommitments[0];
+      let bestCommitment = sortedCommitments[0];
+      if (
+        !ALL_USDC_ADDRESSES.includes(
+          bestCommitment?.principalTokenAddress as AddressStringType
+        )
+      ) {
+        bestCommitment =
+          sortedCommitments.find((commitment) =>
+            ALL_USDC_ADDRESSES.includes(
+              commitment.principalTokenAddress as AddressStringType
+            )
+          ) ?? bestCommitment;
+      }
       if (bestCommitment) {
         setSelectedOpportunity(bestCommitment);
         setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
