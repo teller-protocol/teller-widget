@@ -1,14 +1,15 @@
-import { UseQueryResult, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
 import { useEffect, useMemo, useState } from "react";
+import { useChainId, useAccount } from "wagmi";
 
+import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
+import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
-import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useChainId, useAccount } from "wagmi";
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 
-const cacheKeyPrefix = "userTokensCommitments";
+const cacheKeyPrefix = "commitmentsForUserTokens";
+const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 interface Commitment {
   collateralToken: {
@@ -16,9 +17,19 @@ interface Commitment {
   };
 }
 
+type CachedCommitments = {
+  data: UserToken[];
+  timestamp: number;
+};
+
+type CommitmentsCache = {
+  [chainId: string]: {
+    [address: string]: CachedCommitments;
+  };
+};
+
 export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
-  const [loading, setLoading] = useState(true);
   const graphURL = useGraphURL();
   const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
   const { userTokens } = useGetGlobalPropsContext();
@@ -26,28 +37,11 @@ export const useGetCommitmentsForUserTokens = () => {
 
   const hasTokens = userTokens.length > 0;
 
-  const cacheKey = `${cacheKeyPrefix}-${address}`;
-  let cachedResult;
-
-  if (typeof window !== "undefined") {
-    const cached = localStorage.getItem(cacheKey);
-    const cacheTimestamp = cached ? JSON.parse(cached).timestamp : null;
-    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-    if (
-      cached &&
-      cacheTimestamp &&
-      Date.now() - parseInt(cacheTimestamp, 10) < oneHour
-    ) {
-      cachedResult = { data: JSON.parse(cached).data, loading: false };
-    }
-  }
-  const [tokensWithCommitments, setTokensWithCommitments] = useState<any[]>([]);
-
-  // useEffect(() => {
-  //   if (cachedResult?.data && tokensWithCommitments.length === 0) {
-  //     setTokensWithCommitments(cachedResult?.data);
-  //   }
-  // }, [address, userTokens, cachedResult, tokensWithCommitments.length]);
+  const [tokensWithCommitments, setTokensWithCommitments] = useState<
+    UserToken[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [cache, setCache] = useState<CommitmentsCache>({});
 
   const userTokenCommitments = useMemo(
     () =>
@@ -55,13 +49,14 @@ export const useGetCommitmentsForUserTokens = () => {
         query commitmentsForUserTokens${address} {
           commitments(
             where: {
-              collateralToken_: { address_in: ${JSON.stringify(
-                Array.from(new Set(userTokens.map((token) => token.address)))
-              )} }
+              collateralToken_: {
+                address_in: ${JSON.stringify(
+                  Array.from(new Set(userTokens.map((token) => token.address)))
+                )}
+              }
               status: "Active"
               committedAmount_gt: "0"
             }
-
           ) {
             collateralToken {
               address
@@ -78,9 +73,11 @@ export const useGetCommitmentsForUserTokens = () => {
         query checkCommitmentsLenderGroups${address} {
           group_pool_metric(
             where: {
-              collateral_token_address: {_in: ${JSON.stringify(
-                Array.from(new Set(userTokens.map((token) => token.address)))
-              )}}
+              collateral_token_address: {
+                _in: ${JSON.stringify(
+                  Array.from(new Set(userTokens.map((token) => token.address)))
+                )}
+              }
             }
           ) {
             group_pool_address
@@ -90,11 +87,9 @@ export const useGetCommitmentsForUserTokens = () => {
       `,
     [userTokens, address]
   );
-  const { data, refetch, isFetched } = useQuery({
-    queryKey: [
-      "teller-widget",
-      `commitmentsForUserTokens-${chainId}-${address}`,
-    ],
+
+  const { data, isFetched } = useQuery({
+    queryKey: ["teller-widget", `${cacheKeyPrefix}-${chainId}-${address}`],
     queryFn: async () => request(graphURL, userTokenCommitments),
     enabled: !!hasTokens,
   }) as {
@@ -106,7 +101,6 @@ export const useGetCommitmentsForUserTokens = () => {
 
   const {
     data: lenderGroupsUserTokenCommitmentsData,
-    isLoading: lenderGroupsUserTokenCommitmentsLoading,
     isFetched: lenderGroupsUserTokenCommitmentsFetched,
   } = useQuery({
     queryKey: [
@@ -114,18 +108,16 @@ export const useGetCommitmentsForUserTokens = () => {
       `lenderGroupsUserTokenCommitments-${chainId}-${address}`,
     ],
     queryFn: async () => {
-      const response = await request(
+      const res: any = await request(
         lenderGroupsGraphURL,
         lenderGroupsUserTokenCommitments
-      ).then((res: any) => {
-        return res.group_pool_metric.map((metric: any) => ({
-          ...metric,
-          collateralToken: {
-            address: metric.collateral_token_address,
-          },
-        }));
-      });
-      return response;
+      );
+      return res.group_pool_metric.map((metric: any) => ({
+        ...metric,
+        collateralToken: {
+          address: metric.collateral_token_address,
+        },
+      }));
     },
     enabled: !!hasTokens,
   }) as {
@@ -139,88 +131,121 @@ export const useGetCommitmentsForUserTokens = () => {
     isLoading: boolean;
     isFetched: boolean;
   };
-  // useEffect(() => {
-  //   void (async () => {
-  //     setLoading(true);
-  //     await refetch();
-  //   })();
-  // }, [chainId, refetch, userTokens]);
 
+  // Load cache from localStorage once
   useEffect(() => {
-    if (tokensWithCommitments.length) {
+    const lsItem = localStorage.getItem(cacheKeyPrefix);
+    if (lsItem) {
+      try {
+        const parsed: CommitmentsCache = JSON.parse(lsItem);
+        setCache(parsed);
+      } catch (e) {
+        console.error("Failed to parse localStorage cache:", e);
+      }
+    }
+  }, []);
+
+  // Persist cache to localStorage on change
+  useEffect(() => {
+    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
+  }, [cache]);
+
+  // Update in-memory cache when new commitments are available
+  useEffect(() => {
+    if (
+      chainId &&
+      address &&
+      !loading &&
+      isFetched &&
+      lenderGroupsUserTokenCommitmentsFetched &&
+      tokensWithCommitments.length > 0
+    ) {
+      setCache((prev) => ({
+        ...prev,
+        [chainId]: {
+          ...prev[chainId],
+          [address]: {
+            data: tokensWithCommitments,
+            timestamp: Date.now(),
+          },
+        },
+      }));
+    }
+  }, [
+    tokensWithCommitments,
+    address,
+    chainId,
+    loading,
+    isFetched,
+    lenderGroupsUserTokenCommitmentsFetched,
+  ]);
+
+  // Combine and process commitments
+  useEffect(() => {
+    if (!address || !userTokens.length) {
       setLoading(false);
       return;
     }
-    if (!address) {
-      setLoading(false);
-      return;
-    }
-    if (!userTokens.length) {
-      setLoading(true);
-      return;
-    }
+
     if (isFetched && lenderGroupsUserTokenCommitmentsFetched) {
-      const combinedCommitments = [
+      const combined = [
         ...(data?.commitments || []),
         ...(lenderGroupsUserTokenCommitmentsData || []),
       ];
-      const userCommitments = combinedCommitments.reduce((acc, current) => {
-        if (
-          acc?.find(
-            (commitment) =>
-              commitment?.address === current?.collateralToken?.address
-          )
-        ) {
-          return acc;
-        } else {
-          const userTokenFromCommitment = userTokens.find(
+
+      const uniqueUserTokens = combined.reduce((acc, current) => {
+        const existing = acc.find(
+          (t) => t.address === current?.collateralToken?.address
+        );
+        if (!existing) {
+          const matched = userTokens.find(
             (token) =>
               token?.address.toLowerCase() ===
               current?.collateralToken?.address.toLowerCase()
           );
-          if (userTokenFromCommitment) {
-            acc.push(userTokenFromCommitment);
-          }
+          if (matched) acc.push(matched);
         }
         return acc;
       }, [] as UserToken[]);
-      const userCommitmentsUnique = userCommitments.filter(
-        (item, index, self) => {
-          return (
-            item.address &&
-            self.findIndex((obj) => obj.address === item.address) === index
-          );
-        }
-      );
-      setTokensWithCommitments(userCommitmentsUnique);
 
-      if (
-        typeof window !== "undefined" &&
-        isFetched &&
-        lenderGroupsUserTokenCommitmentsFetched
-      ) {
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify({ data: userCommitmentsUnique, timestamp: Date.now() })
-        );
-      }
+      setTokensWithCommitments(uniqueUserTokens);
       setLoading(false);
     }
   }, [
     data,
-    userTokens,
-    setTokensWithCommitments,
-    setLoading,
     lenderGroupsUserTokenCommitmentsData,
+    userTokens,
     address,
     isFetched,
     lenderGroupsUserTokenCommitmentsFetched,
-    tokensWithCommitments.length,
-    cacheKey,
   ]);
 
-  return useMemo(
-    () => ({ tokensWithCommitments, loading }),
-    [tokensWithCommitments, loading]
-  );
+  const cachedCommitments = useMemo(() => {
+    if (!chainId || !address) return [];
+
+    const entry = cache[chainId]?.[address];
+    if (!entry) return [];
+
+    const isFresh = Date.now() - entry.timestamp < CACHE_TIME;
+    return isFresh ? entry.data : [];
+  }, [cache, address, chainId]);
+
+  return useMemo(() => {
+    const isUsingCache = cachedCommitments.length > 0;
+
+    return {
+      tokensWithCommitments: isUsingCache
+        ? cachedCommitments
+        : tokensWithCommitments,
+      loading: isUsingCache
+        ? false
+        : loading || !isFetched || !lenderGroupsUserTokenCommitmentsFetched,
+    };
+  }, [
+    tokensWithCommitments,
+    cachedCommitments,
+    loading,
+    isFetched,
+    lenderGroupsUserTokenCommitmentsFetched,
+  ]);
 };
