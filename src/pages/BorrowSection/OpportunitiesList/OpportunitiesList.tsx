@@ -282,7 +282,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               ).toFixed(2)} %`}
             />
             <OpportunityListDataItem
-              label="Duration"
+              label="Rollover"
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
             {(!isStableView ||
