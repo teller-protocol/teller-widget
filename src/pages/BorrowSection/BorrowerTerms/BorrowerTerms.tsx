@@ -38,18 +38,8 @@ const BorrowerTerms: React.FC = () => {
       key: "2",
       label: (
         <div>
-          All my collateral will be <b>liquidated</b> if I do not repay my cash
+          All my collateral will be <b>liquidated</b> if I do not rollover or repay my cash
           advance on time.
-        </div>
-      ),
-      checked: false,
-    },
-    3: {
-      key: "3",
-      label: (
-        <div>
-          If my cash advance includes multiple repayments, my collateral will be{" "}
-          <b>liquidated</b> if any payment is late.
         </div>
       ),
       checked: false,
