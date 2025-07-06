@@ -178,7 +178,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
   const { borrowQuoteExactInput: finalValueBI } = useGetBorrowSwapData({
     principalTokenAddress: opportunity.principalToken?.address,
-    principalAmount: commitmentMax.maxLoanAmount,
+    principalAmount: commitmentMax.maxLoanAmount.toString(),
     finalTokenAddress: selectedSwapToken?.address,
   });
 
