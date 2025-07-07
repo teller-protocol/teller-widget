@@ -92,10 +92,6 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens]
   );
 
-  useEffect(() => {
-    console.warn(userTokensFingerprint);
-  }, [userTokensFingerprint]);
-
   const { data, isFetched: userTokenCommitmentsFetched } = useQuery({
     queryKey: [
       "teller-widget",
@@ -240,6 +236,7 @@ export const useGetCommitmentsForUserTokens = () => {
     address,
     userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
+    userTokensFingerprint, // Add fingerprint to force reprocessing when balances change
   ]);
 
   const cachedCommitments = useMemo(() => {
@@ -251,11 +248,19 @@ export const useGetCommitmentsForUserTokens = () => {
     const isFresh = Date.now() - entry.timestamp < CACHE_TIME;
     const isSameFingerprint =
       entry.userTokensFingerprint === userTokensFingerprint;
-    return isFresh && isSameFingerprint ? entry.data : [];
-  }, [cache, address, chainId, userTokensFingerprint]);
+
+    // On initial load when userTokens is empty, use cached data if it's fresh
+    const isInitialLoad = userTokens.length === 0;
+
+    // If userTokens have loaded and fingerprint changed, don't use cache
+    if (userTokens.length > 0 && !isSameFingerprint) return [];
+
+    return isFresh && (isSameFingerprint || isInitialLoad) ? entry.data : [];
+  }, [cache, address, chainId, userTokensFingerprint, userTokens.length]);
 
   return useMemo(() => {
     const isUsingCache = cachedCommitments.length > 0;
+    const isInitialLoad = !!userTokensFingerprint;
 
     return {
       tokensWithCommitments: isUsingCache
@@ -263,7 +268,7 @@ export const useGetCommitmentsForUserTokens = () => {
         : tokensWithCommitments,
       loading: isUsingCache
         ? false
-        : loading ||
+        : (isInitialLoad ? false : loading) ||
           !userTokenCommitmentsFetched ||
           !lenderGroupsUserTokenCommitmentsFetched,
     };
@@ -273,5 +278,6 @@ export const useGetCommitmentsForUserTokens = () => {
     loading,
     userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
+    userTokensFingerprint,
   ]);
 };
