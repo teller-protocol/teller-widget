@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
 import { useEffect, useMemo, useState } from "react";
-import { useChainId, useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { UserToken } from "../useGetUserTokens";
+import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 
 const cacheKeyPrefix = "commitmentsForUserTokens";
@@ -20,6 +20,7 @@ interface Commitment {
 type CachedCommitments = {
   data: UserToken[];
   timestamp: number;
+  userTokensFingerprint: string;
 };
 
 type CommitmentsCache = {
@@ -34,8 +35,6 @@ export const useGetCommitmentsForUserTokens = () => {
   const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
   const { userTokens } = useGetGlobalPropsContext();
   const { address } = useAccount();
-
-  const hasTokens = userTokens.length > 0;
 
   const [tokensWithCommitments, setTokensWithCommitments] = useState<
     UserToken[]
@@ -88,10 +87,25 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens, address]
   );
 
-  const { data, isFetched } = useQuery({
-    queryKey: ["teller-widget", `${cacheKeyPrefix}-${chainId}-${address}`],
+  const userTokensFingerprint = useMemo(
+    () => userTokens.map((t) => `${t.address}:${t.balance}`).join(","),
+    [userTokens]
+  );
+
+  useEffect(() => {
+    console.warn(userTokensFingerprint);
+  }, [userTokensFingerprint]);
+
+  const { data, isFetched: userTokenCommitmentsFetched } = useQuery({
+    queryKey: [
+      "teller-widget",
+      "userTokenCommitments",
+      chainId,
+      address,
+      userTokensFingerprint,
+    ],
     queryFn: async () => request(graphURL, userTokenCommitments),
-    enabled: !!hasTokens,
+    enabled: !!userTokensFingerprint,
   }) as {
     data: { commitments: Commitment[] };
     isLoading: boolean;
@@ -105,7 +119,10 @@ export const useGetCommitmentsForUserTokens = () => {
   } = useQuery({
     queryKey: [
       "teller-widget",
-      `lenderGroupsUserTokenCommitments-${chainId}-${address}`,
+      "lenderGroupsUserTokenCommitments",
+      chainId,
+      address,
+      userTokensFingerprint,
     ],
     queryFn: async () => {
       const res: any = await request(
@@ -119,7 +136,7 @@ export const useGetCommitmentsForUserTokens = () => {
         },
       }));
     },
-    enabled: !!hasTokens,
+    enabled: !!userTokensFingerprint,
   }) as {
     data: {
       group_pool_address: string;
@@ -156,7 +173,7 @@ export const useGetCommitmentsForUserTokens = () => {
       chainId &&
       address &&
       !loading &&
-      isFetched &&
+      userTokenCommitmentsFetched &&
       lenderGroupsUserTokenCommitmentsFetched &&
       tokensWithCommitments.length > 0
     ) {
@@ -167,6 +184,7 @@ export const useGetCommitmentsForUserTokens = () => {
           [address]: {
             data: tokensWithCommitments,
             timestamp: Date.now(),
+            userTokensFingerprint,
           },
         },
       }));
@@ -176,8 +194,9 @@ export const useGetCommitmentsForUserTokens = () => {
     address,
     chainId,
     loading,
-    isFetched,
+    userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
+    userTokensFingerprint,
   ]);
 
   // Combine and process commitments
@@ -187,7 +206,10 @@ export const useGetCommitmentsForUserTokens = () => {
       return;
     }
 
-    if (isFetched && lenderGroupsUserTokenCommitmentsFetched) {
+    if (
+      userTokenCommitmentsFetched &&
+      lenderGroupsUserTokenCommitmentsFetched
+    ) {
       const combined = [
         ...(data?.commitments || []),
         ...(lenderGroupsUserTokenCommitmentsData || []),
@@ -216,7 +238,7 @@ export const useGetCommitmentsForUserTokens = () => {
     lenderGroupsUserTokenCommitmentsData,
     userTokens,
     address,
-    isFetched,
+    userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
   ]);
 
@@ -227,8 +249,10 @@ export const useGetCommitmentsForUserTokens = () => {
     if (!entry) return [];
 
     const isFresh = Date.now() - entry.timestamp < CACHE_TIME;
-    return isFresh ? entry.data : [];
-  }, [cache, address, chainId]);
+    const isSameFingerprint =
+      entry.userTokensFingerprint === userTokensFingerprint;
+    return isFresh && isSameFingerprint ? entry.data : [];
+  }, [cache, address, chainId, userTokensFingerprint]);
 
   return useMemo(() => {
     const isUsingCache = cachedCommitments.length > 0;
@@ -239,13 +263,15 @@ export const useGetCommitmentsForUserTokens = () => {
         : tokensWithCommitments,
       loading: isUsingCache
         ? false
-        : loading || !isFetched || !lenderGroupsUserTokenCommitmentsFetched,
+        : loading ||
+          !userTokenCommitmentsFetched ||
+          !lenderGroupsUserTokenCommitmentsFetched,
     };
   }, [
     tokensWithCommitments,
     cachedCommitments,
     loading,
-    isFetched,
+    userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
   ]);
 };
