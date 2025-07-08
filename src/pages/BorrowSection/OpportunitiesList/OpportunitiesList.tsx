@@ -10,9 +10,7 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
-
 import "./opportunitiesList.scss";
-
 import { formatUnits, parseUnits } from "viem";
 import { useAccount, useBalance, useChainId } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
@@ -31,10 +29,9 @@ import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
-import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
-import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
 import { ALL_USDC_ADDRESSES } from "../../../constants/tokens";
+import { sortCommitmentsByDuration } from "../../../helpers/sortCommitmentsByDuration";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -374,13 +371,13 @@ const OpportunitiesList: React.FC = () => {
     selectedPrincipalErc20Token?.address
   );
 
-  const data = useMemo(() => {
+  const data = useMemo<{ commitments: CommitmentType[] }>(() => {
     if (isStableView) {
       if (lcfaCommitments && lenderGroupsCommitments) {
         return {
           commitments: [
-            ...lcfaCommitments.commitments,
             ...lenderGroupsCommitments,
+            ...lcfaCommitments.commitments,
           ],
         };
       }
@@ -400,7 +397,10 @@ const OpportunitiesList: React.FC = () => {
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
 
-  const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
+  const sortedCommitments = useMemo(
+    () => sortCommitmentsByDuration(data.commitments),
+    [data.commitments]
+  );
 
   useEffect(() => {
     const shouldSkipOpportunitySelection =
@@ -489,7 +489,7 @@ const OpportunitiesList: React.FC = () => {
           <>
             {isLoading ? (
               <Loader />
-            ) : data.commitments.length === 0 ? (
+            ) : sortedCommitments.length === 0 ? (
               <div
                 className="empty-opportunities"
                 style={{
@@ -546,7 +546,7 @@ const OpportunitiesList: React.FC = () => {
                 />
               </div>
             ) : (
-              data.commitments.map((commitment, index) => (
+              sortedCommitments.map((commitment, index) => (
                 <OpportunityListItem opportunity={commitment} key={index} />
               ))
             )}
