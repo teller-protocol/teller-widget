@@ -88,8 +88,11 @@ export const useGetCommitmentsForUserTokens = () => {
   );
 
   const userTokensFingerprint = useMemo(
-    () => userTokens.map((t) => `${t.address}:${t.balance}`).join(","),
-    [userTokens]
+    () =>
+      address
+        ? userTokens.map((t) => `${t.address}:${t.balance}`).join(",")
+        : "",
+    [userTokens, address]
   );
 
   const { data, isFetched: userTokenCommitmentsFetched } = useQuery({
