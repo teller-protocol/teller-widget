@@ -377,6 +377,48 @@ const OpportunityDetails = () => {
 
   const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
 
+  const [rewardTokenInput, setRewardTokenInput] = useState<TokenInputType>({
+    value: 0,
+    valueBI: 0n,
+  });
+
+  useEffect(() => {
+    const run = async () => {
+      const rewardToken = selectedCollateralToken?.rewardData?.reward_token_data;
+      const rewardPercent = selectedCollateralToken?.rewardPercent;
+      const duration = Number(selectedOpportunity?.maxDuration);
+      const maxLoanAmount = maxLoanAmountNumber;
+
+      if (!rewardToken || !rewardPercent || !duration || !maxLoanAmount) return;
+
+      const rewardTokenPriceUsd = await getTokenPrice(rewardToken.address, 1);
+      if (!rewardTokenPriceUsd || rewardTokenPriceUsd <= 0) return;
+
+      const durationFraction = duration / (365 * 24 * 60 * 60); // Convert seconds to years
+      const rewardUsdValue =
+        maxLoanAmount * (rewardPercent / 100) * durationFraction;
+      const rewardTokenValue = rewardUsdValue / rewardTokenPriceUsd;
+
+      setRewardTokenInput({
+        token: rewardToken,
+        value: Number(rewardTokenValue.toFixed(rewardToken.decimals ?? 18)),
+        valueBI: parseUnits(
+          rewardTokenValue.toFixed(rewardToken.decimals ?? 18),
+          rewardToken.decimals ?? 18
+        ),
+      });
+    };
+
+    run().catch(console.error);
+  }, [
+    selectedCollateralToken?.rewardData,
+    selectedCollateralToken?.rewardPercent,
+    selectedOpportunity?.maxDuration,
+    maxLoanAmountNumber,
+    getTokenPrice,
+  ]);
+
+
   return (
     <div className="opportunity-details">
       {isTradeMode ? (
@@ -517,21 +559,12 @@ const OpportunityDetails = () => {
         selectedOpportunity?.lenderAddress?.toLowerCase() && (
         <div style={{ marginTop: "1rem" }}>
           <TokenInput
-            tokenValue={{
-              token: selectedCollateralToken?.rewardData?.reward_token_data,
-              value: Number(
-                formatUnits(
-                  (selectedCollateralToken?.rewardData?.reward_amount ?? "0").toString(),
-                  selectedCollateralToken?.rewardData?.reward_token_data?.decimals ?? 18
-                )
-              ),
-              valueBI: BigInt(selectedCollateralToken?.rewardData?.reward_amount ?? 0),
-            }}
+            tokenValue={rewardTokenInput}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                 Rewards
                 <Tooltip
-                  description={`Borrow and earn ${selectedCollateralToken?.rewardData?.reward_token_data?.symbol} rewards.`}
+                  description={`Borrow and earn ${selectedCollateralToken?.rewardData?.reward_token_data?.symbol} rewards instantly.`}
                   icon={
                     <svg
                       width="14"
