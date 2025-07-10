@@ -116,6 +116,7 @@ const CollateralTokenList: React.FC = () => {
     erc20sWithCommitmentsLoading: erc20Loading,
     setSelectedSwapToken,
     selectedSwapToken,
+    loanRewards,
   } = useGetBorrowSectionContext();
 
   const {
@@ -161,18 +162,50 @@ const CollateralTokenList: React.FC = () => {
           token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+
     ...tokensWithCommitments
       .filter(
         (token) =>
           parseFloat(token?.balance ?? "0") <= 0 &&
-          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          loanRewards.some(
+            (reward) =>
+              reward.network_id === token.chainId &&
+              reward.collateral_address.toLowerCase() ===
+                token.address.toLowerCase()
+          )
+      )
+      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+
+    ...tokensWithCommitments
+      .filter(
+        (token) =>
+          parseFloat(token?.balance ?? "0") <= 0 &&
+          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !loanRewards.some(
+            (reward) =>
+              reward.network_id === token.chainId &&
+              reward.collateral_address.toLowerCase() ===
+                token.address.toLowerCase()
+          )
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
-      .filter((token) => (isLong ? token.chainId === chainId : true)), // if long, match collateral token to chainId
-  ].map((token) => ({
-    ...token,
-    chainId: address ? undefined : token.chainId,
-  }));
+      .filter((token) => (isLong ? token.chainId === chainId : true)),
+  ].map((token) => {
+    const matchingReward = loanRewards.find(
+      (reward) =>
+        reward.network_id === token.chainId &&
+        reward.collateral_address.toLowerCase() === token.address.toLowerCase()
+    );
+
+    return {
+      ...token,
+      chainId: address ? undefined : token.chainId,
+      rewardPercent: matchingReward?.reward_percent,
+      rewardData: matchingReward ?? null,
+    };
+  });
+
 
   const handleStrategyAction = (action: string) => {
     setStrategyAction(action as STRATEGY_ACTION_ENUM);

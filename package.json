@@ -10,6 +10,7 @@
   "repository": "git@github.com:teller-protocol/teller-widget.git",
   "dependencies": {
     "@iconify/react": "^4.1.1",
+    "@supabase/supabase-js": "^2.50.4",
     "@tanstack/react-query": "^5.25.0",
     "alchemy-sdk": "^3.3.1",
     "classnames": "^2.5.1",

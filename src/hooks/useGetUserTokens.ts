@@ -21,6 +21,8 @@ export type UserToken = {
   balanceBigInt: string;
   decimals: number;
   chainId?: number;
+  rewardPercent?: number;
+  rewardData?: any;
 };
 
 const sleep = (ms: number) => {
