@@ -16,3 +16,20 @@
     border-radius: 50%;
   }
 }
+
+.data-pill.small {
+  font-size: 10px;
+  font-weight: normal;
+  padding: 4px 12px;           // ✅ wider padding
+  border-radius: 999px;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.2;
+  min-width: 120px;            // ✅ optional min-width
+  justify-content: center;    // ✅ center text horizontally
+  white-space: nowrap;        // ✅ prevent wrapping
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+

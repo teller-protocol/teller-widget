@@ -5,10 +5,11 @@ interface DataPillProps {
   label?: string;
   logo?: string;
   linkOut?: string;
+  variant?: string;
 }
 
-const DataPill: React.FC<DataPillProps> = ({ logo, label, linkOut }) => (
-  <div className="data-pill">
+const DataPill: React.FC<DataPillProps> = ({ logo, label, linkOut, variant }) => (
+  <div className={`data-pill ${variant ?? ""}`}>
     <div className="label">{label}</div>
     {!!logo && <img src={logo} alt={label} />}
     {!!linkOut && (

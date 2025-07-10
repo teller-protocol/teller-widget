@@ -38,6 +38,7 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
       </div>
       {token.rewardPercent !== undefined && (
         <DataPill
+          variant="small"
           label={`+${token.rewardPercent}% APR Reward ✨`}
         />
       )}
