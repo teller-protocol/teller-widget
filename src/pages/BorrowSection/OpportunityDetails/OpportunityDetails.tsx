@@ -513,6 +513,48 @@ const OpportunityDetails = () => {
         }
         readonly
       />
+      {selectedCollateralToken?.rewardData?.pool?.toLowerCase() ===
+        selectedOpportunity?.lenderAddress?.toLowerCase() && (
+        <div style={{ marginTop: "1rem" }}>
+          <TokenInput
+            tokenValue={{
+              token: selectedCollateralToken?.rewardData?.reward_token_data,
+              value: Number(
+                formatUnits(
+                  (selectedCollateralToken?.rewardData?.reward_amount ?? "0").toString(),
+                  selectedCollateralToken?.rewardData?.reward_token_data?.decimals ?? 18
+                )
+              ),
+              valueBI: BigInt(selectedCollateralToken?.rewardData?.reward_amount ?? 0),
+            }}
+            label={
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                Rewards
+                <Tooltip
+                  description={`Borrow and earn ${selectedCollateralToken?.rewardData?.reward_token_data?.symbol} rewards.`}
+                  icon={
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="tooltip-svg"
+                      style={{ position: "relative", top: "1px" }}
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                      <path d="M12 16v-4" strokeWidth="2" />
+                      <circle cx="12" cy="8" r="1" />
+                    </svg>
+                  }
+                />
+              </div>
+            }
+            imageUrl={selectedCollateralToken?.rewardData?.reward_token_data?.logo}
+            readonly
+            sublabelUpper={`+${selectedCollateralToken?.rewardPercent}% APR Reward ✨`}
+          />
+        </div>
+      )}
 
       {isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div>
