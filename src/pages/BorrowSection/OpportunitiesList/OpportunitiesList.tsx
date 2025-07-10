@@ -308,6 +308,17 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                 ) : null}
               </>
             )}
+            {selectedCollateralToken?.rewardData?.pool?.toLowerCase() ===
+              opportunity.lenderAddress?.toLowerCase() && (
+              <OpportunityListDataItem
+                label=""
+                value={
+                  <DataPill
+                    label={`+${selectedCollateralToken?.rewardPercent}% APR Rewards ✨`}
+                  />
+                }
+              />
+            )}
           </>
         )}
       </div>
