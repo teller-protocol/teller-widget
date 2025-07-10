@@ -95,7 +95,10 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens, address]
   );
 
-  const { data, isFetched: userTokenCommitmentsFetched } = useQuery({
+  const {
+    data: userTokenCommitmentsData,
+    isFetched: userTokenCommitmentsFetched,
+  } = useQuery({
     queryKey: [
       "teller-widget",
       "userTokenCommitments",
@@ -210,7 +213,7 @@ export const useGetCommitmentsForUserTokens = () => {
       lenderGroupsUserTokenCommitmentsFetched
     ) {
       const combined = [
-        ...(data?.commitments || []),
+        ...(userTokenCommitmentsData?.commitments || []),
         ...(lenderGroupsUserTokenCommitmentsData || []),
       ];
 
@@ -233,7 +236,7 @@ export const useGetCommitmentsForUserTokens = () => {
       setLoading(false);
     }
   }, [
-    data,
+    userTokenCommitmentsData,
     lenderGroupsUserTokenCommitmentsData,
     userTokens,
     address,

@@ -1,10 +1,13 @@
-import { UserToken } from "../../hooks/useGetUserTokens";
-import TokenLogo from "../TokenLogo";
+import { useMemo } from "react";
+
 import defaultTokenImage from "../../assets/generic_token-icon.svg";
-import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { mapChainIdToName } from "../../constants/chains";
+import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import "./collateralTokenRow.scss";
- import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import { useGetTokenImageAndSymbolFromTokenList } from "../../hooks/useGetTokenImageAndSymbolFromTokenList";
+import { UserToken } from "../../hooks/useGetUserTokens";
+import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import TokenLogo from "../TokenLogo";
 
 interface CollateralTokenSelectProps {
   token: UserToken;
@@ -15,13 +18,23 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
   token,
   onClick,
 }) => {
-  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+  const { getTokenImageAndSymbolFromTokenList } =
+    useGetTokenImageAndSymbolFromTokenList();
+
+  const data = useMemo<{ symbol: string; logo: string }>(() => {
+    const data = getTokenImageAndSymbolFromTokenList(token.address);
+
+    return {
+      logo: token?.logo || data?.image || defaultTokenImage,
+      symbol: token?.symbol || data?.symbol || "",
+    };
+  }, [token, getTokenImageAndSymbolFromTokenList]);
 
   return (
     <div className="collateral-token-row" onClick={() => onClick?.(token)}>
-      <TokenLogo logoUrl={logoUrl} size={32} />
+      <TokenLogo logoUrl={data.logo} size={32} />
       <div className="token-balance-info">
-        <span className="paragraph">{token?.symbol}</span>
+        <span className="paragraph">{data.symbol}</span>
         <span className="section-sub-title">
           {token.chainId ? (
             <span className="chain-info-row">
@@ -30,7 +43,7 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
             </span>
           ) : (
             `Balance: ${numberWithCommasAndDecimals(token?.balance)} ${
-              token?.symbol
+              data.symbol
             }`
           )}
         </span>

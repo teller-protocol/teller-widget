@@ -111,13 +111,19 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
             getGraphEndpointWithKey(subgraphApiKey, id) ?? "",
             commitmentsQuery(tokens)
           );
+        } catch (error) {
+          console.error(`Error fetching commitments for chain ${id}:`, error);
+          return [];
+        }
+
+        try {
           liquidityPools = await request(
             getLiquidityPoolsGraphEndpoint(id) ?? "",
             liquidityPoolsQuery(tokens)
           );
         } catch (error) {
           console.error(
-            `Error fetching commitments or liquidity pools for chain ${id}:`,
+            `Error fetching liquidity pools for chain ${id}:`,
             error
           );
           return [];
