@@ -20,7 +20,15 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
   if (!logoAndSymbol) return null;
 
   return (
-    <div className="collateral-token-row" onClick={() => onClick?.(token)}>
+    <div
+      className="collateral-token-row"
+      onClick={() =>
+        onClick?.({
+          ...token,
+          ...logoAndSymbol,
+        })
+      }
+    >
       <TokenLogo logoUrl={logoAndSymbol.logo} size={32} />
       <div className="token-balance-info">
         <span className="paragraph">{logoAndSymbol.symbol}</span>

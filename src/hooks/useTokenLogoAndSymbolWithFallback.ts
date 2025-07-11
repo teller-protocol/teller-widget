@@ -10,10 +10,11 @@ export const useTokenLogoAndSymbolWithFallback = (token: UserToken) => {
     useGetTokenImageAndSymbolFromTokenList();
 
   const data = useMemo(() => {
-    if (token.logo) {
+    if (token.logo && token.symbol && token.chainId) {
       return {
         logo: token.logo,
         symbol: token.symbol,
+        chainId: token.chainId,
       };
     }
 
@@ -27,6 +28,7 @@ export const useTokenLogoAndSymbolWithFallback = (token: UserToken) => {
     return {
       logo: fetched?.image || defaultTokenImage,
       symbol: token.symbol || fetched?.symbol || "",
+      chainId: token.chainId || fetched?.chainId,
     };
   }, [token, getTokenImageAndSymbolFromTokenList, isTokenListLoading]);
 

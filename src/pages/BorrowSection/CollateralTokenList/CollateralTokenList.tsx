@@ -230,7 +230,7 @@ const CollateralTokenList: React.FC = () => {
                   filteredAndSortedTokens.map((token) => (
                     <CollateralTokenRow
                       token={token}
-                      onClick={() => onCollateralTokenSelected(token)}
+                      onClick={onCollateralTokenSelected}
                       key={token.address.toString()}
                     />
                   ))
@@ -245,7 +245,7 @@ const CollateralTokenList: React.FC = () => {
             filteredAndSortedTokens.map((token) => (
               <CollateralTokenRow
                 token={token}
-                onClick={() => onCollateralTokenSelected(token)}
+                onClick={onCollateralTokenSelected}
                 key={token.address.toString()}
               />
             ))

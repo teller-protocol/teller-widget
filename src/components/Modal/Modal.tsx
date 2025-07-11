@@ -2,7 +2,7 @@ import "./modal.scss";
 
 import { Icon } from "@iconify/react";
 import cx from "classnames";
-import { ReactNode, useCallback, useEffect, useMemo } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useAccount } from "wagmi";
 
@@ -78,11 +78,13 @@ const Modal: React.FC<ModalProps> = ({
 
   const { address } = useAccount();
 
+  const [isWidgetChainIdSet, setIsWidgetChainIdSet] = useState(false);
   useEffect(() => {
-    if (widgetChainId && !address) {
+    if (!isWidgetChainIdSet && widgetChainId && !address) {
+      setIsWidgetChainIdSet(true);
       switchChainManual(widgetChainId, true);
     }
-  }, [widgetChainId, switchChainManual, address]);
+  }, [widgetChainId, switchChainManual, address, isWidgetChainIdSet]);
 
   return useMemo(() => {
     const node = (showModal || isEmbedded) && (

@@ -74,7 +74,10 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
         },
       })
     );
-    onClick?.(token);
+    onClick?.({
+      ...token,
+      ...logoAndSymbol,
+    });
   };
 
   if (!logoAndSymbol) return null;

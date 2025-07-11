@@ -23,6 +23,7 @@ export const useGetTokenImageAndSymbolFromTokenList = () => {
       return {
         image: token.logoURI,
         symbol: token.symbol,
+        chainId: token.chainId,
       };
     },
     [tokenList, isLoading, chainId]
