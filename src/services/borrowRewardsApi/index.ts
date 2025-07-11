@@ -11,6 +11,7 @@ export type LoanReward = {
   reward_token: string
   principal_address: string
   collateral_address: string
+  active: boolean
 }
 
 export async function getLoanRewards(): Promise<LoanReward[]> {
@@ -21,5 +22,5 @@ export async function getLoanRewards(): Promise<LoanReward[]> {
   }
 
   const data = await res.json()
-  return data as LoanReward[]
+  return (data as LoanReward[]).filter((reward) => reward.active)
 }
