@@ -1,19 +1,18 @@
-import cx from "classnames";
-
 import "./modal.scss";
 
-import tellerLight from "../../assets/TellerLight.svg";
-import tellerDark from "../../assets/TellerDark.svg";
-
 import { Icon } from "@iconify/react";
+import cx from "classnames";
 import { ReactNode, useCallback, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom";
-import ChainSwitch from "../ChainSwitch";
+import { useAccount } from "wagmi";
+
+import tellerDark from "../../assets/TellerDark.svg";
+import tellerLight from "../../assets/TellerLight.svg";
 import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
-import { useAccount } from "wagmi";
+import ChainSwitch from "../ChainSwitch";
 
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");

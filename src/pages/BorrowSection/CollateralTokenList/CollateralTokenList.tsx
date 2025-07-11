@@ -10,7 +10,6 @@ import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
 import ShortErc20List from "../../../pages/BorrowSection/ShortErc20List";
 import SwapTokenList from "../../../pages/BorrowSection/SwapTokenList";
-
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
@@ -19,10 +18,10 @@ import "./collateralTokenList.scss";
 import SelectButtons from "../../../components/SelectButtons";
 import { useAccount, useChainId } from "wagmi";
 import TokenLogo from "../../../components/TokenLogo";
-import defaultTokenImage from "../../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { mapChainIdToName } from "../../../constants/chains";
 import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
+import { useTokenLogoAndSymbolWithFallback } from "../../../hooks/useTokenLogoAndSymbolWithFallback";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -32,13 +31,15 @@ export enum BORROW_TOKEN_TYPE_ENUM {
 const SelectedCollateralTokenRow: React.FC<{ token: UserToken }> = ({
   token,
 }) => {
-  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+  const logoAndSymbol = useTokenLogoAndSymbolWithFallback(token);
+
+  if (!logoAndSymbol) return null;
 
   return (
     <div className="selected-collateral-token">
-      <TokenLogo logoUrl={logoUrl} size={32} />
+      <TokenLogo logoUrl={logoAndSymbol.logo} size={32} />
       <div className="token-balance-info">
-        <span className="paragraph">Long {token?.symbol}</span>
+        <span className="paragraph">Long {logoAndSymbol.symbol}</span>
         <span className="section-sub-title">
           {token.chainId ? (
             <span className="chain-info-row">
@@ -47,7 +48,7 @@ const SelectedCollateralTokenRow: React.FC<{ token: UserToken }> = ({
             </span>
           ) : (
             `Balance: ${numberWithCommasAndDecimals(token?.balance)} ${
-              token?.symbol
+              logoAndSymbol.symbol
             }`
           )}
         </span>
@@ -113,6 +114,7 @@ const CollateralTokenList: React.FC = () => {
     strategyAction,
     setStrategyAction,
     isTradeMode,
+    switchChainManual,
   } = useGetGlobalPropsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -138,8 +140,11 @@ const CollateralTokenList: React.FC = () => {
       );
     }
 
-    setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-    setSelectedCollateralToken(token);
+    switchChainManual(token.chainId);
+    setTimeout(() => {
+      setSelectedCollateralToken(token);
+      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+    });
   };
 
   const filteredAndSortedTokens = [
