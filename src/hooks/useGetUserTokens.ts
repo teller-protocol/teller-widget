@@ -1,12 +1,12 @@
 import {
-  TokenBalance,
-  TokenBalancesResponseErc20,
+  type TokenBalance,
+  type TokenBalancesResponseErc20,
   TokenBalanceType,
-  TokenMetadataResponse,
+  type TokenMetadataResponse,
 } from "alchemy-sdk";
-import { useEffect, useState, useMemo } from "react";
-import { Address, formatUnits } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { type Address, formatUnits } from "viem";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
 
 import { useGetTokenList } from "./queries/useGetTokenList";
 import { useAlchemy } from "./useAlchemy";
@@ -52,6 +52,7 @@ export const useGetUserTokens = (
 ) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastFetchedBlock, setLastFetchedBlock] = useState<bigint | null>(null);
   const { address } = useAccount();
   const alchemy = useAlchemy();
 
@@ -59,20 +60,24 @@ export const useGetUserTokens = (
     useGetTokenImageAndSymbolFromTokenList();
   const chainId = useChainId();
   const { data: tokenList } = useGetTokenList();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
 
-  useEffect(() => {
+  const fetchUserTokens = useCallback(async () => {
     if (
       !alchemy ||
       skip ||
       !tokenList ||
       !tokenList?.[chainId] ||
-      tokenList?.[chainId].length === 0
+      tokenList?.[chainId].length === 0 ||
+      !address
     ) {
       return;
     }
 
-    void (async () => {
-      let pageKey: string | undefined = undefined;
+    setIsLoading(true);
+
+    try {
+      let pageKey: string | undefined;
       const nonZeroBalances: TokenBalance[] = [];
 
       // Loop through token pages
@@ -174,12 +179,12 @@ export const useGetUserTokens = (
         }
       );
 
-      setUserTokens((userTokens) => [
-        ...userTokens,
-        ...chunks.flat().filter((token) => token !== null),
-      ]);
+      setUserTokens(chunks.flat().filter((token) => token !== null));
+    } catch (error) {
+      console.error("Error fetching user tokens:", error);
+    } finally {
       setIsLoading(false);
-    })();
+    }
   }, [
     address,
     alchemy,
@@ -191,9 +196,33 @@ export const useGetUserTokens = (
     whiteListedTokens,
   ]);
 
+  // Initial fetch
+  useEffect(() => {
+    fetchUserTokens()
+      .then(() => {
+        // Set initial block number after first fetch
+        if (blockNumber) {
+          setLastFetchedBlock(blockNumber);
+        }
+      })
+      .catch(console.error);
+  }, [fetchUserTokens, blockNumber]);
+
+  // Refetch when block number changes
+  useEffect(() => {
+    if (
+      blockNumber &&
+      lastFetchedBlock &&
+      blockNumber > lastFetchedBlock + 10n // Refetch every 10 blocks to reduce frequency
+    ) {
+      setLastFetchedBlock(blockNumber);
+      fetchUserTokens().catch(console.error);
+    }
+  }, [blockNumber, lastFetchedBlock, fetchUserTokens]);
+
   const memoizedReturn = useMemo(
-    () => ({ userTokens, isLoading }),
-    [userTokens, isLoading]
+    () => ({ userTokens, isLoading, refetch: fetchUserTokens }),
+    [userTokens, isLoading, fetchUserTokens]
   );
   return memoizedReturn;
 };

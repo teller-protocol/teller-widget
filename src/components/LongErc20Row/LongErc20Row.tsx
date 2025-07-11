@@ -1,7 +1,7 @@
-import { UserToken } from "../../hooks/useGetUserTokens";
-import TokenLogo from "../TokenLogo";
-import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
+import { UserToken } from "../../hooks/useGetUserTokens";
+import { useTokenLogoAndSymbolWithFallback } from "../../hooks/useTokenLogoAndSymbolWithFallback";
+import TokenLogo from "../TokenLogo";
 
 import "./longErc20Row.scss";
 
@@ -14,16 +14,18 @@ const LongErc20TokenRow: React.FC<LongErc20TokenSelectProps> = ({
   token,
   onClick,
 }) => {
-  const logoUrl = token?.logo ? token.logo : defaultTokenImage;
+  const logoAndSymbol = useTokenLogoAndSymbolWithFallback(token);
+
+  if (!logoAndSymbol) return null;
 
   return (
     <div className="long-token-row" onClick={() => onClick?.(token)}>
-      <TokenLogo logoUrl={logoUrl} size={32} />
+      <TokenLogo logoUrl={logoAndSymbol.logo} size={32} />
       <div className="token-balance-info">
-        <span className="paragraph">{token?.symbol}</span>
+        <span className="paragraph">{logoAndSymbol.symbol}</span>
         <span className="section-sub-title">
           Long with: {numberWithCommasAndDecimals(token?.balance)}{" "}
-          {token?.symbol}
+          {logoAndSymbol.symbol}
         </span>
       </div>
     </div>

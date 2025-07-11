@@ -1,19 +1,18 @@
-import cx from "classnames";
-
 import "./modal.scss";
 
-import tellerLight from "../../assets/TellerLight.svg";
-import tellerDark from "../../assets/TellerDark.svg";
-
 import { Icon } from "@iconify/react";
-import { ReactNode, useCallback, useEffect, useMemo } from "react";
+import cx from "classnames";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
-import ChainSwitch from "../ChainSwitch";
+import { useAccount } from "wagmi";
+
+import tellerDark from "../../assets/TellerDark.svg";
+import tellerLight from "../../assets/TellerLight.svg";
 import {
   useGetGlobalPropsContext,
   WIDGET_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
-import { useAccount } from "wagmi";
+import ChainSwitch from "../ChainSwitch";
 
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
@@ -79,11 +78,13 @@ const Modal: React.FC<ModalProps> = ({
 
   const { address } = useAccount();
 
+  const [isWidgetChainIdSet, setIsWidgetChainIdSet] = useState(false);
   useEffect(() => {
-    if (widgetChainId && !address) {
+    if (!isWidgetChainIdSet && widgetChainId && !address) {
+      setIsWidgetChainIdSet(true);
       switchChainManual(widgetChainId, true);
     }
-  }, [widgetChainId, switchChainManual, address]);
+  }, [widgetChainId, switchChainManual, address, isWidgetChainIdSet]);
 
   return useMemo(() => {
     const node = (showModal || isEmbedded) && (

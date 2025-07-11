@@ -1,13 +1,23 @@
 import { useQueries } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
+import { useEffect, useMemo, useState } from "react";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
-import { useAccount } from "wagmi";
+
 import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetTokensData } from "../useFetchTokensData";
 
-const cacheKey = "commitmentsAcrossNetworks";
+const cacheKeyPrefix = "commitmentsAcrossNetworks";
+const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
+
+type CachedCommitments = {
+  data: any[];
+  timestamp: number;
+  whitelistedTokensFingerprint: string;
+};
+
+type CommitmentsCache = CachedCommitments | null;
 
 const commitmentsQuery = (tokens: string[]) => gql`
   query commitmentsForUserTokensALLWLTokens {
@@ -39,38 +49,58 @@ const liquidityPoolsQuery = (tokens: string[]) => gql`
       `;
 
 export const useGetAllWLCommitmentsAcrossNetworks = () => {
-  const { subgraphApiKey, userTokens, whitelistedTokens } =
-    useGetGlobalPropsContext();
-
-  const { address } = useAccount();
-
+  const { subgraphApiKey, whitelistedTokens } = useGetGlobalPropsContext();
   const { fetchAllWhitelistedTokensData } = useGetTokensData();
+
+  const [allCommitments, setAllCommitments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cache, setCache] = useState<CommitmentsCache>(null);
 
   const mainnetID = mainnet.id;
   const polygonID = polygon.id;
   const arbitrumID = arbitrum.id;
   const baseID = base.id;
 
-  const subpgraphIds = [mainnetID, polygonID, arbitrumID, baseID];
+  const subpgraphIds = useMemo(
+    () => [mainnetID, polygonID, arbitrumID, baseID],
+    [mainnetID, polygonID, arbitrumID, baseID]
+  );
 
-  let cachedResult;
+  const whitelistedTokensFingerprint = useMemo(() => {
+    return subpgraphIds
+      .map((id) => {
+        const tokens = whitelistedTokens?.[id] || [];
+        return `${id}:${tokens.join(",")}`;
+      })
+      .join("|");
+  }, [whitelistedTokens, subpgraphIds]);
 
-  if (typeof window !== "undefined") {
-    const cached = localStorage.getItem(cacheKey);
-    const cacheTimestamp = cached ? JSON.parse(cached).timestamp : null;
-    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-    if (
-      cached &&
-      cacheTimestamp &&
-      Date.now() - parseInt(cacheTimestamp, 10) < oneHour
-    ) {
-      cachedResult = { data: JSON.parse(cached).data, loading: false };
+  // Load cache from localStorage once
+  useEffect(() => {
+    const lsItem = localStorage.getItem(cacheKeyPrefix);
+    if (lsItem) {
+      try {
+        const parsed: CommitmentsCache = JSON.parse(lsItem);
+        setCache(parsed);
+      } catch (e) {
+        console.error("Failed to parse localStorage cache:", e);
+      }
     }
-  }
+  }, []);
+
+  // Persist cache to localStorage on change
+  useEffect(() => {
+    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
+  }, [cache]);
 
   const result = useQueries({
     queries: subpgraphIds.map((id) => ({
-      queryKey: ["teller-widget", "commitments", id],
+      queryKey: [
+        "teller-widget",
+        "commitments",
+        id,
+        whitelistedTokensFingerprint,
+      ],
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
         let commitments: any;
@@ -81,29 +111,35 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
             getGraphEndpointWithKey(subgraphApiKey, id) ?? "",
             commitmentsQuery(tokens)
           );
+        } catch (error) {
+          console.error(`Error fetching commitments for chain ${id}:`, error);
+          return [];
+        }
+
+        try {
           liquidityPools = await request(
             getLiquidityPoolsGraphEndpoint(id) ?? "",
             liquidityPoolsQuery(tokens)
           );
         } catch (error) {
           console.error(
-            "Error fetching commitments or liquidity pools:",
+            `Error fetching liquidity pools for chain ${id}:`,
             error
           );
           return [];
         }
 
         const commitmentsWithCollateralAddressOnly =
-          commitments.commitments.map(
+          commitments?.commitments?.map(
             (commitment: { collateralToken: { address: string } }) =>
               commitment?.collateralToken?.address
-          );
+          ) || [];
 
         const liquidityPoolsWithCollateralAddressOnly =
-          liquidityPools.group_pool_metric.map(
+          liquidityPools?.group_pool_metric?.map(
             (pool: { collateral_token_address: string }) =>
               pool.collateral_token_address
-          );
+          ) || [];
 
         const combinedCommitments = Array.from(
           new Set([
@@ -111,6 +147,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
             ...liquidityPoolsWithCollateralAddressOnly,
           ])
         );
+
         const commitmentsWithData = await fetchAllWhitelistedTokensData(
           combinedCommitments,
           id
@@ -118,25 +155,77 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
         return commitmentsWithData;
       },
-      enabled: !address,
+      enabled: !!whitelistedTokensFingerprint,
       keepPreviousData: true,
     })),
     combine: (results) => {
-      const allData = results.map((d) => d.data).flat();
+      const allData = results.flatMap((d) => d.data);
       const allDataFetched = results.every((d) => d.isSuccess);
-      if (
-        typeof window !== "undefined" &&
-        allDataFetched &&
-        allData.length > 0
-      ) {
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify({ data: allData, timestamp: Date.now() })
-        );
-      }
-      return { data: allData, loading: results.some((d) => d.isLoading) };
+      const isLoading = results.some((d) => d.isLoading);
+
+      return {
+        data: allData,
+        loading: isLoading,
+        isFetched: allDataFetched,
+      };
     },
   });
 
-  return cachedResult ?? result;
+  // Update in-memory cache when new commitments are available
+  useEffect(() => {
+    if (!loading && result.isFetched && result.data.length > 0) {
+      setCache({
+        data: result.data,
+        timestamp: Date.now(),
+        whitelistedTokensFingerprint,
+      });
+    }
+  }, [result.data, result.isFetched, loading, whitelistedTokensFingerprint]);
+
+  // Process and set commitments
+  useEffect(() => {
+    if (!whitelistedTokensFingerprint) {
+      setLoading(false);
+      return;
+    }
+
+    if (result.isFetched) {
+      setAllCommitments(result.data);
+      setLoading(false);
+    }
+  }, [result.data, result.isFetched, whitelistedTokensFingerprint]);
+
+  const cachedCommitments = useMemo(() => {
+    if (!cache) return [];
+
+    const isFresh = Date.now() - cache.timestamp < CACHE_TIME;
+    const isSameFingerprint =
+      cache.whitelistedTokensFingerprint === whitelistedTokensFingerprint;
+
+    // On initial load when whitelistedTokens is empty, use cached data if it's fresh
+    const isInitialLoad = !whitelistedTokensFingerprint;
+
+    // If whitelistedTokens have loaded and fingerprint changed, don't use cache
+    if (whitelistedTokensFingerprint && !isSameFingerprint) return [];
+
+    return isFresh && (isSameFingerprint || isInitialLoad) ? cache.data : [];
+  }, [cache, whitelistedTokensFingerprint]);
+
+  return useMemo(() => {
+    const isUsingCache = cachedCommitments.length > 0;
+    const isInitialLoad = !!whitelistedTokensFingerprint;
+
+    return {
+      data: isUsingCache ? cachedCommitments : allCommitments,
+      loading: isUsingCache
+        ? false
+        : (isInitialLoad ? false : loading) || !result.isFetched,
+    };
+  }, [
+    allCommitments,
+    cachedCommitments,
+    loading,
+    result.isFetched,
+    whitelistedTokensFingerprint,
+  ]);
 };
