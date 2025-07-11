@@ -25,12 +25,11 @@ import "./opportunityDetails.scss";
 
 import { formatUnits, parseUnits } from "viem";
 
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useChainId } from "wagmi";
 import Button from "../../../components/Button";
 import TransactionButton from "../../../components/TransactionButton";
 import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
 import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
-import { useContracts } from "../../../hooks/useContracts";
 import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
@@ -39,26 +38,24 @@ import { BorrowSwapButton } from "./BorrowSwapButton";
 import Loader from "../../../components/Loader/Loader";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
+import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
 
 const OpportunityDetails = () => {
   const {
     setCurrentStep,
     selectedOpportunity,
     selectedCollateralToken,
-    selectedPrincipalErc20Token,
     setSuccessLoanHash,
     setSuccessfulLoanParams,
-    maxCollateral: maxCollateralFromContext,
     selectedErc20Apy,
     selectedSwapToken,
     borrowSwapTokenInput,
     setBorrowSwapTokenInput,
   } = useGetBorrowSectionContext();
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
+  const chainId = useChainId();
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
-
-  const strategyType = strategyAction;
 
   const isStableView = !isStrategiesSection;
   const matchingCollateralToken = !isStableView
@@ -91,7 +88,6 @@ const OpportunityDetails = () => {
   }
 
   const { isWhitelistedToken } = useGetGlobalPropsContext();
-  const whitelistedToken = isWhitelistedToken(matchingCollateralToken?.address);
   const [staticMaxCollateral, setStaticMaxCollateral] = useState<bigint>();
 
   const isLenderGroup = selectedOpportunity.isLenderGroup;
@@ -138,7 +134,6 @@ const OpportunityDetails = () => {
 
   const {
     displayedPrincipal: displayedPrincipalFromLCFa,
-    isLoading,
     maxCollateral: maxCollateralFromLCFa,
     maxLoanAmount: maxLoanAmountFromLCFa,
     maxLoanAmountNumber: maxLoanAmountNumberFromLCFa,
@@ -269,6 +264,8 @@ const OpportunityDetails = () => {
 
   const { chainName } = useChainData();
 
+  const { getTokenPrice } = useGetTokenPriceFromDerivedETH();
+
   const lenderGroupTransactions = useBorrowFromPool({
     skip: !isLenderGroup,
     commitmentPoolAddress: selectedOpportunity?.lenderAddress ?? "0x",
@@ -277,7 +274,7 @@ const OpportunityDetails = () => {
     collateralTokenAddress: collateralTokenValue.token?.address ?? "0x",
     loanDuration: selectedOpportunity?.maxDuration?.toString(),
     marketId: selectedOpportunity?.marketplaceId,
-    onSuccess: (receipt: any) => {
+    onSuccess: (receipt: string) => {
       // match the structure of a succesful loan from a LCFa so it works with the confirmation screen
       const loanParams = {
         args: [
@@ -288,6 +285,40 @@ const OpportunityDetails = () => {
           },
         ],
       };
+
+      const logBorrowEvent = async () => {
+        if (
+          !receipt ||
+          !collateralTokenValue.token?.address ||
+          !collateralTokenValue.value
+        )
+          return;
+
+        const price = await getTokenPrice(
+          collateralTokenValue.token.address,
+          collateralTokenValue.value
+        );
+
+        if (price) {
+          if (window.__adrsbl?.run) {
+            const adrsblProperties = [
+              { name: "amount", value: collateralTokenValue.value.toString() },
+              {
+                name: "amount_usd",
+                value: price.toString(),
+              },
+              {
+                name: "transaction_id",
+                value: receipt,
+              },
+            ];
+
+            window.__adrsbl.run("user_supply_to_pool", true, adrsblProperties);
+          }
+        }
+      };
+
+      logBorrowEvent().catch(console.error);
 
       setCurrentStep(BorrowSectionSteps.SUCCESS);
       setSuccessLoanHash(receipt);
@@ -475,35 +506,9 @@ const OpportunityDetails = () => {
         imageUrl={principalTokenMetadata?.logo || ""}
         sublabelUpper={
           <span>
-            Duration:{" "}
+            Rollover every{" "}
             {convertSecondsToDays(Number(selectedOpportunity?.maxDuration))}{" "}
             days
-            {(isStableView || strategyAction === STRATEGY_ACTION_ENUM.LONG) && (
-              <>
-                {" • Rollover: "}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  overflow="visible"
-                  x="0px"
-                  y="0px"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 50 50"
-                  className="rollover-svg"
-                >
-                  <g transform="translate(0, 9)">
-                    <path
-                      className="outer"
-                      d="M 25 2 C 12.317 2 2 12.317 2 25 C 2 37.683 12.317 48 25 48 C 37.683 48 48 37.683 48 25 C 48 20.44 46.660281 16.189328 44.363281 12.611328 L 42.994141 14.228516 C 44.889141 17.382516 46 21.06 46 25 C 46 36.579 36.579 46 25 46 C 13.421 46 4 36.579 4 25 C 4 13.421 13.421 4 25 4 C 30.443 4 35.393906 6.0997656 39.128906 9.5097656 L 40.4375 7.9648438 C 36.3525 4.2598437 30.935 2 25 2 z"
-                    ></path>
-                    <path
-                      className="check"
-                      d="M 43.236328 7.7539062 L 23.914062 30.554688 L 15.78125 22.96875 L 14.417969 24.431641 L 24.083984 33.447266 L 44.763672 9.046875 L 43.236328 7.7539062 z"
-                    ></path>
-                  </g>
-                </svg>
-              </>
-            )}
           </span>
         }
         readonly

@@ -107,6 +107,7 @@ const RenderComponent: React.FC = () => {
         isStrategiesSection &&
         isLoop &&
         strategyToken &&
+        isLongStrategy &&
         tokenData.address.toLowerCase() === strategyToken.toLowerCase()
       ) {
         switchChainManual(tokenData.chainId);

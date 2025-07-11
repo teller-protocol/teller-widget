@@ -10,9 +10,7 @@ import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
-
 import "./opportunitiesList.scss";
-
 import { formatUnits, parseUnits } from "viem";
 import { useAccount, useBalance } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
@@ -31,8 +29,9 @@ import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
 import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
-import { useAggregatedAndSortedCommitments } from "../../../hooks/queries/useAggregatedAndSortedCommitments";
-import { useGetTokenImageAndSymbolFromTokenList } from "../../../hooks/useGetTokenImageAndSymbolFromTokenList";
+import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
+import { ALL_USDC_ADDRESSES } from "../../../constants/tokens";
+import { sortCommitmentsByDuration } from "../../../helpers/sortCommitmentsByDuration";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -72,6 +71,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     setMaxCollateral,
     tokensWithCommitments,
     selectedErc20Apy,
+    selectedSwapToken,
   } = useGetBorrowSectionContext();
   const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
   const { address: userAddress } = useAccount();
@@ -98,9 +98,12 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   const { tokenMetadata: principalTokenMetadata } = useGetTokenMetadata(
     opportunity.principalToken?.address ?? ""
   );
-
-  const { getTokenImageAndSymbolFromTokenList } =
-    useGetTokenImageAndSymbolFromTokenList();
+  const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
+    opportunity.collateralToken?.address ?? ""
+  );
+  const { tokenMetadata: finalTokenMetadata } = useGetTokenMetadata(
+    selectedSwapToken?.address ?? ""
+  );
 
   const matchingCollateralToken = !isStableView
     ? tokensWithCommitments.find(
@@ -155,16 +158,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         )
       ).toFixed(2)
     ),
-    token:
-      userTokens.find(
-        (token) =>
-          token.address?.toLowerCase() ===
-          opportunity.collateralToken?.address?.toLowerCase()
-      )?.logo ??
-      getTokenImageAndSymbolFromTokenList(
-        opportunity.collateralToken?.address ?? ""
-      )?.image ??
-      "",
+    token: collateralTokenMetadata?.logo,
   };
 
   const displayLoanAmountData = {
@@ -177,6 +171,23 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
       ).toFixed(2)
     ),
     token: principalTokenMetadata?.logo,
+  };
+
+  const { borrowQuoteExactInput: finalValueBI } = useGetBorrowSwapData({
+    principalTokenAddress: opportunity.principalToken?.address,
+    principalAmount: commitmentMax.maxLoanAmount.toString(),
+    finalTokenAddress: selectedSwapToken?.address,
+  });
+
+  const displayFinalAmountData = {
+    formattedAmount: finalValueBI
+      ? numberWithCommasAndDecimals(
+          Number(
+            formatUnits(finalValueBI, selectedSwapToken?.decimals ?? 0)
+          ).toFixed(2)
+        )
+      : "",
+    token: finalTokenMetadata?.logo,
   };
 
   const handleOnOpportunityClick = () => {
@@ -227,7 +238,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
         Deposit{" "}
         <DataPill
           label={displayCollateralAmountData.formattedAmount}
-          logo={displayCollateralAmountData.token}
+          logo={displayCollateralAmountData.token ?? ""}
         />{" "}
         {strategyAction === STRATEGY_ACTION_ENUM.SHORT
           ? " to short "
@@ -249,8 +260,8 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
           />{" "}
           into{" "}
           <DataPill
-            label={displayCollateralAmountData.formattedAmount}
-            logo={displayCollateralAmountData.token ?? ""}
+            label={displayFinalAmountData.formattedAmount}
+            logo={displayFinalAmountData.token ?? ""}
           />
           <img src={caret} />
         </div>
@@ -268,7 +279,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
               ).toFixed(2)} %`}
             />
             <OpportunityListDataItem
-              label="Duration"
+              label="Rollover"
               value={`${Number(opportunity.maxDuration) / 86400} days`}
             />
             {(!isStableView ||
@@ -321,6 +332,8 @@ const OpportunitiesList: React.FC = () => {
     strategyAction,
     isTradeMode,
     setStrategyAction,
+    switchChainManual,
+    isLoop,
   } = useGetGlobalPropsContext();
 
   const strategyType = strategyAction;
@@ -347,13 +360,13 @@ const OpportunitiesList: React.FC = () => {
     selectedPrincipalErc20Token?.address
   );
 
-  const data = useMemo(() => {
+  const data = useMemo<{ commitments: CommitmentType[] }>(() => {
     if (isStableView) {
       if (lcfaCommitments && lenderGroupsCommitments) {
         return {
           commitments: [
-            ...lcfaCommitments.commitments,
             ...lenderGroupsCommitments,
+            ...lcfaCommitments.commitments,
           ],
         };
       }
@@ -373,33 +386,46 @@ const OpportunitiesList: React.FC = () => {
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;
 
-  const sortedCommitments = useAggregatedAndSortedCommitments(data.commitments);
+  const sortedCommitments = useMemo(
+    () => sortCommitmentsByDuration(data.commitments),
+    [data.commitments]
+  );
 
   useEffect(() => {
     const shouldSkipOpportunitySelection =
-      (isStrategiesSection || isTradeMode) &&
-      (strategyAction === STRATEGY_ACTION_ENUM.LONG ||
-        strategyAction === STRATEGY_ACTION_ENUM.SHORT) &&
+      isLoop &&
+      strategyAction === STRATEGY_ACTION_ENUM.LONG &&
       (selectedCollateralToken || selectedPrincipalErc20Token) &&
       sortedCommitments.length > 0 &&
       !isLoading;
 
     if (shouldSkipOpportunitySelection) {
-      const bestCommitment = sortedCommitments[0];
+      let bestCommitment = sortedCommitments[0];
+      if (
+        !ALL_USDC_ADDRESSES.includes(
+          bestCommitment?.principalTokenAddress as AddressStringType
+        )
+      ) {
+        bestCommitment =
+          sortedCommitments.find((commitment) =>
+            ALL_USDC_ADDRESSES.includes(
+              commitment.principalTokenAddress as AddressStringType
+            )
+          ) ?? bestCommitment;
+      }
       if (bestCommitment) {
         setSelectedOpportunity(bestCommitment);
         setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
       }
     }
   }, [
-    isStrategiesSection,
     strategyAction,
     selectedCollateralToken,
     sortedCommitments,
     isLoading,
     setSelectedOpportunity,
     setCurrentStep,
-    isTradeMode,
+    isLoop,
     selectedPrincipalErc20Token,
   ]);
 
@@ -452,7 +478,7 @@ const OpportunitiesList: React.FC = () => {
           <>
             {isLoading ? (
               <Loader />
-            ) : data.commitments.length === 0 ? (
+            ) : sortedCommitments.length === 0 ? (
               <div
                 className="empty-opportunities"
                 style={{
@@ -509,7 +535,7 @@ const OpportunitiesList: React.FC = () => {
                 />
               </div>
             ) : (
-              data.commitments.map((commitment, index) => (
+              sortedCommitments.map((commitment, index) => (
                 <OpportunityListItem opportunity={commitment} key={index} />
               ))
             )}
