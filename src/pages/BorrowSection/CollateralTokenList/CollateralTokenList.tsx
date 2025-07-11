@@ -164,18 +164,37 @@ const CollateralTokenList: React.FC = () => {
       .sort((a, b) => a.symbol.localeCompare(b.symbol)),
 
     ...tokensWithCommitments
-      .filter(
-        (token) =>
-          parseFloat(token?.balance ?? "0") <= 0 &&
-          token?.symbol.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          loanRewards.some(
-            (reward) =>
-              reward.network_id === token.chainId &&
-              reward.collateral_address.toLowerCase() ===
-                token.address.toLowerCase()
-          )
-      )
-      .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+    .filter(
+      (token) =>
+        parseFloat(token?.balance ?? "0") <= 0 &&
+        token?.symbol.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        loanRewards.some(
+          (reward) =>
+            reward.network_id === token.chainId &&
+            reward.collateral_address.toLowerCase() === token.address.toLowerCase()
+        )
+    )
+    .sort((a, b) => {
+      const rewardA = loanRewards.find(
+        (r) =>
+          r.network_id === a.chainId &&
+          r.collateral_address.toLowerCase() === a.address.toLowerCase()
+      );
+      const rewardB = loanRewards.find(
+        (r) =>
+          r.network_id === b.chainId &&
+          r.collateral_address.toLowerCase() === b.address.toLowerCase()
+      );
+
+      const percentA = rewardA?.reward_percent ?? 0;
+      const percentB = rewardB?.reward_percent ?? 0;
+
+      if (percentB !== percentA) {
+        return percentB - percentA; // descending order of reward_percent
+      }
+
+      return a.symbol.localeCompare(b.symbol); // alphabetical fallback
+    }),
 
     ...tokensWithCommitments
       .filter(
