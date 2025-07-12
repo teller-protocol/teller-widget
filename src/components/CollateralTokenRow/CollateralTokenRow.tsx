@@ -4,7 +4,8 @@ import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { mapChainIdToName } from "../../constants/chains";
 import "./collateralTokenRow.scss";
- import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import DataPill from "../../components/DataPill";
 
 interface CollateralTokenSelectProps {
   token: UserToken;
@@ -35,6 +36,12 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
           )}
         </span>
       </div>
+      {token.rewardPercent !== undefined && (
+        <DataPill
+          variant="small"
+          label={`+${token.rewardPercent}% APR Reward ✨`}
+        />
+      )}
     </div>
   );
 };
