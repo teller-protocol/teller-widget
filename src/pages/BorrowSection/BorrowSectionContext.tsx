@@ -20,7 +20,6 @@ import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUS
 import { Address } from "viem";
 import { TokenInputType } from "../../components/TokenInput/TokenInput";
 import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
-import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 import { getLoanRewards } from "../../services/borrowRewardsApi";
 
 export type UniswapData = {
@@ -126,9 +125,11 @@ export const BorrowSectionContextProvider: React.FC<
   const [loanRewards, setLoanRewards] = useState<any[]>([]);
 
   useEffect(() => {
-    getLoanRewards().then((res) => {
-      setLoanRewards(res);
-    });
+    getLoanRewards()
+      .then((res) => {
+        setLoanRewards(res);
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {

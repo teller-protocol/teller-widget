@@ -1,3 +1,4 @@
+import DataPill from "../../components/DataPill";
 import { mapChainIdToName } from "../../constants/chains";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import "./collateralTokenRow.scss";
@@ -5,8 +6,6 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { useTokenLogoAndSymbolWithFallback } from "../../hooks/useTokenLogoAndSymbolWithFallback";
 import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
 import TokenLogo from "../TokenLogo";
-import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
-import DataPill from "../../components/DataPill";
 
 interface CollateralTokenSelectProps {
   token: UserToken;
