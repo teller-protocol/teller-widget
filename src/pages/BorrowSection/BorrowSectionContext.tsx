@@ -26,6 +26,7 @@ import { TokenInputType } from "../../components/TokenInput/TokenInput";
 import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
 import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 import { getLoanRewards } from "../../services/borrowRewardsApi";
+import { uniqueByField } from "../../helpers/uniqueByField";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -209,9 +210,10 @@ export const BorrowSectionContextProvider: React.FC<
       setSelectedPrincipalErc20Token,
       selectedSwapToken,
       setSelectedSwapToken,
-      tokensWithCommitments: address
-        ? tokensWithCommitments
-        : allWhiteListedTokens,
+      tokensWithCommitments: uniqueByField(
+        address ? tokensWithCommitments : allWhiteListedTokens,
+        "address"
+      ),
       tokensWithCommitmentsLoading:
         isLoadingAllWhiteListedTokens ||
         tokensWithCommitmentsLoading ||
