@@ -39,6 +39,7 @@ const RenderComponent: React.FC = () => {
     isSwitchingBetweenWidgetActions,
     setIsSwitchingBetweenWidgetActions,
     shouldResetSelections,
+    switchChainManual,
   } = useGetGlobalPropsContext();
 
   const {
@@ -109,10 +110,13 @@ const RenderComponent: React.FC = () => {
         isLongStrategy &&
         tokenData.address.toLowerCase() === strategyToken.toLowerCase()
       ) {
-        setSelectedSwapToken(tokenData);
-        setSelectedCollateralToken(tokenData);
-        setSelectedPrincipalErc20Token(tokenData);
-        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+        switchChainManual(tokenData.chainId);
+        setTimeout(() => {
+          setSelectedSwapToken(tokenData);
+          setSelectedCollateralToken(tokenData);
+          setSelectedPrincipalErc20Token(tokenData);
+          setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+        });
         return;
       }
 
@@ -121,9 +125,12 @@ const RenderComponent: React.FC = () => {
         return;
       }
 
-      setSelectedCollateralToken(tokenData);
-      setSelectedPrincipalErc20Token(tokenData);
-      setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      switchChainManual(tokenData.chainId);
+      setTimeout(() => {
+        setSelectedCollateralToken(tokenData);
+        setSelectedPrincipalErc20Token(tokenData);
+        setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
+      });
     },
     [
       setSelectedSwapToken,
@@ -133,6 +140,7 @@ const RenderComponent: React.FC = () => {
       isLoop,
       isStrategiesSection,
       strategyToken,
+      switchChainManual,
     ]
   );
 

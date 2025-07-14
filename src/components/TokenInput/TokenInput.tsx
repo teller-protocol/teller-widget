@@ -1,9 +1,5 @@
-import { useAccount, useBalance, useReadContract } from "wagmi";
-import { UserToken } from "../../hooks/useGetUserTokens";
-import { AddressStringType } from "../../types/addressStringType";
-import { erc20Abi, formatUnits, parseUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { SubgraphTokenType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
-
 import "./tokenInput.scss";
 import TokenLogo from "../TokenLogo";
 import defaultTokenImage from "../../assets/generic_token-icon.svg";

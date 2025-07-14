@@ -1,15 +1,11 @@
-// ShortErc20TokenRow.tsx
 import React from "react";
 import { UserToken } from "../../hooks/useGetUserTokens";
 import TokenLogo from "../TokenLogo";
-import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
-import DataPill from "../../components/DataPill";
 import "./shortErc20Row.scss";
-import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
-import Loader from "../Loader";
 import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
 import { mapChainIdToName } from "../../constants/chains";
+import { useTokenLogoAndSymbolWithFallback } from "../../hooks/useTokenLogoAndSymbolWithFallback";
 
 interface ShortErc20TokenSelectProps {
   token: UserToken;
@@ -20,17 +16,16 @@ const ShortErc20TokenRow: React.FC<ShortErc20TokenSelectProps> = ({
   token,
   onClick,
 }) => {
-  const { uniswapDataMap } = useGetBorrowSectionContext();
-  const logoUrl = token.logo || defaultTokenImage;
+  const logoAndSymbol = useTokenLogoAndSymbolWithFallback(token);
 
-  const uniswapData = uniswapDataMap[token.address];
+  if (!logoAndSymbol) return null;
 
   return (
     <div className="short-erc20-token-row" onClick={() => onClick?.(token)}>
-      <TokenLogo logoUrl={logoUrl} size={32} />
+      <TokenLogo logoUrl={logoAndSymbol.logo} size={32} />
       <div className="token-balance-info">
         <div className="symbol-data-row">
-          <span className="paragraph">{token.symbol}</span>
+          <span className="paragraph">{logoAndSymbol.symbol}</span>
         </div>
         <span className="section-sub-title">
           {token.chainId ? (
@@ -40,7 +35,7 @@ const ShortErc20TokenRow: React.FC<ShortErc20TokenSelectProps> = ({
             </span>
           ) : (
             `Short up to: ${numberWithCommasAndDecimals(token.balance)} ${
-              token.symbol
+              logoAndSymbol.symbol
             }`
           )}
         </span>

@@ -1,5 +1,3 @@
-// BorrowSectionContext.tsx
-
 import React, {
   createContext,
   ReactNode,
@@ -16,15 +14,12 @@ import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollater
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
 import { useGetCommitmentsForErc20Tokens } from "../../hooks/useGetCommitmentsForErc20Tokens";
 import { UserToken } from "../../hooks/useGetUserTokens";
-
-// Import your existing Uniswap hooks
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
 import { Address } from "viem";
 import { TokenInputType } from "../../components/TokenInput/TokenInput";
 import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
-import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
 import { getLoanRewards } from "../../services/borrowRewardsApi";
 
 export type UniswapData = {
@@ -89,9 +84,6 @@ export const BorrowSectionContextProvider: React.FC<
     useGetGlobalPropsContext();
 
   const { address } = useAccount();
-  const chainId = useChainId();
-
-  const { isLoading: isTokenListLoading } = useGetTokenList();
 
   const [currentStep, setCurrentStep] = useState<BorrowSectionSteps>(
     singleWhitelistedToken ||
@@ -133,9 +125,11 @@ export const BorrowSectionContextProvider: React.FC<
   const [loanRewards, setLoanRewards] = useState<any[]>([]);
 
   useEffect(() => {
-    getLoanRewards().then((res) => {
-      setLoanRewards(res);
-    });
+    getLoanRewards()
+      .then((res) => {
+        setLoanRewards(res);
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -195,16 +189,7 @@ export const BorrowSectionContextProvider: React.FC<
       currentStep,
       setCurrentStep,
       selectedCollateralToken,
-      setSelectedCollateralToken: (token: UserToken | undefined) => {
-        setSelectedCollateralToken(
-          token
-            ? {
-                ...token,
-                chainId: token?.chainId || chainId,
-              }
-            : undefined
-        );
-      },
+      setSelectedCollateralToken,
       selectedPrincipalErc20Token,
       setSelectedPrincipalErc20Token,
       selectedSwapToken,
@@ -212,10 +197,9 @@ export const BorrowSectionContextProvider: React.FC<
       tokensWithCommitments: address
         ? tokensWithCommitments
         : allWhiteListedTokens,
-      tokensWithCommitmentsLoading:
-        isLoadingAllWhiteListedTokens ||
-        tokensWithCommitmentsLoading ||
-        isTokenListLoading,
+      tokensWithCommitmentsLoading: address
+        ? tokensWithCommitmentsLoading
+        : isLoadingAllWhiteListedTokens,
       selectedOpportunity,
       setSelectedOpportunity,
       successfulLoanParams,
@@ -255,8 +239,6 @@ export const BorrowSectionContextProvider: React.FC<
       loanRewards,
       selectedErc20Apy,
       borrowSwapTokenInput,
-      chainId,
-      isTokenListLoading,
     ]
   );
 

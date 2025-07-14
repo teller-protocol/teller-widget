@@ -53,7 +53,7 @@ export type GlobalPropsContextType = {
   borrowToken?: string;
   principalTokenForPair?: string;
   isLoop?: boolean;
-  switchChainManual: (chainId: number, resetSelections?: boolean) => void;
+  switchChainManual: (chainId?: number, resetSelections?: boolean) => void;
   shouldResetSelections: boolean;
 };
 
@@ -165,11 +165,11 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   const { switchChain } = useSwitchChain();
   const [shouldResetSelections, setShouldResetSelections] = useState(false);
   const switchChainManual = useCallback(
-    (toChainId: number, resetSelections?: boolean) => {
-      if (chainId !== toChainId) {
+    (toChainId?: number, resetSelections?: boolean) => {
+      if (chainId !== (toChainId || 1)) {
         setShouldResetSelections(resetSelections || false);
         setTimeout(() => {
-          switchChain({ chainId: toChainId });
+          switchChain({ chainId: toChainId || 1 });
         });
       }
     },
