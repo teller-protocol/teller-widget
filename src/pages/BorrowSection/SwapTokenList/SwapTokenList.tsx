@@ -109,14 +109,16 @@ const SwapTokenList: React.FC = () => {
           .filter(
             (token) =>
               parseFloat(token?.balance) > 0 &&
-              token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+              (token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                token.name.toLowerCase().includes(searchQuery.toLowerCase()))
           )
           .sort((a, b) => a.symbol.localeCompare(b.symbol)),
         ...mergedTokens
           .filter(
             (token) =>
               parseFloat(token?.balance) <= 0 &&
-              token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+              (token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                token.name.toLowerCase().includes(searchQuery.toLowerCase()))
           )
           .sort((a, b) => a.symbol.localeCompare(b.symbol)),
       ];
