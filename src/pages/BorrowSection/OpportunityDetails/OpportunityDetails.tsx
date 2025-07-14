@@ -377,6 +377,48 @@ const OpportunityDetails = () => {
 
   const isLoadingBorrowSwap = !borrowSwapPaths || !borrowQuoteExactInput;
 
+  const [rewardTokenInput, setRewardTokenInput] = useState<TokenInputType>({
+    value: 0,
+    valueBI: 0n,
+  });
+
+  useEffect(() => {
+    const run = async () => {
+      const rewardToken = selectedCollateralToken?.rewardData?.reward_token_data;
+      const rewardPercent = selectedCollateralToken?.rewardPercent;
+      const duration = Number(selectedOpportunity?.maxDuration);
+      const maxLoanAmount = maxLoanAmountNumber;
+
+      if (!rewardToken || !rewardPercent || !duration || !maxLoanAmount) return;
+
+      const rewardTokenPriceUsd = await getTokenPrice(rewardToken.address, 1);
+      if (!rewardTokenPriceUsd || rewardTokenPriceUsd <= 0) return;
+
+      const durationFraction = duration / (365 * 24 * 60 * 60); // Convert seconds to years
+      const rewardUsdValue =
+        maxLoanAmount * (rewardPercent / 100) * durationFraction;
+      const rewardTokenValue = rewardUsdValue / rewardTokenPriceUsd;
+
+      setRewardTokenInput({
+        token: rewardToken,
+        value: Number(rewardTokenValue.toFixed(rewardToken.decimals ?? 18)),
+        valueBI: parseUnits(
+          rewardTokenValue.toFixed(rewardToken.decimals ?? 18),
+          rewardToken.decimals ?? 18
+        ),
+      });
+    };
+
+    run().catch(console.error);
+  }, [
+    selectedCollateralToken?.rewardData,
+    selectedCollateralToken?.rewardPercent,
+    selectedOpportunity?.maxDuration,
+    maxLoanAmountNumber,
+    getTokenPrice,
+  ]);
+
+
   return (
     <div className="opportunity-details">
       {isTradeMode ? (
@@ -513,6 +555,39 @@ const OpportunityDetails = () => {
         }
         readonly
       />
+      {selectedCollateralToken?.rewardData?.pool?.toLowerCase() ===
+        selectedOpportunity?.lenderAddress?.toLowerCase() && (
+        <div style={{ marginTop: "1rem" }}>
+          <TokenInput
+            tokenValue={rewardTokenInput}
+            label={
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                Rewards
+                <Tooltip
+                  description={`Borrow and earn ${selectedCollateralToken?.rewardData?.reward_token_data?.symbol} rewards instantly.`}
+                  icon={
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="tooltip-svg"
+                      style={{ position: "relative", top: "1px" }}
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                      <path d="M12 16v-4" strokeWidth="2" />
+                      <circle cx="12" cy="8" r="1" />
+                    </svg>
+                  }
+                />
+              </div>
+            }
+            imageUrl={selectedCollateralToken?.rewardData?.reward_token_data?.logo}
+            readonly
+            sublabelUpper={`+${selectedCollateralToken?.rewardPercent}% APR Reward ✨`}
+          />
+        </div>
+      )}
 
       {isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG && (
         <div>

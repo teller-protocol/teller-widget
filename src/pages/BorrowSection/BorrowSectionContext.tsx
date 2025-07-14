@@ -20,6 +20,8 @@ import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUS
 import { Address } from "viem";
 import { TokenInputType } from "../../components/TokenInput/TokenInput";
 import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
+import { useGetTokenList } from "../../hooks/queries/useGetTokenList";
+import { getLoanRewards } from "../../services/borrowRewardsApi";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -62,6 +64,7 @@ export type BorrowSectionContextType = {
   principalErc20Tokens: UserToken[];
   erc20sWithCommitmentsLoading: boolean;
   uniswapDataMap: Record<string, UniswapData>;
+  loanRewards: any[];
   selectedErc20Apy: string;
   borrowSwapTokenInput?: TokenInputType;
   setBorrowSwapTokenInput?: (tokenInput: TokenInputType) => void;
@@ -119,6 +122,14 @@ export const BorrowSectionContextProvider: React.FC<
 
   const { data: allWhiteListedTokens, loading: isLoadingAllWhiteListedTokens } =
     useGetAllWLCommitmentsAcrossNetworks();
+
+  const [loanRewards, setLoanRewards] = useState<any[]>([]);
+
+  useEffect(() => {
+    getLoanRewards().then((res) => {
+      setLoanRewards(res);
+    });
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -201,6 +212,7 @@ export const BorrowSectionContextProvider: React.FC<
       principalErc20Tokens,
       erc20sWithCommitmentsLoading,
       uniswapDataMap,
+      loanRewards,
       selectedErc20Apy,
       borrowSwapTokenInput,
       setBorrowSwapTokenInput,
@@ -223,6 +235,7 @@ export const BorrowSectionContextProvider: React.FC<
       principalErc20Tokens,
       erc20sWithCommitmentsLoading,
       uniswapDataMap,
+      loanRewards,
       selectedErc20Apy,
       borrowSwapTokenInput,
     ]

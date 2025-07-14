@@ -5,6 +5,8 @@ import { UserToken } from "../../hooks/useGetUserTokens";
 import { useTokenLogoAndSymbolWithFallback } from "../../hooks/useTokenLogoAndSymbolWithFallback";
 import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
 import TokenLogo from "../TokenLogo";
+import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import DataPill from "../../components/DataPill";
 
 interface CollateralTokenSelectProps {
   token: UserToken;
@@ -45,6 +47,12 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
           )}
         </span>
       </div>
+      {token.rewardPercent !== undefined && (
+        <DataPill
+          variant="small"
+          label={`+${token.rewardPercent}% APR Reward ✨`}
+        />
+      )}
     </div>
   );
 };
