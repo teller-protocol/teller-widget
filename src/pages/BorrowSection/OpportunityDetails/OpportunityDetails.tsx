@@ -584,7 +584,7 @@ const OpportunityDetails = () => {
             }
             imageUrl={selectedCollateralToken?.rewardData?.reward_token_data?.logo}
             readonly
-            sublabelUpper={`+${selectedCollateralToken?.rewardPercent}% APR Reward ✨`}
+            sublabelUpper={`+${selectedCollateralToken?.rewardPercent}% Reward ✨`}
           />
         </div>
       )}
