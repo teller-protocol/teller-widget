@@ -12,7 +12,7 @@ import {
 } from "../BorrowSectionContext";
 import "./opportunitiesList.scss";
 import { formatUnits, parseUnits } from "viem";
-import { useAccount, useBalance, useChainId } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import caret from "../../../assets/right-caret.svg";
 import DataPill from "../../../components/DataPill";
 import Loader from "../../../components/Loader";
@@ -328,7 +328,6 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
 
 const OpportunitiesList: React.FC = () => {
   const { address: userAddress } = useAccount();
-  const chainId = useChainId();
 
   const {
     selectedCollateralToken,
@@ -347,16 +346,6 @@ const OpportunitiesList: React.FC = () => {
     switchChainManual,
     isLoop,
   } = useGetGlobalPropsContext();
-
-  useEffect(() => {
-    if (
-      !chainId ||
-      (selectedCollateralToken?.chainId &&
-        chainId !== selectedCollateralToken.chainId)
-    ) {
-      switchChainManual(selectedCollateralToken?.chainId ?? 1);
-    }
-  }, [chainId, selectedCollateralToken, switchChainManual]);
 
   const strategyType = strategyAction;
 

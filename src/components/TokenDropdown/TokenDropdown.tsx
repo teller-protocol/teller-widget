@@ -1,14 +1,11 @@
 import { useState } from "react";
 import cx from "classnames";
 import { UserToken } from "../../hooks/useGetUserTokens";
-import { BORROW_TOKEN_TYPE_ENUM } from "../../pages/BorrowSection/CollateralTokenList/CollateralTokenList";
 import TokenLogo from "../TokenLogo";
-import defaultTokenImage from "../../assets/generic_token-icon.svg";
 import "./tokenDropdown.scss";
 import { useGetBorrowSectionContext } from "../../pages/BorrowSection/BorrowSectionContext";
 import {
   useGetGlobalPropsContext,
-  WIDGET_ACTION_ENUM,
   STRATEGY_ACTION_ENUM,
 } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
@@ -16,6 +13,7 @@ import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
 import { Icon } from "@iconify/react";
 import { mapChainIdToName } from "../../constants/chains";
 import { mapChainToImage } from "../ChainSwitch/ChainSwitch";
+import { useTokenLogoAndSymbolWithFallback } from "../../hooks/useTokenLogoAndSymbolWithFallback";
 
 interface TokenDropdownProps {
   tokens: UserToken[];
@@ -31,7 +29,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
   token,
   onClick,
 }) => {
-  const logoUrl = token?.logo ? token?.logo : defaultTokenImage;
+  const logoAndSymbol = useTokenLogoAndSymbolWithFallback(token);
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
@@ -76,14 +74,19 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
         },
       })
     );
-    onClick?.(token);
+    onClick?.({
+      ...token,
+      ...logoAndSymbol,
+    });
   };
+
+  if (!logoAndSymbol) return null;
 
   return (
     <div className="token-dropdown--row" onClick={handleOnDropdownRowClick}>
-      <TokenLogo logoUrl={logoUrl} size={32} />
+      <TokenLogo logoUrl={logoAndSymbol.logo} size={32} />
       <div className="token-info">
-        <div className="paragraph">{token?.symbol}</div>
+        <div className="paragraph">{logoAndSymbol.symbol}</div>
         <div className="section-sub-title">
           {isDisconnectedView ? (
             <span className="chain-info">
@@ -92,7 +95,7 @@ const TokenDropdownRow: React.FC<TokenDropdownButtonProps> = ({
             </span>
           ) : (
             `${numberWithCommasAndDecimals(subtitleData.value)} ${
-              token?.symbol
+              logoAndSymbol.symbol
             }`
           )}
         </div>
@@ -109,16 +112,23 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const { setSelectedCollateralToken, setSelectedPrincipalErc20Token } =
     useGetBorrowSectionContext();
-  const { singleWhitelistedToken, strategyAction } = useGetGlobalPropsContext();
+  const { singleWhitelistedToken, strategyAction, switchChainManual } =
+    useGetGlobalPropsContext();
 
   const { isStrategiesSection } = useGetGlobalPropsContext();
 
   const onTokenDropdownRowClick = (token: UserToken) => {
     if (!isStrategiesSection) {
-      setSelectedCollateralToken(token);
+      switchChainManual(token.chainId);
+      setTimeout(() => {
+        setSelectedCollateralToken(token);
+      });
     } else {
       if (strategyAction === STRATEGY_ACTION_ENUM.LONG) {
-        setSelectedCollateralToken(token);
+        switchChainManual(token.chainId);
+        setTimeout(() => {
+          setSelectedCollateralToken(token);
+        });
       } else {
         setSelectedPrincipalErc20Token(token);
       }
