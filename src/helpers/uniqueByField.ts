@@ -9,6 +9,9 @@ export function uniqueByField<T extends Record<string, any>>(
     if (!item) return false;
 
     const value = item[field];
+
+    if (!value) return false;
+
     if (seen.has(value)) return false;
     seen.add(value);
     return true;
