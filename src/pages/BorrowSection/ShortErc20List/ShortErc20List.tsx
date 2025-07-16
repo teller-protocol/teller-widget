@@ -23,8 +23,10 @@ const ShortErc20List: React.FC<{ searchQuery?: string }> = ({
   const { address } = useAccount();
 
   const filteredTokens = principalErc20Tokens
-    .filter((token) =>
-      token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter(
+      (token) =>
+        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .map((token) => ({
       ...token,

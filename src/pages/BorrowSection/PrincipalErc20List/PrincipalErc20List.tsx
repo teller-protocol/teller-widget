@@ -21,8 +21,10 @@ const PrincipalErc20List: React.FC<{ searchQuery?: string }> = ({
     erc20sWithCommitmentsLoading: erc20Loading,
   } = useGetBorrowSectionContext();
 
-  const filteredTokens = principalErc20Tokens.filter((token) =>
-    token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTokens = principalErc20Tokens.filter(
+    (token) =>
+      token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      token.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const onPrincipalErc20TokenSelected = (token: UserToken) => {
