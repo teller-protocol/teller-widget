@@ -30,8 +30,7 @@ import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPools
 import { AddressStringType } from "../../../types/addressStringType";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
-import { ALL_USDC_ADDRESSES } from "../../../constants/tokens";
-import { sortCommitmentsByDuration } from "../../../helpers/sortCommitmentsByDuration";
+import { sortCommitments } from "../../../helpers/sortCommitments";
 
 interface OpportunityListItemProps {
   opportunity: CommitmentType;
@@ -398,7 +397,7 @@ const OpportunitiesList: React.FC = () => {
     : isErc20Loading;
 
   const sortedCommitments = useMemo(
-    () => sortCommitmentsByDuration(data.commitments),
+    () => sortCommitments(data.commitments),
     [data.commitments]
   );
 
@@ -411,19 +410,8 @@ const OpportunitiesList: React.FC = () => {
       !isLoading;
 
     if (shouldSkipOpportunitySelection) {
-      let bestCommitment = sortedCommitments[0];
-      if (
-        !ALL_USDC_ADDRESSES.includes(
-          bestCommitment?.principalTokenAddress as AddressStringType
-        )
-      ) {
-        bestCommitment =
-          sortedCommitments.find((commitment) =>
-            ALL_USDC_ADDRESSES.includes(
-              commitment.principalTokenAddress as AddressStringType
-            )
-          ) ?? bestCommitment;
-      }
+      const bestCommitment = sortedCommitments[0];
+
       if (bestCommitment) {
         setSelectedOpportunity(bestCommitment);
         setCurrentStep(BorrowSectionSteps.OPPORTUNITY_DETAILS);
