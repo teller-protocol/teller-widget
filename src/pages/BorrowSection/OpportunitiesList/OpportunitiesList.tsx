@@ -313,7 +313,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                 label=""
                 value={
                   <DataPill
-                    label={`+${selectedCollateralToken?.rewardPercent}% APR Reward ✨`}
+                    label={`+${selectedCollateralToken?.rewardPercent}% Reward ✨`}
                   />
                 }
               />
