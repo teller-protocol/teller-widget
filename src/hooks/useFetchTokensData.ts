@@ -37,7 +37,7 @@ export const useGetTokensData = () => {
         return {
           address: tokenAddress,
           name: metadata.name ?? "",
-          symbol: metadata.symbol ?? "",
+          symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
           logo: metadata.logo ?? imageAndSymbol?.image ?? "",
           balance: "0", // Default balance as 0 since it's not fetched here
           balanceBigInt: "0",
