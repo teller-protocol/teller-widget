@@ -8,7 +8,10 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 
-const cacheKeyPrefix = "commitmentsForUserTokens";
+const cacheKeyPrefix = (cacheKey: string) =>
+  cacheKey
+    ? `commitmentsForUserTokens-${cacheKey}`
+    : "commitmentsForUserTokens";
 const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 interface Commitment {
@@ -33,7 +36,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
   const graphURL = useGraphURL();
   const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
-  const { userTokens } = useGetGlobalPropsContext();
+  const { userTokens, cacheKey } = useGetGlobalPropsContext();
   const { address } = useAccount();
 
   const [tokensWithCommitments, setTokensWithCommitments] = useState<
@@ -153,7 +156,7 @@ export const useGetCommitmentsForUserTokens = () => {
 
   // Load cache from localStorage once
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix);
+    const lsItem = localStorage.getItem(cacheKeyPrefix(cacheKey));
     if (lsItem) {
       try {
         const parsed: CommitmentsCache = JSON.parse(lsItem);
@@ -162,12 +165,12 @@ export const useGetCommitmentsForUserTokens = () => {
         console.error("Failed to parse localStorage cache:", e);
       }
     }
-  }, []);
+  }, [cacheKey]);
 
   // Persist cache to localStorage on change
   useEffect(() => {
-    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
-  }, [cache]);
+    localStorage.setItem(cacheKeyPrefix(cacheKey), JSON.stringify(cache));
+  }, [cache, cacheKey]);
 
   // Update in-memory cache when new commitments are available
   useEffect(() => {
