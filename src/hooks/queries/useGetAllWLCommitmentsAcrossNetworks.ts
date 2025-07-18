@@ -8,10 +8,7 @@ import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGr
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetTokensData } from "../useFetchTokensData";
 
-const cacheKeyPrefix = (cacheKey: string) =>
-  cacheKey
-    ? `commitmentsAcrossNetworks-${cacheKey}`
-    : "commitmentsAcrossNetworks";
+const cacheKeyPrefix = "commitmentsAcrossNetworks";
 const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 type CachedCommitments = {
@@ -71,17 +68,21 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   );
 
   const whitelistedTokensFingerprint = useMemo(() => {
-    return subpgraphIds
+    let fingerprint = subpgraphIds
       .map((id) => {
         const tokens = whitelistedTokens?.[id] || [];
         return `${id}:${tokens.join(",")}`;
       })
       .join("|");
-  }, [whitelistedTokens, subpgraphIds]);
+
+    if (cacheKey) fingerprint = `${cacheKey}//${fingerprint}`;
+
+    return fingerprint;
+  }, [whitelistedTokens, subpgraphIds, cacheKey]);
 
   // Load cache from localStorage once
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix(cacheKey));
+    const lsItem = localStorage.getItem(cacheKeyPrefix);
     if (lsItem) {
       try {
         const parsed: CommitmentsCache = JSON.parse(lsItem);
@@ -90,12 +91,12 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
         console.error("Failed to parse localStorage cache:", e);
       }
     }
-  }, [cacheKey]);
+  }, []);
 
   // Persist cache to localStorage on change
   useEffect(() => {
-    localStorage.setItem(cacheKeyPrefix(cacheKey), JSON.stringify(cache));
-  }, [cache, cacheKey]);
+    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
+  }, [cache]);
 
   const result = useQueries({
     queries: subpgraphIds.map((id) => ({

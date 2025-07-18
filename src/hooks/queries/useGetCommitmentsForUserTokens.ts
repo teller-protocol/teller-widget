@@ -8,10 +8,7 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 
-const cacheKeyPrefix = (cacheKey: string) =>
-  cacheKey
-    ? `commitmentsForUserTokens-${cacheKey}`
-    : "commitmentsForUserTokens";
+const cacheKeyPrefix = "commitmentsForUserTokens";
 const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 interface Commitment {
@@ -90,13 +87,15 @@ export const useGetCommitmentsForUserTokens = () => {
     [userTokens, address]
   );
 
-  const userTokensFingerprint = useMemo(
-    () =>
-      address
-        ? userTokens.map((t) => `${t.address}:${t.balance}`).join(",")
-        : "",
-    [userTokens, address]
-  );
+  const userTokensFingerprint = useMemo(() => {
+    let fingerprint = address
+      ? userTokens.map((t) => `${t.address}:${t.balance}`).join(",")
+      : "";
+
+    if (cacheKey) fingerprint = `${cacheKey}//${fingerprint}`;
+
+    return fingerprint;
+  }, [userTokens, address, cacheKey]);
 
   const {
     data: userTokenCommitmentsData,
@@ -156,7 +155,7 @@ export const useGetCommitmentsForUserTokens = () => {
 
   // Load cache from localStorage once
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix(cacheKey));
+    const lsItem = localStorage.getItem(cacheKeyPrefix);
     if (lsItem) {
       try {
         const parsed: CommitmentsCache = JSON.parse(lsItem);
@@ -165,12 +164,12 @@ export const useGetCommitmentsForUserTokens = () => {
         console.error("Failed to parse localStorage cache:", e);
       }
     }
-  }, [cacheKey]);
+  }, []);
 
   // Persist cache to localStorage on change
   useEffect(() => {
-    localStorage.setItem(cacheKeyPrefix(cacheKey), JSON.stringify(cache));
-  }, [cache, cacheKey]);
+    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
+  }, [cache]);
 
   // Update in-memory cache when new commitments are available
   useEffect(() => {
