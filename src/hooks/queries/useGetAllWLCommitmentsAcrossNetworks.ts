@@ -6,18 +6,27 @@ import { arbitrum, base, mainnet, polygon } from "viem/chains";
 import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import { createFingerprintHash } from "../../helpers/localStorageCache";
+import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useGetTokensData } from "../useFetchTokensData";
+import { UserToken } from "../useGetUserTokens";
 
-const cacheKeyPrefix = "commitmentsAcrossNetworks";
-const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
+interface Commitment {
+  collateralToken: {
+    address: string;
+  };
+}
 
 type CachedCommitments = {
-  data: any[];
+  data: UserToken[];
   timestamp: number;
   whitelistedTokensFingerprint: string;
 };
 
 type CommitmentsCache = CachedCommitments | null;
+
+const cacheKeyPrefix = "commitmentsAcrossNetworks";
+const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 const commitmentsQuery = (tokens: string[]) => gql`
   query commitmentsForUserTokensALLWLTokens {
@@ -53,7 +62,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     useGetGlobalPropsContext();
   const { fetchAllWhitelistedTokensData } = useGetTokensData();
 
-  const [allCommitments, setAllCommitments] = useState<any[]>([]);
+  const [allCommitments, setAllCommitments] = useState<UserToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [cache, setCache] = useState<CommitmentsCache>(null);
 
@@ -80,23 +89,35 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     return fingerprint;
   }, [whitelistedTokens, subpgraphIds, cacheKey]);
 
-  // Load cache from localStorage once
+  // Create dynamic cache key based on whitelistedTokensFingerprint
+  const dynamicCacheKey = useMemo(() => {
+    if (!whitelistedTokensFingerprint) return `${cacheKeyPrefix}_empty`;
+    const hash = createFingerprintHash(whitelistedTokensFingerprint);
+    return `${cacheKeyPrefix}_${hash}`;
+  }, [whitelistedTokensFingerprint]);
+
+  // Load cache from localStorage when fingerprint changes
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix);
+    const lsItem = localStorage.getItem(dynamicCacheKey);
     if (lsItem) {
       try {
-        const parsed: CommitmentsCache = JSON.parse(lsItem);
+        const parsed = JSON.parse(lsItem) as CommitmentsCache;
         setCache(parsed);
       } catch (e) {
         console.error("Failed to parse localStorage cache:", e);
+        setCache(null);
       }
+    } else {
+      setCache(null);
     }
-  }, []);
+  }, [dynamicCacheKey]);
 
   // Persist cache to localStorage on change
   useEffect(() => {
-    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
-  }, [cache]);
+    if (cache) {
+      localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+    }
+  }, [cache, dynamicCacheKey]);
 
   const result = useQueries({
     queries: subpgraphIds.map((id) => ({
@@ -108,8 +129,8 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
       ],
       queryFn: async () => {
         const tokens = whitelistedTokens?.[id] || [];
-        let commitments: any;
-        let liquidityPools: any;
+        let commitments: { commitments: Commitment[] };
+        let liquidityPools: { group_pool_metric: LenderGroupsPoolMetrics[] };
 
         try {
           commitments = await request(
@@ -180,7 +201,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   useEffect(() => {
     if (!loading && result.isFetched && result.data.length > 0) {
       setCache({
-        data: result.data,
+        data: result.data.filter((i) => i !== undefined),
         timestamp: Date.now(),
         whitelistedTokensFingerprint,
       });
@@ -195,7 +216,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     }
 
     if (result.isFetched) {
-      setAllCommitments(result.data);
+      setAllCommitments(result.data.filter((i) => i !== undefined));
       setLoading(false);
     }
   }, [result.data, result.isFetched, whitelistedTokensFingerprint]);

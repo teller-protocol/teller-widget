@@ -5,11 +5,10 @@ import { useAccount, useChainId } from "wagmi";
 
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import { createFingerprintHash } from "../../helpers/localStorageCache";
+import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
-
-const cacheKeyPrefix = "commitmentsForUserTokens";
-const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 interface Commitment {
   collateralToken: {
@@ -28,6 +27,9 @@ type CommitmentsCache = {
     [address: string]: CachedCommitments;
   };
 };
+
+const cacheKeyPrefix = "commitmentsForUserTokens";
+const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
@@ -97,6 +99,13 @@ export const useGetCommitmentsForUserTokens = () => {
     return fingerprint;
   }, [userTokens, address, cacheKey]);
 
+  // Create dynamic cache key based on userTokensFingerprint
+  const dynamicCacheKey = useMemo(() => {
+    if (!userTokensFingerprint) return `${cacheKeyPrefix}_empty`;
+    const hash = createFingerprintHash(userTokensFingerprint);
+    return `${cacheKeyPrefix}_${hash}`;
+  }, [userTokensFingerprint]);
+
   const {
     data: userTokenCommitmentsData,
     isFetched: userTokenCommitmentsFetched,
@@ -113,7 +122,6 @@ export const useGetCommitmentsForUserTokens = () => {
   }) as {
     data: { commitments: Commitment[] };
     isLoading: boolean;
-    refetch: any;
     isFetched: boolean;
   };
 
@@ -129,11 +137,9 @@ export const useGetCommitmentsForUserTokens = () => {
       userTokensFingerprint,
     ],
     queryFn: async () => {
-      const res: any = await request(
-        lenderGroupsGraphURL,
-        lenderGroupsUserTokenCommitments
-      );
-      return res.group_pool_metric.map((metric: any) => ({
+      const res: { group_pool_metric: LenderGroupsPoolMetrics[] } =
+        await request(lenderGroupsGraphURL, lenderGroupsUserTokenCommitments);
+      return res.group_pool_metric.map((metric) => ({
         ...metric,
         collateralToken: {
           address: metric.collateral_token_address,
@@ -153,23 +159,28 @@ export const useGetCommitmentsForUserTokens = () => {
     isFetched: boolean;
   };
 
-  // Load cache from localStorage once
+  // Load cache from localStorage when fingerprint changes
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix);
+    const lsItem = localStorage.getItem(dynamicCacheKey);
     if (lsItem) {
       try {
-        const parsed: CommitmentsCache = JSON.parse(lsItem);
+        const parsed = JSON.parse(lsItem) as CommitmentsCache;
         setCache(parsed);
       } catch (e) {
         console.error("Failed to parse localStorage cache:", e);
+        setCache({});
       }
+    } else {
+      setCache({});
     }
-  }, []);
+  }, [dynamicCacheKey]);
 
   // Persist cache to localStorage on change
   useEffect(() => {
-    localStorage.setItem(cacheKeyPrefix, JSON.stringify(cache));
-  }, [cache]);
+    if (Object.keys(cache).length > 0) {
+      localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+    }
+  }, [cache, dynamicCacheKey]);
 
   // Update in-memory cache when new commitments are available
   useEffect(() => {
