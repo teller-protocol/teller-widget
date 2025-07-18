@@ -7,9 +7,9 @@ import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { createFingerprintHash } from "../../helpers/localStorageCache";
-import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import type { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useGetTokensData } from "../useFetchTokensData";
-import { UserToken } from "../useGetUserTokens";
+import type { UserToken } from "../useGetUserTokens";
 
 interface Commitment {
   collateralToken: {
@@ -115,7 +115,36 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   // Persist cache to localStorage on change
   useEffect(() => {
     if (cache) {
-      localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+      try {
+        const cacheString = JSON.stringify(cache);
+        localStorage.setItem(dynamicCacheKey, cacheString);
+      } catch (error) {
+        console.error("Failed to save cache to localStorage:", error);
+        // If storage is full, try to clear old cache entries
+        if ((error as { name: string }).name === "QuotaExceededError") {
+          console.warn(
+            "localStorage quota exceeded, clearing old cache entries"
+          );
+          try {
+            // Clear other cache entries with same prefix
+            const keys = Object.keys(localStorage);
+            const cacheKeys = keys.filter(
+              (key) => key.startsWith(cacheKeyPrefix) && key !== dynamicCacheKey
+            );
+            cacheKeys.forEach((key) => {
+              try {
+                localStorage.removeItem(key);
+              } catch (removeError) {
+                console.error("Failed to remove cache key:", key, removeError);
+              }
+            });
+            // Try to save again
+            localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+          } catch (retryError) {
+            console.error("Failed to save cache after cleanup:", retryError);
+          }
+        }
+      }
     }
   }, [cache, dynamicCacheKey]);
 

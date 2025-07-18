@@ -6,7 +6,7 @@ import { useAccount, useChainId } from "wagmi";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { createFingerprintHash } from "../../helpers/localStorageCache";
-import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import type { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 
@@ -161,16 +161,27 @@ export const useGetCommitmentsForUserTokens = () => {
 
   // Load cache from localStorage when fingerprint changes
   useEffect(() => {
-    const lsItem = localStorage.getItem(dynamicCacheKey);
-    if (lsItem) {
-      try {
-        const parsed = JSON.parse(lsItem) as CommitmentsCache;
-        setCache(parsed);
-      } catch (e) {
-        console.error("Failed to parse localStorage cache:", e);
+    try {
+      const lsItem = localStorage.getItem(dynamicCacheKey);
+      if (lsItem) {
+        try {
+          const parsed: CommitmentsCache = JSON.parse(lsItem);
+          setCache(parsed);
+        } catch (parseError) {
+          console.error("Failed to parse localStorage cache:", parseError);
+          // Remove corrupted cache entry
+          try {
+            localStorage.removeItem(dynamicCacheKey);
+          } catch (removeError) {
+            console.error("Failed to remove corrupted cache:", removeError);
+          }
+          setCache({});
+        }
+      } else {
         setCache({});
       }
-    } else {
+    } catch (storageError) {
+      console.error("Failed to access localStorage:", storageError);
       setCache({});
     }
   }, [dynamicCacheKey]);
@@ -178,7 +189,36 @@ export const useGetCommitmentsForUserTokens = () => {
   // Persist cache to localStorage on change
   useEffect(() => {
     if (Object.keys(cache).length > 0) {
-      localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+      try {
+        const cacheString = JSON.stringify(cache);
+        localStorage.setItem(dynamicCacheKey, cacheString);
+      } catch (error) {
+        console.error("Failed to save cache to localStorage:", error);
+        // If storage is full, try to clear old cache entries
+        if ((error as { name: string }).name === "QuotaExceededError") {
+          console.warn(
+            "localStorage quota exceeded, clearing old cache entries"
+          );
+          try {
+            // Clear other cache entries with same prefix
+            const keys = Object.keys(localStorage);
+            const cacheKeys = keys.filter(
+              (key) => key.startsWith(cacheKeyPrefix) && key !== dynamicCacheKey
+            );
+            cacheKeys.forEach((key) => {
+              try {
+                localStorage.removeItem(key);
+              } catch (removeError) {
+                console.error("Failed to remove cache key:", key, removeError);
+              }
+            });
+            // Try to save again
+            localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+          } catch (retryError) {
+            console.error("Failed to save cache after cleanup:", retryError);
+          }
+        }
+      }
     }
   }, [cache, dynamicCacheKey]);
 
