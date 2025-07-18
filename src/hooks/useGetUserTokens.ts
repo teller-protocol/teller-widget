@@ -4,7 +4,7 @@ import {
   TokenBalanceType,
   type TokenMetadataResponse,
 } from "alchemy-sdk";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Address, formatUnits } from "viem";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 
@@ -57,6 +57,8 @@ export const useGetUserTokens = (
   const [lastFetchedBlock, setLastFetchedBlock] = useState<bigint | null>(null);
   const { address } = useAccount();
   const alchemy = useAlchemy();
+  const fetchInProgressRef = useRef(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { getTokenImageAndSymbolFromTokenList } =
     useGetTokenImageAndSymbolFromTokenList();
@@ -64,151 +66,192 @@ export const useGetUserTokens = (
   const { data: tokenList } = useGetTokenList();
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
-  const fetchUserTokens = useCallback(async () => {
-    if (
-      !alchemy ||
-      skip ||
-      !tokenList ||
-      !tokenList?.[chainId] ||
-      tokenList?.[chainId].length === 0 ||
-      !address
-    ) {
-      return;
-    }
+  const fetchUserTokens = useCallback(
+    async (force = false) => {
+      if (
+        !alchemy ||
+        skip ||
+        !chainId ||
+        !tokenList ||
+        !tokenList?.[chainId] ||
+        tokenList?.[chainId].length === 0 ||
+        !address
+      ) {
+        return;
+      }
 
-    setIsLoading(true);
+      // Prevent multiple simultaneous fetches unless forced
+      if (fetchInProgressRef.current && !force) {
+        return;
+      }
 
-    try {
-      let pageKey: string | undefined;
-      const nonZeroBalances: TokenBalance[] = [];
+      fetchInProgressRef.current = true;
+      setIsLoading(true);
 
-      // Loop through token pages
-      do {
-        let balances: Omit<TokenBalancesResponseErc20, "address"> = {
-          tokenBalances: [],
-        };
+      try {
+        let pageKey: string | undefined;
+        const nonZeroBalances: TokenBalance[] = [];
 
-        if (address) {
-          try {
-            balances = await alchemy.core.getTokenBalances(address, {
-              pageKey, // Pass the pageKey for pagination
-              type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
-            });
-          } catch (e) {
-            await sleep(250);
+        // Loop through token pages
+        do {
+          let balances: Omit<TokenBalancesResponseErc20, "address"> = {
+            tokenBalances: [],
+          };
 
-            balances = await alchemy.core.getTokenBalances(address, {
-              pageKey, // Pass the pageKey for pagination
-              type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
-            });
+          if (address) {
+            try {
+              balances = await alchemy.core.getTokenBalances(address, {
+                pageKey, // Pass the pageKey for pagination
+                type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
+              });
+            } catch (e) {
+              await sleep(250);
+
+              balances = await alchemy.core.getTokenBalances(address, {
+                pageKey, // Pass the pageKey for pagination
+                type: TokenBalanceType.ERC20, // Specify the token type (ERC-20)
+              });
+            }
           }
-        }
 
-        const filteredBalances = balances.tokenBalances.filter(
-          (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
-        );
-        nonZeroBalances.push(...filteredBalances);
-        pageKey = balances.pageKey; // Update pageKey to fetch next page if available
-      } while (pageKey);
-
-      const whiteListedTokensWithBalances = whiteListedTokens?.map(
-        (appToken) => {
-          const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
-            (balance) =>
-              balance.contractAddress.toLowerCase() === appToken.toLowerCase()
+          const filteredBalances = balances.tokenBalances.filter(
+            (token) => BigInt(token.tokenBalance ?? 0) !== BigInt(0)
           );
-          if (tokenBalanceFromUserIndex >= 0) {
-            const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
-            nonZeroBalances.splice(tokenBalanceFromUserIndex, 1);
-            return {
-              ...userBalance,
-              contractAddress: appToken,
-            };
-          } else {
-            return {
-              contractAddress: appToken,
-              tokenBalance: BigInt(0),
-            };
+          nonZeroBalances.push(...filteredBalances);
+          pageKey = balances.pageKey; // Update pageKey to fetch next page if available
+        } while (pageKey);
+
+        const whiteListedTokensWithBalances = whiteListedTokens?.map(
+          (appToken) => {
+            const tokenBalanceFromUserIndex = nonZeroBalances.findIndex(
+              (balance) =>
+                balance.contractAddress.toLowerCase() === appToken.toLowerCase()
+            );
+            if (tokenBalanceFromUserIndex >= 0) {
+              const userBalance = nonZeroBalances[tokenBalanceFromUserIndex];
+              nonZeroBalances.splice(tokenBalanceFromUserIndex, 1);
+              return {
+                ...userBalance,
+                contractAddress: appToken,
+              };
+            } else {
+              return {
+                contractAddress: appToken,
+                tokenBalance: BigInt(0),
+              };
+            }
           }
-        }
-      );
-
-      const metadataHandler = (
-        token: TokenBalance,
-        metadata: TokenMetadataResponse
-      ): UserToken | null => {
-        if (metadata.decimals === 0) return null;
-
-        const imageAndSymbol = getTokenImageAndSymbolFromTokenList(
-          token.contractAddress
         );
 
-        const logo = metadata.logo ?? imageAndSymbol?.image ?? "";
-        const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
-        const decimals = metadata.decimals ?? 0;
+        const metadataHandler = (
+          token: TokenBalance,
+          metadata: TokenMetadataResponse
+        ): UserToken | null => {
+          if (metadata.decimals === 0) return null;
 
-        return {
-          address: token.contractAddress as Address,
-          name: metadata.name ?? "",
-          symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
-          logo,
-          balance: formatUnits(balanceBigInt, decimals),
-          balanceBigInt: balanceBigInt.toString(),
-          decimals,
-          chainId,
-        };
-      };
-
-      const userTokensWithWhitelistedTokens = [
-        ...(whiteListedTokensWithBalances as TokenBalance[]),
-        ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
-      ];
-
-      let chunks: (UserToken | null)[][] = [];
-
-      await runInChunks<TokenBalance, UserToken | null>(
-        userTokensWithWhitelistedTokens,
-        async (token) => {
-          const metadata = await alchemy.core.getTokenMetadata(
+          const imageAndSymbol = getTokenImageAndSymbolFromTokenList(
             token.contractAddress
           );
-          return metadataHandler(token, metadata);
-        },
-        40,
-        250,
-        (tokensChunk) => {
-          chunks = chunks.concat(tokensChunk);
-        }
-      );
 
-      setUserTokens(chunks.flat().filter((token) => token !== null));
-    } catch (error) {
-      console.error("Error fetching user tokens:", error);
-    } finally {
-      setIsLoading(false);
+          const logo = metadata.logo ?? imageAndSymbol?.image ?? "";
+          const balanceBigInt = BigInt(token?.tokenBalance ?? 0);
+          const decimals = metadata.decimals ?? 0;
+
+          return {
+            address: token.contractAddress as Address,
+            name: metadata.name ?? "",
+            symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
+            logo,
+            balance: formatUnits(balanceBigInt, decimals),
+            balanceBigInt: balanceBigInt.toString(),
+            decimals,
+            chainId,
+          };
+        };
+
+        const userTokensWithWhitelistedTokens = [
+          ...(whiteListedTokensWithBalances as TokenBalance[]),
+          ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
+        ];
+
+        let chunks: (UserToken | null)[][] = [];
+
+        await runInChunks<TokenBalance, UserToken | null>(
+          userTokensWithWhitelistedTokens,
+          async (token) => {
+            const metadata = await alchemy.core.getTokenMetadata(
+              token.contractAddress
+            );
+            return metadataHandler(token, metadata);
+          },
+          40,
+          250,
+          (tokensChunk) => {
+            chunks = chunks.concat(tokensChunk);
+          }
+        );
+
+        setUserTokens(chunks.flat().filter((token) => token !== null));
+      } catch (error) {
+        console.error("Error fetching user tokens:", error);
+      } finally {
+        setIsLoading(false);
+        fetchInProgressRef.current = false;
+      }
+    },
+    [
+      address,
+      alchemy,
+      getTokenImageAndSymbolFromTokenList,
+      tokenList,
+      chainId,
+      showOnlyWhiteListedTokens,
+      skip,
+      whiteListedTokens,
+    ]
+  );
+
+  // Clear tokens when chain changes
+  useEffect(() => {
+    setUserTokens([]);
+    setIsLoading(true);
+    setLastFetchedBlock(null);
+    fetchInProgressRef.current = false;
+
+    // Clear any pending debounced calls
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
     }
-  }, [
-    address,
-    alchemy,
-    getTokenImageAndSymbolFromTokenList,
-    tokenList,
-    chainId,
-    showOnlyWhiteListedTokens,
-    skip,
-    whiteListedTokens,
-  ]);
+  }, [chainId]);
+
+  // Debounced fetch to prevent multiple rapid calls
+  const debouncedFetch = useCallback(
+    (force = false) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        fetchUserTokens(force)
+          .then(() => {
+            // Set initial block number after first fetch
+            if (blockNumber) {
+              setLastFetchedBlock(blockNumber);
+            }
+          })
+          .catch(console.error);
+      }, 100); // 100ms debounce
+    },
+    [fetchUserTokens, blockNumber]
+  );
 
   // Initial fetch
   useEffect(() => {
-    fetchUserTokens()
-      .then(() => {
-        // Set initial block number after first fetch
-        if (blockNumber) {
-          setLastFetchedBlock(blockNumber);
-        }
-      })
-      .catch(console.error);
-  }, [fetchUserTokens, blockNumber]);
+    if (!blockNumber && !lastFetchedBlock) {
+      debouncedFetch(true); // Force initial fetch
+    }
+  }, [debouncedFetch, blockNumber, lastFetchedBlock]);
 
   // Refetch when block number changes
   useEffect(() => {
@@ -218,12 +261,12 @@ export const useGetUserTokens = (
       blockNumber > lastFetchedBlock + 10n // Refetch every 10 blocks to reduce frequency
     ) {
       setLastFetchedBlock(blockNumber);
-      fetchUserTokens().catch(console.error);
+      debouncedFetch(false); // Don't force block-based fetches
     }
-  }, [blockNumber, lastFetchedBlock, fetchUserTokens]);
+  }, [blockNumber, lastFetchedBlock, debouncedFetch]);
 
   const memoizedReturn = useMemo(
-    () => ({ userTokens, isLoading, refetch: fetchUserTokens }),
+    () => ({ userTokens, isLoading, refetch: () => fetchUserTokens(true) }),
     [userTokens, isLoading, fetchUserTokens]
   );
   return memoizedReturn;

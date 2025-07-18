@@ -274,7 +274,11 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
     return {
       data: isUsingCache ? cachedCommitments : allCommitments,
-      loading: isUsingCache ? false : isInitialLoad ? !result.isFetched : true,
+      loading: isInitialLoad
+        ? isUsingCache
+          ? false
+          : !result.isFetched
+        : true,
     };
   }, [
     allCommitments,

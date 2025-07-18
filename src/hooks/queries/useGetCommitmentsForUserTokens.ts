@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import request, { gql } from "graphql-request";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
@@ -20,6 +20,7 @@ type CachedCommitments = {
   data: UserToken[];
   timestamp: number;
   userTokensFingerprint: string;
+  chainId: number;
 };
 
 type CommitmentsCache = {
@@ -35,7 +36,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
   const graphURL = useGraphURL();
   const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
-  const { userTokens, cacheKey } = useGetGlobalPropsContext();
+  const { userTokens, cacheKey, isLoading } = useGetGlobalPropsContext();
   const { address } = useAccount();
 
   const [tokensWithCommitments, setTokensWithCommitments] = useState<
@@ -100,16 +101,17 @@ export const useGetCommitmentsForUserTokens = () => {
     return fingerprint;
   }, [userTokens, address, cacheKey, chainId]);
 
-  // Create dynamic cache key based on userTokensFingerprint
+  // Create static cache key based on address only (chain-agnostic)
   const dynamicCacheKey = useMemo(() => {
-    if (!userTokensFingerprint) return `${cacheKeyPrefix}_empty`;
-    const hash = createFingerprintHash(userTokensFingerprint);
+    if (!address) return `${cacheKeyPrefix}_empty`;
+    const hash = createFingerprintHash(address);
     return `${cacheKeyPrefix}_${hash}`;
-  }, [userTokensFingerprint]);
+  }, [address]);
 
   const {
     data: userTokenCommitmentsData,
     isFetched: userTokenCommitmentsFetched,
+    isLoading: userTokenCommitmentsLoading,
   } = useQuery({
     queryKey: [
       "teller-widget",
@@ -119,7 +121,7 @@ export const useGetCommitmentsForUserTokens = () => {
       userTokensFingerprint,
     ],
     queryFn: async () => request(graphURL, userTokenCommitments),
-    enabled: !!userTokensFingerprint,
+    enabled: userTokens.length > 0 && !!address && !!userTokensFingerprint,
   }) as {
     data: { commitments: Commitment[] };
     isLoading: boolean;
@@ -129,6 +131,7 @@ export const useGetCommitmentsForUserTokens = () => {
   const {
     data: lenderGroupsUserTokenCommitmentsData,
     isFetched: lenderGroupsUserTokenCommitmentsFetched,
+    isLoading: lenderGroupsUserTokenCommitmentsLoading,
   } = useQuery({
     queryKey: [
       "teller-widget",
@@ -147,7 +150,7 @@ export const useGetCommitmentsForUserTokens = () => {
         },
       }));
     },
-    enabled: !!userTokensFingerprint,
+    enabled: userTokens.length > 0 && !!address && !!userTokensFingerprint,
   }) as {
     data: {
       group_pool_address: string;
@@ -160,14 +163,15 @@ export const useGetCommitmentsForUserTokens = () => {
     isFetched: boolean;
   };
 
-  // Load cache from localStorage when fingerprint changes
-  useEffect(() => {
+  // Function to load cache from localStorage synchronously
+  const loadCacheFromStorage = useCallback(() => {
     try {
       const lsItem = localStorage.getItem(dynamicCacheKey);
       if (lsItem) {
         try {
           const parsed = JSON.parse(lsItem) as CommitmentsCache;
           setCache(parsed);
+          return parsed;
         } catch (parseError) {
           console.error("Failed to parse localStorage cache:", parseError);
           // Remove corrupted cache entry
@@ -177,15 +181,23 @@ export const useGetCommitmentsForUserTokens = () => {
             console.error("Failed to remove corrupted cache:", removeError);
           }
           setCache({});
+          return {};
         }
       } else {
         setCache({});
+        return {};
       }
     } catch (storageError) {
       console.error("Failed to access localStorage:", storageError);
       setCache({});
+      return {};
     }
   }, [dynamicCacheKey]);
+
+  // Load cache from localStorage when dynamicCacheKey changes
+  useEffect(() => {
+    loadCacheFromStorage();
+  }, [loadCacheFromStorage]);
 
   // Persist cache to localStorage on change
   useEffect(() => {
@@ -240,6 +252,7 @@ export const useGetCommitmentsForUserTokens = () => {
             data: tokensWithCommitments,
             timestamp: Date.now(),
             userTokensFingerprint,
+            chainId,
           },
         },
       }));
@@ -253,9 +266,30 @@ export const useGetCommitmentsForUserTokens = () => {
     userTokensFingerprint,
   ]);
 
+  // Load cached data immediately when chain changes, before userTokens are loaded
+  useEffect(() => {
+    if (!address || !chainId) return;
+
+    // Load cache synchronously from localStorage first
+    const currentCache = loadCacheFromStorage();
+
+    const entry = currentCache[chainId]?.[address];
+    if (entry) {
+      const isFresh = Date.now() - entry.timestamp < CACHE_TIME;
+      if (isFresh) {
+        setTokensWithCommitments(entry.data);
+        return;
+      }
+    }
+
+    // Only clear if no valid cache found
+    setTokensWithCommitments([]);
+  }, [chainId, address, loadCacheFromStorage]);
+
   // Combine and process commitments
   useEffect(() => {
     if (!address || !userTokens.length) {
+      setTokensWithCommitments([]);
       return;
     }
 
@@ -301,39 +335,40 @@ export const useGetCommitmentsForUserTokens = () => {
     const entry = cache[chainId]?.[address];
     if (!entry) return [];
 
+    // Validate that cached data is for the correct chain
+    if (entry.chainId !== chainId) return [];
+
     const isFresh = Date.now() - entry.timestamp < CACHE_TIME;
-    const isSameFingerprint =
-      entry.userTokensFingerprint === userTokensFingerprint;
 
-    // On initial load when userTokens is empty, use cached data if it's fresh
-    const isInitialLoad = userTokens.length === 0;
+    // If cache is not fresh, return empty
+    if (!isFresh) return [];
 
-    // If userTokens have loaded and fingerprint changed, don't use cache
-    if (userTokens.length > 0 && !isSameFingerprint) return [];
-
-    return isFresh && (isSameFingerprint || isInitialLoad) ? entry.data : [];
-  }, [cache, address, chainId, userTokensFingerprint, userTokens.length]);
+    // Always return cached data if fresh, regardless of userTokens state
+    // This prioritizes cached data during chain transitions
+    return entry.data;
+  }, [cache, address, chainId]);
 
   return useMemo(() => {
     const isUsingCache = cachedCommitments.length > 0;
+    const hasCurrentData = tokensWithCommitments.length > 0;
     const isInitialLoad = !!userTokensFingerprint;
 
     return {
       tokensWithCommitments: isUsingCache
         ? cachedCommitments
         : tokensWithCommitments,
-      loading: isUsingCache
-        ? false
-        : isInitialLoad
-        ? !userTokenCommitmentsFetched ||
-          !lenderGroupsUserTokenCommitmentsFetched
+      loading: isInitialLoad
+        ? isUsingCache || hasCurrentData
+          ? false
+          : userTokenCommitmentsLoading ||
+            lenderGroupsUserTokenCommitmentsLoading
         : true,
     };
   }, [
     tokensWithCommitments,
     cachedCommitments,
-    userTokenCommitmentsFetched,
-    lenderGroupsUserTokenCommitmentsFetched,
+    userTokenCommitmentsLoading,
+    lenderGroupsUserTokenCommitmentsLoading,
     userTokensFingerprint,
   ]);
 };
