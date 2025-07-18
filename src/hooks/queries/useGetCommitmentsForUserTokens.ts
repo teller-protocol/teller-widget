@@ -8,7 +8,7 @@ import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 
-const cacheKeyPrefix = (cacheKey: string) =>
+const cacheKeyPrefix = (cacheKey?: string) =>
   cacheKey
     ? `commitmentsForUserTokens-${cacheKey}`
     : "commitmentsForUserTokens";

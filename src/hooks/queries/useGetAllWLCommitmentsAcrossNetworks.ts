@@ -8,7 +8,7 @@ import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGr
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { useGetTokensData } from "../useFetchTokensData";
 
-const cacheKeyPrefix = (cacheKey: string) =>
+const cacheKeyPrefix = (cacheKey?: string) =>
   cacheKey
     ? `commitmentsAcrossNetworks-${cacheKey}`
     : "commitmentsAcrossNetworks";
@@ -81,7 +81,7 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
   // Load cache from localStorage once
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix(cacheKey));
+    const lsItem = localStorage.getItem(cacheKeyPrefix(cacheKey ?? ""));
     if (lsItem) {
       try {
         const parsed: CommitmentsCache = JSON.parse(lsItem);
