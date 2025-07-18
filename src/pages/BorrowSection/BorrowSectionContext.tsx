@@ -1,27 +1,29 @@
-import React, {
+import {
+  FC,
   createContext,
-  ReactNode,
+  type ReactNode,
   useContext,
   useEffect,
-  useState,
   useMemo,
+  useState,
 } from "react";
+import type { Address } from "viem";
+import { useAccount } from "wagmi";
+
+import type { TokenInputType } from "../../components/TokenInput/TokenInput";
 import {
   STRATEGY_ACTION_ENUM,
   useGetGlobalPropsContext,
 } from "../../contexts/GlobalPropsContext";
-import { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
+import { uniqueByField } from "../../helpers/uniqueByField";
+import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
+import type { CommitmentType } from "../../hooks/queries/useGetCommitmentsForCollateralToken";
 import { useGetCommitmentsForUserTokens } from "../../hooks/queries/useGetCommitmentsForUserTokens";
-import { useGetCommitmentsForErc20Tokens } from "../../hooks/useGetCommitmentsForErc20Tokens";
-import { UserToken } from "../../hooks/useGetUserTokens";
-import { useAccount } from "wagmi";
 import { useGetUniswapPools } from "../../hooks/queries/useGetUniswapPools";
 import { useUniswapV3PoolUSDValue } from "../../hooks/queries/useUniswapV3PoolUSDValue";
-import { Address } from "viem";
-import { TokenInputType } from "../../components/TokenInput/TokenInput";
-import { useGetAllWLCommitmentsAcrossNetworks } from "../../hooks/queries/useGetAllWLCommitmentsAcrossNetworks";
+import { useGetCommitmentsForErc20Tokens } from "../../hooks/useGetCommitmentsForErc20Tokens";
+import type { UserToken } from "../../hooks/useGetUserTokens";
 import { getLoanRewards } from "../../services/borrowRewardsApi";
-import { uniqueByField } from "../../helpers/uniqueByField";
 
 export type UniswapData = {
   bestPool: any; // Replace with your actual pool type if available.
@@ -78,9 +80,9 @@ const BorrowSectionContext = createContext<BorrowSectionContextType>(
   {} as BorrowSectionContextType
 );
 
-export const BorrowSectionContextProvider: React.FC<
-  BorrowSectionContextProps
-> = ({ children }) => {
+export const BorrowSectionContextProvider: FC<BorrowSectionContextProps> = ({
+  children,
+}) => {
   const { singleWhitelistedToken, strategyToken, strategyAction } =
     useGetGlobalPropsContext();
 

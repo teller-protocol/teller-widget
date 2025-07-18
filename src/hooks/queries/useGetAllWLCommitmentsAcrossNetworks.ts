@@ -63,7 +63,6 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   const { fetchAllWhitelistedTokensData } = useGetTokensData();
 
   const [allCommitments, setAllCommitments] = useState<UserToken[]>([]);
-  const [loading, setLoading] = useState(true);
   const [cache, setCache] = useState<CommitmentsCache>(null);
 
   const mainnetID = mainnet.id;
@@ -228,25 +227,23 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
   // Update in-memory cache when new commitments are available
   useEffect(() => {
-    if (!loading && result.isFetched && result.data.length > 0) {
+    if (result.isFetched && result.data.length > 0) {
       setCache({
         data: result.data.filter((i) => i !== undefined),
         timestamp: Date.now(),
         whitelistedTokensFingerprint,
       });
     }
-  }, [result.data, result.isFetched, loading, whitelistedTokensFingerprint]);
+  }, [result.data, result.isFetched, whitelistedTokensFingerprint]);
 
   // Process and set commitments
   useEffect(() => {
     if (!whitelistedTokensFingerprint) {
-      setLoading(false);
       return;
     }
 
     if (result.isFetched) {
       setAllCommitments(result.data.filter((i) => i !== undefined));
-      setLoading(false);
     }
   }, [result.data, result.isFetched, whitelistedTokensFingerprint]);
 
@@ -263,6 +260,11 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     // If whitelistedTokens have loaded and fingerprint changed, don't use cache
     if (whitelistedTokensFingerprint && !isSameFingerprint) return [];
 
+    // Allow cache during transitions when whitelistedTokensFingerprint is empty
+    if (!whitelistedTokensFingerprint && cache.whitelistedTokensFingerprint) {
+      return isFresh ? cache.data : [];
+    }
+
     return isFresh && (isSameFingerprint || isInitialLoad) ? cache.data : [];
   }, [cache, whitelistedTokensFingerprint]);
 
@@ -272,14 +274,11 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
     return {
       data: isUsingCache ? cachedCommitments : allCommitments,
-      loading: isUsingCache
-        ? false
-        : (isInitialLoad ? false : loading) || !result.isFetched,
+      loading: isUsingCache ? false : isInitialLoad ? !result.isFetched : true,
     };
   }, [
     allCommitments,
     cachedCommitments,
-    loading,
     result.isFetched,
     whitelistedTokensFingerprint,
   ]);

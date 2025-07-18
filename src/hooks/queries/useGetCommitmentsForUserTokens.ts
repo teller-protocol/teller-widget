@@ -41,7 +41,6 @@ export const useGetCommitmentsForUserTokens = () => {
   const [tokensWithCommitments, setTokensWithCommitments] = useState<
     UserToken[]
   >([]);
-  const [loading, setLoading] = useState(true);
   const [cache, setCache] = useState<CommitmentsCache>({});
 
   const userTokenCommitments = useMemo(
@@ -91,13 +90,15 @@ export const useGetCommitmentsForUserTokens = () => {
 
   const userTokensFingerprint = useMemo(() => {
     let fingerprint = address
-      ? userTokens.map((t) => `${t.address}:${t.balance}`).join(",")
+      ? `${chainId}:${userTokens
+          .map((t) => `${t.address}:${t.balance}`)
+          .join(",")}`
       : "";
 
     if (cacheKey) fingerprint = `${cacheKey}//${fingerprint}`;
 
     return fingerprint;
-  }, [userTokens, address, cacheKey]);
+  }, [userTokens, address, cacheKey, chainId]);
 
   // Create dynamic cache key based on userTokensFingerprint
   const dynamicCacheKey = useMemo(() => {
@@ -165,7 +166,7 @@ export const useGetCommitmentsForUserTokens = () => {
       const lsItem = localStorage.getItem(dynamicCacheKey);
       if (lsItem) {
         try {
-          const parsed: CommitmentsCache = JSON.parse(lsItem);
+          const parsed = JSON.parse(lsItem) as CommitmentsCache;
           setCache(parsed);
         } catch (parseError) {
           console.error("Failed to parse localStorage cache:", parseError);
@@ -227,7 +228,6 @@ export const useGetCommitmentsForUserTokens = () => {
     if (
       chainId &&
       address &&
-      !loading &&
       userTokenCommitmentsFetched &&
       lenderGroupsUserTokenCommitmentsFetched &&
       tokensWithCommitments.length > 0
@@ -248,7 +248,6 @@ export const useGetCommitmentsForUserTokens = () => {
     tokensWithCommitments,
     address,
     chainId,
-    loading,
     userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
     userTokensFingerprint,
@@ -257,7 +256,6 @@ export const useGetCommitmentsForUserTokens = () => {
   // Combine and process commitments
   useEffect(() => {
     if (!address || !userTokens.length) {
-      setLoading(false);
       return;
     }
 
@@ -286,7 +284,6 @@ export const useGetCommitmentsForUserTokens = () => {
       }, [] as UserToken[]);
 
       setTokensWithCommitments(uniqueUserTokens);
-      setLoading(false);
     }
   }, [
     userTokenCommitmentsData,
@@ -327,14 +324,14 @@ export const useGetCommitmentsForUserTokens = () => {
         : tokensWithCommitments,
       loading: isUsingCache
         ? false
-        : (isInitialLoad ? false : loading) ||
-          !userTokenCommitmentsFetched ||
-          !lenderGroupsUserTokenCommitmentsFetched,
+        : isInitialLoad
+        ? !userTokenCommitmentsFetched ||
+          !lenderGroupsUserTokenCommitmentsFetched
+        : true,
     };
   }, [
     tokensWithCommitments,
     cachedCommitments,
-    loading,
     userTokenCommitmentsFetched,
     lenderGroupsUserTokenCommitmentsFetched,
     userTokensFingerprint,
