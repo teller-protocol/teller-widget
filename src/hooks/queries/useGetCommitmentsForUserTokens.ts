@@ -361,7 +361,8 @@ export const useGetCommitmentsForUserTokens = () => {
         ? isUsingCache || hasCurrentData
           ? false
           : userTokenCommitmentsLoading ||
-            lenderGroupsUserTokenCommitmentsLoading
+            lenderGroupsUserTokenCommitmentsLoading ||
+            isLoading
         : true,
     };
   }, [
@@ -370,5 +371,6 @@ export const useGetCommitmentsForUserTokens = () => {
     userTokenCommitmentsLoading,
     lenderGroupsUserTokenCommitmentsLoading,
     userTokensFingerprint,
+    isLoading,
   ]);
 };

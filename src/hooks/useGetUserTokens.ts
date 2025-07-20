@@ -59,6 +59,7 @@ export const useGetUserTokens = (
   const alchemy = useAlchemy();
   const fetchInProgressRef = useRef(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const { getTokenImageAndSymbolFromTokenList } =
     useGetTokenImageAndSymbolFromTokenList();
@@ -87,6 +88,15 @@ export const useGetUserTokens = (
 
       fetchInProgressRef.current = true;
       setIsLoading(true);
+
+      // Cancel any previous fetch
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Create new abort controller for this fetch
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
 
       try {
         let pageKey: string | undefined;
@@ -174,7 +184,7 @@ export const useGetUserTokens = (
           ...(showOnlyWhiteListedTokens ? [] : nonZeroBalances),
         ];
 
-        let chunks: (UserToken | null)[][] = [];
+        const allTokens: (UserToken | null)[] = [];
 
         await runInChunks<TokenBalance, UserToken | null>(
           userTokensWithWhitelistedTokens,
@@ -187,16 +197,25 @@ export const useGetUserTokens = (
           40,
           250,
           (tokensChunk) => {
-            chunks = chunks.concat(tokensChunk);
+            allTokens.push(...tokensChunk);
           }
         );
 
-        setUserTokens(chunks.flat().filter((token) => token !== null));
+        // Only update state if this fetch wasn't aborted
+        if (!abortController.signal.aborted) {
+          setUserTokens(allTokens.filter((token) => token !== null));
+        }
       } catch (error) {
-        console.error("Error fetching user tokens:", error);
+        // Don't log errors for aborted requests
+        if (!abortController.signal.aborted) {
+          console.error("Error fetching user tokens:", error);
+        }
       } finally {
-        setIsLoading(false);
-        fetchInProgressRef.current = false;
+        // Only update loading state if this fetch wasn't aborted
+        if (!abortController.signal.aborted) {
+          setIsLoading(false);
+          fetchInProgressRef.current = false;
+        }
       }
     },
     [
@@ -217,6 +236,12 @@ export const useGetUserTokens = (
     setIsLoading(true);
     setLastFetchedBlock(null);
     fetchInProgressRef.current = false;
+
+    // Cancel any ongoing fetch
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
 
     // Clear any pending debounced calls
     if (debounceTimeoutRef.current) {
@@ -265,9 +290,9 @@ export const useGetUserTokens = (
     }
   }, [blockNumber, lastFetchedBlock, debouncedFetch]);
 
-  const memoizedReturn = useMemo(
-    () => ({ userTokens, isLoading, refetch: () => fetchUserTokens(true) }),
-    [userTokens, isLoading, fetchUserTokens]
-  );
+  const memoizedReturn = useMemo(() => {
+    return { userTokens, isLoading, refetch: () => fetchUserTokens(true) };
+  }, [userTokens, isLoading, fetchUserTokens]);
+
   return memoizedReturn;
 };
