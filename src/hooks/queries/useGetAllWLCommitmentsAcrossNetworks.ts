@@ -274,16 +274,12 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
     return {
       data: isUsingCache ? cachedCommitments : allCommitments,
-      loading: isInitialLoad
-        ? isUsingCache
-          ? false
-          : !result.isFetched
-        : true,
+      loading: isInitialLoad ? (isUsingCache ? false : result.loading) : true,
     };
   }, [
     allCommitments,
     cachedCommitments,
-    result.isFetched,
+    result.loading,
     whitelistedTokensFingerprint,
   ]);
 };
