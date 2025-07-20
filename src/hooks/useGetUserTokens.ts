@@ -53,7 +53,7 @@ export const useGetUserTokens = (
   skip?: boolean
 ) => {
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [lastFetchedBlock, setLastFetchedBlock] = useState<bigint | null>(null);
   const { address } = useAccount();
   const alchemy = useAlchemy();
@@ -78,6 +78,7 @@ export const useGetUserTokens = (
         tokenList?.[chainId].length === 0 ||
         !address
       ) {
+        setIsLoading(false);
         return;
       }
 
@@ -97,6 +98,9 @@ export const useGetUserTokens = (
       // Create new abort controller for this fetch
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
+
+      // Capture current chainId to prevent race conditions
+      const currentChainId = chainId;
 
       try {
         let pageKey: string | undefined;
@@ -175,7 +179,7 @@ export const useGetUserTokens = (
             balance: formatUnits(balanceBigInt, decimals),
             balanceBigInt: balanceBigInt.toString(),
             decimals,
-            chainId,
+            chainId: currentChainId,
           };
         };
 
@@ -201,24 +205,26 @@ export const useGetUserTokens = (
           }
         );
 
-        // Only update state if this fetch wasn't aborted
-        if (!abortController.signal.aborted) {
+        // Only update state if this fetch wasn't aborted and chainId hasn't changed
+        if (!abortController.signal.aborted && currentChainId === chainId) {
           setUserTokens(allTokens.filter((token) => token !== null));
         }
       } catch (error) {
         // Don't log errors for aborted requests
-        if (!abortController.signal.aborted) {
+        if (!abortController.signal.aborted && currentChainId === chainId) {
           console.error("Error fetching user tokens:", error);
         }
       } finally {
-        // Only update loading state if this fetch wasn't aborted
-        if (!abortController.signal.aborted) {
+        // Only update loading state if this fetch wasn't aborted and chainId hasn't changed
+        if (!abortController.signal.aborted && currentChainId === chainId) {
+          if (blockNumber) setLastFetchedBlock(blockNumber);
           setIsLoading(false);
           fetchInProgressRef.current = false;
         }
       }
     },
     [
+      blockNumber,
       address,
       alchemy,
       getTokenImageAndSymbolFromTokenList,
@@ -233,7 +239,7 @@ export const useGetUserTokens = (
   // Clear tokens when chain changes
   useEffect(() => {
     setUserTokens([]);
-    setIsLoading(true);
+    setIsLoading(false);
     setLastFetchedBlock(null);
     fetchInProgressRef.current = false;
 
@@ -258,25 +264,21 @@ export const useGetUserTokens = (
       }
 
       debounceTimeoutRef.current = setTimeout(() => {
-        fetchUserTokens(force)
-          .then(() => {
-            // Set initial block number after first fetch
-            if (blockNumber) {
-              setLastFetchedBlock(blockNumber);
-            }
-          })
-          .catch(console.error);
+        // Check if chainId is still valid before fetching
+        if (chainId && tokenList?.[chainId] && address) {
+          fetchUserTokens(force).catch(console.error);
+        }
       }, 100); // 100ms debounce
     },
-    [fetchUserTokens, blockNumber]
+    [fetchUserTokens, chainId, tokenList, address]
   );
 
   // Initial fetch
   useEffect(() => {
-    if (!blockNumber && !lastFetchedBlock) {
+    if (chainId && tokenList?.[chainId] && address && !lastFetchedBlock) {
       debouncedFetch(true); // Force initial fetch
     }
-  }, [debouncedFetch, blockNumber, lastFetchedBlock]);
+  }, [debouncedFetch, chainId, tokenList, address, lastFetchedBlock]);
 
   // Refetch when block number changes
   useEffect(() => {
