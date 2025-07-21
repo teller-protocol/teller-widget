@@ -14,13 +14,16 @@ const chainAwareAlchemy = (chainId: number) => {
 };
 
 export const useGetTokensData = () => {
-  const { getTokenImageAndSymbolFromTokenList } =
+  const { getTokenImageAndSymbolFromTokenList, isTokenListLoading } =
     useGetTokenImageAndSymbolFromTokenList();
 
   const fetchAllWhitelistedTokensData = async (
     whitelistedTokens: string[],
     chainId: number
   ): Promise<UserToken[]> => {
+    if (isTokenListLoading) {
+      throw new Error("Token list is still loading");
+    }
     if (!whitelistedTokens) return [];
     const allTokens: UserToken[] = [];
     const alchemy = chainAwareAlchemy(chainId);
@@ -35,16 +38,10 @@ export const useGetTokensData = () => {
           chainId
         );
 
-        const isHPOS10I = HARRY_POTTER_OBAMA_SONIC_10_INU_ADDRESSES.includes(
-          tokenAddress.toLowerCase()
-        );
-
         return {
           address: tokenAddress,
           name: metadata.name ?? "",
-          symbol: isHPOS10I
-            ? "HPOS10I"
-            : imageAndSymbol?.symbol ?? metadata.symbol ?? "",
+          symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
           logo: metadata.logo ?? imageAndSymbol?.image ?? "",
           balance: "0", // Default balance as 0 since it's not fetched here
           balanceBigInt: "0",
@@ -63,5 +60,5 @@ export const useGetTokensData = () => {
 
     return allTokens;
   };
-  return { fetchAllWhitelistedTokensData };
+  return { fetchAllWhitelistedTokensData, isTokenListLoading };
 };
