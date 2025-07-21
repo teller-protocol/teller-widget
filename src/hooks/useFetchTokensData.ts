@@ -4,6 +4,7 @@ import { mapChainIdToAlchemyNetworkKey } from "./useAlchemy";
 import { UserToken, runInChunks } from "./useGetUserTokens";
 import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 import { useGetTokenList } from "./queries/useGetTokenList";
+import { HARRY_POTTER_OBAMA_SONIC_10_INU_ADDRESSES } from "../constants/tokens";
 
 const chainAwareAlchemy = (chainId: number) => {
   return new Alchemy({
@@ -34,10 +35,16 @@ export const useGetTokensData = () => {
           chainId
         );
 
+        const isHPOS10I = HARRY_POTTER_OBAMA_SONIC_10_INU_ADDRESSES.includes(
+          tokenAddress.toLowerCase()
+        );
+
         return {
           address: tokenAddress,
           name: metadata.name ?? "",
-          symbol: imageAndSymbol?.symbol ?? metadata.symbol ?? "",
+          symbol: isHPOS10I
+            ? "HPOS10I"
+            : imageAndSymbol?.symbol ?? metadata.symbol ?? "",
           logo: metadata.logo ?? imageAndSymbol?.image ?? "",
           balance: "0", // Default balance as 0 since it's not fetched here
           balanceBigInt: "0",
