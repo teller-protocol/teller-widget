@@ -9,7 +9,7 @@ export const useGetTokenImageAndSymbolFromTokenList = () => {
 
   const getTokenImageAndSymbolFromTokenList = useCallback(
     (tokenAddress: string, overrideChainId?: number) => {
-      if (!tokenList || isLoading) return undefined;
+      if (!tokenList || isLoading) return;
 
       const tokens = tokenList[overrideChainId ?? chainId];
       if (!tokens) return undefined;
