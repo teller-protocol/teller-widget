@@ -28,20 +28,27 @@
   &-row {
     display: flex;
     justify-content: center;
+    padding: 6px 12px;
+
+    &:first-child {
+      padding-top: 12px;
+    }
+
+    &:last-child {
+      padding-bottom: 12px;
+    }
 
     &-container {
       background-color: white;
       border-radius: $border-radius;
       position: absolute;
       top: 100%;
-      padding: 10px 12px 10px $s-normal;
       z-index: 100;
       width: 64px;
       left: -0.5px;
       border: 0.5px solid $border-color-secondary;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
       border-top-left-radius: 0;
       border-top-right-radius: 0;
     }
