@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
-import { useAlchemy } from "./useAlchemy";
 import { TokenMetadataResponse } from "alchemy-sdk";
-import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
+import { useEffect, useState } from "react";
+
 import generic_token from "../assets/generic_token-icon.svg";
+
 import { UniswapToken } from "./queries/useGetTokenList";
+import { useAlchemy } from "./useAlchemy";
+import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 
 export const useGetTokenMetadata = (
   tokenAddress: string,
@@ -38,35 +40,15 @@ export const useGetTokenMetadata = (
 export const findTokenWithMetadata = (
   address: string,
   metadata: TokenMetadataResponse,
-  tokenList: Record<number, UniswapToken[]>,
-  currentChainId: number
+  tokenList: Record<number, UniswapToken[]>
 ) => {
-  let token = tokenList?.[currentChainId]?.find(
-    (t) => t.address.toLowerCase() === address
-  );
+  let token: UniswapToken | null = null;
+  for (const [_chainId, tokens] of Object.entries(tokenList)) {
+    if (token) break;
 
-  if (!token) {
-    if (!token) {
-      const chains = Object.keys(tokenList || {});
-      for (const chain of chains) {
-        const foundToken = tokenList?.[parseInt(chain)]?.find(
-          (t) => t.address.toLowerCase() === address
-        );
-        if (foundToken) {
-          token = foundToken;
-          break;
-        }
-      }
-    }
-
-    if (token) {
-      const tokenInSameChain = tokenList?.[currentChainId]?.find(
-        (t) => t.symbol.toLowerCase() === token?.symbol?.toLowerCase()
-      );
-      if (tokenInSameChain) {
-        token = tokenInSameChain;
-      }
-    }
+    token =
+      tokens.find((t) => t.address.toLowerCase() === address.toLowerCase()) ||
+      null;
   }
 
   return {
@@ -75,6 +57,6 @@ export const findTokenWithMetadata = (
     symbol: token?.symbol || metadata.symbol || "",
     logo: token?.logoURI || metadata.logo || "",
     decimals: token?.decimals || metadata.decimals || 18,
-    chainId: token?.chainId || currentChainId,
+    chainId: token?.chainId || 1,
   };
 };
