@@ -34,16 +34,16 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
       <div className="token-balance-info">
         <span className="paragraph">{logoAndSymbol.symbol}</span>
         <span className="section-sub-title">
-          {token.chainId ? (
-            <span className="chain-info-row">
-              {mapChainIdToName[token.chainId]}
-              <img src={mapChainToImage[token.chainId]} />
-            </span>
-          ) : (
-            `Balance: ${numberWithCommasAndDecimals(token?.balance)} ${
-              logoAndSymbol.symbol
-            }`
-          )}
+          {token.balance
+            ? `Balance: ${numberWithCommasAndDecimals(token.balance)} ${
+                logoAndSymbol.symbol
+              }`
+            : token.chainId && (
+                <span className="chain-info-row">
+                  {mapChainIdToName[token.chainId]}
+                  <img src={mapChainToImage[token.chainId]} />
+                </span>
+              )}
         </span>
       </div>
       {token.rewardPercent !== undefined && (
