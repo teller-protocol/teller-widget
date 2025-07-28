@@ -1,21 +1,10 @@
-import { useQueries } from "@tanstack/react-query";
-import request, { gql } from "graphql-request";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 
-import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { createFingerprintHash } from "../../helpers/localStorageCache";
-import type { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
-import { useGetTokensData } from "../useFetchTokensData";
 import type { UserToken } from "../useGetUserTokens";
-
-interface Commitment {
-  collateralToken: {
-    address: string;
-  };
-}
 
 type CachedCommitments = {
   data: UserToken[];
@@ -28,39 +17,10 @@ type CommitmentsCache = CachedCommitments | null;
 const cacheKeyPrefix = "commitmentsAcrossNetworks";
 const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
-const commitmentsQuery = (tokens: string[]) => gql`
-  query commitmentsForUserTokensALLWLTokens {
-    commitments(
-      where: { collateralToken_: { address_in: ${JSON.stringify(
-        Array.from(new Set(tokens))
-      )}}, status: "Active", committedAmount_gt: "0" }
-    ) {
-      collateralToken {
-        address
-      }
-    }
-  }
-`;
-
-const liquidityPoolsQuery = (tokens: string[]) => gql`
-        query checkCommitmentsLenderGroupsALLWLTokens {
-          group_pool_metric(
-            where: {
-              collateral_token_address: {_in: ${JSON.stringify(
-                Array.from(new Set(tokens))
-              )}}
-            }
-          ) {
-            group_pool_address
-            collateral_token_address
-          }
-        }
-      `;
-
 export const useGetAllWLCommitmentsAcrossNetworks = () => {
-  const { subgraphApiKey, whitelistedTokens, cacheKey } =
-    useGetGlobalPropsContext();
-  const { fetchAllWhitelistedTokensData } = useGetTokensData();
+  const { whitelistedTokens, cacheKey } = useGetGlobalPropsContext();
+
+  console.log("whitelistedTokens", whitelistedTokens);
 
   const [allCommitments, setAllCommitments] = useState<UserToken[]>([]);
   const [cache, setCache] = useState<CommitmentsCache>(null);
@@ -147,89 +107,30 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     }
   }, [cache, dynamicCacheKey]);
 
-  const result = useQueries({
-    queries: subpgraphIds.map((id) => ({
-      queryKey: [
-        "teller-widget",
-        "commitments",
-        id,
-        whitelistedTokensFingerprint,
-      ],
-      queryFn: async () => {
-        const tokens = whitelistedTokens?.[id] || [];
-        let commitments: { commitments: Commitment[] };
-        let liquidityPools: { group_pool_metric: LenderGroupsPoolMetrics[] };
-
-        try {
-          commitments = await request(
-            getGraphEndpointWithKey(subgraphApiKey, id) ?? "",
-            commitmentsQuery(tokens)
-          );
-        } catch (error) {
-          console.error(`Error fetching commitments for chain ${id}:`, error);
-          return [];
-        }
-
-        try {
-          liquidityPools = await request(
-            getLiquidityPoolsGraphEndpoint(id) ?? "",
-            liquidityPoolsQuery(tokens)
-          );
-        } catch (error) {
-          console.error(
-            `Error fetching liquidity pools for chain ${id}:`,
-            error
-          );
-          return [];
-        }
-
-        const commitmentsWithCollateralAddressOnly =
-          commitments?.commitments?.map(
-            (commitment: { collateralToken: { address: string } }) =>
-              commitment?.collateralToken?.address
-          ) || [];
-
-        const liquidityPoolsWithCollateralAddressOnly =
-          liquidityPools?.group_pool_metric?.map(
-            (pool: { collateral_token_address: string }) =>
-              pool.collateral_token_address
-          ) || [];
-
-        const combinedCommitments = Array.from(
-          new Set([
-            ...commitmentsWithCollateralAddressOnly,
-            ...liquidityPoolsWithCollateralAddressOnly,
-          ])
-        );
-
-        const commitmentsWithData = await fetchAllWhitelistedTokensData(
-          combinedCommitments,
-          id
-        );
-
-        return commitmentsWithData;
-      },
-      enabled: !!whitelistedTokensFingerprint,
-      keepPreviousData: true,
-    })),
-    combine: (results) => {
-      const allData = results.flatMap((d) => d.data);
-      const allDataFetched = results.every((d) => d.isSuccess);
-      const isLoading = results.some((d) => d.isLoading);
-
-      return {
-        data: allData,
-        loading: isLoading,
-        isFetched: allDataFetched,
-      };
+  const result = useQuery({
+    queryKey: ["teller-widget", "commitments", whitelistedTokensFingerprint],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://whitelisted-tokens-middleware-production.up.railway.app?whitelistedTokens=${JSON.stringify(
+          whitelistedTokens
+        )}`,
+        { method: "GET" }
+      );
+      const json = (await res.json()) as {
+        chainId: string;
+        commitmentsWithData: UserToken[];
+      }[];
+      const tokens = json.map((c) => c.commitmentsWithData).flat();
+      return tokens;
     },
+    enabled: !!whitelistedTokensFingerprint,
   });
 
   // Update in-memory cache when new commitments are available
   useEffect(() => {
-    if (result.isFetched && result.data.length > 0) {
+    if (result.isFetched && result.data && result.data.length > 0) {
       setCache({
-        data: result.data.filter((i) => i !== undefined),
+        data: result.data,
         timestamp: Date.now(),
         whitelistedTokensFingerprint,
       });
@@ -243,7 +144,9 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     }
 
     if (result.isFetched) {
-      setAllCommitments(result.data.filter((i) => i !== undefined));
+      setAllCommitments(
+        result.data ? result.data.filter((i) => i !== undefined) : []
+      );
     }
   }, [result.data, result.isFetched, whitelistedTokensFingerprint]);
 
@@ -274,12 +177,12 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
     return {
       data: isUsingCache ? cachedCommitments : allCommitments,
-      loading: isInitialLoad ? (isUsingCache ? false : result.loading) : true,
+      loading: isInitialLoad ? (isUsingCache ? false : result.isLoading) : true,
     };
   }, [
     allCommitments,
     cachedCommitments,
-    result.loading,
+    result.isLoading,
     whitelistedTokensFingerprint,
   ]);
 };
