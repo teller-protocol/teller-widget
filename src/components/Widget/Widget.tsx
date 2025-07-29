@@ -100,17 +100,18 @@ const Widget: React.FC<WidgetProps> = ({
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
-  const [showWelcomeScreen, setShowWelcomeScreen] = useState(
-    JSON.parse(
-      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
-    ) as boolean
-  );
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(false);
 
   if (referralFee > 500) {
     console.warn("Referral fee set to maximum at 5%.");
   }
 
   useEffect(() => {
+    const showWelcomeScreen = JSON.parse(
+      getItemFromLocalStorage("showTellerWidgetWelcomeScreen") || "true"
+    ) as boolean;
+    setShowWelcomeScreen(showWelcomeScreen);
+
     return () => {
       queryClient.removeQueries({ queryKey: ["teller-widget"] });
     };
