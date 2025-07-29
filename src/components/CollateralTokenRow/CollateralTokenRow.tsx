@@ -1,3 +1,5 @@
+import { useAccount } from "wagmi";
+
 import DataPill from "../../components/DataPill";
 import { mapChainIdToName } from "../../constants/chains";
 import { numberWithCommasAndDecimals } from "../../helpers/numberUtils";
@@ -16,6 +18,7 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
   token,
   onClick,
 }) => {
+  const { address } = useAccount();
   const logoAndSymbol = useTokenLogoAndSymbolWithFallback(token);
 
   if (!logoAndSymbol) return null;
@@ -34,7 +37,7 @@ const CollateralTokenRow: React.FC<CollateralTokenSelectProps> = ({
       <div className="token-balance-info">
         <span className="paragraph">{logoAndSymbol.symbol}</span>
         <span className="section-sub-title">
-          {token.balance
+          {address
             ? `Balance: ${numberWithCommasAndDecimals(token.balance)} ${
                 logoAndSymbol.symbol
               }`
