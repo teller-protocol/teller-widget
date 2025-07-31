@@ -111,9 +111,11 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     queryKey: ["teller-widget", "commitments", whitelistedTokensFingerprint],
     queryFn: async () => {
       const res = await fetch(
-        `https://whitelisted-tokens-middleware-production.up.railway.app?whitelistedTokens=${JSON.stringify(
+        `https://whitelisted-tokens-middleware-production.up.railway.app${
           whitelistedTokens
-        )}`,
+            ? `?whitelistedTokens=${JSON.stringify(whitelistedTokens)}`
+            : ""
+        }`,
         { method: "GET" }
       );
       const json = (await res.json()) as {
