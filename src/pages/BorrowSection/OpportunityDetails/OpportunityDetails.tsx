@@ -39,6 +39,7 @@ import Loader from "../../../components/Loader/Loader";
 import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
 import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
+import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
 
 const OpportunityDetails = () => {
   const {
@@ -249,17 +250,30 @@ const OpportunityDetails = () => {
   const loanMinusFees =
     (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
 
+  const isLiquidityPool = selectedOpportunity.isLenderGroup;
+  console.log("isLiquidityPool", isLiquidityPool);
+  console.log("maxLoanAmountNumber", maxLoanAmountNumber);
+  console.log(
+    "selectedOpportunity.lenderAddres",
+    selectedOpportunity.lenderAddress
+  );
+  const { data: liquidityPoolApr, isLoading: aprLoading = false } =
+    useGetAPRForLiquidityPools(
+      selectedOpportunity.lenderAddress ?? "0x",
+      maxLoanAmountNumber.toString(),
+      !isLiquidityPool
+    );
+  console.log("liquidityPoolApr", liquidityPoolApr);
+  const apr = isLiquidityPool ? liquidityPoolApr : selectedOpportunity.minAPY;
+  console.log("apr", apr);
+  const interest =
+    (Number(apr) / 100) *
+    (Number(selectedOpportunity.maxDuration) / 86400 / 365);
+  console.log("interest", interest);
+
   const payPerLoan = useMemo(
-    () =>
-      numberWithCommasAndDecimals(
-        (((+(selectedOpportunity?.minAPY ?? 0) / 10000) * maxLoanAmountNumber) /
-          365) *
-          (convertSecondsToDays(
-            Number(selectedOpportunity?.maxDuration ?? 0)
-          ) ?? 0),
-        2
-      ),
-    [selectedOpportunity, maxLoanAmountNumber]
+    () => numberWithCommasAndDecimals(interest, 2),
+    [interest]
   );
 
   const { chainName } = useChainData();
@@ -384,7 +398,8 @@ const OpportunityDetails = () => {
 
   useEffect(() => {
     const run = async () => {
-      const rewardToken = selectedCollateralToken?.rewardData?.reward_token_data;
+      const rewardToken =
+        selectedCollateralToken?.rewardData?.reward_token_data;
       const rewardPercent = selectedCollateralToken?.rewardPercent;
       const duration = Number(selectedOpportunity?.maxDuration);
       const maxLoanAmount = maxLoanAmountNumber;
@@ -417,7 +432,6 @@ const OpportunityDetails = () => {
     maxLoanAmountNumber,
     getTokenPrice,
   ]);
-
 
   return (
     <div className="opportunity-details">
@@ -561,7 +575,9 @@ const OpportunityDetails = () => {
           <TokenInput
             tokenValue={rewardTokenInput}
             label={
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
                 Rewards
                 <Tooltip
                   description={`Borrow and earn ${selectedCollateralToken?.rewardData?.reward_token_data?.symbol} rewards instantly.`}
@@ -582,7 +598,9 @@ const OpportunityDetails = () => {
                 />
               </div>
             }
-            imageUrl={selectedCollateralToken?.rewardData?.reward_token_data?.logo}
+            imageUrl={
+              selectedCollateralToken?.rewardData?.reward_token_data?.logo
+            }
             readonly
             sublabelUpper={`+${selectedCollateralToken?.rewardPercent}% APR Reward ✨`}
           />
