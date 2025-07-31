@@ -41,7 +41,6 @@ export const useGetLiquidityPools = () => {
         interest_rate_lower_bound
         interest_rate_upper_bound
         current_min_interest_rate
-        shares_token_address
         collateral_ratio
         group_pool_address
         smart_commitment_forwarder_address

@@ -118,6 +118,7 @@ export const useGetCommitmentsForUserTokens = () => {
     isFetched: boolean;
   };
 
+
   const {
     data: lenderGroupsUserTokenCommitmentsData,
     isFetched: lenderGroupsUserTokenCommitmentsFetched,

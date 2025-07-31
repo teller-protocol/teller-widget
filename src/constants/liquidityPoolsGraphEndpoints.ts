@@ -1,4 +1,4 @@
-import { arbitrum, base, goerli, mainnet, polygon, sepolia } from "viem/chains";
+import { arbitrum, base, mainnet, optimism, polygon } from "viem/chains";
 
 export const getLiquidityPoolsGraphEndpoint = (chainId: number) => {
   const LIQUIDITY_POOLS_GRAPH_ENDPOINTS: {
@@ -8,6 +8,7 @@ export const getLiquidityPoolsGraphEndpoint = (chainId: number) => {
     [polygon.id]: `https://hasura-polygon.nfteller.org/v1/graphql`,
     [arbitrum.id]: `https://hasura-arbitrum.nfteller.org/v1/graphql`,
     [base.id]: `https://hasura-base.nfteller.org/v1/graphql`,
+    [optimism.id]: `https://hasura-v2-optimism.nfteller.org/v1/graphql`,
   };
 
   return LIQUIDITY_POOLS_GRAPH_ENDPOINTS[chainId] ?? "";

@@ -56,6 +56,7 @@ export type GlobalPropsContextType = {
   switchChainManual: (chainId?: number, resetSelections?: boolean) => void;
   shouldResetSelections: boolean;
   cacheKey?: string;
+  atmId?: string;
 };
 
 interface GlobalPropsContextProps {
@@ -79,6 +80,7 @@ interface GlobalPropsContextProps {
   principalTokenForPair?: string;
   isLoop?: boolean;
   cacheKey?: string;
+  atmId?: string;
 }
 
 const GlobalPropsContext = createContext({} as GlobalPropsContextType);
@@ -104,6 +106,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   principalTokenForPair,
   isLoop = false,
   cacheKey,
+  atmId,
 }) => {
   const { address } = useAccount();
   const chainId = useChainId();
@@ -215,6 +218,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       shouldResetSelections,
       switchChainManual,
       cacheKey,
+      atmId,
     };
   }, [
     userTokens,
@@ -243,6 +247,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     shouldResetSelections,
     switchChainManual,
     cacheKey,
+    atmId,
   ]);
 
   return (

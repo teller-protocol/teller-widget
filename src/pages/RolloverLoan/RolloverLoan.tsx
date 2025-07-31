@@ -45,6 +45,7 @@ import useRolloverLoan from "../../hooks/useRolloverLoan";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "../../hooks/useGetMaxPrincipalPerCollateralLenderGroup";
 import { AddressStringType } from "../../types/addressStringType";
 import { useGetTokenMetadata } from "../../hooks/useGetTokenMetadata";
+import { useLenderGroupsContractType } from "../../hooks/useLenderGroupsContractType";
 
 type RolloverData = {
   dueDate: string;
@@ -117,6 +118,7 @@ const RolloverLoan: React.FC = () => {
   } = useGetRepaySectionContext();
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
+  const lenderGroupsContractType = useLenderGroupsContractType();
 
   const { tokenMetadata: collateralTokenMetadata } = useGetTokenMetadata(
     collateralTokenAddress
@@ -287,7 +289,7 @@ const RolloverLoan: React.FC = () => {
     "getRequiredCollateral",
     requiredCollateralArgs(defaultLoanAmountLender),
     !isSameLender,
-    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+    isLenderGroup ? lenderGroupsContractType : ContractType.Teller
   );
 
   const {
@@ -298,7 +300,7 @@ const RolloverLoan: React.FC = () => {
     "getRequiredCollateral",
     requiredCollateralArgs(maxLoanAmountFromLender),
     !isSameLender,
-    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+    isLenderGroup ? lenderGroupsContractType : ContractType.Teller
   );
 
   const {
@@ -408,7 +410,7 @@ const RolloverLoan: React.FC = () => {
         : BigInt(maxLoanAmount ?? 0),
     ],
     !isLenderGroup,
-    ContractType.LenderGroups
+    lenderGroupsContractType
   );
 
   const currentValues: RolloverData = useMemo(

@@ -15,10 +15,12 @@ export enum SupportedContractsEnum {
   "LenderCommitmentForwarderStaging" = "LenderCommitmentForwarderStaging",
   "LenderCommitmentForwarderAlpha" = "LenderCommitmentForwarderAlpha",
   "LoanReferralForwarder" = "LoanReferralForwarder",
+  "LoanReferralForwarderV2" = "LoanReferralForwarderV2",
   "RolloverForWidget" = "RolloverForWidget",
   "MarketLiquidityRewards" = "MarketLiquidityRewards",
   "CollateralManager" = "CollateralManager",
   "LenderGroups" = "LenderCommitmentGroupBeacon",
+  "LenderGroupsV2" = "LenderCommitmentGroupBeaconV2",
   "SmartCommitmentForwarder" = "SmartCommitmentForwarder",
   "BorrowSwap" = "BorrowSwap",
 }
@@ -29,6 +31,7 @@ export enum ContractType {
   UNIV3POOL = "UNIV3POOL",
   External = "External",
   LenderGroups = "LenderCommitmentGroupBeacon",
+  LenderGroupsV2 = "LenderCommitmentGroupBeaconV2",
 }
 
 export const useReadContract = <T = any>(
@@ -41,20 +44,21 @@ export const useReadContract = <T = any>(
   const contracts = useContracts();
   const chainId = useChainId();
 
-  const mapAbi = useMemo(
-    () => ({
-      [ContractType.Teller]: contracts[contractName ?? ""]?.abi,
+  const mapAbi = useMemo(() => {
+    return {
+      [ContractType.Teller]: contracts?.[contractName ?? ""]?.abi,
       [ContractType.External]:
-        externalContracts[chainId]["contracts"][contractName ?? ""]?.abi,
+        externalContracts?.[chainId]?.["contracts"]?.[contractName ?? ""]?.abi,
       [ContractType.ERC20]: erc20Abi,
       [ContractType.UNIV3POOL]: uniswapV3PoolAbi,
-      [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
-    }),
-    [chainId, contractName, contracts]
-  );
+      [ContractType.LenderGroups]: contracts?.[ContractType.LenderGroups]?.abi,
+      [ContractType.LenderGroupsV2]:
+        contracts?.[ContractType.LenderGroupsV2]?.abi,
+    };
+  }, [chainId, contractName, contracts]);
   const address =
     contractType === ContractType.Teller
-      ? contracts[contractName ?? ""]?.address
+      ? contracts?.[contractName ?? ""]?.address
       : externalContracts[chainId]["contracts"][contractName ?? ""]?.address ||
         contractName;
 

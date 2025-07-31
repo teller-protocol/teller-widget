@@ -5,7 +5,15 @@ import {
   TOKEN_ADDRESSES,
 } from "./tokens";
 
-import { mainnet, arbitrum, polygon, goerli, sepolia, base } from "viem/chains";
+import {
+  mainnet,
+  arbitrum,
+  polygon,
+  goerli,
+  sepolia,
+  base,
+  optimism,
+} from "viem/chains";
 import WETH_ABI from "../contracts/WETH_ABI.json";
 import WMATIC_ABI from "../contracts/WMATIC_ABI.json";
 import LCF_ALPHA_ABI from "../contracts/LCF_ALPHA_ABI.json";
@@ -124,6 +132,9 @@ const externalContracts: Record<SupportedChainId, NetworkContracts> = {
         abi: RFW_ABI,
       },
     },
+  },
+  [optimism.id]: {
+    contracts: {},
   },
 };
 

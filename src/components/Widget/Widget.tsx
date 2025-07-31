@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import {
   GlobalContextProvider,
   STRATEGY_ACTION_ENUM,
@@ -12,6 +12,8 @@ import { TransactionButtonProvider } from "../../contexts/TransactionButtonConte
 import { getItemFromLocalStorage } from "../../helpers/localStorageUtils";
 import WelcomeScreen from "../../pages/WelcomeScreen";
 import "./widget.scss";
+import { useAccount, useBlockNumber } from "wagmi";
+import { encodeFunctionData } from "viem";
 
 export const queryClient = new QueryClient();
 
@@ -50,6 +52,7 @@ interface BaseWidgetProps {
   principalTokenForPair?: string;
   isLoop?: boolean;
   cacheKey?: string;
+  atmId?: string;
 }
 
 interface WhiteListedTokensRequiredProps extends BaseWidgetProps {
@@ -64,6 +67,43 @@ interface WhiteListedTokensOptionalProps extends BaseWidgetProps {
 export type WidgetProps =
   | WhiteListedTokensRequiredProps
   | WhiteListedTokensOptionalProps;
+
+const TxErrorWrapper: React.FC<PropsWithChildren> = ({ children }) => {
+  const { chain } = useAccount();
+  const { data: blockNumber } = useBlockNumber();
+  const { address } = useAccount();
+
+  const errLog = console.error;
+  console.error = (...args) => {
+    const err = args[0];
+    const data = args[1];
+
+    if (err && String(err).includes("contract") && data.abi) {
+      const functionData = encodeFunctionData({
+        abi: data.abi,
+        functionName: data.functionName,
+        args: data.args,
+      });
+      console.group("Transaction Error");
+
+      console.group("Tenderly Simulation Link");
+      console.log(
+        `https://dashboard.tenderly.co/teller/v2/simulator/new?block=${blockNumber}&from=${address}&contractAddress=${data.contractAddress}&rawFunctionInput=${functionData}&network=${chain?.id}&blockIndex=0&gas=8000000&gasPrice=0&value=0&headerBlockNumber=&headerTimestamp=`
+      );
+      console.groupEnd();
+
+      console.warn(err);
+
+      console.groupEnd();
+
+      return;
+    }
+
+    errLog(...args);
+  };
+
+  return <>{children}</>;
+};
 
 const Widget: React.FC<WidgetProps> = ({
   buttonLabel = "Cash advance",
@@ -97,6 +137,7 @@ const Widget: React.FC<WidgetProps> = ({
   principalTokenForPair,
   isLoop = false,
   cacheKey,
+  atmId = "",
 }) => {
   const [showModal, setShowModal] = useState(showModalByDefault || false);
 
@@ -136,47 +177,50 @@ const Widget: React.FC<WidgetProps> = ({
         principalTokenForPair={principalTokenForPair}
         isLoop={isLoop}
         cacheKey={cacheKey}
+        atmId={atmId}
       >
-        <TransactionButtonProvider>
-          <div className="teller-widget">
-            <Modal
-              {...(!isEmbedded && {
-                closeModal: () => setShowModal(false),
-                showModal,
-              })}
-              isWelcomeScreen={showWelcomeScreen}
-              useLightLogo={useLightLogo}
-              isEmbedded={isEmbedded}
-              showChainSwitch={showChainSwitch}
-              widgetChainId={widgetChainId}
-            >
-              {showWelcomeScreen ? (
-                <WelcomeScreen
-                  onClick={() => setShowWelcomeScreen(false)}
-                  welcomeScreenLogo={welcomeScreenLogo}
-                  welcomeScreenTitle={welcomeScreenTitle}
-                  welcomeScreenParagraph={welcomeScreenParagraph}
-                />
-              ) : (
-                <ModalContent
-                  showModalByDefault={showModalByDefault}
-                  showPoolSection={showPoolSection}
-                  showRepaySection={showRepaySection}
-                  showStrategiesSection={showStrategiesSection}
-                  hideAutoConnectModal={hideAutoConnectModal}
+        <TxErrorWrapper>
+          <TransactionButtonProvider>
+            <div className="teller-widget">
+              <Modal
+                {...(!isEmbedded && {
+                  closeModal: () => setShowModal(false),
+                  showModal,
+                })}
+                isWelcomeScreen={showWelcomeScreen}
+                useLightLogo={useLightLogo}
+                isEmbedded={isEmbedded}
+                showChainSwitch={showChainSwitch}
+                widgetChainId={widgetChainId}
+              >
+                {showWelcomeScreen ? (
+                  <WelcomeScreen
+                    onClick={() => setShowWelcomeScreen(false)}
+                    welcomeScreenLogo={welcomeScreenLogo}
+                    welcomeScreenTitle={welcomeScreenTitle}
+                    welcomeScreenParagraph={welcomeScreenParagraph}
+                  />
+                ) : (
+                  <ModalContent
+                    showModalByDefault={showModalByDefault}
+                    showPoolSection={showPoolSection}
+                    showRepaySection={showRepaySection}
+                    showStrategiesSection={showStrategiesSection}
+                    hideAutoConnectModal={hideAutoConnectModal}
+                  />
+                )}
+              </Modal>
+              {!isEmbedded && (
+                <Button
+                  label={buttonLabel}
+                  onClick={() => setShowModal(true)}
+                  className={buttonClassName}
+                  variant={isBareButton ? "bare" : "primary"}
                 />
               )}
-            </Modal>
-            {!isEmbedded && (
-              <Button
-                label={buttonLabel}
-                onClick={() => setShowModal(true)}
-                className={buttonClassName}
-                variant={isBareButton ? "bare" : "primary"}
-              />
-            )}
-          </div>
-        </TransactionButtonProvider>
+            </div>
+          </TransactionButtonProvider>
+        </TxErrorWrapper>
       </GlobalContextProvider>
     </QueryClientProvider>
   );

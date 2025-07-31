@@ -5,6 +5,7 @@ import { ContractType, useReadContract } from "./useReadContract";
 import { useMemo } from "react";
 import { bigIntMin } from "../helpers/bigIntMath";
 import { useAccount, useToken, useBalance } from "wagmi";
+import { useLenderGroupsContractType } from "./useLenderGroupsContractType";
 export const useLiquidityPoolsCommitmentMax = ({
   lenderGroupCommitment,
   collateralAmount,
@@ -21,6 +22,8 @@ export const useLiquidityPoolsCommitmentMax = ({
   const collateralAddress = lenderGroupCommitment?.collateralToken?.address;
   const principalAddress = lenderGroupCommitment?.principalToken?.address;
 
+  const lenderGroupsContractType = useLenderGroupsContractType();
+
   const { data: principalTokenData } = useToken({
     address: principalAddress,
   });
@@ -34,7 +37,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "getPrincipalAmountAvailableToBorrow",
     [],
     skip,
-    ContractType.LenderGroups
+    lenderGroupsContractType
   );
 
   const { data: requiredCollateralFor1PrincipalAmount } = useReadContract(
@@ -42,7 +45,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "calculateCollateralRequiredToBorrowPrincipal",
     [parseUnits("1", principalTokenData?.decimals ?? 18)],
     skip,
-    ContractType.LenderGroups
+    lenderGroupsContractType
   );
 
   const { data: maxAvailableCollateralInPool } = useReadContract(
@@ -50,7 +53,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "calculateCollateralRequiredToBorrowPrincipal",
     [maxLoanAmountFromContract],
     !maxLoanAmountFromContract,
-    ContractType.LenderGroups // Setting the contractType to LenderGroups
+    lenderGroupsContractType // Setting the contractType to LenderGroups
   );
 
   const standardExpansionFactorExponent = 18;
@@ -102,7 +105,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "calculateCollateralRequiredToBorrowPrincipal",
     [maxLoanAmountFromContract],
     !maxLoanAmountFromContract || skip,
-    ContractType.LenderGroups
+    lenderGroupsContractType
   );
 
   const { data: collateralWalletBalance } = useBalance({

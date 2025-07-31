@@ -24,6 +24,7 @@ import { useState } from "react";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import "./chainSwitch.scss";
+import { supportedChains } from "../../hooks/useIsSupportedChain";
 
 interface ChainDropdownRowProps {
   chain: Chain;
@@ -41,8 +42,6 @@ export const mapChainToImage: { [key: number]: string } = {
   [polygon.id]: polygonIcon,
   [mainnet.id]: mainnetIcon,
 };
-
-const supportedChains = [arbitrum, base, polygon, mainnet];
 
 const ChainDropdownRow: React.FC<ChainDropdownRowProps> = ({ chain }) => {
   const { switchChainManual } = useGetGlobalPropsContext();

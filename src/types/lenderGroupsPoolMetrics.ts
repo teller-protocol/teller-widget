@@ -15,7 +15,6 @@ export type LenderGroupsPoolMetrics = {
   total_interest_collected: string;
   teller_v2_address: string;
   principal_token_address: string;
-  shares_token_address: string;
   max_loan_duration: number;
   liquidity_threshold_percent: number;
   market_id: string;

@@ -8,9 +8,11 @@ import { readContract } from "wagmi/actions";
 import { config } from "../helpers/createWagmiConfig";
 import { useChainId } from "wagmi";
 import { ContractType, SupportedContractsEnum } from "./useReadContract";
+import { useLenderGroupsContractType } from "./useLenderGroupsContractType";
 
 export const useCalculateMaxCollateralFromCommitment = () => {
   const contracts = useContracts();
+  const contractType = useLenderGroupsContractType();
   const chainId = useChainId() as
     | 1
     | 10
@@ -24,8 +26,7 @@ export const useCalculateMaxCollateralFromCommitment = () => {
     | 169
     | 34443
     | undefined;
-  const lenderGroupContract =
-    contracts[SupportedContractsEnum.LenderGroups].abi;
+  const lenderGroupContract = contracts[contractType].abi;
 
   const calculateMaxCollateralFromLenderGroup = useCallback(
     async (

@@ -1,3 +1,5 @@
+import { supportedChainsNames } from "./useIsSupportedChain";
+
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 const endpoint = `https://api.dexscreener.com/latest/dex/tokens/`;
 
@@ -11,9 +13,8 @@ const mapChainNameToId = {
   arbitrum: 42161,
   base: 8453,
   polygon: 137,
+  optimism: 10,
 };
-
-const supportedChains = ["arbitrum", "base", "polygon", "ethereum"];
 
 export const getTokenChain = (tokenAddress: string): Promise<number> => {
   if (!tokenAddress) {
@@ -23,7 +24,7 @@ export const getTokenChain = (tokenAddress: string): Promise<number> => {
     .then((res) => res.json())
     .then((data: DexScreenerResponse) => {
       const chainName = data.pairs.find((pair) =>
-        supportedChains.includes(pair.chainId)
+        supportedChainsNames.includes(pair.chainId)
       )?.chainId;
       const chainId =
         mapChainNameToId[chainName as keyof typeof mapChainNameToId];

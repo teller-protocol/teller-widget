@@ -1,4 +1,12 @@
-import { arbitrum, base, goerli, mainnet, polygon, sepolia } from "viem/chains";
+import {
+  arbitrum,
+  base,
+  goerli,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from "viem/chains";
 
 export enum SupportedChainId {
   MAINNET = mainnet.id,
@@ -17,6 +25,7 @@ export const mapChainIdToName: Record<number, string> = {
   [base.id]: "Base",
   [polygon.id]: "Polygon",
   [sepolia.id]: "Sepolia",
+  [optimism.id]: "Optimism",
 };
 
 export function isSupportedChain(

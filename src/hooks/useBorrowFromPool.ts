@@ -6,6 +6,8 @@ import { TransactionStepConfig } from "../components/TransactionButton/Transacti
 import { useContracts } from "./useContracts";
 import { useMemo } from "react";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import { useLenderGroupsContractType } from "./useLenderGroupsContractType";
+import { optimism } from "viem/chains";
 
 export const useBorrowFromPool = ({
   commitmentPoolAddress,
@@ -28,16 +30,19 @@ export const useBorrowFromPool = ({
 }) => {
   const transactions: TransactionStepConfig[] = [];
   const { address } = useAccount();
-  
-  const { referralFee, referralAddress } = useGetGlobalPropsContext();
-  const referralFeeAmount = (BigInt(referralFee ?? 0) * BigInt(principalAmount ?? 0)) / BigInt(10000);
+
+  const lenderGroupsContractType = useLenderGroupsContractType();
+
+  const { referralFee, referralAddress, atmId } = useGetGlobalPropsContext();
+  const referralFeeAmount =
+    (BigInt(referralFee ?? 0) * BigInt(principalAmount ?? 0)) / BigInt(10000);
 
   const contracts = useContracts();
 
   const SMART_COMMITMENT_FORWARDER_ADDRESS =
     contracts[SupportedContractsEnum.SmartCommitmentForwarder].address;
   const LOAN_REFERRAL_ADDRESS =
-    contracts[SupportedContractsEnum.LoanReferralForwarder].address;
+    contracts[SupportedContractsEnum.LoanReferralForwarderV2].address;
 
   const { data: hasApprovedForwarder } = useReadContract<boolean>(
     SupportedContractsEnum.TellerV2,
@@ -62,7 +67,7 @@ export const useBorrowFromPool = ({
     "getMinInterestRate",
     [principalAmount],
     false || skip,
-    ContractType.LenderGroups
+    lenderGroupsContractType
   );
 
   const { data: collateralManagerAddress } = useReadContract<string>(
@@ -143,11 +148,12 @@ export const useBorrowFromPool = ({
   }
 
   transactions.push({
-    contractName: SupportedContractsEnum.LoanReferralForwarder,
+    contractName: SupportedContractsEnum.LoanReferralForwarderV2,
     functionName: "acceptCommitmentWithReferral",
     args: [
       SMART_COMMITMENT_FORWARDER_ADDRESS,
       acceptCommitmentArgs,
+      atmId,
       address,
       referralFeeAmount,
       referralAddress,

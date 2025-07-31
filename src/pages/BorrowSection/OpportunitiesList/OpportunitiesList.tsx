@@ -63,6 +63,10 @@ const OpportunityListDataItem: React.FC<OpportunityListDataItemProps> = ({
 const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
   opportunity,
 }) => {
+  console.log(
+    "TCL ~ OpportunitiesList.tsx:66 ~ OpportunityListItem ~ opportunity:",
+    opportunity
+  );
   const {
     setCurrentStep,
     setSelectedOpportunity,
@@ -356,11 +360,20 @@ const OpportunitiesList: React.FC = () => {
       selectedCollateralToken?.address,
       userAddress
     );
+  console.log(
+    "TCL ~ OpportunitiesList.tsx:355 ~ lcfaCommitments:",
+    lcfaCommitments
+  );
 
   const { data: lenderGroupsCommitments, isLoading: isLenderGroupsLoading } =
     useGetCommitmentsForCollateralTokensFromLiquidityPools(
       selectedCollateralToken?.address as AddressStringType
     );
+
+  console.log(
+    "TCL ~ OpportunitiesList.tsx:362 ~ lenderGroupsCommitments:",
+    lenderGroupsCommitments
+  );
   const {
     isLoading: isErc20Loading,
     getCommitmentsForErc20TokensByPrincipalToken,
@@ -392,6 +405,9 @@ const OpportunitiesList: React.FC = () => {
     lenderGroupsCommitments,
     erc20sWithCommitments,
   ]);
+
+  console.log("TCL ~ OpportunitiesList.tsx:383 ~ data:", data);
+
   const isLoading = isStableView
     ? isLcfaLoading || isLenderGroupsLoading
     : isErc20Loading;

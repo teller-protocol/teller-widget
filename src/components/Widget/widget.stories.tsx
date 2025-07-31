@@ -9,7 +9,7 @@ import { config } from "../../helpers/createWagmiConfig";
 import "./widgetStories.scss";
 import Widget from ".";
 
-const SUBGRAPH_API_KEY = "0a9b146b6731de6b9f11b93095cc37e2";
+const SUBGRAPH_API_KEY = "d7f7ac0a5cdc272ad9395816361281c5";
 
 const meta = {
   title: "Widget",
@@ -335,7 +335,7 @@ const meta = {
         "0x0c880f6761f1af8d9aa9c466984b80dab9a8c9e8",
       ],
     },
-    whitelistedChains: [1, 137, 42161, 8453],
+    whitelistedChains: [1, 137, 42161, 8453, 10],
   },
 } satisfies Meta<typeof Widget>;
 

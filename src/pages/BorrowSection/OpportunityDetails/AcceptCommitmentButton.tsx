@@ -53,7 +53,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
   const isNotConnected = !address;
 
   const chainId = useChainId();
-  const { referralFee, referralAddress } = useGetGlobalPropsContext();
+  const { referralFee, referralAddress, atmId } = useGetGlobalPropsContext();
   const lrfAddress = lrfAddressMap[chainId];
 
   const referralFeeAmount =
@@ -236,6 +236,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
     const step3Args = [
       commitmentForwarderAddress,
       acceptCommitmentArgs,
+      atmId,
       address, // recipient, this wallet address
       referralFeeAmount, // _reward
       referralAddress, // _rewardRecipient
@@ -245,7 +246,7 @@ export const AcceptCommitmentButton: React.FC<Props> = ({
       row4.push({
         buttonLabel: <span>Deposit & Borrow</span>,
         loadingButtonLabel: <span>Executing Loan...</span>,
-        contractName: SupportedContractsEnum.LoanReferralForwarder,
+        contractName: SupportedContractsEnum.LoanReferralForwarderV2,
         functionName: step3FunctionName,
         args: step3Args,
         contractType: ContractType.External,

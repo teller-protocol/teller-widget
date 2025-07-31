@@ -22,6 +22,7 @@ import { useCalculateMaxCollateralFromCommitment } from "./useCalculateMaxCollat
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 import { useGetProtocolFee } from "./useGetProtocolFee";
 import { useWriteContract } from "./useWriteContract";
+import { useLenderGroupsContractType } from "./useLenderGroupsContractType";
 
 export const calculateCollateralRequiredForPrincipal = (
   loanPrincipal: bigint, // base units of the principal token
@@ -92,12 +93,17 @@ const useRolloverLoan = (
   isInputMoreThanMaxCollateral?: boolean,
   maxLoanAmount?: bigint
 ) => {
+  console.log(
+    "TCL ~ useRolloverLoan.ts:96 ~ useRolloverLoan ~ rolloverCommitment:",
+    rolloverCommitment
+  );
   const { address: walletConnectedAddress } = useAccount();
 
   const principalAmount =
     (BigInt(maxLoanAmount ?? 0) * BigInt(99)) / BigInt(100);
 
   const isLenderGroup = rolloverCommitment?.isLenderGroup ?? false;
+  const lenderGroupsContractType = useLenderGroupsContractType();
 
   const {
     setSuccessRolloverLoanHash,
@@ -117,7 +123,7 @@ const useRolloverLoan = (
     "getMinInterestRate",
     [principalAmount],
     false, // skipRun, assuming the default value here; change if needed
-    ContractType.LenderGroups // Setting the contractType to LenderGroups
+    lenderGroupsContractType // Setting the contractType to LenderGroups
   );
 
   const maxPrincipalPerCollateralLenderGroups =
@@ -314,6 +320,20 @@ const useRolloverLoan = (
       future15Mins,
     ],
     false
+  );
+  console.log(
+    "TCL ~ useRolloverLoan.ts:320 ~ useRolloverLoan ~ rolloverLoanEstimation:",
+    rolloverLoanEstimation,
+    "params",
+    [
+      rolloverCommitment?.marketplace?.marketplaceFeePercent,
+      protocolFeePercent,
+      bid.bidId,
+      principalAmount.toString(),
+      referralFeeAmount.toString(),
+      flashloanPremiumPct,
+      future15Mins,
+    ]
   );
   const borrowerAmount =
     BigInt(rolloverLoanEstimation?.[1] ?? 0) < 0

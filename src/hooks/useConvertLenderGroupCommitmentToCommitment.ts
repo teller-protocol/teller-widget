@@ -9,17 +9,23 @@ import { LenderGroupsPoolMetrics } from "../types/lenderGroupsPoolMetrics";
 
 import { useContracts } from "./useContracts";
 import { SupportedContractsEnum } from "./useReadContract";
+import { optimism } from "viem/chains";
 
 export const useConvertLenderGroupCommitmentToCommitment = () => {
   const contracts = useContracts();
   const chainId = useChainId();
+  const isOptimism = chainId === optimism.id;
 
   const convertCommitment = useCallback(
     async (lenderGroupCommitment: LenderGroupsPoolMetrics) => {
       const totalAvailable = (await readContract(config, {
         address: lenderGroupCommitment?.group_pool_address as AddressStringType,
         functionName: "getPrincipalAmountAvailableToBorrow",
-        abi: contracts[SupportedContractsEnum.LenderGroups].abi,
+        abi: contracts[
+          isOptimism
+            ? SupportedContractsEnum.LenderGroupsV2
+            : SupportedContractsEnum.LenderGroups
+        ].abi,
         args: [],
         chainId: chainId as ChainNumbers,
       }).catch((res) => {

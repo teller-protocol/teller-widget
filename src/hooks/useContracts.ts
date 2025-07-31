@@ -1,5 +1,5 @@
 import teller_contracts from "@teller-protocol/v2-contracts/build/hardhat/contracts.json";
-import { arbitrum, base, mainnet, polygon } from "viem/chains";
+import { arbitrum, base, mainnet, optimism, polygon } from "viem/chains";
 import { useChainId } from "wagmi";
 
 export enum SupportedChainId {
@@ -7,6 +7,7 @@ export enum SupportedChainId {
   POLYGON = polygon.id,
   ARBITRUM = arbitrum.id,
   BASE = base.id,
+  OPTIMISM = optimism.id,
 }
 
 export const useContracts = () => {

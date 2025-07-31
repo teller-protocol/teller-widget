@@ -48,7 +48,9 @@ export const config = createConfig({
     ),
     [base.id]: http(`https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`),
     [linea.id]: http(),
-    10: http(),
+    [optimism.id]: http(
+      `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
+    ),
     81457: http(),
     5000: http(),
     169: http(),

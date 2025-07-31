@@ -22,6 +22,7 @@ import {
 } from "./useReadContract";
 import { parseBigInt } from "../helpers/parseBigInt";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
+import { useLenderGroupsContractType } from "./useLenderGroupsContractType";
 interface Result {
   maxLoanAmount: bigint;
   maxCollateral: bigint;
@@ -55,12 +56,14 @@ export const useGetCommitmentMax = ({
     address: commitment?.lenderAddress,
   });
 
+  const lenderGroupsContractType = useLenderGroupsContractType();
+
   const { data: principalAmountAvailableToBorrow } = useReadContract<bigint>(
     commitment?.lenderAddress ?? "0x",
     "getPrincipalAmountAvailableToBorrow",
     [],
     !isLenderGroup,
-    ContractType.LenderGroups
+    lenderGroupsContractType
   );
 
   let lenderGroupAmount = principalAmountAvailableToBorrow ?? 0n;
@@ -167,7 +170,7 @@ export const useGetCommitmentMax = ({
       "getRequiredCollateral",
       requiredCollateralArgs,
       requiredCollateralArgs.some((arg) => !arg),
-      isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+      isLenderGroup ? lenderGroupsContractType : ContractType.Teller
     );
   const maxCollateral = useMemo(() => {
     const amount =
