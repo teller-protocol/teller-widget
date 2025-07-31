@@ -93,40 +93,30 @@ const RenderComponent: React.FC = () => {
     setIsInitialTokenProcessed(false);
   }, [strategyToken, borrowToken]);
 
-  const shouldResetForChainMismatch = useCallback(
-    (enrichedTokenChainId: number, enrichedTokenAddress: string) =>
-      enrichedTokenChainId &&
-      (enrichedTokenChainId !== chainId ||
-        enrichedTokenAddress.toLowerCase() !== tokenAddress.toLowerCase()),
-    [chainId, tokenAddress]
-  );
-
   const processTokenInitialization = useCallback(
     (tokenData: UserToken, isLongStrategy: boolean = false) => {
-      if (
-        isStrategiesSection &&
-        isLoop &&
-        strategyToken &&
-        isLongStrategy &&
-        tokenData.address.toLowerCase() === strategyToken.toLowerCase()
-      ) {
-        switchChainManual(tokenData.chainId);
-        setTimeout(() => {
+      switchChainManual(tokenData.chainId);
+
+      setTimeout(() => {
+        if (
+          isStrategiesSection &&
+          isLoop &&
+          strategyToken &&
+          isLongStrategy &&
+          tokenData.address.toLowerCase() === strategyToken.toLowerCase()
+        ) {
           setSelectedSwapToken(tokenData);
           setSelectedCollateralToken(tokenData);
           setSelectedPrincipalErc20Token(tokenData);
           setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
-        });
-        return;
-      }
+          return;
+        }
 
-      if (isLongStrategy) {
-        setSelectedSwapToken(tokenData);
-        return;
-      }
+        if (isLongStrategy) {
+          setSelectedSwapToken(tokenData);
+          return;
+        }
 
-      switchChainManual(tokenData.chainId);
-      setTimeout(() => {
         setSelectedCollateralToken(tokenData);
         setSelectedPrincipalErc20Token(tokenData);
         setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
@@ -157,8 +147,7 @@ const RenderComponent: React.FC = () => {
     const enrichedToken = findTokenWithMetadata(
       tokenAddress.toLowerCase(),
       tokenMetadata,
-      tokenList || {},
-      chainId
+      tokenList || {}
     );
 
     const tokenData: UserToken = {
@@ -169,18 +158,11 @@ const RenderComponent: React.FC = () => {
       balance: tokenBalance,
       balanceBigInt: balanceBigInt.toString(),
       decimals: enrichedToken.decimals || 18,
-      chainId: !address ? enrichedToken.chainId || chainId : undefined,
+      chainId: enrichedToken.chainId || 1,
     };
 
     setIsInitialTokenProcessed(true);
     if (isInitialTokenProcessed) {
-      return;
-    }
-
-    if (
-      shouldResetForChainMismatch(enrichedToken.chainId, enrichedToken.address)
-    ) {
-      resetSelections();
       return;
     }
 
@@ -216,7 +198,6 @@ const RenderComponent: React.FC = () => {
     setIsInitialTokenProcessed,
     address,
     resetSelections,
-    shouldResetForChainMismatch,
     processTokenInitialization,
     singleWhitelistedToken,
     isSwitchingBetweenWidgetActions,

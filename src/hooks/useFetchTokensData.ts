@@ -4,6 +4,7 @@ import { mapChainIdToAlchemyNetworkKey } from "./useAlchemy";
 import { UserToken, runInChunks } from "./useGetUserTokens";
 import { useGetTokenImageAndSymbolFromTokenList } from "./useGetTokenImageAndSymbolFromTokenList";
 import { useGetTokenList } from "./queries/useGetTokenList";
+import { HARRY_POTTER_OBAMA_SONIC_10_INU_ADDRESSES } from "../constants/tokens";
 
 const chainAwareAlchemy = (chainId: number) => {
   return new Alchemy({
@@ -13,13 +14,16 @@ const chainAwareAlchemy = (chainId: number) => {
 };
 
 export const useGetTokensData = () => {
-  const { getTokenImageAndSymbolFromTokenList } =
+  const { getTokenImageAndSymbolFromTokenList, isTokenListLoading } =
     useGetTokenImageAndSymbolFromTokenList();
 
   const fetchAllWhitelistedTokensData = async (
     whitelistedTokens: string[],
     chainId: number
   ): Promise<UserToken[]> => {
+    if (isTokenListLoading) {
+      throw new Error("Token list is still loading");
+    }
     if (!whitelistedTokens) return [];
     const allTokens: UserToken[] = [];
     const alchemy = chainAwareAlchemy(chainId);
@@ -56,5 +60,5 @@ export const useGetTokensData = () => {
 
     return allTokens;
   };
-  return { fetchAllWhitelistedTokensData };
+  return { fetchAllWhitelistedTokensData, isTokenListLoading };
 };
