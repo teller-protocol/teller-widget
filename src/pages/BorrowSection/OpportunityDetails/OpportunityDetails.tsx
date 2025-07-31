@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
+import { useAccount, useBalance } from "wagmi";
 
 import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
+import Button from "../../../components/Button";
 import DataPill from "../../../components/DataPill";
+import Loader from "../../../components/Loader/Loader";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import Tooltip from "../../../components/Tooltip";
+import TransactionButton from "../../../components/TransactionButton";
 import { normalizeChainName } from "../../../constants/chains";
 import {
   STRATEGY_ACTION_ENUM,
@@ -13,33 +18,25 @@ import {
 } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
+import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
 import { useChainData } from "../../../hooks/useChainData";
+import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
+import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
+import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
+import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../../BorrowSection/BorrowSectionContext";
-
-import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import "./opportunityDetails.scss";
+import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 
-import { formatUnits, parseUnits } from "viem";
-
-import { useAccount, useBalance, useChainId } from "wagmi";
-import Button from "../../../components/Button";
-import TransactionButton from "../../../components/TransactionButton";
-import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
-import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
-import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
-import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import { BorrowSwapButton } from "./BorrowSwapButton";
-
-import Loader from "../../../components/Loader/Loader";
-import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
-import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
-import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
-import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
 
 const OpportunityDetails = () => {
   const {
@@ -54,7 +51,6 @@ const OpportunityDetails = () => {
     setBorrowSwapTokenInput,
   } = useGetBorrowSectionContext();
   const { address, connector } = useAccount();
-  const chainId = useChainId();
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
@@ -251,29 +247,20 @@ const OpportunityDetails = () => {
     (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
 
   const isLiquidityPool = selectedOpportunity.isLenderGroup;
-  console.log("isLiquidityPool", isLiquidityPool);
-  console.log("maxLoanAmountNumber", maxLoanAmountNumber);
-  console.log(
-    "selectedOpportunity.lenderAddres",
-    selectedOpportunity.lenderAddress
+  const { data: liquidityPoolApr } = useGetAPRForLiquidityPools(
+    selectedOpportunity.lenderAddress ?? "0x",
+    maxLoanAmount.toString(),
+    !isLiquidityPool
   );
-  const { data: liquidityPoolApr, isLoading: aprLoading = false } =
-    useGetAPRForLiquidityPools(
-      selectedOpportunity.lenderAddress ?? "0x",
-      maxLoanAmountNumber.toString(),
-      !isLiquidityPool
-    );
-  console.log("liquidityPoolApr", liquidityPoolApr);
+
   const apr = isLiquidityPool ? liquidityPoolApr : selectedOpportunity.minAPY;
-  console.log("apr", apr);
   const interest =
-    (Number(apr) / 100) *
+    (Number(apr) / 10000) *
     (Number(selectedOpportunity.maxDuration) / 86400 / 365);
-  console.log("interest", interest);
 
   const payPerLoan = useMemo(
-    () => numberWithCommasAndDecimals(interest, 2),
-    [interest]
+    () => numberWithCommasAndDecimals(interest * maxLoanAmountNumber, 2),
+    [interest, maxLoanAmountNumber]
   );
 
   const { chainName } = useChainData();
