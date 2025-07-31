@@ -289,14 +289,14 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
                     label="Est. loan to uni ROI:"
                     value={
                       parseFloat(selectedErc20Apy) -
-                        (apr / 100 +
+                        (Number(apr) / 100 +
                           (totalFeePercent / 100) *
                             (365 / (Number(opportunity.maxDuration) / 86400))) <
                       0
                         ? "-"
                         : `+ ${(
                             parseFloat(selectedErc20Apy) -
-                            (apr / 100 +
+                            (Number(apr) / 100 +
                               (totalFeePercent / 100) *
                                 (365 /
                                   (Number(opportunity.maxDuration) / 86400)))

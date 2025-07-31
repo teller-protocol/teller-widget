@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
+import { useAccount, useBalance } from "wagmi";
 
 import separatorWithCaret from "../../../assets/separator_with_caret.svg";
 import BackButton from "../../../components/BackButton";
+import Button from "../../../components/Button";
 import DataPill from "../../../components/DataPill";
+import Loader from "../../../components/Loader/Loader";
 import TokenInput from "../../../components/TokenInput";
 import { TokenInputType } from "../../../components/TokenInput/TokenInput";
 import Tooltip from "../../../components/Tooltip";
+import TransactionButton from "../../../components/TransactionButton";
 import { normalizeChainName } from "../../../constants/chains";
 import {
   STRATEGY_ACTION_ENUM,
@@ -13,32 +18,25 @@ import {
 } from "../../../contexts/GlobalPropsContext";
 import { convertSecondsToDays } from "../../../helpers/dateUtils";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
+import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
+import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
 import { useChainData } from "../../../hooks/useChainData";
+import { useGetAPRForLiquidityPools } from "../../../hooks/useGetAPRForLiquidityPools";
+import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
+import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
+import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
 import { useGetTokenMetadata } from "../../../hooks/useGetTokenMetadata";
+import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
+import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../../BorrowSection/BorrowSectionContext";
-
-import { useGetCommitmentMax } from "../../../hooks/useGetCommitmentMax";
 import "./opportunityDetails.scss";
+import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
 
-import { formatUnits, parseUnits } from "viem";
-
-import { useAccount, useBalance, useChainId } from "wagmi";
-import Button from "../../../components/Button";
-import TransactionButton from "../../../components/TransactionButton";
-import { useIsNewBorrower } from "../../../hooks/queries/useIsNewBorrower";
-import { useBorrowFromPool } from "../../../hooks/useBorrowFromPool";
-import { useGetProtocolFee } from "../../../hooks/useGetProtocolFee";
-import { useLiquidityPoolsCommitmentMax } from "../../../hooks/useLiquidityPoolsCommitmentMax";
 import { AcceptCommitmentButton } from "./AcceptCommitmentButton";
 import { BorrowSwapButton } from "./BorrowSwapButton";
-
-import Loader from "../../../components/Loader/Loader";
-import { useGetBorrowSwapData } from "../../../hooks/useGetBorrowSwapData";
-import { StrategiesSelect } from "../CollateralTokenList/CollateralTokenList";
-import { useGetTokenPriceFromDerivedETH } from "../../../hooks/useGetTokenPriceFromDerivedETH";
 
 const OpportunityDetails = () => {
   const {
@@ -53,7 +51,6 @@ const OpportunityDetails = () => {
     setBorrowSwapTokenInput,
   } = useGetBorrowSectionContext();
   const { address, connector } = useAccount();
-  const chainId = useChainId();
 
   const { isStrategiesSection, strategyAction } = useGetGlobalPropsContext();
 
@@ -249,17 +246,21 @@ const OpportunityDetails = () => {
   const loanMinusFees =
     (maxLoanAmountNumber * (10000 - totalFeePercent)) / 10000;
 
+  const isLiquidityPool = selectedOpportunity.isLenderGroup;
+  const { data: liquidityPoolApr } = useGetAPRForLiquidityPools(
+    selectedOpportunity.lenderAddress ?? "0x",
+    maxLoanAmount.toString(),
+    !isLiquidityPool
+  );
+
+  const apr = isLiquidityPool ? liquidityPoolApr : selectedOpportunity.minAPY;
+  const interest =
+    (Number(apr) / 10000) *
+    (Number(selectedOpportunity.maxDuration) / 86400 / 365);
+
   const payPerLoan = useMemo(
-    () =>
-      numberWithCommasAndDecimals(
-        (((+(selectedOpportunity?.minAPY ?? 0) / 10000) * maxLoanAmountNumber) /
-          365) *
-          (convertSecondsToDays(
-            Number(selectedOpportunity?.maxDuration ?? 0)
-          ) ?? 0),
-        2
-      ),
-    [selectedOpportunity, maxLoanAmountNumber]
+    () => numberWithCommasAndDecimals(interest * maxLoanAmountNumber, 2),
+    [interest, maxLoanAmountNumber]
   );
 
   const { chainName } = useChainData();
@@ -384,7 +385,8 @@ const OpportunityDetails = () => {
 
   useEffect(() => {
     const run = async () => {
-      const rewardToken = selectedCollateralToken?.rewardData?.reward_token_data;
+      const rewardToken =
+        selectedCollateralToken?.rewardData?.reward_token_data;
       const rewardPercent = selectedCollateralToken?.rewardPercent;
       const duration = Number(selectedOpportunity?.maxDuration);
       const maxLoanAmount = maxLoanAmountNumber;
@@ -417,7 +419,6 @@ const OpportunityDetails = () => {
     maxLoanAmountNumber,
     getTokenPrice,
   ]);
-
 
   return (
     <div className="opportunity-details">
@@ -561,7 +562,9 @@ const OpportunityDetails = () => {
           <TokenInput
             tokenValue={rewardTokenInput}
             label={
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
                 Rewards
                 <Tooltip
                   description={`Borrow and earn ${selectedCollateralToken?.rewardData?.reward_token_data?.symbol} rewards instantly.`}
@@ -582,7 +585,9 @@ const OpportunityDetails = () => {
                 />
               </div>
             }
-            imageUrl={selectedCollateralToken?.rewardData?.reward_token_data?.logo}
+            imageUrl={
+              selectedCollateralToken?.rewardData?.reward_token_data?.logo
+            }
             readonly
             sublabelUpper={`+${selectedCollateralToken?.rewardPercent}% APR Reward ✨`}
           />

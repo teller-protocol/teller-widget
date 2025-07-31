@@ -1,4 +1,5 @@
 import { Address } from "viem";
+
 import { ContractType, useReadContract } from "./useReadContract";
 
 export const useGetAPRForLiquidityPools = (
@@ -6,7 +7,7 @@ export const useGetAPRForLiquidityPools = (
   principalAmount: string,
   skip: boolean = false
 ) => {
-  const { data, isLoading } = useReadContract(
+  const { data, isLoading } = useReadContract<string>(
     address,
     "getMinInterestRate",
     [principalAmount],
