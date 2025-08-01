@@ -157,6 +157,8 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
 
   const isWhitelistedToken = useCallback(
     (token?: Address | undefined) => {
+      if (!whitelistedTokens) return true;
+
       const result = token
         ? whitelistedTokens?.[chainId]?.includes(token)
         : false;
