@@ -1,27 +1,28 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import CollateralTokenRow from "../../../components/CollateralTokenRow";
 import Loader from "../../../components/Loader";
 import {
-  useGetGlobalPropsContext,
   STRATEGY_ACTION_ENUM,
+  useGetGlobalPropsContext,
 } from "../../../contexts/GlobalPropsContext";
-import { UserToken } from "../../../hooks/useGetUserTokens";
+import type { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
+import type { UserToken } from "../../../hooks/useGetUserTokens";
 import { useIsSupportedChain } from "../../../hooks/useIsSupportedChain";
 import PrincipalErc20List from "../../../pages/BorrowSection/PrincipalErc20List";
 import ShortErc20List from "../../../pages/BorrowSection/ShortErc20List";
 import SwapTokenList from "../../../pages/BorrowSection/SwapTokenList";
-import { CommitmentType } from "../../../hooks/queries/useGetCommitmentsForCollateralToken";
 import {
   BorrowSectionSteps,
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
-import SelectButtons from "../../../components/SelectButtons";
 import { useAccount, useChainId } from "wagmi";
-import TokenLogo from "../../../components/TokenLogo";
-import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
-import { mapChainIdToName } from "../../../constants/chains";
 import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
+import SelectButtons from "../../../components/SelectButtons";
+import TokenLogo from "../../../components/TokenLogo";
+import { mapChainIdToName } from "../../../constants/chains";
+import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useTokenLogoAndSymbolWithFallback } from "../../../hooks/useTokenLogoAndSymbolWithFallback";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
@@ -229,7 +230,6 @@ const CollateralTokenList: React.FC = () => {
 
     return {
       ...token,
-      chainId: address ? undefined : token.chainId,
       rewardPercent: matchingReward?.reward_percent,
       rewardData: matchingReward ?? null,
     };

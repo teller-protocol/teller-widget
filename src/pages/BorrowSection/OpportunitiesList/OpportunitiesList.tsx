@@ -72,7 +72,7 @@ const OpportunityListItem: React.FC<OpportunityListItemProps> = ({
     selectedErc20Apy,
     selectedSwapToken,
   } = useGetBorrowSectionContext();
-  const { userTokens, isWhitelistedToken } = useGetGlobalPropsContext();
+  const { isWhitelistedToken } = useGetGlobalPropsContext();
   const { address: userAddress } = useAccount();
 
   const { data: collateralTokenBalance } = useBalance({

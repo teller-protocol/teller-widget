@@ -1,63 +1,28 @@
-import { useQueries } from "@tanstack/react-query";
-import request, { gql } from "graphql-request";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { arbitrum, base, mainnet, polygon } from "viem/chains";
 
-import { getGraphEndpointWithKey } from "../../constants/graphEndpoints";
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { useGetTokensData } from "../useFetchTokensData";
-
-const cacheKeyPrefix = (cacheKey?: string) =>
-  cacheKey
-    ? `commitmentsAcrossNetworks-${cacheKey}`
-    : "commitmentsAcrossNetworks";
-const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
+import { createFingerprintHash } from "../../helpers/localStorageCache";
+import type { UserToken } from "../useGetUserTokens";
 
 type CachedCommitments = {
-  data: any[];
+  data: UserToken[];
   timestamp: number;
   whitelistedTokensFingerprint: string;
 };
 
 type CommitmentsCache = CachedCommitments | null;
 
-const commitmentsQuery = (tokens: string[]) => gql`
-  query commitmentsForUserTokensALLWLTokens {
-    commitments(
-      where: { collateralToken_: { address_in: ${JSON.stringify(
-        Array.from(new Set(tokens))
-      )}}, status: "Active", committedAmount_gt: "0" }
-    ) {
-      collateralToken {
-        address
-      }
-    }
-  }
-`;
-
-const liquidityPoolsQuery = (tokens: string[]) => gql`
-        query checkCommitmentsLenderGroupsALLWLTokens {
-          group_pool_metric(
-            where: {
-              collateral_token_address: {_in: ${JSON.stringify(
-                Array.from(new Set(tokens))
-              )}}
-            }
-          ) {
-            group_pool_address
-            collateral_token_address
-          }
-        }
-      `;
+const cacheKeyPrefix = "commitmentsAcrossNetworks";
+const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 export const useGetAllWLCommitmentsAcrossNetworks = () => {
-  const { subgraphApiKey, whitelistedTokens, cacheKey } =
-    useGetGlobalPropsContext();
-  const { fetchAllWhitelistedTokensData } = useGetTokensData();
+  const { whitelistedTokens, cacheKey } = useGetGlobalPropsContext();
 
-  const [allCommitments, setAllCommitments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  console.log("whitelistedTokens", whitelistedTokens);
+
+  const [allCommitments, setAllCommitments] = useState<UserToken[]>([]);
   const [cache, setCache] = useState<CommitmentsCache>(null);
 
   const mainnetID = mainnet.id;
@@ -71,131 +36,119 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
   );
 
   const whitelistedTokensFingerprint = useMemo(() => {
-    return subpgraphIds
+    let fingerprint = subpgraphIds
       .map((id) => {
         const tokens = whitelistedTokens?.[id] || [];
         return `${id}:${tokens.join(",")}`;
       })
       .join("|");
-  }, [whitelistedTokens, subpgraphIds]);
 
-  // Load cache from localStorage once
+    if (cacheKey) fingerprint = `${cacheKey}//${fingerprint}`;
+
+    return fingerprint;
+  }, [whitelistedTokens, subpgraphIds, cacheKey]);
+
+  // Create dynamic cache key based on whitelistedTokensFingerprint
+  const dynamicCacheKey = useMemo(() => {
+    if (!whitelistedTokensFingerprint) return `${cacheKeyPrefix}_empty`;
+    const hash = createFingerprintHash(whitelistedTokensFingerprint);
+    return `${cacheKeyPrefix}_${hash}`;
+  }, [whitelistedTokensFingerprint]);
+
+  // Load cache from localStorage when fingerprint changes
   useEffect(() => {
-    const lsItem = localStorage.getItem(cacheKeyPrefix(cacheKey ?? ""));
+    const lsItem = localStorage.getItem(dynamicCacheKey);
     if (lsItem) {
       try {
-        const parsed: CommitmentsCache = JSON.parse(lsItem);
+        const parsed = JSON.parse(lsItem) as CommitmentsCache;
         setCache(parsed);
       } catch (e) {
         console.error("Failed to parse localStorage cache:", e);
+        setCache(null);
       }
+    } else {
+      setCache(null);
     }
-  }, [cacheKey]);
+  }, [dynamicCacheKey]);
 
   // Persist cache to localStorage on change
   useEffect(() => {
-    localStorage.setItem(cacheKeyPrefix(cacheKey), JSON.stringify(cache));
-  }, [cache, cacheKey]);
-
-  const result = useQueries({
-    queries: subpgraphIds.map((id) => ({
-      queryKey: [
-        "teller-widget",
-        "commitments",
-        id,
-        whitelistedTokensFingerprint,
-      ],
-      queryFn: async () => {
-        const tokens = whitelistedTokens?.[id] || [];
-        let commitments: any;
-        let liquidityPools: any;
-
-        try {
-          commitments = await request(
-            getGraphEndpointWithKey(subgraphApiKey, id) ?? "",
-            commitmentsQuery(tokens)
+    if (cache) {
+      try {
+        const cacheString = JSON.stringify(cache);
+        localStorage.setItem(dynamicCacheKey, cacheString);
+      } catch (error) {
+        console.error("Failed to save cache to localStorage:", error);
+        // If storage is full, try to clear old cache entries
+        if ((error as { name: string }).name === "QuotaExceededError") {
+          console.warn(
+            "localStorage quota exceeded, clearing old cache entries"
           );
-        } catch (error) {
-          console.error(`Error fetching commitments for chain ${id}:`, error);
-          return [];
+          try {
+            // Clear other cache entries with same prefix
+            const keys = Object.keys(localStorage);
+            const cacheKeys = keys.filter(
+              (key) => key.startsWith(cacheKeyPrefix) && key !== dynamicCacheKey
+            );
+            cacheKeys.forEach((key) => {
+              try {
+                localStorage.removeItem(key);
+              } catch (removeError) {
+                console.error("Failed to remove cache key:", key, removeError);
+              }
+            });
+            // Try to save again
+            localStorage.setItem(dynamicCacheKey, JSON.stringify(cache));
+          } catch (retryError) {
+            console.error("Failed to save cache after cleanup:", retryError);
+          }
         }
+      }
+    }
+  }, [cache, dynamicCacheKey]);
 
-        try {
-          liquidityPools = await request(
-            getLiquidityPoolsGraphEndpoint(id) ?? "",
-            liquidityPoolsQuery(tokens)
-          );
-        } catch (error) {
-          console.error(
-            `Error fetching liquidity pools for chain ${id}:`,
-            error
-          );
-          return [];
-        }
-
-        const commitmentsWithCollateralAddressOnly =
-          commitments?.commitments?.map(
-            (commitment: { collateralToken: { address: string } }) =>
-              commitment?.collateralToken?.address
-          ) || [];
-
-        const liquidityPoolsWithCollateralAddressOnly =
-          liquidityPools?.group_pool_metric?.map(
-            (pool: { collateral_token_address: string }) =>
-              pool.collateral_token_address
-          ) || [];
-
-        const combinedCommitments = Array.from(
-          new Set([
-            ...commitmentsWithCollateralAddressOnly,
-            ...liquidityPoolsWithCollateralAddressOnly,
-          ])
-        );
-
-        const commitmentsWithData = await fetchAllWhitelistedTokensData(
-          combinedCommitments,
-          id
-        );
-
-        return commitmentsWithData;
-      },
-      enabled: !!whitelistedTokensFingerprint,
-      keepPreviousData: true,
-    })),
-    combine: (results) => {
-      const allData = results.flatMap((d) => d.data);
-      const allDataFetched = results.every((d) => d.isSuccess);
-      const isLoading = results.some((d) => d.isLoading);
-
-      return {
-        data: allData,
-        loading: isLoading,
-        isFetched: allDataFetched,
-      };
+  const result = useQuery({
+    queryKey: ["teller-widget", "commitments", whitelistedTokensFingerprint],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://whitelisted-tokens-middleware-production.up.railway.app${
+          whitelistedTokens
+            ? `?whitelistedTokens=${JSON.stringify(whitelistedTokens)}`
+            : ""
+        }`,
+        { method: "GET" }
+      );
+      const json = (await res.json()) as {
+        chainId: string;
+        commitmentsWithData: UserToken[];
+      }[];
+      const tokens = json.map((c) => c.commitmentsWithData).flat();
+      return tokens;
     },
+    enabled: !!whitelistedTokensFingerprint,
   });
 
   // Update in-memory cache when new commitments are available
   useEffect(() => {
-    if (!loading && result.isFetched && result.data.length > 0) {
+    if (result.isFetched && result.data && result.data.length > 0) {
       setCache({
         data: result.data,
         timestamp: Date.now(),
         whitelistedTokensFingerprint,
       });
     }
-  }, [result.data, result.isFetched, loading, whitelistedTokensFingerprint]);
+  }, [result.data, result.isFetched, whitelistedTokensFingerprint]);
 
   // Process and set commitments
   useEffect(() => {
     if (!whitelistedTokensFingerprint) {
-      setLoading(false);
       return;
     }
 
     if (result.isFetched) {
-      setAllCommitments(result.data);
-      setLoading(false);
+      setAllCommitments(
+        result.data ? result.data.filter((i) => i !== undefined) : []
+      );
     }
   }, [result.data, result.isFetched, whitelistedTokensFingerprint]);
 
@@ -212,6 +165,11 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
     // If whitelistedTokens have loaded and fingerprint changed, don't use cache
     if (whitelistedTokensFingerprint && !isSameFingerprint) return [];
 
+    // Allow cache during transitions when whitelistedTokensFingerprint is empty
+    if (!whitelistedTokensFingerprint && cache.whitelistedTokensFingerprint) {
+      return isFresh ? cache.data : [];
+    }
+
     return isFresh && (isSameFingerprint || isInitialLoad) ? cache.data : [];
   }, [cache, whitelistedTokensFingerprint]);
 
@@ -221,15 +179,12 @@ export const useGetAllWLCommitmentsAcrossNetworks = () => {
 
     return {
       data: isUsingCache ? cachedCommitments : allCommitments,
-      loading: isUsingCache
-        ? false
-        : (isInitialLoad ? false : loading) || !result.isFetched,
+      loading: isInitialLoad ? (isUsingCache ? false : result.isLoading) : true,
     };
   }, [
     allCommitments,
     cachedCommitments,
-    loading,
-    result.isFetched,
+    result.isLoading,
     whitelistedTokensFingerprint,
   ]);
 };
