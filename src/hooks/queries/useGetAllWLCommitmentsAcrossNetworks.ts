@@ -20,8 +20,6 @@ const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 export const useGetAllWLCommitmentsAcrossNetworks = () => {
   const { whitelistedTokens, cacheKey } = useGetGlobalPropsContext();
 
-  console.log("whitelistedTokens", whitelistedTokens);
-
   const [allCommitments, setAllCommitments] = useState<UserToken[]>([]);
   const [cache, setCache] = useState<CommitmentsCache>(null);
 
