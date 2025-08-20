@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
-import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+
+import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
+import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 
 export const useGetLiquidityPools = () => {
   const chainId = useChainId();
-  const graphURL = getLiquidityPoolsGraphEndpoint(chainId);
+  const graphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
+  const graphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
   const { singleWhitelistedToken, principalTokenForPair } =
     useGetGlobalPropsContext();
 
@@ -41,7 +43,6 @@ export const useGetLiquidityPools = () => {
         interest_rate_lower_bound
         interest_rate_upper_bound
         current_min_interest_rate
-        shares_token_address
         collateral_ratio
         group_pool_address
         smart_commitment_forwarder_address
@@ -65,16 +66,39 @@ export const useGetLiquidityPools = () => {
   const { data, isLoading, error, isFetched } = useQuery({
     queryKey: ["teller-widget", "allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
-      const response = await request<{
-        group_pool_metric: LenderGroupsPoolMetrics[];
-      }>(graphURL, poolCommitmentsDashboard);
+      let responseV1: { group_pool_metric: LenderGroupsPoolMetrics[] } = {
+        group_pool_metric: [],
+      };
+      try {
+        responseV1 = await request<{
+          group_pool_metric: LenderGroupsPoolMetrics[];
+        }>(graphUrlV1, poolCommitmentsDashboard);
+      } catch (e) {
+        console.warn(e);
+      }
+
+      let responseV2: { group_pool_metric: LenderGroupsPoolMetrics[] } = {
+        group_pool_metric: [],
+      };
+      try {
+        responseV2 = await request<{
+          group_pool_metric: LenderGroupsPoolMetrics[];
+        }>(graphUrlV2, poolCommitmentsDashboard);
+      } catch (e) {
+        console.warn(e);
+      }
+
+      const metrics = [
+        ...responseV1.group_pool_metric,
+        ...responseV2.group_pool_metric,
+      ];
 
       let filteredPools = blockedPools?.length
-        ? response.group_pool_metric.filter(
+        ? metrics.filter(
             (pool) =>
               !blockedPools.includes(pool.group_pool_address.toLowerCase())
           )
-        : response.group_pool_metric;
+        : metrics;
 
       // Filter out pools with 0 or negative liquidity
       const hiddenPools: LenderGroupsPoolMetrics[] = [];
