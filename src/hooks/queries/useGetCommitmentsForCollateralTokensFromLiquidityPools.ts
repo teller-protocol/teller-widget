@@ -5,7 +5,7 @@ import { useChainId } from "wagmi";
 
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
-import { GetLenderGroupsRolloverableCommitmentsResponse } from "../../types/lenderGroupsPoolMetrics";
+import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
 
 import { CommitmentType } from "./useGetRolloverableCommitments";
@@ -62,36 +62,31 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
       chainId,
     ],
     queryFn: async () => {
-      let rawCommitmentsV1: GetLenderGroupsRolloverableCommitmentsResponse = {
-        group_pool_metric: [],
-      };
+      let merticsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        rawCommitmentsV1 =
-          await request<GetLenderGroupsRolloverableCommitmentsResponse>(
+        merticsV1 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
             graphUrlV1,
             collateralTokenCommitmentsDashboard
-          );
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
       } catch (e) {
         console.warn(e);
       }
 
-      let rawCommitmentsV2: GetLenderGroupsRolloverableCommitmentsResponse = {
-        group_pool_metric: [],
-      };
+      let metricsV2: LenderGroupsPoolMetrics[] = [];
       try {
-        rawCommitmentsV2 =
-          await request<GetLenderGroupsRolloverableCommitmentsResponse>(
+        metricsV2 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
             graphUrlV2,
             collateralTokenCommitmentsDashboard
-          );
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
       } catch (e) {
         console.warn(e);
       }
 
-      const metrics = [
-        ...rawCommitmentsV1.group_pool_metric,
-        ...rawCommitmentsV2.group_pool_metric,
-      ];
+      const metrics = [...merticsV1, ...metricsV2];
 
       const filteredCommitments = metrics.filter((pool: any) => {
         const committed = BigInt(pool?.total_principal_tokens_committed ?? 0);

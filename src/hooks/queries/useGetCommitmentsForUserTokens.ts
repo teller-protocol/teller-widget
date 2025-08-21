@@ -142,31 +142,31 @@ export const useGetCommitmentsForUserTokens = () => {
       userTokensFingerprint,
     ],
     queryFn: async () => {
-      let resV1: { group_pool_metric: LenderGroupsPoolMetrics[] } = {
-        group_pool_metric: [],
-      };
+      let metricsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        resV1 = await request(
-          lenderGroupsGraphUrlV1,
-          lenderGroupsUserTokenCommitments
-        );
+        metricsV1 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            lenderGroupsGraphUrlV1,
+            lenderGroupsUserTokenCommitments
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
       } catch (e) {
         console.warn(e);
       }
 
-      let resV2: { group_pool_metric: LenderGroupsPoolMetrics[] } = {
-        group_pool_metric: [],
-      };
+      let metricsV2: LenderGroupsPoolMetrics[] = [];
       try {
-        resV2 = await request(
-          lenderGroupsGraphUrlV2,
-          lenderGroupsUserTokenCommitments
-        );
+        metricsV2 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            lenderGroupsGraphUrlV2,
+            lenderGroupsUserTokenCommitments
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
       } catch (e) {
         console.warn(e);
       }
 
-      const metrics = [...resV1.group_pool_metric, ...resV2.group_pool_metric];
+      const metrics = [...metricsV1, ...metricsV2];
 
       return metrics.map((metric) => ({
         ...metric,

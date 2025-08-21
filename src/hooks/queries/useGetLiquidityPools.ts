@@ -66,32 +66,29 @@ export const useGetLiquidityPools = () => {
   const { data, isLoading, error, isFetched } = useQuery({
     queryKey: ["teller-widget", "allLiquidityPools", chainId, blockedPools],
     queryFn: async () => {
-      let responseV1: { group_pool_metric: LenderGroupsPoolMetrics[] } = {
-        group_pool_metric: [],
-      };
+      let metricsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        responseV1 = await request<{
-          group_pool_metric: LenderGroupsPoolMetrics[];
-        }>(graphUrlV1, poolCommitmentsDashboard);
+        metricsV1 = (
+          await request<{
+            group_pool_metric: LenderGroupsPoolMetrics[];
+          }>(graphUrlV1, poolCommitmentsDashboard)
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
       } catch (e) {
         console.warn(e);
       }
 
-      let responseV2: { group_pool_metric: LenderGroupsPoolMetrics[] } = {
-        group_pool_metric: [],
-      };
+      let metricsV2: LenderGroupsPoolMetrics[] = [];
       try {
-        responseV2 = await request<{
-          group_pool_metric: LenderGroupsPoolMetrics[];
-        }>(graphUrlV2, poolCommitmentsDashboard);
+        metricsV2 = (
+          await request<{
+            group_pool_metric: LenderGroupsPoolMetrics[];
+          }>(graphUrlV2, poolCommitmentsDashboard)
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
       } catch (e) {
         console.warn(e);
       }
 
-      const metrics = [
-        ...responseV1.group_pool_metric,
-        ...responseV2.group_pool_metric,
-      ];
+      const metrics = [...metricsV1, ...metricsV2];
 
       let filteredPools = blockedPools?.length
         ? metrics.filter(
