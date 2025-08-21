@@ -51,6 +51,7 @@ export type CommitmentType = {
   };
   isLenderGroup?: boolean; // this does NOT exist in subgraph
   collateralRatio?: number; // this does NOT exist in subgraph
+  isV2?: boolean;
 };
 
 /**

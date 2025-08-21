@@ -45,6 +45,7 @@ export type CommitmentType = {
   };
   isLenderGroup?: boolean;
   collateralRatio?: number;
+  isV2?: boolean;
 };
 
 export const useGetCommitmentsForCollateralToken = (

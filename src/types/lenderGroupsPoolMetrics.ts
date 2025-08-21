@@ -24,6 +24,7 @@ export type LenderGroupsPoolMetrics = {
   collateral_ratio: number;
   current_min_interest_rate: number;
   totalAvailable: number; // this is calculated in the frontend
+  isV2?: boolean;
 };
 
 export type GetLenderGroupsRolloverableCommitmentsResponse = {

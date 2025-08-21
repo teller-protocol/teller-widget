@@ -5,7 +5,6 @@ import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import { useContracts } from "./useContracts";
-import { rfwAddressMap } from "../constants/rfwAddress";
 import {
   ContractType,
   SupportedContractsEnum,
@@ -17,8 +16,7 @@ import {
   RepaySectionSteps,
   useGetRepaySectionContext,
 } from "../pages/RepaySection/RepaySectionContext";
-import { Address, zeroAddress } from "viem";
-import { useCalculateMaxCollateralFromCommitment } from "./useCalculateMaxCollateralFromCommitment";
+import { zeroAddress } from "viem";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 import { useGetProtocolFee } from "./useGetProtocolFee";
 import { useWriteContract } from "./useWriteContract";
@@ -117,7 +115,9 @@ const useRolloverLoan = (
     "getMinInterestRate",
     [principalAmount],
     false, // skipRun, assuming the default value here; change if needed
-    ContractType.LenderGroups // Setting the contractType to LenderGroups
+    rolloverCommitment.isV2
+      ? ContractType.LenderGroupsV2
+      : ContractType.LenderGroups // Setting the contractType to LenderGroups
   );
 
   const maxPrincipalPerCollateralLenderGroups =

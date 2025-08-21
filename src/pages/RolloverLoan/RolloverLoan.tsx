@@ -2,7 +2,7 @@ import cx from "classnames";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { Address, formatUnits } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 import BackButton from "../../components/BackButton";
 import DataField from "../../components/DataField";
@@ -30,7 +30,6 @@ import TokenInput, {
 } from "../../components/TokenInput/TokenInput";
 import TokenLogo from "../../components/TokenLogo";
 import TransactionButton from "../../components/TransactionButton";
-import { SUPPORTED_TOKEN_LOGOS } from "../../constants/tokens";
 import { abs, bigIntMax, bigIntMin } from "../../helpers/bigIntMath";
 import {
   convertSecondsToDays,
@@ -187,8 +186,7 @@ const RolloverLoan: React.FC = () => {
   const commitmentCollateral = commitment?.collateralToken;
 
   const isLenderGroup = commitment?.isLenderGroup;
-
-  const chainId = useChainId();
+  const isV2 = commitment.isV2;
 
   const { protocolFeePercent } = useGetProtocolFee();
   const { referralFee } = useGetGlobalPropsContext();
@@ -287,7 +285,11 @@ const RolloverLoan: React.FC = () => {
     "getRequiredCollateral",
     requiredCollateralArgs(defaultLoanAmountLender),
     !isSameLender,
-    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+    isLenderGroup
+      ? isV2
+        ? ContractType.LenderGroupsV2
+        : ContractType.LenderGroups
+      : ContractType.Teller
   );
 
   const {
@@ -298,7 +300,11 @@ const RolloverLoan: React.FC = () => {
     "getRequiredCollateral",
     requiredCollateralArgs(maxLoanAmountFromLender),
     !isSameLender,
-    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+    isLenderGroup
+      ? isV2
+        ? ContractType.LenderGroupsV2
+        : ContractType.LenderGroups
+      : ContractType.Teller
   );
 
   const {
@@ -408,7 +414,7 @@ const RolloverLoan: React.FC = () => {
         : BigInt(maxLoanAmount ?? 0),
     ],
     !isLenderGroup,
-    ContractType.LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const currentValues: RolloverData = useMemo(
