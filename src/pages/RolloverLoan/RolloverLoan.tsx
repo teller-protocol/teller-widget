@@ -513,6 +513,16 @@ const RolloverLoan: React.FC = () => {
   const totalFeePercent =
     10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
 
+  const totalFeePercentForDisplay =
+    (protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0);
+
+  const totalFees =
+    (Number(
+      formatUnits(maxLoanAmount ?? 0n, principalTokenMetadata?.decimals ?? 18)
+    ) *
+      totalFeePercentForDisplay) /
+    10000;
+
   const amountToPay =
     (maxLoanAmount * BigInt(totalFeePercent)) / BigInt(10000) -
     BigInt(totalOwedBI);
@@ -576,6 +586,10 @@ const RolloverLoan: React.FC = () => {
                 formattedMaxCollateral
               )}
               tokenSymbol={loanCollateral?.token.symbol}
+            />
+            <RolloverDataRow
+              label="Fee"
+              newValue={numberWithCommasAndDecimals(totalFees, 3)}
             />
             {!(amountToPay === 0n) && (
               <RolloverDataRow
