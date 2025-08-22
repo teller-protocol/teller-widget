@@ -62,9 +62,9 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
       chainId,
     ],
     queryFn: async () => {
-      let merticsV1: LenderGroupsPoolMetrics[] = [];
+      let metricsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        merticsV1 = (
+        metricsV1 = (
           await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
             graphUrlV1,
             collateralTokenCommitmentsDashboard
@@ -86,7 +86,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
         console.warn(e);
       }
 
-      const metrics = [...merticsV1, ...metricsV2];
+      const metrics = [...metricsV1, ...metricsV2];
 
       const filteredCommitments = metrics.filter((pool: any) => {
         const committed = BigInt(pool?.total_principal_tokens_committed ?? 0);
