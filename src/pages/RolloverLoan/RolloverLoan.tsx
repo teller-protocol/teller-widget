@@ -589,7 +589,8 @@ const RolloverLoan: React.FC = () => {
             />
             <RolloverDataRow
               label="Fee"
-              newValue={numberWithCommasAndDecimals(totalFees, 3)}
+              newValue={numberWithCommasAndDecimals(totalFees, 2)}
+              tokenSymbol={loanCollateral?.token.symbol}
             />
             {!(amountToPay === 0n) && (
               <RolloverDataRow
