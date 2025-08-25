@@ -20,7 +20,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
         address: lenderGroupCommitment?.group_pool_address as AddressStringType,
         functionName: "getPrincipalAmountAvailableToBorrow",
         abi: contracts[
-          lenderGroupCommitment.isV2
+          lenderGroupCommitment?.isV2
             ? SupportedContractsEnum.LenderGroupsV2
             : SupportedContractsEnum.LenderGroups
         ].abi,

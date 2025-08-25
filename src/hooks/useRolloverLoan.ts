@@ -115,7 +115,7 @@ const useRolloverLoan = (
     "getMinInterestRate",
     [principalAmount],
     false, // skipRun, assuming the default value here; change if needed
-    rolloverCommitment.isV2
+    rolloverCommitment?.isV2
       ? ContractType.LenderGroupsV2
       : ContractType.LenderGroups // Setting the contractType to LenderGroups
   );

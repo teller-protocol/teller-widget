@@ -186,7 +186,7 @@ const RolloverLoan: React.FC = () => {
   const commitmentCollateral = commitment?.collateralToken;
 
   const isLenderGroup = commitment?.isLenderGroup;
-  const isV2 = commitment.isV2;
+  const isV2 = commitment?.isV2 || false;
 
   const { protocolFeePercent } = useGetProtocolFee();
   const { referralFee } = useGetGlobalPropsContext();
