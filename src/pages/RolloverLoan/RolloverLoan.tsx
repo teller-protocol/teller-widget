@@ -539,6 +539,30 @@ const RolloverLoan: React.FC = () => {
     maxLenderCollateralSuportedLoading ||
     maxCollateralWithWalletBalanceLoading;
 
+  const interestToPayForDisplay = useMemo(() => {
+    if (!commitment?.minAPY || !maxLoanAmount || !commitment?.maxDuration)
+      return 0;
+    const interestRate = commitment.isLenderGroup
+      ? minInterestRateLenderGroups
+      : commitment?.minAPY;
+
+    const secondlyInterestRate =
+      Number(interestRate) / 10000 / 365 / 24 / 60 / 60;
+
+    const interestToPay =
+      Number(formatUnits(maxLoanAmount, commitment?.principalToken?.decimals)) *
+      secondlyInterestRate *
+      Number(commitment?.maxDuration);
+    return numberWithCommasAndDecimals(Number(interestToPay), 2);
+  }, [
+    commitment?.minAPY,
+    commitment?.maxDuration,
+    commitment?.isLenderGroup,
+    commitment?.principalToken?.decimals,
+    maxLoanAmount,
+    minInterestRateLenderGroups,
+  ]);
+
   return (
     <div className="rollover-loan">
       <div className="header-info">
@@ -587,15 +611,6 @@ const RolloverLoan: React.FC = () => {
               )}
               tokenSymbol={loanCollateral?.token.symbol}
             />
-            <RolloverDataRow
-              label="Fee"
-              newValue={
-                  <div className="next-value">
-                    {numberWithCommasAndDecimals(totalFees, 2)}
-                    <TokenLogo logoUrl={principalTokenIcon} />
-                  </div>
-                }
-            />
             {!(amountToPay === 0n) && (
               <RolloverDataRow
                 label={amountToPay < 0n ? "Pay now" : "Receive"}
@@ -616,6 +631,18 @@ const RolloverLoan: React.FC = () => {
           </>
         )}
       </DataField>
+      <div className="section-title fee-details">
+        <span className="fee-details-item">
+          Interest: {numberWithCommasAndDecimals(interestToPayForDisplay, 2)}
+          <TokenLogo logoUrl={principalTokenIcon} />
+        </span>{" "}
+        •{" "}
+        <span className="fee-details-item">
+          Fees:
+          {numberWithCommasAndDecimals(totalFees, 2)}
+          <TokenLogo logoUrl={principalTokenIcon} />
+        </span>
+      </div>
       <TransactionButton transactions={transactions} />
     </div>
   );
