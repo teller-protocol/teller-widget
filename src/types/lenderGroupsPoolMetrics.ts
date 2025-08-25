@@ -15,7 +15,6 @@ export type LenderGroupsPoolMetrics = {
   total_interest_collected: string;
   teller_v2_address: string;
   principal_token_address: string;
-  shares_token_address: string;
   max_loan_duration: number;
   liquidity_threshold_percent: number;
   market_id: string;
@@ -25,8 +24,5 @@ export type LenderGroupsPoolMetrics = {
   collateral_ratio: number;
   current_min_interest_rate: number;
   totalAvailable: number; // this is calculated in the frontend
-};
-
-export type GetLenderGroupsRolloverableCommitmentsResponse = {
-  group_pool_metric: LenderGroupsPoolMetrics[];
+  isV2?: boolean;
 };

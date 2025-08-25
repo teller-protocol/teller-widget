@@ -1,27 +1,23 @@
 import { useMemo } from "react";
+import { formatUnits } from "viem";
+import { useAccount, useBalance } from "wagmi";
 
-import { erc20Abi, formatUnits } from "viem";
-import {
-  useAccount,
-  useBalance,
-  useReadContract as useReadContractWagmi,
-} from "wagmi";
-
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { bigIntMin } from "../helpers/bigIntMath";
+import { parseBigInt } from "../helpers/parseBigInt";
 import { CommitmentCollateralType } from "../types/poolsApiTypes";
 
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
 import { useContracts } from "./useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
-import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 import { useGetProtocolFee } from "./useGetProtocolFee";
 import {
   ContractType,
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
-import { parseBigInt } from "../helpers/parseBigInt";
-import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
+
 interface Result {
   maxLoanAmount: bigint;
   maxCollateral: bigint;
@@ -60,7 +56,7 @@ export const useGetCommitmentMax = ({
     "getPrincipalAmountAvailableToBorrow",
     [],
     !isLenderGroup,
-    ContractType.LenderGroups
+    commitment?.isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   let lenderGroupAmount = principalAmountAvailableToBorrow ?? 0n;

@@ -35,7 +35,8 @@ const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
   const graphURL = useGraphURL();
-  const lenderGroupsGraphURL = getLiquidityPoolsGraphEndpoint(chainId);
+  const lenderGroupsGraphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
+  const lenderGroupsGraphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
   const { userTokens, cacheKey, isLoading } = useGetGlobalPropsContext();
   const { address } = useAccount();
 
@@ -141,9 +142,33 @@ export const useGetCommitmentsForUserTokens = () => {
       userTokensFingerprint,
     ],
     queryFn: async () => {
-      const res: { group_pool_metric: LenderGroupsPoolMetrics[] } =
-        await request(lenderGroupsGraphURL, lenderGroupsUserTokenCommitments);
-      return res.group_pool_metric.map((metric) => ({
+      let metricsV1: LenderGroupsPoolMetrics[] = [];
+      try {
+        metricsV1 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            lenderGroupsGraphUrlV1,
+            lenderGroupsUserTokenCommitments
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+      } catch (e) {
+        console.warn(e);
+      }
+
+      let metricsV2: LenderGroupsPoolMetrics[] = [];
+      try {
+        metricsV2 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            lenderGroupsGraphUrlV2,
+            lenderGroupsUserTokenCommitments
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+      } catch (e) {
+        console.warn(e);
+      }
+
+      const metrics = [...metricsV1, ...metricsV2];
+
+      return metrics.map((metric) => ({
         ...metric,
         collateralToken: {
           address: metric.collateral_token_address,

@@ -7,7 +7,7 @@ import { CommitmentType } from "./queries/useGetRolloverableCommitments";
 import { readContract } from "wagmi/actions";
 import { config } from "../helpers/createWagmiConfig";
 import { useChainId } from "wagmi";
-import { ContractType, SupportedContractsEnum } from "./useReadContract";
+import { SupportedContractsEnum } from "./useReadContract";
 
 export const useCalculateMaxCollateralFromCommitment = () => {
   const contracts = useContracts();
@@ -24,8 +24,6 @@ export const useCalculateMaxCollateralFromCommitment = () => {
     | 169
     | 34443
     | undefined;
-  const lenderGroupContract =
-    contracts[SupportedContractsEnum.LenderGroups].abi;
 
   const calculateMaxCollateralFromLenderGroup = useCallback(
     async (
@@ -33,6 +31,13 @@ export const useCalculateMaxCollateralFromCommitment = () => {
       isSameLender?: boolean,
       loanAmount?: bigint
     ) => {
+      const lenderGroupContract =
+        contracts[
+          commitment?.isV2
+            ? SupportedContractsEnum.LenderGroupsV2
+            : SupportedContractsEnum.LenderGroups
+        ].abi;
+
       const poolOracleRoute1 = await readContract(config, {
         address: commitment?.lenderAddress ?? "0x",
         functionName: "poolOracleRoutes",
@@ -107,7 +112,7 @@ export const useCalculateMaxCollateralFromCommitment = () => {
 
       return requiredCollateral;
     },
-    [chainId, lenderGroupContract]
+    [chainId, contracts]
   );
 
   const calculateMaxCollateralFromCommitment = (commitment: CommitmentType) => {
