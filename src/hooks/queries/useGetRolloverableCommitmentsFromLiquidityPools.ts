@@ -12,6 +12,7 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
 ) => {
   const chainId = useChainId();
   const graphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
+
   const graphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
 
   const collateralTokenCommitments = useMemo(
