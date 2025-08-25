@@ -74,8 +74,8 @@ const combineCommitments = (
   }
 
   return [
-    ...commitmentsWithLCF69,
     ...(lenderGroupsRolloverableCommitments ?? []),
+    ...commitmentsWithLCF69,
     ...modifiedCommitments,
   ] as CommitmentType[];
 };
@@ -111,10 +111,9 @@ export const useGetRolloverableCommitments = (
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [
-    convertedLenderGroupsRolloverableCommitments,
-    setConvertedLenderGroupsRolloverableCommitments,
-  ] = useState<CommitmentType[]>([]);
+  const [convertedLenderGroupsRolloverableCommitments] = useState<
+    CommitmentType[]
+  >([]);
 
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
 
@@ -268,15 +267,12 @@ export const useGetRolloverableCommitments = (
   useEffect(() => {
     let isCancelled = false;
 
-    if (
-      (!rawCommitments && !isLenderGroupsRolloverableCommitmentsLoading) ||
-      !loan
-    ) {
+    if (!data?.commitments || !lenderGroupsRolloverableCommitments || !loan) {
       setIsLoading(false);
       return;
     }
 
-    if (isLenderGroupsRolloverableCommitmentsLoading) {
+    if (isLenderGroupsRolloverableCommitmentsLoading || isQueryLoading) {
       setIsLoading(true);
       return;
     }
@@ -390,8 +386,11 @@ export const useGetRolloverableCommitments = (
     convertedLenderGroupsRolloverableCommitments,
     getMinimumBalance,
     isLenderGroupsRolloverableCommitmentsLoading,
+    isQueryLoading,
     loan,
     rawCommitments,
+    data?.commitments,
+    lenderGroupsRolloverableCommitments,
   ]);
 
   return {
