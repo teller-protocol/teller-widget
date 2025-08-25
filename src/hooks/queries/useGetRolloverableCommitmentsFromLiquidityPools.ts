@@ -76,7 +76,7 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
         console.warn(e);
       }
 
-      const metrics = [...metricsV1, ...metricsV2];
+      const metrics = [...metricsV2, ...metricsV1];
 
       return { group_pool_metric: metrics };
     },
