@@ -115,6 +115,7 @@ const RolloverLoan: React.FC = () => {
     collateralImageURL,
     setSuccessfulRolloverParams,
   } = useGetRepaySectionContext();
+  console.log("TCL ~ RolloverLoan.tsx:118 ~ RolloverLoan ~ loan:", loan);
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
 
@@ -636,14 +637,13 @@ const RolloverLoan: React.FC = () => {
       ) : (
         <div className="section-title fee-details">
           <span className="fee-details-item">
-            Interest: {numberWithCommasAndDecimals(interestToPayForDisplay, 2)}
-            <TokenLogo logoUrl={principalTokenIcon} />
+            Interest: {numberWithCommasAndDecimals(interestToPayForDisplay, 2)}{" "}
+            {loan.lendingToken.symbol}
           </span>{" "}
           •{" "}
           <span className="fee-details-item">
-            Fees:
-            {numberWithCommasAndDecimals(totalFees, 2)}
-            <TokenLogo logoUrl={principalTokenIcon} />
+            Fees: {numberWithCommasAndDecimals(totalFees, 2)}{" "}
+            {loan.lendingToken.symbol}
           </span>
         </div>
       )}

@@ -48,6 +48,9 @@
     align-items: center;
     justify-content: center;
     gap: 0.2rem;
+    padding-bottom: 10px;
+    padding-top: 2px;
+    opacity: 60%;
 
     &-item {
       display: flex;
