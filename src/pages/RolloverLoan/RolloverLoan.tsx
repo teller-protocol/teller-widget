@@ -631,18 +631,22 @@ const RolloverLoan: React.FC = () => {
           </>
         )}
       </DataField>
-      <div className="section-title fee-details">
-        <span className="fee-details-item">
-          Interest: {numberWithCommasAndDecimals(interestToPayForDisplay, 2)}
-          <TokenLogo logoUrl={principalTokenIcon} />
-        </span>{" "}
-        •{" "}
-        <span className="fee-details-item">
-          Fees:
-          {numberWithCommasAndDecimals(totalFees, 2)}
-          <TokenLogo logoUrl={principalTokenIcon} />
-        </span>
-      </div>
+      {isLoading ? (
+        <Loader height={16} isSkeleton />
+      ) : (
+        <div className="section-title fee-details">
+          <span className="fee-details-item">
+            Interest: {numberWithCommasAndDecimals(interestToPayForDisplay, 2)}
+            <TokenLogo logoUrl={principalTokenIcon} />
+          </span>{" "}
+          •{" "}
+          <span className="fee-details-item">
+            Fees:
+            {numberWithCommasAndDecimals(totalFees, 2)}
+            <TokenLogo logoUrl={principalTokenIcon} />
+          </span>
+        </div>
+      )}
       <TransactionButton transactions={transactions} />
     </div>
   );
