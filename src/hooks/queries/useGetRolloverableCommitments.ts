@@ -340,7 +340,7 @@ export const useGetRolloverableCommitments = (
                     isSameLender,
                     loanAmount
                   )) as string;
-                  return BigInt(maxCollateral) >=
+                  return BigInt(maxCollateral?.toString() || "0") >=
                     BigInt(loan?.collateral?.[0]?.amount)
                     ? current
                     : null;
