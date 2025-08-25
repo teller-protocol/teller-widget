@@ -231,3 +231,23 @@ export const Trade: Story = {
   },
   tags: ["!autodocs"],
 };
+
+export const Loop: Story = {
+  args: {
+    subgraphApiKey: SUBGRAPH_API_KEY,
+    showLoopSection: true,
+  },
+  render: function Render(args) {
+    const queryClient = new QueryClient();
+
+    return (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Widget {...args} />
+          <ConnectWalletButton />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  },
+  tags: ["!autodocs"],
+};

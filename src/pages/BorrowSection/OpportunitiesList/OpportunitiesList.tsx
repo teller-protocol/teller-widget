@@ -342,8 +342,8 @@ const OpportunitiesList: React.FC = () => {
     strategyAction,
     isTradeMode,
     setStrategyAction,
-    switchChainManual,
     isLoop,
+    isLoopSection,
   } = useGetGlobalPropsContext();
 
   const strategyType = strategyAction;
@@ -403,7 +403,7 @@ const OpportunitiesList: React.FC = () => {
 
   useEffect(() => {
     const shouldSkipOpportunitySelection =
-      isLoop &&
+      (isLoop || isLoopSection) &&
       strategyAction === STRATEGY_ACTION_ENUM.LONG &&
       (selectedCollateralToken || selectedPrincipalErc20Token) &&
       sortedCommitments.length > 0 &&
@@ -425,6 +425,7 @@ const OpportunitiesList: React.FC = () => {
     setSelectedOpportunity,
     setCurrentStep,
     isLoop,
+    isLoopSection,
     selectedPrincipalErc20Token,
   ]);
 

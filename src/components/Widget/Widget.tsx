@@ -41,6 +41,7 @@ interface BaseWidgetProps {
   showStrategiesSection?: boolean;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  showLoopSection?: boolean;
   hideAutoConnectModal?: boolean;
   widgetChainId?: number;
   isTradeMode?: boolean;
@@ -87,6 +88,7 @@ const Widget: React.FC<WidgetProps> = ({
   singleWhitelistedToken,
   showStrategiesSection,
   showPoolSection = false,
+  showLoopSection = false,
   showRepaySection = true,
   hideAutoConnectModal,
   widgetChainId,
@@ -162,6 +164,7 @@ const Widget: React.FC<WidgetProps> = ({
                 <ModalContent
                   showModalByDefault={showModalByDefault}
                   showPoolSection={showPoolSection}
+                  showLoopSection={showLoopSection}
                   showRepaySection={showRepaySection}
                   showStrategiesSection={showStrategiesSection}
                   hideAutoConnectModal={hideAutoConnectModal}

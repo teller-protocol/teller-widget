@@ -17,13 +17,14 @@ import {
   useGetBorrowSectionContext,
 } from "../BorrowSectionContext";
 import "./collateralTokenList.scss";
-import { useAccount, useChainId } from "wagmi";
+import { useChainId } from "wagmi";
 import { mapChainToImage } from "../../../components/ChainSwitch/ChainSwitch";
 import SelectButtons from "../../../components/SelectButtons";
 import TokenLogo from "../../../components/TokenLogo";
 import { mapChainIdToName } from "../../../constants/chains";
 import { numberWithCommasAndDecimals } from "../../../helpers/numberUtils";
 import { useTokenLogoAndSymbolWithFallback } from "../../../hooks/useTokenLogoAndSymbolWithFallback";
+import { useGetTokensForLoopSection } from "../../../hooks/queries/useGetTokensForLoopSection";
 
 export enum BORROW_TOKEN_TYPE_ENUM {
   STABLE = "STABLE",
@@ -123,6 +124,7 @@ const CollateralTokenList: React.FC = () => {
   } = useGetBorrowSectionContext();
 
   const {
+    isLoopSection,
     isStrategiesSection,
     strategyAction,
     setStrategyAction,
@@ -133,7 +135,6 @@ const CollateralTokenList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const chainId = useChainId();
-  const { address } = useAccount();
 
   const isLong =
     isStrategiesSection && strategyAction === STRATEGY_ACTION_ENUM.LONG;
@@ -160,6 +161,8 @@ const CollateralTokenList: React.FC = () => {
       setCurrentStep(BorrowSectionSteps.SELECT_OPPORTUNITY);
     });
   };
+
+  const loopSectionTokens = useGetTokensForLoopSection(isLoopSection);
 
   const filteredAndSortedTokens = [
     ...tokensWithCommitments
@@ -221,19 +224,24 @@ const CollateralTokenList: React.FC = () => {
       )
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
       .filter((token) => (isLong ? token.chainId === chainId : true)),
-  ].map((token) => {
-    const matchingReward = loanRewards.find(
-      (reward) =>
-        reward.network_id === token.chainId &&
-        reward.collateral_address.toLowerCase() === token.address.toLowerCase()
-    );
+  ]
+    .filter((token) =>
+      isLoopSection ? loopSectionTokens.pools.includes(token.address) : true
+    )
+    .map((token) => {
+      const matchingReward = loanRewards.find(
+        (reward) =>
+          reward.network_id === token.chainId &&
+          reward.collateral_address.toLowerCase() ===
+            token.address.toLowerCase()
+      );
 
-    return {
-      ...token,
-      rewardPercent: matchingReward?.reward_percent,
-      rewardData: matchingReward ?? null,
-    };
-  });
+      return {
+        ...token,
+        rewardPercent: matchingReward?.reward_percent,
+        rewardData: matchingReward ?? null,
+      };
+    });
 
   const handleStrategyAction = (action: string) => {
     setStrategyAction(action as STRATEGY_ACTION_ENUM);
