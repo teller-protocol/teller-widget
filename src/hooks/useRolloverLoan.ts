@@ -37,20 +37,20 @@ export const calculateCollateralRequiredForPrincipal = (
 
   const factor = 10 ** (isCommitmentFromLCFAlpha ? 18 : totalTokenDecimals); // 18 if lcf alpha, othewrwise previous code
 
-  const expandedLoanPrincipal = BigInt(loanPrincipal) * BigInt(factor);
+  const expandedLoanPrincipal = BigInt(loanPrincipal ?? 0) * BigInt(factor);
 
   // never want to divide by zero so we do this to avoid a panic
-  if (BigInt(maxPrincipalPerCollateralRatio) === 0n) {
+  if (BigInt(maxPrincipalPerCollateralRatio ?? 0) === 0n) {
     return BigInt(0);
   }
 
   // since we are solving backwards, we need to use this trick to round properly
   const remainder =
-    expandedLoanPrincipal % BigInt(maxPrincipalPerCollateralRatio);
+    expandedLoanPrincipal % BigInt(maxPrincipalPerCollateralRatio ?? 0);
   const roundUpCoefficient = remainder === 0n ? 0 : 1;
 
   return (
-    expandedLoanPrincipal / BigInt(maxPrincipalPerCollateralRatio) +
+    expandedLoanPrincipal / BigInt(maxPrincipalPerCollateralRatio ?? 0) +
     BigInt(roundUpCoefficient)
   );
 };
@@ -79,7 +79,8 @@ export const calculatePrincipalReceivedPerCollateral = (
   }
 
   return (
-    (collateralAmount * BigInt(maxPrincipalPerCollateralRatio)) / BigInt(factor)
+    (collateralAmount * BigInt(maxPrincipalPerCollateralRatio ?? 0)) /
+    BigInt(factor)
   );
 };
 
@@ -223,7 +224,7 @@ const useRolloverLoan = (
     rolloverCommitment?.collateralToken?.decimals ?? 0;
 
   const maximumRolloverLoanPrincipalAmount = useMemo(() => {
-    const collateralBalance = maxCollateral;
+    const collateralBalance = maxCollateral ?? 0;
 
     if (!collateralBalance) {
       return bid.principal;
@@ -397,7 +398,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         ? "Rollover not supported for this token pair"
         : borrowerAmount &&
           walletBalance &&
-          borrowerAmount > BigInt(walletBalance?.data)
+          borrowerAmount > BigInt(walletBalance?.data ?? 0)
         ? `Insufficient ${bid.lendingToken.symbol} balance.`
         : "";
 
@@ -423,7 +424,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         id++;
       }
 
-      if (borrowerAmount > BigInt(flashRolloverAllowance)) {
+      if (borrowerAmount > BigInt(flashRolloverAllowance ?? 0)) {
         steps.push({
           contractName: bid?.lendingTokenAddress,
           args: [flashRolloverLoanAddress, borrowerAmount * 10n],
@@ -438,10 +439,10 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         id++;
       }
 
-      if (collateralAllowance < BigInt(collateralAmount)) {
+      if (collateralAllowance < BigInt(collateralAmount ?? 0)) {
         steps.push({
           contractName: rolloverCommitment?.collateralToken?.address,
-          args: [collateralManagerAddress, BigInt(collateralAmount) * 10n],
+          args: [collateralManagerAddress, BigInt(collateralAmount ?? 0) * 10n],
           functionName: "approve",
           buttonLabel: `Approve collateral`,
           loadingButtonLabel: `Approving collateral...`,
