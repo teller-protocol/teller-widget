@@ -5,8 +5,9 @@ import { useChainId } from "wagmi";
 import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { ALL_USDC_ADDRESSES } from "../../constants/tokens";
 import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import { useForwarderAddresses } from "../useForwarderAddresses";
 
-const getTokensForLoopSection = gql`
+const getTokensForLoopSectionPools = gql`
   query getAllLenderPools {
     group_pool_metric {
       id
@@ -27,10 +28,21 @@ const getTokensForLoopSection = gql`
   }
 `;
 
+const getTokensForLoopSectionCommitments = (lcfAlphaAddress: string) => gql`
+  {
+    commitments(where: {  status: "Active", committedAmount_gt: "0" ,forwarderAddress_in: ${JSON.stringify(
+      [lcfAlphaAddress]
+    )}}) {
+      collateralTokenAddress
+    }
+  }
+`;
+
 export const useGetTokensForLoopSection = (enabled: boolean) => {
   const chainId = useChainId();
   const graphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
   const graphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
+  const { lcfAlphaAddress } = useForwarderAddresses();
 
   const { data: blockedPools } = useQuery<string[]>({
     queryKey: ["teller-widget", "blockedPools", chainId],
@@ -47,77 +59,59 @@ export const useGetTokensForLoopSection = (enabled: boolean) => {
   const { data, isLoading } = useQuery({
     queryKey: ["teller-widget", "getTokensForLoopSection"],
     queryFn: async () => {
-      let metricsV1: LenderGroupsPoolMetrics[] = [];
+      let tokensV1: string[] = [];
       try {
-        metricsV1 = (
+        tokensV1 = (
           await request<{
             group_pool_metric: LenderGroupsPoolMetrics[];
-          }>(graphUrlV1, getTokensForLoopSection)
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+          }>(graphUrlV1, getTokensForLoopSectionPools)
+        ).group_pool_metric
+          .filter(
+            (metric) => !blockedPools?.includes(metric.group_pool_address)
+          )
+          .map((metric) => metric.collateral_token_address);
       } catch (e) {
         console.warn(e);
       }
 
-      let metricsV2: LenderGroupsPoolMetrics[] = [];
+      let tokensV2: string[] = [];
       try {
-        metricsV2 = (
+        tokensV2 = (
           await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
             graphUrlV2,
-            getTokensForLoopSection
+            getTokensForLoopSectionPools
           )
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        ).group_pool_metric
+          .filter(
+            (metric) => !blockedPools?.includes(metric.group_pool_address)
+          )
+          .map((metric) => metric.collateral_token_address);
       } catch (e) {
         console.warn(e);
       }
 
-      console.log("metricsV2", metricsV2);
-
-      const metrics = [...metricsV1, ...metricsV2];
-
-      const filteredMetrics = metrics.filter(
-        (metric) => !blockedPools?.includes(metric.group_pool_address)
-      );
-
-      const poolsWithAddressPrefix = filteredMetrics.map((metric) => {
-        return {
-          ...metric,
-          collateral_token_address: metric.collateral_token_address,
-          group_pool_address: metric.group_pool_address,
-          principal_token_address: metric.principal_token_address,
-        };
-      });
-
-      // Sort and organize pools
-      const otherPools: LenderGroupsPoolMetrics[] = [];
-
-      poolsWithAddressPrefix.forEach((metric: LenderGroupsPoolMetrics) => {
-        if (
-          !ALL_USDC_ADDRESSES.includes(
-            metric.collateral_token_address.toLowerCase()
+      let tokensOg: string[] = [];
+      try {
+        tokensOg = (
+          await request<{ commitments: { collateralTokenAddress: string }[] }>(
+            graphUrlV2,
+            getTokensForLoopSectionCommitments(lcfAlphaAddress)
           )
-        ) {
-          otherPools.push(metric);
-        }
-      });
+        ).commitments.map((commitment) => commitment.collateralTokenAddress);
+      } catch (e) {
+        console.warn(e);
+      }
 
-      // Combine and reduce into final format
-      const pools = otherPools.reduce(
-        (
-          acc: { [key: string]: LenderGroupsPoolMetrics[] },
-          pool: LenderGroupsPoolMetrics
-        ) => {
-          if (!acc[pool.collateral_token_address]) {
-            acc[pool.collateral_token_address] = [];
-          }
-          acc[pool.collateral_token_address].push(pool);
-          return acc;
-        },
-        {}
+      const tokens = [...tokensV1, ...tokensV2, ...tokensOg].filter(
+        (token) => !ALL_USDC_ADDRESSES.includes(token.toLowerCase())
       );
 
-      return Object.keys(pools);
+      return tokens;
     },
+    enabled,
   });
 
-  return { pools: data || [], isLoading };
+  const tokens = data || [];
+
+  return { tokens, isLoading };
 };

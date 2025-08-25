@@ -226,7 +226,7 @@ const CollateralTokenList: React.FC = () => {
       .filter((token) => (isLong ? token.chainId === chainId : true)),
   ]
     .filter((token) =>
-      isLoopSection ? loopSectionTokens.pools.includes(token.address) : true
+      isLoopSection ? loopSectionTokens.tokens.includes(token.address) : true
     )
     .map((token) => {
       const matchingReward = loanRewards.find(
