@@ -18,6 +18,7 @@ export enum WIDGET_ACTION_ENUM {
   REPAY = "REPAY",
   POOL = "POOL",
   STRATEGIES = "STRATEGIES",
+  LOOP = "LOOP",
 }
 
 export enum STRATEGY_ACTION_ENUM {
@@ -40,11 +41,13 @@ export type GlobalPropsContextType = {
   singleWhitelistedToken?: string;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  showLoopSection?: boolean;
   widgetAction?: WIDGET_ACTION_ENUM;
   setWidgetAction: (action: WIDGET_ACTION_ENUM) => void;
   isSwitchingBetweenWidgetActions: boolean;
   setIsSwitchingBetweenWidgetActions: (isSwitching: boolean) => void;
   isStrategiesSection: boolean;
+  isLoopSection: boolean;
   strategyAction?: STRATEGY_ACTION_ENUM;
   setStrategyAction: (action: STRATEGY_ACTION_ENUM) => void;
   whitelistedTokens?: WhitelistedTokens;
@@ -71,6 +74,7 @@ interface GlobalPropsContextProps {
   singleWhitelistedToken?: string;
   showPoolSection?: boolean;
   showRepaySection?: boolean;
+  showLoopSection?: boolean;
   isVisible?: boolean;
   isTradeMode?: boolean;
   initialStrategyAction?: STRATEGY_ACTION_ENUM;
@@ -96,6 +100,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
   singleWhitelistedToken,
   showPoolSection = false,
   showRepaySection = true,
+  showLoopSection = false,
   isVisible = false,
   isTradeMode = false,
   initialStrategyAction,
@@ -144,6 +149,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     isTradeMode ? WIDGET_ACTION_ENUM.STRATEGIES : WIDGET_ACTION_ENUM.BORROW
   );
   const isStrategiesSection = widgetAction === WIDGET_ACTION_ENUM.STRATEGIES;
+  const isLoopSection = widgetAction === WIDGET_ACTION_ENUM.LOOP;
 
   const [strategyAction, setStrategyAction] = useState<STRATEGY_ACTION_ENUM>(
     initialStrategyAction || STRATEGY_ACTION_ENUM.LONG
@@ -195,6 +201,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       subgraphApiKey,
       singleWhitelistedToken,
       showPoolSection,
+      showLoopSection,
       showRepaySection,
       widgetAction,
       setWidgetAction: (action: WIDGET_ACTION_ENUM) => {
@@ -206,6 +213,7 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
       setIsSwitchingBetweenWidgetActions,
       isSwitchingBetweenWidgetActions,
       isStrategiesSection,
+      isLoopSection,
       strategyAction,
       setStrategyAction,
       whitelistedTokens,
@@ -232,8 +240,10 @@ export const GlobalContextProvider: React.FC<GlobalPropsContextProps> = ({
     singleWhitelistedToken,
     showPoolSection,
     showRepaySection,
+    showLoopSection,
     widgetAction,
     isStrategiesSection,
+    isLoopSection,
     strategyAction,
     whitelistedTokens,
     isTradeMode,

@@ -18,6 +18,7 @@ interface ModalContentProps {
   showPoolSection?: boolean;
   showRepaySection?: boolean;
   showStrategiesSection?: boolean;
+  showLoopSection?: boolean;
   hideAutoConnectModal?: boolean;
 }
 
@@ -26,6 +27,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   showPoolSection,
   showRepaySection,
   showStrategiesSection,
+  showLoopSection,
   hideAutoConnectModal = false,
 }) => {
   const { widgetAction, setWidgetAction, isTradeMode } =
@@ -47,6 +49,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
     ...(showPoolSection
       ? [{ value: WIDGET_ACTION_ENUM.POOL, content: "Pools" }]
       : []),
+    ...(showLoopSection
+      ? [{ value: WIDGET_ACTION_ENUM.LOOP, content: "Loop" }]
+      : []),
   ];
 
   const handleWidgetAction = (action: WIDGET_ACTION_ENUM) => {
@@ -59,6 +64,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     [WIDGET_ACTION_ENUM.REPAY]: <RepaySection key={key} />,
     [WIDGET_ACTION_ENUM.POOL]: <PoolSection />,
     [WIDGET_ACTION_ENUM.STRATEGIES]: <BorrowSection key={key} />,
+    [WIDGET_ACTION_ENUM.LOOP]: <BorrowSection key={key} />,
   };
 
   useGetProtocolFee();

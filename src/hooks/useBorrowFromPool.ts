@@ -1,17 +1,23 @@
-import { useAccount, useChainId, useToken } from "wagmi";
-import { AddressStringType } from "../types/addressStringType";
-import { ContractType, useReadContract } from "./useReadContract";
-import { SupportedContractsEnum } from "./useReadContract";
-import { TransactionStepConfig } from "../components/TransactionButton/TransactionButton";
-import { useContracts } from "./useContracts";
 import { useMemo } from "react";
+import { useAccount, useToken } from "wagmi";
+
+import { TransactionStepConfig } from "../components/TransactionButton/TransactionButton";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import { AddressStringType } from "../types/addressStringType";
+
+import { useContracts } from "./useContracts";
+import {
+  ContractType,
+  useReadContract,
+  SupportedContractsEnum,
+} from "./useReadContract";
 
 export const useBorrowFromPool = ({
   commitmentPoolAddress,
   principalAmount,
   collateralAmount,
   collateralTokenAddress,
+  isV2,
   loanDuration,
   marketId,
   skip = false,
@@ -21,6 +27,7 @@ export const useBorrowFromPool = ({
   principalAmount: string;
   collateralAmount: string;
   collateralTokenAddress: string;
+  isV2: boolean;
   loanDuration?: string;
   marketId?: string;
   skip?: boolean;
@@ -28,9 +35,10 @@ export const useBorrowFromPool = ({
 }) => {
   const transactions: TransactionStepConfig[] = [];
   const { address } = useAccount();
-  
+
   const { referralFee, referralAddress } = useGetGlobalPropsContext();
-  const referralFeeAmount = (BigInt(referralFee ?? 0) * BigInt(principalAmount ?? 0)) / BigInt(10000);
+  const referralFeeAmount =
+    (BigInt(referralFee ?? 0) * BigInt(principalAmount ?? 0)) / BigInt(10000);
 
   const contracts = useContracts();
 
@@ -62,7 +70,7 @@ export const useBorrowFromPool = ({
     "getMinInterestRate",
     [principalAmount],
     false || skip,
-    ContractType.LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const { data: collateralManagerAddress } = useReadContract<string>(

@@ -51,6 +51,7 @@ export type CommitmentType = {
   };
   isLenderGroup?: boolean; // this does NOT exist in subgraph
   collateralRatio?: number; // this does NOT exist in subgraph
+  isV2?: boolean;
 };
 
 /**
@@ -325,7 +326,7 @@ export const useGetRolloverableCommitments = (
 
         await Array.from(commitmentsByMarketId.entries())
           .reduce<Promise<CommitmentMap>>(
-            async (accPromise, [marketId, commitments]) => {
+            async (accPromise, [_marketId, commitments]) => {
               const acc = await accPromise;
               const bestCommitment = await Promise.all(
                 commitments.map(async (current) => {

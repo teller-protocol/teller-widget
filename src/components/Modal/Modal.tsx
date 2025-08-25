@@ -72,6 +72,7 @@ const Modal: React.FC<ModalProps> = ({
       [WIDGET_ACTION_ENUM.REPAY]: "My Loans",
       [WIDGET_ACTION_ENUM.POOL]: "Pools",
       [WIDGET_ACTION_ENUM.STRATEGIES]: "Strategies",
+      [WIDGET_ACTION_ENUM.LOOP]: "Loop",
     }),
     []
   );
