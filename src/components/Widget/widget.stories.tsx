@@ -241,6 +241,7 @@ export const Loop: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,
     showLoopSection: true,
+    cacheKey: "loop",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();

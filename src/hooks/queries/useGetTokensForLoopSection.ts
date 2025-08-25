@@ -21,7 +21,6 @@ const getTokensForLoopSection = gql`
       total_interest_collected
       interest_rate_lower_bound
       current_min_interest_rate
-      shares_token_address
       collateral_ratio
       group_pool_address
     }
@@ -30,7 +29,8 @@ const getTokensForLoopSection = gql`
 
 export const useGetTokensForLoopSection = (enabled: boolean) => {
   const chainId = useChainId();
-  const graphURL = getLiquidityPoolsGraphEndpoint(chainId);
+  const graphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
+  const graphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
 
   const { data: blockedPools } = useQuery<string[]>({
     queryKey: ["teller-widget", "blockedPools", chainId],
@@ -47,11 +47,34 @@ export const useGetTokensForLoopSection = (enabled: boolean) => {
   const { data, isLoading } = useQuery({
     queryKey: ["teller-widget", "getTokensForLoopSection"],
     queryFn: async () => {
-      const poolsData = await request<{
-        group_pool_metric: LenderGroupsPoolMetrics[];
-      }>(graphURL, getTokensForLoopSection);
+      let metricsV1: LenderGroupsPoolMetrics[] = [];
+      try {
+        metricsV1 = (
+          await request<{
+            group_pool_metric: LenderGroupsPoolMetrics[];
+          }>(graphUrlV1, getTokensForLoopSection)
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+      } catch (e) {
+        console.warn(e);
+      }
 
-      const filteredMetrics = poolsData.group_pool_metric.filter(
+      let metricsV2: LenderGroupsPoolMetrics[] = [];
+      try {
+        metricsV2 = (
+          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            graphUrlV2,
+            getTokensForLoopSection
+          )
+        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+      } catch (e) {
+        console.warn(e);
+      }
+
+      console.log("metricsV2", metricsV2);
+
+      const metrics = [...metricsV1, ...metricsV2];
+
+      const filteredMetrics = metrics.filter(
         (metric) => !blockedPools?.includes(metric.group_pool_address)
       );
 
@@ -60,7 +83,6 @@ export const useGetTokensForLoopSection = (enabled: boolean) => {
           ...metric,
           collateral_token_address: metric.collateral_token_address,
           group_pool_address: metric.group_pool_address,
-          shares_token_address: metric.shares_token_address,
           principal_token_address: metric.principal_token_address,
         };
       });
