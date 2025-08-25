@@ -207,7 +207,7 @@ const RolloverLoan: React.FC = () => {
     false,
     ContractType.ERC20
   );
-  const requestedCollateral = BigInt(loanCollateral?.amount) ?? 0;
+  const requestedCollateral = BigInt(loanCollateral?.amount ?? 0) ?? 0;
 
   const requestedCollateralPlusWalletCollateral =
     requestedCollateral + BigInt(collateralBalance.data ?? 0);
@@ -220,7 +220,7 @@ const RolloverLoan: React.FC = () => {
   );
 
   const totalOwedBI = !!totalOwedData
-    ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
+    ? BigInt(totalOwedData.interest ?? 0) + BigInt(totalOwedData.principal ?? 0)
     : BigInt(0);
 
   let maxLoanAmountFromLender;
@@ -229,10 +229,10 @@ const RolloverLoan: React.FC = () => {
   if (isSameLender) {
     if (isLenderGroup) {
       maxLoanAmountFromLender =
-        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount);
+        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount ?? 0);
     } else {
       maxLoanAmountFromLender = bigIntMin(
-        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount),
+        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount ?? 0),
         BigInt(commitment?.maxPrincipal ?? 0) -
           BigInt(commitment?.acceptedPrincipal ?? 0)
       );
@@ -325,7 +325,7 @@ const RolloverLoan: React.FC = () => {
     isSameLender,
   });
   const defaultCollateralValueAmount = bigIntMin(
-    BigInt(loanCollateral?.amount),
+    BigInt(loanCollateral?.amount ?? 0),
     maxCollateralWithWalletBalance
   );
   const defaultCollateralValue = useMemo(
@@ -365,7 +365,7 @@ const RolloverLoan: React.FC = () => {
       valueBI: defaultCollateralValueAmount,
       value: Number(
         formatUnits(
-          BigInt(defaultCollateralValueAmount),
+          BigInt(defaultCollateralValueAmount ?? 0),
           loanCollateral?.token.decimals
         )
       ),
@@ -469,7 +469,7 @@ const RolloverLoan: React.FC = () => {
       loanAmount: (
         <>
           {numberWithCommasAndDecimals(
-            formatUnits(BigInt(maxLoanAmount), loan.lendingToken.decimals)
+            formatUnits(BigInt(maxLoanAmount ?? 0), loan.lendingToken.decimals)
           )}
           <TokenLogo logoUrl={principalTokenIcon} />
         </>
@@ -505,7 +505,7 @@ const RolloverLoan: React.FC = () => {
 
   const isInputMoreThanMaxCollateral =
     BigInt(collateralAmountDebounced.valueBI ?? 0) >
-    BigInt(maxCollateralWithWalletBalance);
+    BigInt(maxCollateralWithWalletBalance ?? 0);
 
   const { transactions, rolloverLoanEstimation, borrowerAmount } =
     useRolloverLoan(
