@@ -637,8 +637,7 @@ const RolloverLoan: React.FC = () => {
       ) : (
         <div className="section-title fee-details">
           <span className="fee-details-item">
-            Interest: {numberWithCommasAndDecimals(interestToPayForDisplay, 2)}{" "}
-            {loan.lendingToken.symbol}
+            Interest: {interestToPayForDisplay} {loan.lendingToken.symbol}
           </span>{" "}
           •{" "}
           <span className="fee-details-item">
