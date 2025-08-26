@@ -330,12 +330,13 @@ export const useGetRolloverableCommitments = (
                   const isSameLender =
                     loan?.lenderAddress?.toLowerCase() ===
                     current?.lenderAddress?.toLowerCase();
-                  const loanAmount: bigint = BigInt(loan?.principal);
-                  const maxCollateral = (await calculateMaxCollateral(
+                  const loanAmount: bigint = BigInt(loan?.principal || 0);
+                  const maxCollateral = await calculateMaxCollateral(
                     current,
                     isSameLender,
                     loanAmount
-                  )) as string;
+                  );
+
                   return BigInt(maxCollateral?.toString() || "0") >=
                     BigInt(loan?.collateral?.[0]?.amount)
                     ? current

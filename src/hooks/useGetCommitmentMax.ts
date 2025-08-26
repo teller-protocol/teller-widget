@@ -131,7 +131,9 @@ export const useGetCommitmentMax = ({
   const collateralBalance =
     isRollover && requestedCollateral
       ? requestedCollateral
-      : colBal?.value ?? BigInt(0);
+      : colBal?.value
+      ? BigInt(colBal.value)
+      : 0n;
 
   const requiredCollateralArgs = isLenderGroup
     ? [minAmount, maxPrincipalPerCollateralLenderGroup]
@@ -165,10 +167,13 @@ export const useGetCommitmentMax = ({
       requiredCollateralArgs.some((arg) => !arg),
       isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
     );
+
+  console.warn("requiredCollateral", requiredCollateral);
+
   const maxCollateral = useMemo(() => {
     const amount =
-      (requiredCollateral ?? BigInt(0)) > collateralBalance
-        ? BigInt(collateralBalance)
+      (requiredCollateral ?? 0n) > collateralBalance
+        ? collateralBalance
         : requiredCollateral;
     return amount;
   }, [collateralBalance, /* isNative, */ requiredCollateral]);

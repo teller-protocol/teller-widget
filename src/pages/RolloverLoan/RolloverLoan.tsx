@@ -141,6 +141,7 @@ const RolloverLoan: React.FC = () => {
     loan.lendingToken.address,
     loan
   );
+
   const marketIds = Array.from(
     filteredCommitments.size > 0 ? Array.from(filteredCommitments.keys()) : []
   );
@@ -315,8 +316,7 @@ const RolloverLoan: React.FC = () => {
     requestedCollateral:
       isSameLender &&
       maxLenderCollateralSuported &&
-      maxLenderCollateralSuported <
-        BigInt(requestedCollateralPlusWalletCollateral)
+      maxLenderCollateralSuported <= requestedCollateralPlusWalletCollateral
         ? maxLenderCollateralSuported
         : requestedCollateralPlusWalletCollateral,
     isRollover: true,
@@ -324,6 +324,7 @@ const RolloverLoan: React.FC = () => {
     loanAmount: isSameLender ? totalOwedBI : BigInt(0),
     isSameLender,
   });
+
   const defaultCollateralValueAmount = bigIntMin(
     BigInt(loanCollateral?.amount ?? 0),
     maxCollateralWithWalletBalance
@@ -513,7 +514,8 @@ const RolloverLoan: React.FC = () => {
       commitment,
       maxCollateral,
       isInputMoreThanMaxCollateral,
-      maxLoanAmount
+      maxLoanAmount,
+      true
     );
   const marketplaceFee = +(commitment?.marketplace?.marketplaceFeePercent ?? 0);
   const totalFeePercent =

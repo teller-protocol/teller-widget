@@ -7,7 +7,8 @@ import { CommitmentType } from "./queries/useGetRolloverableCommitments";
 import { readContract } from "wagmi/actions";
 import { config } from "../helpers/createWagmiConfig";
 import { useChainId } from "wagmi";
-import { SupportedContractsEnum } from "./useReadContract";
+import { ContractType, SupportedContractsEnum } from "./useReadContract";
+import { calculateLenderGroupRequiredCollateral } from "../helpers/getRequiredCollateral";
 
 export const useCalculateMaxCollateralFromCommitment = () => {
   const contracts = useContracts();
@@ -38,6 +39,9 @@ export const useCalculateMaxCollateralFromCommitment = () => {
             : SupportedContractsEnum.LenderGroups
         ].abi;
 
+      const uniswapPricingContract =
+        contracts[ContractType.UniswapPricingHelper];
+
       const poolOracleRoute1 = await readContract(config, {
         address: commitment?.lenderAddress ?? "0x",
         functionName: "poolOracleRoutes",
@@ -61,9 +65,9 @@ export const useCalculateMaxCollateralFromCommitment = () => {
       });
 
       const maxPrincipalPerCollateralLenderGroup = await readContract(config, {
-        address: commitment?.lenderAddress ?? "0x",
+        address: uniswapPricingContract.address,
         functionName: "getUniswapPriceRatioForPoolRoutes",
-        abi: lenderGroupContract,
+        abi: uniswapPricingContract.abi,
         args: [
           [poolOracleRoute1, ...(poolOracleRoute2 ? [poolOracleRoute2] : [])],
         ],
@@ -89,7 +93,7 @@ export const useCalculateMaxCollateralFromCommitment = () => {
             BigInt(commitment?.collateralRatio ?? 1)
           : BigInt(0);
 
-      let lenderGroupAvailableToBorrow = BigInt(
+      let lenderGroupAvailableToBorrow: bigint = BigInt(
         (availableToBorrow ?? 0).toString()
       );
       if (isSameLender) {
@@ -97,45 +101,23 @@ export const useCalculateMaxCollateralFromCommitment = () => {
           lenderGroupAvailableToBorrow + BigInt((loanAmount ?? 0).toString());
       }
 
-      const requiredCollateral = await readContract(config, {
-        address: commitment?.lenderAddress ?? "0x",
-        functionName: "getRequiredCollateral",
-        abi: lenderGroupContract,
-        args: [
-          lenderGroupAvailableToBorrow,
-          ajustedMaxPrincipalPerCollateralLenderGroup,
-        ],
-        chainId,
-      }).catch((error) => {
-        console.error("error with requiredCollateral", error);
-      });
+      const requiredCollateral = calculateLenderGroupRequiredCollateral(
+        lenderGroupAvailableToBorrow,
+        ajustedMaxPrincipalPerCollateralLenderGroup
+      );
 
       return requiredCollateral;
     },
     [chainId, contracts]
   );
 
-  const calculateMaxCollateralFromCommitment = (commitment: CommitmentType) => {
-    const availablePrincipal =
-      BigInt(commitment?.maxPrincipal?.toString() ?? 0) -
-      BigInt(commitment?.acceptedPrincipal?.toString() ?? 0);
-
-    const expansionFactor = BigInt(10 ** 18);
-
-    const maxCollateral =
-      (availablePrincipal * expansionFactor) /
-      BigInt(commitment?.maxPrincipalPerCollateralAmount?.toString() ?? 1);
-
-    return maxCollateral;
-  };
-
   const calculateMaxPrincipalPerCollateralFromLCFAlpha = useCallback(
     async (commitment: CommitmentType) => {
       const availablePrincipal =
-        BigInt(commitment?.maxPrincipal?.toString() ?? 0) -
-        BigInt(commitment?.acceptedPrincipal?.toString() ?? 0);
+        BigInt((commitment?.maxPrincipal ?? 0).toString()) -
+        BigInt((commitment?.acceptedPrincipal ?? 0).toString());
 
-      const expansionFactor = BigInt(10 ** 18);
+      const expansionFactor = BigInt(10) ** BigInt(18);
       const forwarderAddress = commitment?.forwarderAddress;
 
       const lcfContract =
@@ -176,7 +158,7 @@ export const useCalculateMaxCollateralFromCommitment = () => {
 
       if (!commitment?.id || !priceRatioResult || !ltvRatioResult) {
         return BigInt(
-          commitment?.maxPrincipalPerCollateralAmount?.toString() ?? 0
+          (commitment?.maxPrincipalPerCollateralAmount ?? 0)?.toString()
         );
       }
 

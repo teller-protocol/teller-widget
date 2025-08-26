@@ -22,6 +22,7 @@ export enum SupportedContractsEnum {
   "LenderGroupsV2" = "LenderCommitmentGroupBeaconV2",
   "SmartCommitmentForwarder" = "SmartCommitmentForwarder",
   "BorrowSwap" = "BorrowSwap",
+  "SwapRolloverLoan" = "SwapRolloverLoan",
 }
 
 export enum ContractType {
@@ -31,6 +32,7 @@ export enum ContractType {
   External = "External",
   LenderGroups = "LenderCommitmentGroupBeacon",
   LenderGroupsV2 = "LenderCommitmentGroupBeaconV2",
+  UniswapPricingHelper = "UniswapPricingHelper",
 }
 
 export const useReadContract = <T = any>(
