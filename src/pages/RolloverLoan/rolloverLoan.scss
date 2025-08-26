@@ -38,9 +38,27 @@
 
   .data-field {
     margin-top: $s-medium;
-    margin-bottom: $s-large;
+    margin-bottom: $s-small;
     font-size: 13px;
     color: $text-primary;
+  }
+
+  .fee-details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    padding-bottom: 10px;
+    padding-top: 2px;
+    opacity: 60%;
+    font-size: 11px;
+
+    &-item {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
   }
 }
 

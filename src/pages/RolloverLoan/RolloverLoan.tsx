@@ -115,6 +115,7 @@ const RolloverLoan: React.FC = () => {
     collateralImageURL,
     setSuccessfulRolloverParams,
   } = useGetRepaySectionContext();
+  console.log("TCL ~ RolloverLoan.tsx:118 ~ RolloverLoan ~ loan:", loan);
 
   const collateralTokenAddress = loan.collateral[0].collateralAddress;
 
@@ -513,6 +514,16 @@ const RolloverLoan: React.FC = () => {
   const totalFeePercent =
     10000 - ((protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0));
 
+  const totalFeePercentForDisplay =
+    (protocolFeePercent ?? 0) + marketplaceFee + (referralFee ?? 0);
+
+  const totalFees =
+    (Number(
+      formatUnits(maxLoanAmount ?? 0n, principalTokenMetadata?.decimals ?? 18)
+    ) *
+      totalFeePercentForDisplay) /
+    10000;
+
   const amountToPay =
     (maxLoanAmount * BigInt(totalFeePercent)) / BigInt(10000) -
     BigInt(totalOwedBI);
@@ -528,6 +539,30 @@ const RolloverLoan: React.FC = () => {
     maxCollateralLoading ||
     maxLenderCollateralSuportedLoading ||
     maxCollateralWithWalletBalanceLoading;
+
+  const interestToPayForDisplay = useMemo(() => {
+    if (!commitment?.minAPY || !maxLoanAmount || !commitment?.maxDuration)
+      return 0;
+    const interestRate = commitment.isLenderGroup
+      ? minInterestRateLenderGroups
+      : commitment?.minAPY;
+
+    const secondlyInterestRate =
+      Number(interestRate) / 10000 / 365 / 24 / 60 / 60;
+
+    const interestToPay =
+      Number(formatUnits(maxLoanAmount, commitment?.principalToken?.decimals)) *
+      secondlyInterestRate *
+      Number(commitment?.maxDuration);
+    return numberWithCommasAndDecimals(Number(interestToPay), 2);
+  }, [
+    commitment?.minAPY,
+    commitment?.maxDuration,
+    commitment?.isLenderGroup,
+    commitment?.principalToken?.decimals,
+    maxLoanAmount,
+    minInterestRateLenderGroups,
+  ]);
 
   return (
     <div className="rollover-loan">
@@ -597,6 +632,20 @@ const RolloverLoan: React.FC = () => {
           </>
         )}
       </DataField>
+      {isLoading ? (
+        <Loader height={16} isSkeleton />
+      ) : (
+        <div className="section-title fee-details">
+          <span className="fee-details-item">
+            Interest: {interestToPayForDisplay} {loan.lendingToken.symbol}
+          </span>{" "}
+          •{" "}
+          <span className="fee-details-item">
+            Fees: {numberWithCommasAndDecimals(totalFees, 2)}{" "}
+            {loan.lendingToken.symbol}
+          </span>
+        </div>
+      )}
       <TransactionButton transactions={transactions} />
     </div>
   );
