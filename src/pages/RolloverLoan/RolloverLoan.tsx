@@ -2,7 +2,7 @@ import cx from "classnames";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { Address, formatUnits } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 import BackButton from "../../components/BackButton";
 import DataField from "../../components/DataField";
@@ -30,7 +30,6 @@ import TokenInput, {
 } from "../../components/TokenInput/TokenInput";
 import TokenLogo from "../../components/TokenLogo";
 import TransactionButton from "../../components/TransactionButton";
-import { SUPPORTED_TOKEN_LOGOS } from "../../constants/tokens";
 import { abs, bigIntMax, bigIntMin } from "../../helpers/bigIntMath";
 import {
   convertSecondsToDays,
@@ -142,6 +141,7 @@ const RolloverLoan: React.FC = () => {
     loan.lendingToken.address,
     loan
   );
+
   const marketIds = Array.from(
     filteredCommitments.size > 0 ? Array.from(filteredCommitments.keys()) : []
   );
@@ -187,8 +187,7 @@ const RolloverLoan: React.FC = () => {
   const commitmentCollateral = commitment?.collateralToken;
 
   const isLenderGroup = commitment?.isLenderGroup;
-
-  const chainId = useChainId();
+  const isV2 = commitment?.isV2 || false;
 
   const { protocolFeePercent } = useGetProtocolFee();
   const { referralFee } = useGetGlobalPropsContext();
@@ -209,7 +208,7 @@ const RolloverLoan: React.FC = () => {
     false,
     ContractType.ERC20
   );
-  const requestedCollateral = BigInt(loanCollateral?.amount) ?? 0;
+  const requestedCollateral = BigInt(loanCollateral?.amount ?? 0) ?? 0;
 
   const requestedCollateralPlusWalletCollateral =
     requestedCollateral + BigInt(collateralBalance.data ?? 0);
@@ -222,7 +221,7 @@ const RolloverLoan: React.FC = () => {
   );
 
   const totalOwedBI = !!totalOwedData
-    ? BigInt(totalOwedData.interest) + BigInt(totalOwedData.principal)
+    ? BigInt(totalOwedData.interest ?? 0) + BigInt(totalOwedData.principal ?? 0)
     : BigInt(0);
 
   let maxLoanAmountFromLender;
@@ -231,10 +230,10 @@ const RolloverLoan: React.FC = () => {
   if (isSameLender) {
     if (isLenderGroup) {
       maxLoanAmountFromLender =
-        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount);
+        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount ?? 0);
     } else {
       maxLoanAmountFromLender = bigIntMin(
-        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount),
+        BigInt(totalOwedBI) + BigInt(commitment?.committedAmount ?? 0),
         BigInt(commitment?.maxPrincipal ?? 0) -
           BigInt(commitment?.acceptedPrincipal ?? 0)
       );
@@ -287,7 +286,11 @@ const RolloverLoan: React.FC = () => {
     "getRequiredCollateral",
     requiredCollateralArgs(defaultLoanAmountLender),
     !isSameLender,
-    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+    isLenderGroup
+      ? isV2
+        ? ContractType.LenderGroupsV2
+        : ContractType.LenderGroups
+      : ContractType.Teller
   );
 
   const {
@@ -298,7 +301,11 @@ const RolloverLoan: React.FC = () => {
     "getRequiredCollateral",
     requiredCollateralArgs(maxLoanAmountFromLender),
     !isSameLender,
-    isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
+    isLenderGroup
+      ? isV2
+        ? ContractType.LenderGroupsV2
+        : ContractType.LenderGroups
+      : ContractType.Teller
   );
 
   const {
@@ -309,8 +316,7 @@ const RolloverLoan: React.FC = () => {
     requestedCollateral:
       isSameLender &&
       maxLenderCollateralSuported &&
-      maxLenderCollateralSuported <
-        BigInt(requestedCollateralPlusWalletCollateral)
+      maxLenderCollateralSuported <= requestedCollateralPlusWalletCollateral
         ? maxLenderCollateralSuported
         : requestedCollateralPlusWalletCollateral,
     isRollover: true,
@@ -318,8 +324,9 @@ const RolloverLoan: React.FC = () => {
     loanAmount: isSameLender ? totalOwedBI : BigInt(0),
     isSameLender,
   });
+
   const defaultCollateralValueAmount = bigIntMin(
-    BigInt(loanCollateral?.amount),
+    BigInt(loanCollateral?.amount ?? 0),
     maxCollateralWithWalletBalance
   );
   const defaultCollateralValue = useMemo(
@@ -359,7 +366,7 @@ const RolloverLoan: React.FC = () => {
       valueBI: defaultCollateralValueAmount,
       value: Number(
         formatUnits(
-          BigInt(defaultCollateralValueAmount),
+          BigInt(defaultCollateralValueAmount ?? 0),
           loanCollateral?.token.decimals
         )
       ),
@@ -408,7 +415,7 @@ const RolloverLoan: React.FC = () => {
         : BigInt(maxLoanAmount ?? 0),
     ],
     !isLenderGroup,
-    ContractType.LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const currentValues: RolloverData = useMemo(
@@ -463,7 +470,7 @@ const RolloverLoan: React.FC = () => {
       loanAmount: (
         <>
           {numberWithCommasAndDecimals(
-            formatUnits(BigInt(maxLoanAmount), loan.lendingToken.decimals)
+            formatUnits(BigInt(maxLoanAmount ?? 0), loan.lendingToken.decimals)
           )}
           <TokenLogo logoUrl={principalTokenIcon} />
         </>
@@ -499,7 +506,7 @@ const RolloverLoan: React.FC = () => {
 
   const isInputMoreThanMaxCollateral =
     BigInt(collateralAmountDebounced.valueBI ?? 0) >
-    BigInt(maxCollateralWithWalletBalance);
+    BigInt(maxCollateralWithWalletBalance ?? 0);
 
   const { transactions, rolloverLoanEstimation, borrowerAmount } =
     useRolloverLoan(
@@ -507,7 +514,8 @@ const RolloverLoan: React.FC = () => {
       commitment,
       maxCollateral,
       isInputMoreThanMaxCollateral,
-      maxLoanAmount
+      maxLoanAmount,
+      true
     );
   const marketplaceFee = +(commitment?.marketplace?.marketplaceFeePercent ?? 0);
   const totalFeePercent =

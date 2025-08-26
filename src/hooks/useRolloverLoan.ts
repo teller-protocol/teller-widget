@@ -5,20 +5,18 @@ import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
 import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
 import { useContracts } from "./useContracts";
-import { rfwAddressMap } from "../constants/rfwAddress";
 import {
   ContractType,
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
 import { useCallback, useMemo, useState } from "react";
-import { abs, bigIntMin } from "../helpers/bigIntMath";
+import { abs, bigIntPow } from "../helpers/bigIntMath";
 import {
   RepaySectionSteps,
   useGetRepaySectionContext,
 } from "../pages/RepaySection/RepaySectionContext";
-import { Address, zeroAddress } from "viem";
-import { useCalculateMaxCollateralFromCommitment } from "./useCalculateMaxCollateralFromCommitment";
+import { zeroAddress } from "viem";
 import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 import { useGetProtocolFee } from "./useGetProtocolFee";
 import { useWriteContract } from "./useWriteContract";
@@ -28,32 +26,39 @@ export const calculateCollateralRequiredForPrincipal = (
   maxPrincipalPerCollateralRatio: bigint, // ratio of max principal to collateral
   principalTokenDecimals: number,
   collateralTokenDecimals: number,
-  isCommitmentFromLCFAlpha: boolean
+  isCommitmentFromLCFAlpha: boolean,
+  useBuffer: boolean,
+  isCollateralERC20: boolean
 ): bigint => {
   if (isNaN(principalTokenDecimals))
     throw new Error("principalTokenDecimals must be a number");
   if (isNaN(collateralTokenDecimals))
     throw new Error("collateralTokenDecimals must be a number");
 
-  const totalTokenDecimals = principalTokenDecimals + collateralTokenDecimals;
+  const totalTokenDecimals =
+    BigInt(principalTokenDecimals) + BigInt(collateralTokenDecimals);
 
-  const factor = 10 ** (isCommitmentFromLCFAlpha ? 18 : totalTokenDecimals); // 18 if lcf alpha, othewrwise previous code
+  const exponent = isCommitmentFromLCFAlpha ? 18n : BigInt(totalTokenDecimals);
+  const factor = bigIntPow(10n, exponent);
 
-  const expandedLoanPrincipal = BigInt(loanPrincipal) * BigInt(factor);
+  const loanPrincipalWithBuffer =
+    useBuffer && isCollateralERC20
+      ? (loanPrincipal * 99_95n) / 10_000n // accounts for 0.05% buffer in case of price changing and slow internet from the user
+      : loanPrincipal;
+
+  const expandedLoanPrincipal = loanPrincipalWithBuffer * factor;
 
   // never want to divide by zero so we do this to avoid a panic
-  if (BigInt(maxPrincipalPerCollateralRatio) === 0n) {
-    return BigInt(0);
+  if (maxPrincipalPerCollateralRatio === 0n) {
+    return 0n;
   }
 
   // since we are solving backwards, we need to use this trick to round properly
-  const remainder =
-    expandedLoanPrincipal % BigInt(maxPrincipalPerCollateralRatio);
-  const roundUpCoefficient = remainder === 0n ? 0 : 1;
+  const remainder = expandedLoanPrincipal % maxPrincipalPerCollateralRatio;
+  const roundUpCoefficient = remainder === 0n ? 0n : 1n;
 
   return (
-    expandedLoanPrincipal / BigInt(maxPrincipalPerCollateralRatio) +
-    BigInt(roundUpCoefficient)
+    expandedLoanPrincipal / maxPrincipalPerCollateralRatio + roundUpCoefficient
   );
 };
 
@@ -81,7 +86,8 @@ export const calculatePrincipalReceivedPerCollateral = (
   }
 
   return (
-    (collateralAmount * BigInt(maxPrincipalPerCollateralRatio)) / BigInt(factor)
+    (collateralAmount * BigInt(maxPrincipalPerCollateralRatio ?? 0)) /
+    BigInt(factor)
   );
 };
 
@@ -90,7 +96,8 @@ const useRolloverLoan = (
   rolloverCommitment: CommitmentType, // selected from the 'best' fitting commitment by Z Score
   maxCollateral: bigint,
   isInputMoreThanMaxCollateral?: boolean,
-  maxLoanAmount?: bigint
+  maxLoanAmount?: bigint,
+  useBuffer: boolean = false
 ) => {
   const { address: walletConnectedAddress } = useAccount();
 
@@ -117,7 +124,9 @@ const useRolloverLoan = (
     "getMinInterestRate",
     [principalAmount],
     false, // skipRun, assuming the default value here; change if needed
-    ContractType.LenderGroups // Setting the contractType to LenderGroups
+    rolloverCommitment?.isV2
+      ? ContractType.LenderGroupsV2
+      : ContractType.LenderGroups // Setting the contractType to LenderGroups
   );
 
   const maxPrincipalPerCollateralLenderGroups =
@@ -222,56 +231,23 @@ const useRolloverLoan = (
   const collateralTokenDecimals =
     rolloverCommitment?.collateralToken?.decimals ?? 0;
 
-  const maximumRolloverLoanPrincipalAmount = useMemo(() => {
-    const collateralBalance = maxCollateral;
-
-    if (!collateralBalance) {
-      return bid.principal;
-    }
-
-    const maximumRolloverLoanPrincipalAmount =
-      calculatePrincipalReceivedPerCollateral(
-        BigInt(collateralBalance),
-        BigInt(maxPrincipalPerCollateral ?? 0),
-        principalTokenDecimals,
-        collateralTokenDecimals,
-        isCommitmentFromLCFAlpha
-      );
-
-    return bigIntMin(
-      maximumRolloverLoanPrincipalAmount,
-      BigInt(rolloverCommitment?.committedAmount ?? 0)
-    );
-  }, [
-    maxCollateral,
-    maxPrincipalPerCollateral,
-    principalTokenDecimals,
-    collateralTokenDecimals,
-    isCommitmentFromLCFAlpha,
-    rolloverCommitment?.committedAmount,
-    bid.principal,
-  ]); // use memo
-
-  const rolloverLoanPrincipalAmount = BigInt(
-    maximumRolloverLoanPrincipalAmount
-  ).toString();
-
   // alternatively could just use the collateral that was in the original loan since it should match anyways
   const collateralAmount = calculateCollateralRequiredForPrincipal(
-    BigInt(maxLoanAmount ?? 0),
+    BigInt(maxLoanAmount || 0),
     BigInt(maxPrincipalPerCollateral ?? 0),
     principalTokenDecimals,
     collateralTokenDecimals,
-    isCommitmentFromLCFAlpha || isLenderGroup
-    // TODO CHECK BUFFER
+    isCommitmentFromLCFAlpha || isLenderGroup,
+    isLenderGroup ? false : useBuffer,
+    true
   );
 
   const acceptCommitmentArgs: any = useMemo(
     () => ({
       commitmentId: rolloverCommitment?.id,
       smartCommitmentAddress: smartCommitmentAddress,
-      principalAmount: principalAmount?.toString(),
-      collateralAmount: collateralAmount.toString(),
+      principalAmount: principalAmount,
+      collateralAmount: collateralAmount,
       collateralTokenId: 0,
       collateralTokenAddress: rolloverCommitment?.collateralToken?.address,
       interestRate: isLenderGroup
@@ -397,7 +373,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         ? "Rollover not supported for this token pair"
         : borrowerAmount &&
           walletBalance &&
-          borrowerAmount > BigInt(walletBalance?.data)
+          borrowerAmount > BigInt(walletBalance?.data ?? 0)
         ? `Insufficient ${bid.lendingToken.symbol} balance.`
         : "";
 
@@ -423,7 +399,7 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         id++;
       }
 
-      if (borrowerAmount > BigInt(flashRolloverAllowance)) {
+      if (borrowerAmount > BigInt(flashRolloverAllowance ?? 0)) {
         steps.push({
           contractName: bid?.lendingTokenAddress,
           args: [flashRolloverLoanAddress, borrowerAmount * 10n],
@@ -438,10 +414,10 @@ and need to grant allowance of the NFT(collateral) to collateralManager as well
         id++;
       }
 
-      if (collateralAllowance < BigInt(collateralAmount)) {
+      if (collateralAllowance < BigInt(collateralAmount ?? 0)) {
         steps.push({
           contractName: rolloverCommitment?.collateralToken?.address,
-          args: [collateralManagerAddress, BigInt(collateralAmount) * 10n],
+          args: [collateralManagerAddress, BigInt(collateralAmount ?? 0) * 10n],
           functionName: "approve",
           buttonLabel: `Approve collateral`,
           loadingButtonLabel: `Approving collateral...`,

@@ -250,6 +250,7 @@ const OpportunityDetails = () => {
   const { data: liquidityPoolApr } = useGetAPRForLiquidityPools(
     selectedOpportunity.lenderAddress ?? "0x",
     maxLoanAmount.toString(),
+    selectedOpportunity.isV2 || false,
     !isLiquidityPool
   );
 
@@ -268,6 +269,7 @@ const OpportunityDetails = () => {
   const { getTokenPrice } = useGetTokenPriceFromDerivedETH();
 
   const lenderGroupTransactions = useBorrowFromPool({
+    isV2: selectedOpportunity?.isV2 || false,
     skip: !isLenderGroup,
     commitmentPoolAddress: selectedOpportunity?.lenderAddress ?? "0x",
     principalAmount: maxLoanAmount.toString(),
