@@ -23,6 +23,7 @@ export enum SupportedContractsEnum {
   "SmartCommitmentForwarder" = "SmartCommitmentForwarder",
   "BorrowSwap" = "BorrowSwap",
   "SwapRolloverLoan" = "SwapRolloverLoan",
+  "UniswapPricingHelper" = "UniswapPricingHelper",
 }
 
 export enum ContractType {

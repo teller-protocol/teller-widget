@@ -93,6 +93,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
           forwarderAddress:
             lenderGroupCommitment.smart_commitment_forwarder_address,
           collateralRatio: Number(lenderGroupCommitment.collateral_ratio),
+          isV2: lenderGroupCommitment.isV2,
         };
       }
     },

@@ -316,7 +316,8 @@ const RolloverLoan: React.FC = () => {
     requestedCollateral:
       isSameLender &&
       maxLenderCollateralSuported &&
-      maxLenderCollateralSuported <= requestedCollateralPlusWalletCollateral
+      maxLenderCollateralSuported <
+        BigInt(requestedCollateralPlusWalletCollateral)
         ? maxLenderCollateralSuported
         : requestedCollateralPlusWalletCollateral,
     isRollover: true,
@@ -329,6 +330,7 @@ const RolloverLoan: React.FC = () => {
     BigInt(loanCollateral?.amount ?? 0),
     maxCollateralWithWalletBalance
   );
+
   const defaultCollateralValue = useMemo(
     () => ({
       token: {

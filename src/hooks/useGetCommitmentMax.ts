@@ -17,6 +17,7 @@ import {
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
+import { useRequiredCollateral } from "./useRequiredCollateral";
 
 interface Result {
   maxLoanAmount: bigint;
@@ -135,40 +136,14 @@ export const useGetCommitmentMax = ({
       ? BigInt(colBal.value)
       : 0n;
 
-  const requiredCollateralArgs = isLenderGroup
-    ? [minAmount, maxPrincipalPerCollateralLenderGroup]
-    : [
-        minAmount,
-        maxPrincipalPerCollateral,
-        CommitmentCollateralType[
-          collateralType as keyof typeof CommitmentCollateralType
-        ],
-        ...(isCommitmentFromLCFAlpha
-          ? []
-          : [
-              commitment?.collateralToken?.address,
-              commitment?.principalTokenAddress,
-            ]),
-      ];
-
-  const forwarderAddress = isLenderGroup
-    ? commitment?.lenderAddress ?? "0x"
-    : isCommitmentFromLCFAlpha
-    ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-    : isRollover
-    ? SupportedContractsEnum.LenderCommitmentForwarderStaging
-    : SupportedContractsEnum.LenderCommitmentForwarder;
-
-  const { data: requiredCollateral = BigInt(0), isLoading } =
-    useReadContract<bigint>(
-      forwarderAddress,
-      "getRequiredCollateral",
-      requiredCollateralArgs,
-      requiredCollateralArgs.some((arg) => !arg),
-      isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
-    );
-
-  console.warn("requiredCollateral", requiredCollateral);
+  const { requiredCollateral = BigInt(0), isLoading } = useRequiredCollateral({
+    commitment: commitment as CommitmentType,
+    principalAmount: minAmount,
+    maxPrincipalPerCollateral,
+    maxPrincipalPerCollateralLenderGroup,
+    isCommitmentFromLCFAlpha,
+    isRollover,
+  });
 
   const maxCollateral = useMemo(() => {
     const amount =
