@@ -1,10 +1,13 @@
+import { useMemo } from "react";
 import { formatUnits, parseUnits } from "viem";
+import { useAccount, useToken, useBalance } from "wagmi";
+
+import { bigIntMin } from "../helpers/bigIntMath";
 import { AddressStringType } from "../types/addressStringType";
+
 import { CommitmentType } from "./queries/useGetRolloverableCommitments";
 import { ContractType, useReadContract } from "./useReadContract";
-import { useMemo } from "react";
-import { bigIntMin } from "../helpers/bigIntMath";
-import { useAccount, useToken, useBalance } from "wagmi";
+
 export const useLiquidityPoolsCommitmentMax = ({
   lenderGroupCommitment,
   collateralAmount,
@@ -20,6 +23,7 @@ export const useLiquidityPoolsCommitmentMax = ({
   const poolId = lenderGroupCommitment?.lenderAddress;
   const collateralAddress = lenderGroupCommitment?.collateralToken?.address;
   const principalAddress = lenderGroupCommitment?.principalToken?.address;
+  const isV2 = lenderGroupCommitment?.isV2 || false;
 
   const { data: principalTokenData } = useToken({
     address: principalAddress,
@@ -34,7 +38,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "getPrincipalAmountAvailableToBorrow",
     [],
     skip,
-    ContractType.LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const { data: requiredCollateralFor1PrincipalAmount } = useReadContract(
@@ -42,7 +46,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "calculateCollateralRequiredToBorrowPrincipal",
     [parseUnits("1", principalTokenData?.decimals ?? 18)],
     skip,
-    ContractType.LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const { data: maxAvailableCollateralInPool } = useReadContract(
@@ -50,7 +54,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "calculateCollateralRequiredToBorrowPrincipal",
     [maxLoanAmountFromContract],
     !maxLoanAmountFromContract,
-    ContractType.LenderGroups // Setting the contractType to LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const standardExpansionFactorExponent = 18;
@@ -102,7 +106,7 @@ export const useLiquidityPoolsCommitmentMax = ({
     "calculateCollateralRequiredToBorrowPrincipal",
     [maxLoanAmountFromContract],
     !maxLoanAmountFromContract || skip,
-    ContractType.LenderGroups
+    isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const { data: collateralWalletBalance } = useBalance({

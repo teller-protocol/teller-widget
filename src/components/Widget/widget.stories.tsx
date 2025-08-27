@@ -21,7 +21,7 @@ const meta = {
   argTypes: {
     whitelistedTokens: {
       description: "Array of addressed organized by chain id.",
-      defaultValue: {},
+      defaultValue: undefined,
     },
     buttonClassName: {
       description: "Class name for the button.",
@@ -126,6 +126,7 @@ type Story = StoryObj<typeof meta>;
 export const Main: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,
+    cacheKey: "main",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();
@@ -146,6 +147,7 @@ export const Strategies: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,
     showStrategiesSection: true,
+    cacheKey: "strategies",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();
@@ -175,6 +177,7 @@ export const Pair: Story = {
     widgetChainId: 1,
     hideAutoConnectModal: true,
     principalTokenForPair: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    cacheKey: "pair",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();
@@ -194,6 +197,7 @@ export const Pair: Story = {
 export const AutoOpen: Story = {
   args: {
     subgraphApiKey: SUBGRAPH_API_KEY,
+    cacheKey: "autoopen",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();
@@ -216,6 +220,7 @@ export const Trade: Story = {
     isTradeMode: true,
     strategy: STRATEGY_ACTION_ENUM.LONG,
     strategyToken: "0x1bc0c42215582d5a085795f4badbac3ff36d1bcb",
+    cacheKey: "trade",
   },
   render: function Render(args) {
     const queryClient = new QueryClient();

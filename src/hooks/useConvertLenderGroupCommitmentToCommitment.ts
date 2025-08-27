@@ -19,7 +19,11 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
       const totalAvailable = (await readContract(config, {
         address: lenderGroupCommitment?.group_pool_address as AddressStringType,
         functionName: "getPrincipalAmountAvailableToBorrow",
-        abi: contracts[SupportedContractsEnum.LenderGroups].abi,
+        abi: contracts[
+          lenderGroupCommitment?.isV2
+            ? SupportedContractsEnum.LenderGroupsV2
+            : SupportedContractsEnum.LenderGroups
+        ].abi,
         args: [],
         chainId: chainId as ChainNumbers,
       }).catch((res) => {
@@ -89,6 +93,7 @@ export const useConvertLenderGroupCommitmentToCommitment = () => {
           forwarderAddress:
             lenderGroupCommitment.smart_commitment_forwarder_address,
           collateralRatio: Number(lenderGroupCommitment.collateral_ratio),
+          isV2: lenderGroupCommitment.isV2,
         };
       }
     },

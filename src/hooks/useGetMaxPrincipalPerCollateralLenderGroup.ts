@@ -1,5 +1,9 @@
-import { ContractType, useReadContract } from "./useReadContract";
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
+import {
+  ContractType,
+  SupportedContractsEnum,
+  useReadContract,
+} from "./useReadContract";
 
 export const useGetMaxPrincipalPerCollateralLenderGroup = (
   commitment?: CommitmentType
@@ -10,7 +14,7 @@ export const useGetMaxPrincipalPerCollateralLenderGroup = (
     "poolOracleRoutes",
     [0],
     !isLenderGroup || !commitment.lenderAddress,
-    ContractType.LenderGroups
+    commitment?.isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   const { data: poolOracleRoute2, isFetched: poolOracleRoute2Fetched } =
@@ -19,15 +23,14 @@ export const useGetMaxPrincipalPerCollateralLenderGroup = (
       "poolOracleRoutes",
       [1],
       !isLenderGroup || !commitment.lenderAddress,
-      ContractType.LenderGroups
+      commitment?.isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
     );
   const { data: maxPrincipalPerCollateralLenderGroup } =
     useReadContract<bigint>(
-      commitment?.lenderAddress ?? "0x",
+      SupportedContractsEnum.UniswapPricingHelper,
       "getUniswapPriceRatioForPoolRoutes",
       [[poolOracleRoute1, ...(poolOracleRoute2 ? [poolOracleRoute2] : [])]],
-      !isLenderGroup || !poolOracleRoute1 || !poolOracleRoute2Fetched,
-      ContractType.LenderGroups
+      !isLenderGroup || !poolOracleRoute1 || !poolOracleRoute2Fetched
     );
   const ajustedMaxPrincipalPerCollateralLenderGroup =
     maxPrincipalPerCollateralLenderGroup

@@ -51,6 +51,7 @@ export type CommitmentType = {
   };
   isLenderGroup?: boolean; // this does NOT exist in subgraph
   collateralRatio?: number; // this does NOT exist in subgraph
+  isV2?: boolean;
 };
 
 /**
@@ -73,8 +74,8 @@ const combineCommitments = (
   }
 
   return [
-    ...commitmentsWithLCF69,
     ...(lenderGroupsRolloverableCommitments ?? []),
+    ...commitmentsWithLCF69,
     ...modifiedCommitments,
   ] as CommitmentType[];
 };
@@ -110,10 +111,9 @@ export const useGetRolloverableCommitments = (
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [
-    convertedLenderGroupsRolloverableCommitments,
-    setConvertedLenderGroupsRolloverableCommitments,
-  ] = useState<CommitmentType[]>([]);
+  const [convertedLenderGroupsRolloverableCommitments] = useState<
+    CommitmentType[]
+  >([]);
 
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
 
@@ -267,15 +267,12 @@ export const useGetRolloverableCommitments = (
   useEffect(() => {
     let isCancelled = false;
 
-    if (
-      (!rawCommitments && !isLenderGroupsRolloverableCommitmentsLoading) ||
-      !loan
-    ) {
+    if (!data?.commitments || !lenderGroupsRolloverableCommitments || !loan) {
       setIsLoading(false);
       return;
     }
 
-    if (isLenderGroupsRolloverableCommitmentsLoading) {
+    if (isLenderGroupsRolloverableCommitmentsLoading || isQueryLoading) {
       setIsLoading(true);
       return;
     }
@@ -325,7 +322,7 @@ export const useGetRolloverableCommitments = (
 
         await Array.from(commitmentsByMarketId.entries())
           .reduce<Promise<CommitmentMap>>(
-            async (accPromise, [marketId, commitments]) => {
+            async (accPromise, [_marketId, commitments]) => {
               const acc = await accPromise;
               const bestCommitment = await Promise.all(
                 commitments.map(async (current) => {
@@ -333,13 +330,14 @@ export const useGetRolloverableCommitments = (
                   const isSameLender =
                     loan?.lenderAddress?.toLowerCase() ===
                     current?.lenderAddress?.toLowerCase();
-                  const loanAmount: bigint = BigInt(loan?.principal);
-                  const maxCollateral = (await calculateMaxCollateral(
+                  const loanAmount: bigint = BigInt(loan?.principal || 0);
+                  const maxCollateral = await calculateMaxCollateral(
                     current,
                     isSameLender,
                     loanAmount
-                  )) as string;
-                  return BigInt(maxCollateral) >=
+                  );
+
+                  return BigInt(maxCollateral?.toString() || "0") >=
                     BigInt(loan?.collateral?.[0]?.amount)
                     ? current
                     : null;
@@ -389,8 +387,11 @@ export const useGetRolloverableCommitments = (
     convertedLenderGroupsRolloverableCommitments,
     getMinimumBalance,
     isLenderGroupsRolloverableCommitmentsLoading,
+    isQueryLoading,
     loan,
     rawCommitments,
+    data?.commitments,
+    lenderGroupsRolloverableCommitments,
   ]);
 
   return {

@@ -19,8 +19,11 @@ export enum SupportedContractsEnum {
   "MarketLiquidityRewards" = "MarketLiquidityRewards",
   "CollateralManager" = "CollateralManager",
   "LenderGroups" = "LenderCommitmentGroupBeacon",
+  "LenderGroupsV2" = "LenderCommitmentGroupBeaconV2",
   "SmartCommitmentForwarder" = "SmartCommitmentForwarder",
   "BorrowSwap" = "BorrowSwap",
+  "SwapRolloverLoan" = "SwapRolloverLoan",
+  "UniswapPricingHelper" = "UniswapPricingHelper",
 }
 
 export enum ContractType {
@@ -29,6 +32,8 @@ export enum ContractType {
   UNIV3POOL = "UNIV3POOL",
   External = "External",
   LenderGroups = "LenderCommitmentGroupBeacon",
+  LenderGroupsV2 = "LenderCommitmentGroupBeaconV2",
+  UniswapPricingHelper = "UniswapPricingHelper",
 }
 
 export const useReadContract = <T = any>(
@@ -49,6 +54,8 @@ export const useReadContract = <T = any>(
       [ContractType.ERC20]: erc20Abi,
       [ContractType.UNIV3POOL]: uniswapV3PoolAbi,
       [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
+      [ContractType.LenderGroupsV2]:
+        contracts[ContractType.LenderGroupsV2]?.abi,
     }),
     [chainId, contractName, contracts]
   );

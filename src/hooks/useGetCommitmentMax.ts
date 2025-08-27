@@ -1,27 +1,24 @@
 import { useMemo } from "react";
+import { formatUnits } from "viem";
+import { useAccount, useBalance } from "wagmi";
 
-import { erc20Abi, formatUnits } from "viem";
-import {
-  useAccount,
-  useBalance,
-  useReadContract as useReadContractWagmi,
-} from "wagmi";
-
+import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
 import { bigIntMin } from "../helpers/bigIntMath";
+import { parseBigInt } from "../helpers/parseBigInt";
 import { CommitmentCollateralType } from "../types/poolsApiTypes";
 
 import { CommitmentType } from "./queries/useGetCommitmentsForCollateralToken";
 import { useContracts } from "./useContracts";
 import { useGetMaxPrincipalPerCollateralFromLCFAlpha } from "./useGetMaxPrincipalPerCollateralFromLCFAlpha";
-import { useGetGlobalPropsContext } from "../contexts/GlobalPropsContext";
+import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
 import { useGetProtocolFee } from "./useGetProtocolFee";
 import {
   ContractType,
   SupportedContractsEnum,
   useReadContract,
 } from "./useReadContract";
-import { parseBigInt } from "../helpers/parseBigInt";
-import { useGetMaxPrincipalPerCollateralLenderGroup } from "./useGetMaxPrincipalPerCollateralLenderGroup";
+import { useRequiredCollateral } from "./useRequiredCollateral";
+
 interface Result {
   maxLoanAmount: bigint;
   maxCollateral: bigint;
@@ -60,7 +57,7 @@ export const useGetCommitmentMax = ({
     "getPrincipalAmountAvailableToBorrow",
     [],
     !isLenderGroup,
-    ContractType.LenderGroups
+    commitment?.isV2 ? ContractType.LenderGroupsV2 : ContractType.LenderGroups
   );
 
   let lenderGroupAmount = principalAmountAvailableToBorrow ?? 0n;
@@ -135,44 +132,23 @@ export const useGetCommitmentMax = ({
   const collateralBalance =
     isRollover && requestedCollateral
       ? requestedCollateral
-      : colBal?.value ?? BigInt(0);
+      : colBal?.value
+      ? BigInt(colBal.value)
+      : 0n;
 
-  const requiredCollateralArgs = isLenderGroup
-    ? [minAmount, maxPrincipalPerCollateralLenderGroup]
-    : [
-        minAmount,
-        maxPrincipalPerCollateral,
-        CommitmentCollateralType[
-          collateralType as keyof typeof CommitmentCollateralType
-        ],
-        ...(isCommitmentFromLCFAlpha
-          ? []
-          : [
-              commitment?.collateralToken?.address,
-              commitment?.principalTokenAddress,
-            ]),
-      ];
+  const { requiredCollateral = BigInt(0), isLoading } = useRequiredCollateral({
+    commitment: commitment as CommitmentType,
+    principalAmount: minAmount,
+    maxPrincipalPerCollateral,
+    maxPrincipalPerCollateralLenderGroup,
+    isCommitmentFromLCFAlpha,
+    isRollover,
+  });
 
-  const forwarderAddress = isLenderGroup
-    ? commitment?.lenderAddress ?? "0x"
-    : isCommitmentFromLCFAlpha
-    ? SupportedContractsEnum.LenderCommitmentForwarderAlpha
-    : isRollover
-    ? SupportedContractsEnum.LenderCommitmentForwarderStaging
-    : SupportedContractsEnum.LenderCommitmentForwarder;
-
-  const { data: requiredCollateral = BigInt(0), isLoading } =
-    useReadContract<bigint>(
-      forwarderAddress,
-      "getRequiredCollateral",
-      requiredCollateralArgs,
-      requiredCollateralArgs.some((arg) => !arg),
-      isLenderGroup ? ContractType.LenderGroups : ContractType.Teller
-    );
   const maxCollateral = useMemo(() => {
     const amount =
-      (requiredCollateral ?? BigInt(0)) > collateralBalance
-        ? BigInt(collateralBalance)
+      (requiredCollateral ?? 0n) > collateralBalance
+        ? collateralBalance
         : requiredCollateral;
     return amount;
   }, [collateralBalance, /* isNative, */ requiredCollateral]);
