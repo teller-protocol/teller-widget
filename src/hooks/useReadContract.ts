@@ -56,6 +56,8 @@ export const useReadContract = <T = any>(
       [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
       [ContractType.LenderGroupsV2]:
         contracts[ContractType.LenderGroupsV2]?.abi,
+      [ContractType.UniswapPricingHelper]:
+        contracts[ContractType.UniswapPricingHelper]?.abi,
     }),
     [chainId, contractName, contracts]
   );

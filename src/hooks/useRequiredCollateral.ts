@@ -74,14 +74,16 @@ export const useRequiredCollateral = ({
       forwarderAddress,
       "getRequiredCollateral",
       contractArgs,
-      isLenderGroup ? false : contractArgs.some((arg) => !arg), // Skip loading for LenderGroup
+      isLenderGroup ? false : contractArgs.some((arg) => !arg) // Skip loading for LenderGroup
     );
 
   const requiredCollateral = useMemo(() => {
     if (isLenderGroup) {
       return calculateLenderGroupRequiredCollateral(
-        principalAmount,
-        maxPrincipalPerCollateralLenderGroup ?? 0n
+        principalAmount ?? 0n,
+        maxPrincipalPerCollateralLenderGroup
+          ? BigInt(maxPrincipalPerCollateralLenderGroup)
+          : 0n
       );
     }
 

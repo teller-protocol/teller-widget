@@ -37,6 +37,7 @@ export const useWriteContract = ({
     [ContractType.LenderGroups]: contracts[ContractType.LenderGroups]?.abi,
     [ContractType.LenderGroupsV2]: contracts[ContractType.LenderGroupsV2]?.abi,
     [ContractType.UNIV3POOL]: contracts[contractName]?.abi,
+    [ContractType.UniswapPricingHelper]: contracts[contractName]?.abi,
   };
 
   const abi = mapContractTypeToAbi[contractType];
