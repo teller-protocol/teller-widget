@@ -3,17 +3,23 @@ import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import { useGetGraphEndpoint } from "../useGetGraphEndpoint";
 
 export const useGetRolloverableCommitmentsFromLiquidityPools = (
   collateralTokenAddress?: string,
   principalTokenAddress?: string
 ) => {
   const chainId = useChainId();
-  const graphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
+  const { endpoint: endpointV1, isFetched: isFetchedV1 } = useGetGraphEndpoint(
+    chainId,
+    "v1"
+  );
 
-  const graphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
+  const { endpoint: endpointV2, isFetched: isFetchedV2 } = useGetGraphEndpoint(
+    chainId,
+    "v2"
+  );
 
   const collateralTokenCommitments = useMemo(
     () => gql`
@@ -55,23 +61,27 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
     queryFn: async () => {
       let metricsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        metricsV1 = (
-          await request<{
-            group_pool_metric: LenderGroupsPoolMetrics[];
-          }>(graphUrlV1, collateralTokenCommitments)
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+        if (endpointV1) {
+          metricsV1 = (
+            await request<{
+              group_pool_metric: LenderGroupsPoolMetrics[];
+            }>(endpointV1, collateralTokenCommitments)
+          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+        }
       } catch (e) {
         console.warn(e);
       }
 
       let metricsV2: LenderGroupsPoolMetrics[] = [];
       try {
-        metricsV2 = (
-          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
-            graphUrlV2,
-            collateralTokenCommitments
-          )
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        if (endpointV2) {
+          metricsV2 = (
+            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+              endpointV2,
+              collateralTokenCommitments
+            )
+          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        }
       } catch (e) {
         console.warn(e);
       }
@@ -80,7 +90,7 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
 
       return { group_pool_metric: metrics };
     },
-    enabled: !!collateralTokenAddress,
+    enabled: !!collateralTokenAddress && isFetchedV1 && isFetchedV2,
   }) as {
     data: { group_pool_metric: LenderGroupsPoolMetrics[] };
     isLoading: boolean;

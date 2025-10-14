@@ -3,10 +3,10 @@ import request, { gql } from "graphql-request";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
 import { useConvertLenderGroupCommitmentToCommitment } from "../useConvertLenderGroupCommitmentToCommitment";
+import { useGetGraphEndpoint } from "../useGetGraphEndpoint";
 
 import { CommitmentType } from "./useGetRolloverableCommitments";
 
@@ -14,8 +14,14 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
   collateralTokenAddress: string
 ) => {
   const chainId = useChainId();
-  const graphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
-  const graphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
+  const { endpoint: endpointV1, isFetched: isFetchedV1 } = useGetGraphEndpoint(
+    chainId,
+    "v1"
+  );
+  const { endpoint: endpointV2, isFetched: isFetchedV2 } = useGetGraphEndpoint(
+    chainId,
+    "v2"
+  );
   const { principalTokenForPair } = useGetGlobalPropsContext();
 
   const { convertCommitment } = useConvertLenderGroupCommitmentToCommitment();
@@ -64,24 +70,28 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
     queryFn: async () => {
       let metricsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        metricsV1 = (
-          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
-            graphUrlV1,
-            collateralTokenCommitmentsDashboard
-          )
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+        if (endpointV1) {
+          metricsV1 = (
+            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+              endpointV1,
+              collateralTokenCommitmentsDashboard
+            )
+          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+        }
       } catch (e) {
         console.warn(e);
       }
 
       let metricsV2: LenderGroupsPoolMetrics[] = [];
       try {
-        metricsV2 = (
-          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
-            graphUrlV2,
-            collateralTokenCommitmentsDashboard
-          )
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        if (endpointV2) {
+          metricsV2 = (
+            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+              endpointV2,
+              collateralTokenCommitmentsDashboard
+            )
+          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        }
       } catch (e) {
         console.warn(e);
       }
@@ -103,7 +113,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
 
       return commitments;
     },
-    enabled: !!collateralTokenAddress,
+    enabled: !!collateralTokenAddress && !isFetchedV1 && !isFetchedV2,
   }) as {
     data: CommitmentType[];
     isLoading: boolean;

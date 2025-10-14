@@ -3,10 +3,10 @@ import request, { gql } from "graphql-request";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 
-import { getLiquidityPoolsGraphEndpoint } from "../../constants/liquidityPoolsGraphEndpoints";
 import { useGetGlobalPropsContext } from "../../contexts/GlobalPropsContext";
 import { createFingerprintHash } from "../../helpers/localStorageCache";
 import type { LenderGroupsPoolMetrics } from "../../types/lenderGroupsPoolMetrics";
+import { useGetGraphEndpoint } from "../useGetGraphEndpoint";
 import type { UserToken } from "../useGetUserTokens";
 import { useGraphURL } from "../useGraphURL";
 
@@ -35,8 +35,14 @@ const CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 export const useGetCommitmentsForUserTokens = () => {
   const chainId = useChainId();
   const graphURL = useGraphURL();
-  const lenderGroupsGraphUrlV1 = getLiquidityPoolsGraphEndpoint(chainId);
-  const lenderGroupsGraphUrlV2 = getLiquidityPoolsGraphEndpoint(chainId, true);
+  const { endpoint: endpointV1, isFetched: isFetchedV1 } = useGetGraphEndpoint(
+    chainId,
+    "v1"
+  );
+  const { endpoint: endpointV2, isFetched: isFetchedV2 } = useGetGraphEndpoint(
+    chainId,
+    "v2"
+  );
   const { userTokens, cacheKey, isLoading } = useGetGlobalPropsContext();
   const { address } = useAccount();
 
@@ -144,24 +150,28 @@ export const useGetCommitmentsForUserTokens = () => {
     queryFn: async () => {
       let metricsV1: LenderGroupsPoolMetrics[] = [];
       try {
-        metricsV1 = (
-          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
-            lenderGroupsGraphUrlV1,
-            lenderGroupsUserTokenCommitments
-          )
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+        if (endpointV1) {
+          metricsV1 = (
+            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+              endpointV1,
+              lenderGroupsUserTokenCommitments
+            )
+          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+        }
       } catch (e) {
         console.warn(e);
       }
 
       let metricsV2: LenderGroupsPoolMetrics[] = [];
       try {
-        metricsV2 = (
-          await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
-            lenderGroupsGraphUrlV2,
-            lenderGroupsUserTokenCommitments
-          )
-        ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        if (endpointV2) {
+          metricsV2 = (
+            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+              endpointV2,
+              lenderGroupsUserTokenCommitments
+            )
+          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+        }
       } catch (e) {
         console.warn(e);
       }
@@ -175,7 +185,12 @@ export const useGetCommitmentsForUserTokens = () => {
         },
       }));
     },
-    enabled: userTokens.length > 0 && !!address && !!userTokensFingerprint,
+    enabled:
+      userTokens.length > 0 &&
+      !!address &&
+      !!userTokensFingerprint &&
+      isFetchedV1 &&
+      isFetchedV2,
   }) as {
     data: {
       group_pool_address: string;
