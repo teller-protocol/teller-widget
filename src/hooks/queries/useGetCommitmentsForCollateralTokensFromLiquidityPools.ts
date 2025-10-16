@@ -29,12 +29,12 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
   const collateralTokenCommitmentsDashboard = useMemo(
     () => gql`
       query groupDashboardCommitmentsFor${collateralTokenAddress} {
-        group_pool_metric(
+        groupPoolMetrics(
           where: {
-            collateral_token_address: {_eq: "${collateralTokenAddress?.toLowerCase()}" }
+            collateral_token_address: "${collateralTokenAddress?.toLowerCase()}"
             ${
               principalTokenForPair
-                ? `principal_token_address: {_eq: "${principalTokenForPair.toLowerCase()}"},`
+                ? `principal_token_address: "${principalTokenForPair.toLowerCase()}"`
                 : ""
             }
           }
@@ -72,11 +72,11 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
       try {
         if (endpointV1) {
           metricsV1 = (
-            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            await request<{ groupPoolMetrics: LenderGroupsPoolMetrics[] }>(
               endpointV1,
               collateralTokenCommitmentsDashboard
             )
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: false }));
         }
       } catch (e) {
         console.warn(e);
@@ -86,11 +86,11 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
       try {
         if (endpointV2) {
           metricsV2 = (
-            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            await request<{ groupPoolMetrics: LenderGroupsPoolMetrics[] }>(
               endpointV2,
               collateralTokenCommitmentsDashboard
             )
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: true }));
         }
       } catch (e) {
         console.warn(e);
@@ -113,7 +113,7 @@ export const useGetCommitmentsForCollateralTokensFromLiquidityPools = (
 
       return commitments;
     },
-    enabled: !!collateralTokenAddress && !isFetchedV1 && !isFetchedV2,
+    enabled: !!collateralTokenAddress && isFetchedV1 && isFetchedV2,
   }) as {
     data: CommitmentType[];
     isLoading: boolean;

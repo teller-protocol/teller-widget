@@ -23,16 +23,16 @@ export const useGetLiquidityPools = () => {
   const poolCommitmentsDashboard = useMemo(
     () => gql`
     query groupLiquidityPools {
-      group_pool_metric(
+      groupPoolMetrics(
         where: {
           ${
             singleWhitelistedToken
-              ? `collateral_token_address: {_eq: "${singleWhitelistedToken.toLowerCase()}"},`
+              ? `collateral_token_address: "${singleWhitelistedToken.toLowerCase()}"`
               : ""
           }
           ${
             principalTokenForPair
-              ? `principal_token_address: {_eq: "${principalTokenForPair.toLowerCase()}"},`
+              ? `principal_token_address: "${principalTokenForPair.toLowerCase()}"`
               : ""
           }
         }
@@ -77,9 +77,9 @@ export const useGetLiquidityPools = () => {
         if (endpointV1) {
           metricsV1 = (
             await request<{
-              group_pool_metric: LenderGroupsPoolMetrics[];
+              groupPoolMetrics: LenderGroupsPoolMetrics[];
             }>(endpointV1, poolCommitmentsDashboard)
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: false }));
         }
       } catch (e) {
         console.warn(e);
@@ -90,9 +90,9 @@ export const useGetLiquidityPools = () => {
         if (endpointV2) {
           metricsV2 = (
             await request<{
-              group_pool_metric: LenderGroupsPoolMetrics[];
+              groupPoolMetrics: LenderGroupsPoolMetrics[];
             }>(endpointV2, poolCommitmentsDashboard)
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: true }));
         }
       } catch (e) {
         console.warn(e);

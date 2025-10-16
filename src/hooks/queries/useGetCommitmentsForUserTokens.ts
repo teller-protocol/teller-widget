@@ -79,13 +79,11 @@ export const useGetCommitmentsForUserTokens = () => {
     () =>
       gql`
         query checkCommitmentsLenderGroups${address} {
-          group_pool_metric(
+          groupPoolMetrics(
             where: {
-              collateral_token_address: {
-                _in: ${JSON.stringify(
-                  Array.from(new Set(userTokens.map((token) => token.address)))
-                )}
-              }
+              collateral_token_address_in: ${JSON.stringify(
+                Array.from(new Set(userTokens.map((token) => token.address)))
+              )}
             }
           ) {
             group_pool_address
@@ -152,11 +150,11 @@ export const useGetCommitmentsForUserTokens = () => {
       try {
         if (endpointV1) {
           metricsV1 = (
-            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            await request<{ groupPoolMetrics: LenderGroupsPoolMetrics[] }>(
               endpointV1,
               lenderGroupsUserTokenCommitments
             )
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: false }));
         }
       } catch (e) {
         console.warn(e);
@@ -166,11 +164,11 @@ export const useGetCommitmentsForUserTokens = () => {
       try {
         if (endpointV2) {
           metricsV2 = (
-            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            await request<{ groupPoolMetrics: LenderGroupsPoolMetrics[] }>(
               endpointV2,
               lenderGroupsUserTokenCommitments
             )
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: true }));
         }
       } catch (e) {
         console.warn(e);

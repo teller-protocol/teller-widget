@@ -24,10 +24,10 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
   const collateralTokenCommitments = useMemo(
     () => gql`
       query rolloverableCommitmentsForCollateralTokenFromLiquidityPools_${collateralTokenAddress} {
-        group_pool_metric(
+        groupPoolMetrics(
           where: {
-            collateral_token_address: {_eq: "${collateralTokenAddress}"},
-            principal_token_address: {_eq: "${principalTokenAddress}"}
+            collateral_token_address: "${collateralTokenAddress}"
+            principal_token_address: "${principalTokenAddress}"
           }
           order_by: {collateral_ratio: desc}
         ) {
@@ -64,9 +64,9 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
         if (endpointV1) {
           metricsV1 = (
             await request<{
-              group_pool_metric: LenderGroupsPoolMetrics[];
+              groupPoolMetrics: LenderGroupsPoolMetrics[];
             }>(endpointV1, collateralTokenCommitments)
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: false }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: false }));
         }
       } catch (e) {
         console.warn(e);
@@ -76,11 +76,11 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
       try {
         if (endpointV2) {
           metricsV2 = (
-            await request<{ group_pool_metric: LenderGroupsPoolMetrics[] }>(
+            await request<{ groupPoolMetrics: LenderGroupsPoolMetrics[] }>(
               endpointV2,
               collateralTokenCommitments
             )
-          ).group_pool_metric.map((metric) => ({ ...metric, isV2: true }));
+          ).groupPoolMetrics.map((metric) => ({ ...metric, isV2: true }));
         }
       } catch (e) {
         console.warn(e);
@@ -88,11 +88,11 @@ export const useGetRolloverableCommitmentsFromLiquidityPools = (
 
       const metrics = [...metricsV2, ...metricsV1];
 
-      return { group_pool_metric: metrics };
+      return { groupPoolMetrics: metrics };
     },
     enabled: !!collateralTokenAddress && isFetchedV1 && isFetchedV2,
   }) as {
-    data: { group_pool_metric: LenderGroupsPoolMetrics[] };
+    data: { groupPoolMetrics: LenderGroupsPoolMetrics[] };
     isLoading: boolean;
   };
 
